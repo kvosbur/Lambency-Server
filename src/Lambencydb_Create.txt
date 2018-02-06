@@ -1,0 +1,78 @@
+CREATE DATABASE Lambencydb;
+
+CREATE USER 'lambencyuser'@'localhost' IDENTIFIED BY 'jCAbyTP<?VQ3)dv';
+
+GRANT SELECT,INSERT,UPDATE,DELETE ON Lambencydb.* TO 'name'@'localhost';
+
+USE Lambencydb;
+
+CREATE TABLE `User` (
+	`user_id` int NOT NULL AUTO_INCREMENT UNIQUE,
+	`first_name` varchar(50) NOT NULL,
+	`last_name` varchar(50) NOT NULL,
+	`user_email` varchar(100) NOT NULL UNIQUE,
+	`hash_password` TEXT,
+	`salt` TEXT,
+	`auth_code` TEXT,
+	PRIMARY KEY (`user_id`)
+);
+
+CREATE TABLE `Organization` (
+	`org_id` int NOT NULL AUTO_INCREMENT,
+	`name` varchar(300) NOT NULL UNIQUE,
+	`description` TEXT NOT NULL,
+	`org_email` varchar(100),
+	`org_ contact` int NOT NULL,
+	`date_created` DATETIME NOT NULL,
+	`org_img` TEXT,
+	`org_location` TEXT,
+	PRIMARY KEY (`org_id`)
+);
+
+CREATE TABLE `Groupies` (
+	`org_id` int NOT NULL,
+	`user_id` int NOT NULL,
+	`groupies_type` int NOT NULL,
+	`confirmed` bit NOT NULL
+);
+
+CREATE TABLE `Events` (
+	`event_id` int NOT NULL AUTO_INCREMENT,
+	`org_id` int NOT NULL,
+	`name` TEXT NOT NULL,
+	`start_time` DATETIME NOT NULL,
+	`end_time` DATETIME NOT NULL,
+	`description` TEXT NOT NULL,
+	`location` TEXT NOT NULL,
+	`event_img` TEXT NOT NULL,
+	PRIMARY KEY (`event_id`)
+);
+
+CREATE TABLE `Event_Attendence` (
+	`event_id` int NOT NULL,
+	`user_id` int NOT NULL,
+	`check_in_time` DATETIME,
+	`check_out_time` DATETIME
+);
+
+CREATE TABLE `Endorse` (
+	`org_id` int NOT NULL,
+	`endorsed_id` int NOT NULL,
+	`endorse_type` bit NOT NULL
+);
+
+CREATE TABLE `Message` (
+	`message_id` int NOT NULL AUTO_INCREMENT,
+	`sender_id` int NOT NULL,
+	`date_sent` DATETIME NOT NULL,
+	`message_text` TEXT NOT NULL,
+	`chat_id` int NOT NULL,
+	PRIMARY KEY (`message_id`)
+);
+
+CREATE TABLE `Chat` (
+	`chat_id` int NOT NULL AUTO_INCREMENT,
+	`user1_id` int NOT NULL,
+	`user2_id` int NOT NULL,
+	PRIMARY KEY (`chat_id`)
+);
