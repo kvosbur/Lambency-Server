@@ -2,7 +2,7 @@ CREATE DATABASE Lambencydb;
 
 CREATE USER 'lambencyuser'@'localhost' IDENTIFIED BY 'jCAbyTP<?VQ3)dv';
 
-GRANT SELECT,INSERT,UPDATE,DELETE ON Lambencydb.* TO 'name'@'localhost';
+GRANT SELECT,INSERT,UPDATE,DELETE ON Lambencydb.* TO 'lambencyuser'@'localhost';
 
 USE Lambencydb;
 
