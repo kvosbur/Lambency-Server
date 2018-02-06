@@ -2,12 +2,27 @@ import static spark.Spark.*;
 
 public class LambencyServer{
 
-    public static void main(String[]args){
+    /*
+    spark documentation
+    http://sparkjava.com/documentation
+     */
 
+    LambencyServer(){
+
+        addroutes();
+    }
+
+    private void addroutes(){
 
         // example of responding with a json object made from a java object
         get("/hello", "application/json", (request, response) -> {
-            return new Test();
+            return new Test(request.queryParams("var1"), request.queryParams("var2"));
         }, new JsonTransformer());
+    }
+
+
+    public static void main(String[]args){
+        LambencyServer ls = new LambencyServer();
+
     }
 }
