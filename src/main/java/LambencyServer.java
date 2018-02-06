@@ -9,5 +9,11 @@ public class LambencyServer{
         get("/hello", "application/json", (request, response) -> {
             return new Test();
         }, new JsonTransformer());
+        get("/hola/:name", "application/json", (request, response) -> {
+            return new Test(request.params(":name"));
+        }, new JsonTransformer());
+        get("/hallo/:name/", "application/json", (request, response) -> {
+            return new Test(request.params(":name"), request.queryParams("foo"));
+        }, new JsonTransformer());
     }
 }
