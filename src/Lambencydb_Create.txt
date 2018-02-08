@@ -15,6 +15,7 @@ CREATE TABLE `User` (
 	`salt` TEXT,
 	`facebook_id` TEXT,
 	`google_id` TEXT,
+	`oauth_token` TEXT,
 	PRIMARY KEY (`user_id`)
 );
 
