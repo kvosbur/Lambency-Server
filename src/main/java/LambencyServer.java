@@ -18,8 +18,8 @@ public class LambencyServer{
     public void addroutes(){
         // example of responding with a json object made from a java object
         get("/User/login/google", "application/json", (request, response) -> {
-            Test t = new Test();
-            return t.array;
+            GoogleLoginHandler glh = new GoogleLoginHandler();
+            return glh.getAuthenticator("token");
         }, new JsonTransformer());
         get("/hola/:name", "application/json", (request, response) -> {
             return new Test(request.params(":name"));
