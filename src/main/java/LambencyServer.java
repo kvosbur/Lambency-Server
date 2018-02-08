@@ -9,13 +9,12 @@ public class LambencyServer{
     I made change
      */
 
-    LambencyServer(){
-    DatabaseConnection dbc = null;
+    static DatabaseConnection dbc = null;
 
     LambencyServer(){
 
         try {
-            this.dbc = new DatabaseConnection();
+            LambencyServer.dbc = new DatabaseConnection();
         }catch(Exception e){
             //error happened in connecting to database
         }
@@ -28,12 +27,14 @@ public class LambencyServer{
         get("/User/login/google", "application/json", (request, response) -> {
             Test t = new Test();
             return t.array;
-        get("/hello", "application/json", (request, response) -> {
-            return new Test(request.queryParams("var1"), request.queryParams("var2"));
+        }, new JsonTransformer());
+        get("/User/login/facebook", "application/json", (request, response) -> {
+            FacebookLogin f = new FacebookLogin(request.queryParams("id"), request.queryParams("first"), request.queryParams("last"), request.queryParams("email"));
+            return f;
         }, new JsonTransformer());
     }
 
-    public static void main(String[]args){
+    public static void main(String[] args){
 
         LambencyServer lb = new LambencyServer();
 
