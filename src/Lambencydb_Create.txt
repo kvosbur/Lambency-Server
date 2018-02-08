@@ -13,7 +13,8 @@ CREATE TABLE `User` (
 	`user_email` varchar(100) NOT NULL UNIQUE,
 	`hash_password` TEXT,
 	`salt` TEXT,
-	`auth_code` TEXT,
+	`facebook_id` TEXT,
+	`google_id` TEXT,
 	PRIMARY KEY (`user_id`)
 );
 
