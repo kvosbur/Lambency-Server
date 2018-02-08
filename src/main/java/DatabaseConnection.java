@@ -26,14 +26,14 @@ public class DatabaseConnection {
 
     }
 
-    public void searchForUser(String oathCode){
+    public String searchForUser(String oathCode){
         /*
         type:
            1 - google
            2 - facebook
          */
 
-
+        return null;
     }
 
     public void createUser(String identifier, String firstName, String lastName, String email, int type){
