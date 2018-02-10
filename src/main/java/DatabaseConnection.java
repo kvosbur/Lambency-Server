@@ -5,6 +5,7 @@ public class DatabaseConnection {
     private Connection connect = null;
     public final static int GOOGLE = 1;
     public final static int FACEBOOK = 2;
+    public final static int LAMBNECYUSERID = 3;
 
     DatabaseConnection() throws Exception{
         // This will load the MySQL driver, each DB has its own driver
@@ -16,23 +17,76 @@ public class DatabaseConnection {
 
     }
 
-    public void searchForUser(String identifier, int type){
-        /*
-        type:
-           1 - google
-           2 - facebook
-         */
 
+    /**
+     Description: given unique string identifier return matching user object
 
+     @param identifier either represents google user id or facebook user id depending on situation
+     @param type whether it is a google or facebook login (static numbers defined at top)
+
+     @return returns user that matches given identifier
+     */
+
+    public User searchForUser(String identifier, int type) throws SQLException{
+
+        //figure query to use dependent on identifier type
+        String query;
+        String fields = "user_id, first_name, last_name, user_email, oauth_token";
+        if(type == GOOGLE){
+            query = "SELECT " + fields + " FROM user WHERE google_id = ?";
+        }else if(type == FACEBOOK) {
+            query = "SELECT " + fields + " FROM user WHERE facebook_id = ?";
+        }else if(type == LAMBNECYUSERID){
+            query = "SELECT " + fields + " FROM user WHERE user_id = ?";
+        }else{
+            throw new SQLException("Usage error please specifier valid type of identifier");
+        }
+
+        // run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setString(1, identifier);
+        ResultSet rs = ps.executeQuery();
+
+        //check if entry in results and if so create new user object with information
+        if(rs.next()){
+            return new User(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
+                    null, null,rs.getInt(1), 0, rs.getString(5));
+        }
+
+        return null;
     }
 
-    public String searchForUser(String oathCode){
-        /*
-        type:
-           1 - google
-           2 - facebook
-         */
 
+    /**
+     Description: given oauthCode
+
+     @param oauthCode oauthcode for the given user to search
+
+     @return returns user that matches given oauthCode
+     */
+
+    public User searchForUser(String oauthCode) throws SQLException{
+
+        //create string for query
+        String fields = "user_id, first_name, last_name, user_email, oauth_token";
+        String query = "SELECT " + fields + " FROM user WHERE oauth_token = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setString(1, oauthCode);
+        ResultSet rs = ps.executeQuery();
+
+
+        //check for results and if any then return user
+        if(rs.next()){
+            rs.getInt(1);
+            rs.getString(2);
+            rs.getString(3);
+            rs.getString(4);
+            rs.getString(5);
+            return new User(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
+                    null, null,rs.getInt(1), 0, rs.getString(5));
+        }
         return null;
     }
 
@@ -92,13 +146,55 @@ public class DatabaseConnection {
 
     }
 
+    /**
+     Description: given unique string identifier return matching user object
+
+     @param lambencyId userId of user
+     @param oauthCode string to be set as oauthCode for specified user
+
+     @return true = success, false = failure ( most failures will result in thrown exception )
+     */
+
+    public boolean setOauthCode(int lambencyId, String oauthCode) throws SQLException{
+
+
+        //check to make sure user exists
+        User user = this.searchForUser("" + lambencyId, LAMBNECYUSERID);
+        if (user == null){
+            return false;
+        }
+
+        //update user with new oauthCode
+        PreparedStatement ps = connect.prepareStatement("UPDATE user SET oauth_token = ? WHERE user_id = " + lambencyId);
+        ps.setString(1, oauthCode);
+        ps.executeUpdate();
+
+        return true;
+    }
+
     public static void main(String[] args) {
         try {
             DatabaseConnection db = new DatabaseConnection();
             System.out.println("connected successfully");
 
+            /*
+            test insertion of user
             int result = db.createUser("myggoogleidentity", "mock", "user", "dummy@dummy.com", GOOGLE);
             System.out.println(result);
+            */
+
+            /*
+            test oauth methods and searching for user
+            User user = db.searchForUser("myggoogleidentity", GOOGLE);
+            User user = db.searchForUser("" + user.getUserId(), LAMBNECYUSERID);
+            System.out.println(user.toString());
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            db.setOauthCode(4, ua.getoAuthCode());
+            User user = db.searchForUser(ua.gettoAuthCode());
+            System.out.println(user.toString());
+            */
+
+
         }catch(Exception e){
             e.printStackTrace();
         }
