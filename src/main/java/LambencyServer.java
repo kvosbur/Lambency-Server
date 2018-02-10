@@ -1,13 +1,13 @@
-import static spark.Spark.*;
+import static spark.Spark.get;
 
 public class LambencyServer{
 
-    DatabaseConnection dbc = null;
+    static DatabaseConnection dbc = null;
 
     LambencyServer(){
 
         try {
-            this.dbc = new DatabaseConnection();
+            LambencyServer.dbc = new DatabaseConnection();
         }catch(Exception e){
             //error happened in connecting to database
         }
@@ -21,12 +21,7 @@ public class LambencyServer{
             Test t = new Test();
             return t.array;
         }, new JsonTransformer());
-        get("/hola/:name", "application/json", (request, response) -> {
-            return new Test(request.params(":name"));
-        }, new JsonTransformer());
-        get("/hallo/:name/", "application/json", (request, response) -> {
-            return new Test(request.params(":name"), request.queryParams("foo"));
-        }, new JsonTransformer());
+
     }
 
     public static void main(String[]args){
