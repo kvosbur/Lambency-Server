@@ -34,7 +34,7 @@ public class LambencyServer{
         }, new JsonTransformer());
     }
 
-    public static void main(String[] args){
+    public static void main(String[]args){
 
         LambencyServer lb = new LambencyServer();
 
