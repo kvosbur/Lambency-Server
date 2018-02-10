@@ -18,11 +18,10 @@ public class FacebookLogin {
             user = LambencyServer.dbc.searchForUser(facebookId, 2);
             if(user != null){
                 //user exists
-                //success
+                //make and set oAuthCode
                 status = UserAuthenticator.Status.SUCCESS;
                 ua = new UserAuthenticator(status);
                 LambencyServer.dbc.setOauthCode(user.getUserId(), ua.getoAuthCode());
-                return ua;
             }
             else{
                 //user doesnt exist
@@ -32,15 +31,15 @@ public class FacebookLogin {
                 status = UserAuthenticator.Status.SUCCESS;
                 ua = new UserAuthenticator(status);
                 LambencyServer.dbc.setOauthCode(userId, ua.getoAuthCode());
-                return ua;
             }
         }
         catch (SQLException e){
             //error occurred
+            System.out.println("Exception from database");
             status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
             ua = new UserAuthenticator(status);
-            return ua;
         }
+        return ua;
 
     }
 }
