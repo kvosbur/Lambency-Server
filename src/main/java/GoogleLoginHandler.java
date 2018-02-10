@@ -13,7 +13,7 @@ public class GoogleLoginHandler {
 
     GoogleLoginHandler() {
 
-        GOOGLE_CLIENT_ID = "CLIENT_ID";
+        GOOGLE_CLIENT_ID = "406595282653-cc9eb7143bvpgfe5da941r3jq174b4dq.apps.googleusercontent.com";
     }
 
     public UserAuthenticator getAuthenticator(String idTokenString) {
