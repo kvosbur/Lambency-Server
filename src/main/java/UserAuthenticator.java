@@ -5,6 +5,7 @@ public class UserAuthenticator {
     public enum Status{
         SUCCESS,NON_UNIQUE_EMAIL,NON_DETERMINANT_ERROR
 
+
     }
 
     private final char[] charArray = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
@@ -16,6 +17,7 @@ public class UserAuthenticator {
     private String oAuthCode;
 
     UserAuthenticator(Status s){
+
         this.status = s;
         this.oAuthCode = generateOAuthCode();
 
@@ -27,13 +29,14 @@ public class UserAuthenticator {
     }
 
 
-//    public Status getStatus() {
-//        return status;
-//    }
-//
-//    public String getoAuthCode() {
-//        return oAuthCode;
-//    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public String getoAuthCode() {
+        return oAuthCode;
+    }
 
     private String generateOAuthCode(){
         StringBuilder code = new StringBuilder();

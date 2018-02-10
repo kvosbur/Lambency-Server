@@ -21,6 +21,14 @@ public class DatabaseConnection {
     /**
      Description: given unique string identifier return matching user object
 
+
+     @param identifier either represents google user id or facebook user id depending on situation
+     @param type whether it is a google or facebook login (static numbers defined at top)
+
+     @return returns user that matches given identifier
+     */
+
+
      @param identifier either represents google user id or facebook user id depending on situation
      @param type whether it is a google or facebook login (static numbers defined at top)
 
@@ -29,6 +37,33 @@ public class DatabaseConnection {
 
     public User searchForUser(String identifier, int type) throws SQLException{
 
+        //figure query to use dependent on identifier type
+        String query;
+        String fields = "user_id, first_name, last_name, user_email, oauth_token";
+        if(type == GOOGLE){
+            query = "SELECT " + fields + " FROM user WHERE google_id = ?";
+        }else if(type == FACEBOOK) {
+            query = "SELECT " + fields + " FROM user WHERE facebook_id = ?";
+        }else if(type == LAMBNECYUSERID){
+            query = "SELECT " + fields + " FROM user WHERE user_id = ?";
+        }else{
+            throw new SQLException("Usage error please specifier valid type of identifier");
+        }
+
+        // run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setString(1, identifier);
+        ResultSet rs = ps.executeQuery();
+
+        //check if entry in results and if so create new user object with information
+        if(rs.next()){
+            return new User(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
+                    null, null,rs.getInt(1), 0, rs.getString(5));
+        }
+
+        return null;
+    }
+    public User searchForUser(String identifier, int type) throws SQLException{
         //figure query to use dependent on identifier type
         String query;
         String fields = "user_id, first_name, last_name, user_email, oauth_token";
@@ -147,6 +182,20 @@ public class DatabaseConnection {
     }
 
     /**
+
+     Description: Given user information create a user profile that is either associated with a google or facebook profile
+
+     @param identifier either represents google user id or facebook user id depending on situation
+     @param firstName users first name
+     @param lastName users last name
+     @param email users email
+     @param type whether it is a google or facebook login (static numbers defined at top)
+
+     @return returns int of lambency user id  on success, NULL on failure
+     */
+
+    public int createUser(String identifier, String firstName, String lastName, String email, int type) throws SQLException{
+    /**
      Description: given unique string identifier return matching user object
 
      @param lambencyId userId of user
@@ -170,6 +219,39 @@ public class DatabaseConnection {
         ps.executeUpdate();
 
         return true;
+        //insert user into table
+        PreparedStatement ps = null;
+        if(type == FACEBOOK) {
+            ps = connect.prepareStatement("INSERT INTO user (first_name, last_name, user_email, facebook_id) VALUES ('TEMP',?,?,?)");
+        }else if(type == GOOGLE){
+            ps = connect.prepareStatement("INSERT INTO user (first_name, last_name, user_email, google_id) VALUES ('TEMP',?,?,?)");
+        }
+
+        if(ps != null) {
+            //insert values into prepare statement
+            ps.setString(1, lastName);
+            ps.setString(2, email);
+            ps.setString(3, identifier);
+
+            ps.execute();
+
+        }else{
+            throw new SQLException("Improper use. Please specify either a google or facebook login");
+        }
+
+        //get user id from sql table
+        Statement st = connect.createStatement();
+        ResultSet rs = st.executeQuery("SELECT user_id FROM user WHERE first_name = 'TEMP'");
+        rs.next();
+        int lambencyID = rs.getInt(1);
+
+        //update user with actual firstname
+        ps = connect.prepareStatement("UPDATE user SET first_name = ? WHERE user_id = " + lambencyID);
+        ps.setString(1, firstName);
+
+        ps.executeUpdate();
+
+        return lambencyID;
     }
 
     public static void main(String[] args) {
