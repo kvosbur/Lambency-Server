@@ -29,8 +29,8 @@ public class LambencyServer{
             return t.array;
         }, new JsonTransformer());
         get("/User/login/facebook", "application/json", (request, response) -> {
-            FacebookLogin f = new FacebookLogin(request.queryParams("id"), request.queryParams("first"), request.queryParams("last"), request.queryParams("email"));
-            return f;
+            UserAuthenticator ua = FacebookLogin.facebookLogin(request.queryParams("id"), request.queryParams("first"), request.queryParams("last"), request.queryParams("email"));
+            return ua.getoAuthCode();
         }, new JsonTransformer());
     }
 

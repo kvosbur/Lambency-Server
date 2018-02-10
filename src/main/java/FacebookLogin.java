@@ -1,20 +1,45 @@
-public class FacebookLogin {
-    public FacebookLogin(String facebookId, String firstName, String lastName, String email){
-        //TODO Do i need to verify with facebook or is that done in the front end?
-        //check if user exist
+import java.sql.SQLException;
 
-        LambencyServer.dbc.searchForUser(facebookId, 2);
-        boolean cond = true;
-        if(cond){
-            //user exists
-            //do something
-            //success
+public class FacebookLogin {
+    /**
+     *
+     * @param facebookId id from facebook API for a specific user
+     * @param firstName users first name
+     * @param lastName users last name
+     * @param email usrs email
+     * @return returns the UserAuthenicator object from the login attempt
+     */
+    public static UserAuthenticator facebookLogin(String facebookId, String firstName, String lastName, String email){
+        UserAuthenticator.Status status;
+        UserAuthenticator ua = null;
+        User user;
+        try{
+            //check if user exist
+            user = LambencyServer.dbc.searchForUser(facebookId, 2);
+            if(user != null){
+                //user exists
+                //success
+                status = UserAuthenticator.Status.SUCCESS;
+                ua = new UserAuthenticator(status);
+                LambencyServer.dbc.setOauthCode(user.getUserId(), ua.getoAuthCode());
+                return ua;
+            }
+            else{
+                //user doesnt exist
+                //create user
+                int userId = LambencyServer.dbc.createUser(facebookId, firstName, lastName, email, 2);
+                //make and set oAuthCode
+                status = UserAuthenticator.Status.SUCCESS;
+                ua = new UserAuthenticator(status);
+                LambencyServer.dbc.setOauthCode(userId, ua.getoAuthCode());
+                return ua;
+            }
         }
-        else{
-            //user doesnt exist
-            //create user
-            LambencyServer.dbc.createUser(facebookId,firstName,lastName,email,2);
-            //success
+        catch (SQLException e){
+            //error occurred
+            status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
+            ua = new UserAuthenticator(status);
+            return ua;
         }
 
     }
