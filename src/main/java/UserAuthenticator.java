@@ -3,7 +3,7 @@ import java.util.Random;
 public class UserAuthenticator {
 
     public enum Status{
-        SUCCESS,NON_UNIQUE_EMAIL,NON_DETERMINANT_ERROR, FAILURE
+        SUCCESS,NON_UNIQUE_EMAIL,NON_DETERMINANT_ERROR
 
     }
 
@@ -15,28 +15,33 @@ public class UserAuthenticator {
     private Status status;
     private String oAuthCode;
 
-    public UserAuthenticator(Status s){
+    UserAuthenticator(Status s){
         this.status = s;
         this.oAuthCode = generateOAuthCode();
 
     }
 
-
-    public Status getStatus() {
-        return status;
+    UserAuthenticator(Status s, String oCode){
+        this.status = s;
+        this.oAuthCode = oCode;
     }
 
-    public String getoAuthCode() {
-        return oAuthCode;
-    }
+
+//    public Status getStatus() {
+//        return status;
+//    }
+//
+//    public String getoAuthCode() {
+//        return oAuthCode;
+//    }
 
     private String generateOAuthCode(){
-        String code = "";
+        StringBuilder code = new StringBuilder();
         Random r = new Random();
         for(int i = 0; i < 20; i++){
-            code = code + charArray[r.nextInt(charArray.length)];
+            code.append(charArray[r.nextInt(charArray.length)]);
         }
-        return code;
+        return code.toString();
     }
 
 

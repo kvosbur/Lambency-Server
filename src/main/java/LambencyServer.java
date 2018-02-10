@@ -1,3 +1,5 @@
+import com.google.gson.JsonObject;
+
 import static spark.Spark.get;
 
 public class LambencyServer{
@@ -18,6 +20,7 @@ public class LambencyServer{
     public void addroutes(){
         // example of responding with a json object made from a java object
         get("/User/login/google", "application/json", (request, response) -> {
+            String token = request.queryParams("idToken");
             GoogleLoginHandler glh = new GoogleLoginHandler();
             return glh.getAuthenticator("token");
         }, new JsonTransformer());

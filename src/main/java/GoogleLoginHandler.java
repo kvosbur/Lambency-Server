@@ -29,7 +29,7 @@ public class GoogleLoginHandler {
         GoogleIdToken idToken ;
 
         DatabaseConnection dbc;
-        UserAuthenticator.Status status;
+        UserAuthenticator.Status status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
         UserAuthenticator ua = null;
         try {
             idToken = verifier.verify(idTokenString);
@@ -52,9 +52,10 @@ public class GoogleLoginHandler {
                 String sub = (String) payload.get("sub");
                 String aud = (String) payload.get("aud");
                 String iss = (String) payload.get("iss");
+                User us;
 
                 if (!emailVerified) {
-                    status = UserAuthenticator.Status.UNVERIFIED_EMAIL;
+                    status = UserAuthenticator.Status.NON_UNIQUE_EMAIL;
                     System.out.println("Failed to have verified email.");
                 }
                 else if(!(aud.equals(GOOGLE_CLIENT_ID))){
@@ -65,11 +66,11 @@ public class GoogleLoginHandler {
                     System.out.println("Error with comparing iss: "+iss);
                     status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
                 }
-                /*else if (dbc.searchForUser(sub,1)!= null) {
+                else if ((us = dbc.searchForUser(sub,1))!= null) {
                     // take OAuthCode from this user and set it in the UserAutneticator
-                    new UserAuthenticator(status, <get_id_from_uzer>);
+                    ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS, us.getOauthToken());
                 }
-                */else{
+                else{
                     dbc.createUser(sub, givenName, familyName, email, 1);
                     status = UserAuthenticator.Status.SUCCESS;
                     ua = new UserAuthenticator(status);
