@@ -17,7 +17,7 @@ public class UserAuthenticator {
 
     public UserAuthenticator(Status s){
         this.status = s;
-
+        this.oAuthCode = generateOAuthCode();
 
     }
 
