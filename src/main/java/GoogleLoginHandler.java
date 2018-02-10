@@ -72,9 +72,10 @@ public class GoogleLoginHandler {
                     ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS, us.getOauthToken());
                 }
                 else{
-                    dbc.createUser(sub, givenName, familyName, email, 1);
+                    int labID = dbc.createUser(sub, givenName, familyName, email, 1);
                     status = UserAuthenticator.Status.SUCCESS;
                     ua = new UserAuthenticator(status);
+                    dbc.setOauthCode(labID,ua.getoAuthCode());
                 }
 
 
