@@ -21,6 +21,10 @@ public class LambencyServer{
             Test t = new Test();
             return t.array;
         }, new JsonTransformer());
+        get("/Organization/create", "application/json", (request, response) -> {
+            Test t = new Test();
+            return t.array;
+        }, new JsonTransformer());
     }
 
     public static void main(String[]args){
