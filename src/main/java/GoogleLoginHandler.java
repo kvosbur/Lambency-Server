@@ -28,12 +28,11 @@ public class GoogleLoginHandler {
 // (Receive idTokenString by HTTPS POST)
         GoogleIdToken idToken ;
 
-        DatabaseConnection dbc;
+        DatabaseConnection dbc = LambencyServer.dbc;
         UserAuthenticator.Status status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
         UserAuthenticator ua = null;
         try {
             idToken = verifier.verify(idTokenString);
-            dbc = new DatabaseConnection();
             if (idToken != null) {
                 Payload payload = idToken.getPayload();
 
