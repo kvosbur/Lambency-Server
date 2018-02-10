@@ -9,67 +9,88 @@ import java.util.Collections;
 
 public class GoogleLoginHandler {
 
+    private final String GOOGLE_CLIENT_ID;
 
-    public GoogleLoginHandler() {
+    GoogleLoginHandler() {
 
+        GOOGLE_CLIENT_ID = "CLIENT_ID";
     }
 
     public UserAuthenticator getAuthenticator(String idTokenString) {
 
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
                 // Specify the CLIENT_ID of the app that accesses the backend:
-                .setAudience(Collections.singletonList("CLIENT_ID"))
+                .setAudience(Collections.singletonList(GOOGLE_CLIENT_ID))
                 // Or, if multiple clients access the backend:
                 //.setAudience(Arrays.asList(CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3))
                 .build();
 
 // (Receive idTokenString by HTTPS POST)
-        GoogleIdToken idToken = null;
+        GoogleIdToken idToken ;
 
-        DatabaseConnection dbc = null;
+        DatabaseConnection dbc;
         UserAuthenticator.Status status;
+        UserAuthenticator ua = null;
         try {
             idToken = verifier.verify(idTokenString);
-        } catch (Exception e) {
+            dbc = new DatabaseConnection();
+            if (idToken != null) {
+                Payload payload = idToken.getPayload();
 
-            System.out.println("Error: " + e);
-        }
-        if (idToken != null) {
-            Payload payload = idToken.getPayload();
+                // Print user identifier
+                String userId = payload.getSubject();
+                System.out.println("User ID: " + userId);
 
-            // Print user identifier
-            String userId = payload.getSubject();
-            System.out.println("User ID: " + userId);
+                // Get profile information from payload
+                String email = payload.getEmail();
+                boolean emailVerified = payload.getEmailVerified();
+//              String name = (String) payload.get("name");
+//              String pictureUrl = (String) payload.get("picture");
+//              String locale = (String) payload.get("locale");
+                String familyName = (String) payload.get("family_name");
+                String givenName = (String) payload.get("given_name");
+                String sub = (String) payload.get("sub");
+                String aud = (String) payload.get("aud");
+                String iss = (String) payload.get("iss");
 
-            // Get profile information from payload
-            String email = payload.getEmail();
-            boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
-            String name = (String) payload.get("name");
-            String pictureUrl = (String) payload.get("picture");
-            String locale = (String) payload.get("locale");
-            String familyName = (String) payload.get("family_name");
-            String givenName = (String) payload.get("given_name");
-            String sub = (String) payload.get("sub");
-
-            if (!emailVerified) {
-                status = UserAuthenticator.Status.UNVERIFIED_EMAIL;
-            } else {
-                try {
-                    dbc = new DatabaseConnection();
-                    dbc.createUser(sub, givenName, familyName, email, 1);
-                    status = UserAuthenticator.Status.SUCCESS;
-                } catch (Exception e) {
+                if (!emailVerified) {
+                    status = UserAuthenticator.Status.UNVERIFIED_EMAIL;
+                    System.out.println("Failed to have verified email.");
+                }
+                else if(!(aud.equals(GOOGLE_CLIENT_ID))){
+                    System.out.println("Error with comparing aud: "+aud);
                     status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
                 }
+                else if(!(iss.equals("https://accounts.google.com"))) { //&& !(iss.equals()))
+                    System.out.println("Error with comparing iss: "+iss);
+                    status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
+                }
+                /*else if (dbc.searchForUser(sub,1)!= null) {
+                    // take OAuthCode from this user and set it in the UserAutneticator
+                    new UserAuthenticator(status, <get_id_from_uzer>);
+                }
+                */else{
+                    dbc.createUser(sub, givenName, familyName, email, 1);
+                    status = UserAuthenticator.Status.SUCCESS;
+                    ua = new UserAuthenticator(status);
+                }
+
+
             }
+            else {
+                System.out.println("Invalid ID token.");
+                status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
+            }
+        } catch (Exception e) {
 
-
-        } else {
-            System.out.println("Invalid ID token.");
+            System.out.println("Exception from database: " + e);
             status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
         }
+        if(ua == null){
+            ua = new UserAuthenticator(status);
+        }
 
-        return new UserAuthenticator(status);
+        return ua;
     }
 
 
