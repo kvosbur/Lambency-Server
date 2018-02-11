@@ -23,6 +23,12 @@ public class LambencyServer{
             GoogleLoginHandler glh = new GoogleLoginHandler();
             return glh.getAuthenticator("token");
         }, new JsonTransformer());
+        get("/User/followOrg", "application/json", (request, response) -> {
+            String oAuthCode = request.queryParams("oAuthCode");
+            String orgID = request.queryParams("orgId");
+            Integer ret = User.followOrg(oAuthCode, orgID);
+            return ret;
+        }, new JsonTransformer());
 
     }
 
