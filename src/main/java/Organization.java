@@ -1,4 +1,6 @@
-import java.awt.*;
+import sun.jvm.hotspot.utilities.BitMap;
+
+
 import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 
@@ -12,10 +14,10 @@ public class Organization {
     public String description;
     public String email;
     public User contact;
-    public RenderedImage image;
+    public BitMap image;
     public ArrayList<User> organizers;
 
-    public Organization(User owner, String name, String location, int orgID, String description, String email, User contact, RenderedImage image) {
+    public Organization(User owner, String name, String location, int orgID, String description, String email, User contact, BitMap image) {
         this.owner = owner;
         this.name = name;
         this.location = location;
@@ -99,11 +101,11 @@ public class Organization {
         this.contact = contact;
     }
 
-    public RenderedImage getImage() {
+    public BitMap getImage() {
         return image;
     }
 
-    public void setImage(RenderedImage image) {
+    public void setImage(BitMap image) {
         this.image = image;
     }
 

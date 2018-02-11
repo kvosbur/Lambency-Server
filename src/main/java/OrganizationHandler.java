@@ -1,3 +1,5 @@
+import sun.jvm.hotspot.utilities.BitMap;
+
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 
@@ -14,7 +16,7 @@ public class OrganizationHandler {
     public static int createOrganization(Organization org){
 
         // Saves the orgs image to a file
-        RenderedImage toSave = org.image;
+        BitMap toSave = org.image;
         String path = null;
         int status;
         try {
