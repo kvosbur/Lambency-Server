@@ -26,7 +26,7 @@ public class LambencyServer{
         get("/User/followOrg", "application/json", (request, response) -> {
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgId");
-            Integer ret = User.followOrg(oAuthCode, orgID);
+            Integer ret = UserHandler.followOrg(oAuthCode, orgID);
             return ret;
         }, new JsonTransformer());
 
