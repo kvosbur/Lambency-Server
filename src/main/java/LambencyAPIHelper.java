@@ -13,14 +13,16 @@ public class LambencyAPIHelper implements Callback<UserAuthenticator> {
         Gson gson = new GsonBuilder().setLenient().create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://localhost:20000")
+                .baseUrl("http://localhost:4567")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         LambencyAPI lambencyAPI = retrofit.create(LambencyAPI.class);
 
-        Call<UserAuthenticator> call = lambencyAPI.getAllLocations("my test id");
+        Call<UserAuthenticator> call = lambencyAPI.getGoogleLogin("my test id");
         call.enqueue(this);
+        Call<UserAuthenticator> call2 = lambencyAPI.getFacebookLogin("id", "first", "last", "email.com");
+        call2.enqueue(this);
     }
 
     @Override
