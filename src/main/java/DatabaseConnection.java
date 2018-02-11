@@ -174,6 +174,35 @@ public class DatabaseConnection {
         return true;
     }
 
+    /**
+     Description: Given user information create a user profile that is either associated with a google or facebook profile
+
+     @param lambencyID userid that is stored in the table
+     @param firstName users first name to be changed to
+     @param lastName users last name to be changed to
+     @param email users email to be changed to
+
+     @return returns User object of updated values
+     */
+
+    public User modifyUserInfo(int lambencyID, String firstName, String lastName, String email) throws SQLException{
+
+        //create prepare statement for sql query
+        PreparedStatement ps = connect.prepareStatement("UPDATE user SET first_name = ? , last_name = ?, " +
+                "user_email = ? WHERE user_id = ?");
+
+        //set parameters for prepared statement
+        ps.setString(1,firstName);
+        ps.setString(2,lastName);
+        ps.setString(3,email);
+        ps.setInt(4,lambencyID);
+
+        //execute query
+        ps.executeUpdate();
+
+        return searchForUser("" + lambencyID, LAMBNECYUSERID);
+    }
+
     public static void main(String[] args) {
         try {
             DatabaseConnection db = new DatabaseConnection();
@@ -195,7 +224,11 @@ public class DatabaseConnection {
             User user = db.searchForUser(ua.gettoAuthCode());
             System.out.println(user.toString());
             */
-
+            /*
+            test modifing user data
+            User user = db.modifyUserInfo(4, "changedFirst", "changedLast", "changedemail@changed.com");
+            System.out.println(user.toString());
+            */
 
         }catch(Exception e){
             e.printStackTrace();
