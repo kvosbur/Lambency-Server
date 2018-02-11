@@ -21,12 +21,12 @@ public class DatabaseConnection {
     /**
      Description: given unique string identifier return matching user object
 
+
      @param identifier either represents google user id or facebook user id depending on situation
      @param type whether it is a google or facebook login (static numbers defined at top)
 
      @return returns user that matches given identifier
      */
-
 
     public User searchForUser(String identifier, int type) throws SQLException{
 
@@ -56,6 +56,7 @@ public class DatabaseConnection {
 
         return null;
     }
+
 
 
     /**
@@ -146,7 +147,6 @@ public class DatabaseConnection {
         return lambencyID;
 
     }
-
 
     /**
      Description: given unique string identifier return matching user object
