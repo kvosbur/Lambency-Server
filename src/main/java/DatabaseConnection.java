@@ -62,6 +62,11 @@ public class DatabaseConnection {
 
      @param oauthCode oauthcode for the given user to search
 
+    /**
+     Description: given oauthCode
+
+     @param oauthCode oauthcode for the given user to search
+
      @return returns user that matches given oauthCode
      */
 

@@ -1,12 +1,13 @@
-import static spark.Spark.*;
+
+import static spark.Spark.get;
 
 public class LambencyServer{
+
 
     /*
     spark documentation
     http://sparkjava.com/documentation
     localhost:4567/hello
-    I made change
      */
 
     static DatabaseConnection dbc = null;
@@ -25,8 +26,9 @@ public class LambencyServer{
     public void addroutes(){
         // example of responding with a json object made from a java object
         get("/User/login/google", "application/json", (request, response) -> {
-            Test t = new Test();
-            return t.array;
+            String token = request.queryParams("idToken");
+            GoogleLoginHandler glh = new GoogleLoginHandler();
+            return glh.getAuthenticator("token");
         }, new JsonTransformer());
         get("/User/login/facebook", "application/json", (request, response) -> {
             UserAuthenticator ua = FacebookLogin.facebookLogin(request.queryParams("id"), request.queryParams("first"), request.queryParams("last"), request.queryParams("email"));
