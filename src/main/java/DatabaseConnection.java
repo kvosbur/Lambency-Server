@@ -21,7 +21,6 @@ public class DatabaseConnection {
     /**
      Description: given unique string identifier return matching user object
 
-
      @param identifier either represents google user id or facebook user id depending on situation
      @param type whether it is a google or facebook login (static numbers defined at top)
 
@@ -58,6 +57,10 @@ public class DatabaseConnection {
     }
 
 
+    /**
+     Description: given oauthCode
+
+     @param oauthCode oauthcode for the given user to search
 
     /**
      Description: given oauthCode
