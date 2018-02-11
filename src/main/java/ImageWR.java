@@ -1,16 +1,13 @@
-import sun.jvm.hotspot.utilities.BitMap;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Base64;
 import java.util.Date;
 
 public class ImageWR {
@@ -101,7 +98,7 @@ public class ImageWR {
             imageByte = decoder.decodeBuffer(returned);
             ByteArrayInputStream bis = new ByteArrayInputStream(imageByte);
             BufferedImage image = ImageIO.read(bis);
-            //showImage(image);
+            showImage(image);
             bis.close();
 
 
