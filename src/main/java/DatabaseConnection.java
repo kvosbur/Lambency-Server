@@ -27,7 +27,7 @@ public class DatabaseConnection {
      @return returns user that matches given identifier
      */
 
-    }
+
     public User searchForUser(String identifier, int type) throws SQLException{
 
         //figure query to use dependent on identifier type
