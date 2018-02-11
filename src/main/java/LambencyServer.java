@@ -1,8 +1,17 @@
+
 import com.google.gson.Gson;
 
 import static spark.Spark.*;
 
+
 public class LambencyServer{
+
+
+    /*
+    spark documentation
+    http://sparkjava.com/documentation
+    localhost:4567/hello
+     */
 
     static DatabaseConnection dbc = null;
 
@@ -23,6 +32,7 @@ public class LambencyServer{
             String token = request.queryParams("idToken");
             GoogleLoginHandler glh = new GoogleLoginHandler();
             return glh.getAuthenticator("token");
+
         }, new JsonTransformer());
         get("/User/followOrg", "application/json", (request, response) -> {
             String oAuthCode = request.queryParams("oAuthCode");
@@ -34,6 +44,13 @@ public class LambencyServer{
                 (request, response) ->
                         OrganizationHandler.createOrganization( new Gson().fromJson(request.body(), Organization.class))
                 , new JsonTransformer());
+
+        }, new JsonTransformer());
+        get("/User/login/facebook", "application/json", (request, response) -> {
+            UserAuthenticator ua = FacebookLogin.facebookLogin(request.queryParams("id"), request.queryParams("first"), request.queryParams("last"), request.queryParams("email"));
+            return ua.getoAuthCode();
+        }, new JsonTransformer());
+
     }
 
     public static void main(String[]args){

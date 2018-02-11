@@ -5,7 +5,6 @@ public class UserAuthenticator {
     public enum Status{
         SUCCESS,NON_UNIQUE_EMAIL,NON_DETERMINANT_ERROR
 
-
     }
 
     private final char[] charArray = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
@@ -27,7 +26,6 @@ public class UserAuthenticator {
         this.status = s;
         this.oAuthCode = oCode;
     }
-
 
 
     public Status getStatus() {
