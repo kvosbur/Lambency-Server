@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.util.ArrayList;
 
 public class Organization {
@@ -10,10 +11,10 @@ public class Organization {
     public String description;
     public String email;
     public User contact;
-    public String image;
+    public Image image;
     public ArrayList<User> organizers;
 
-    public Organization(User owner, String name, String location, int orgID, String description, String email, User contact, String image) {
+    public Organization(User owner, String name, String location, int orgID, String description, String email, User contact, Image image) {
         this.owner = owner;
         this.name = name;
         this.location = location;
@@ -97,11 +98,11 @@ public class Organization {
         this.contact = contact;
     }
 
-    public String getImage() {
+    public Image getImage() {
         return image;
     }
 
-    public void setImage(String image) {
+    public void setImage(Image image) {
         this.image = image;
     }
 

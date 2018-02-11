@@ -3,6 +3,7 @@ import sun.misc.BASE64Encoder;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -20,6 +21,17 @@ public class ImageWR {
 
     }
 
+    public static String makeEncodingFromImage(Image img){
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        ImageIo.w
+        ImageIO.write(img, "png", os);
+        os.flush();
+        BASE64Encoder encoder = new BASE64Encoder();
+        String imageString = encoder.encode(os.toByteArray());
+        System.out.println("Encoded: "+imageString);
+        os.close();
+    }
+
     /*
         Returns a string representing the file path to the image
         the input should be an image encoded using a base 64 encoding.
@@ -30,7 +42,7 @@ public class ImageWR {
         @throws     `      : IOException when there is an issue writing to a file
      */
 
-    public String writeImageToFile(String imgEncoding) throws IOException{
+    public static String writeImageToFile(String imgEncoding) throws IOException{
         System.out.println("Write");
 
         String path = "~/Lambency/files/images/";
@@ -60,7 +72,7 @@ public class ImageWR {
         @throws         : IOException if error writing to file
 
      */
-    public String getEncodedImageFromFile(String filepath) throws IOException{
+    public static String getEncodedImageFromFile(String filepath) throws IOException{
         System.out.println("Read");
         File file = new File(filepath);
         FileReader fileReader = new FileReader(file);

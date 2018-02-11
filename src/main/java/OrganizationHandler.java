@@ -1,12 +1,13 @@
 public class OrganizationHandler {
 
 
-    OrganizationHandler(){
+    /**
+     *
+     * @param org
+     * @return
+     */
+    public static int createOrganization(Organization org){
 
-
-    }
-
-    public int createOrganization(){
 
 
     }

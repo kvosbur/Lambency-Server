@@ -1,6 +1,4 @@
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import static spark.Spark.*;
 
@@ -33,9 +31,7 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
         post("/Organization/create", "application/json", (request, response) -> {
-
-                new Gson().fromJson(request.body(), OrganizationHandler.class);
-                return new Test();
+                return OrganizationHandler.createOrganization( new Gson().fromJson(request.body(), Organization.class));
         }, new JsonTransformer());
     }
 

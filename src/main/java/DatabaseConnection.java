@@ -174,6 +174,24 @@ public class DatabaseConnection {
         return true;
     }
 
+    /**
+     *
+     * @param name
+     * @param description
+     * @param email
+     * @param userContact_id
+     * @param location
+     * @param img_path
+     * @param organizer_id
+     *
+     * @return  -1 if failure otherwise return org_id
+     */
+
+    public int createOrganization(String name, String description, String email, int userContact_id, String location, String img_path, int organizer_id ){
+
+        return -1;
+    }
+
     public static void main(String[] args) {
         try {
             DatabaseConnection db = new DatabaseConnection();
