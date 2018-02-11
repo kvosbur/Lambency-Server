@@ -3,6 +3,13 @@ import static spark.Spark.get;
 
 public class LambencyServer{
 
+
+    /*
+    spark documentation
+    http://sparkjava.com/documentation
+    localhost:4567/hello
+     */
+
     static DatabaseConnection dbc = null;
 
     LambencyServer(){
@@ -23,7 +30,10 @@ public class LambencyServer{
             GoogleLoginHandler glh = new GoogleLoginHandler();
             return glh.getAuthenticator("token");
         }, new JsonTransformer());
-
+        get("/User/login/facebook", "application/json", (request, response) -> {
+            UserAuthenticator ua = FacebookLogin.facebookLogin(request.queryParams("id"), request.queryParams("first"), request.queryParams("last"), request.queryParams("email"));
+            return ua.getoAuthCode();
+        }, new JsonTransformer());
     }
 
     public static void main(String[]args){
