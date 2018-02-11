@@ -12,54 +12,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Date;
-import android.graphics.Bitmap;
 
 public class ImageWR {
 
 
 
-    public static String makeEncodingFromImage(BitMap bm){
-        BitMap immagex = bm;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        immagex.compress(Bitmap.CompressFormat.PNG, 90, baos);
-        byte[] b = baos.toByteArray();
-        String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
-        return imageEncoded;
-    }
 
 
-    /**
-     * This method will take in an image and transform it to a base 64 encoded string
-     *
-     * @param img   a Rendered Image that has to be encoded
-     * @return  returns String that has a base 64 encoding
-     * @throws IOException In the case there is an error turning image into byte array
-     */
-    public static String makeEncodingFromImage(RenderedImage img) throws IOException{
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        ImageIO.write(img, "png", os);
-        os.flush();
-        BASE64Encoder encoder = new BASE64Encoder();
-        String imageString = encoder.encode(os.toByteArray());
-        return imageString;
-    }
-
-    /**
-     * This method will take a base 64 string and try to turn it into an image.
-     *
-     * @param encoding  A String that represents a base 64 encoded image
-     * @return          Returns an image that was decoded from the string
-     * @throws IOException  Throws the exception if the decoder fails to decode the string
-     */
-
-    public static RenderedImage makeImageFromEncoding(String encoding) throws  IOException{
-        byte[] imageByte;
-        BASE64Decoder decoder = new BASE64Decoder();
-        imageByte = decoder.decodeBuffer(encoding);
-        ByteArrayInputStream bis = new ByteArrayInputStream(imageByte);
-        BufferedImage image = ImageIO.read(bis);
-        return image;
-    }
 
     /**
         Returns a string representing the file path to the image

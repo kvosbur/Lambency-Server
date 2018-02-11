@@ -14,10 +14,10 @@ public class Organization {
     public String description;
     public String email;
     public User contact;
-    public BitMap image;
+    public String image;
     public ArrayList<User> organizers;
 
-    public Organization(User owner, String name, String location, int orgID, String description, String email, User contact, BitMap image) {
+    public Organization(User owner, String name, String location, int orgID, String description, String email, User contact, String image) {
         this.owner = owner;
         this.name = name;
         this.location = location;
@@ -101,11 +101,11 @@ public class Organization {
         this.contact = contact;
     }
 
-    public BitMap getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(BitMap image) {
+    public void setImage(String image) {
         this.image = image;
     }
 

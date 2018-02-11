@@ -16,12 +16,10 @@ public class OrganizationHandler {
     public static int createOrganization(Organization org){
 
         // Saves the orgs image to a file
-        BitMap toSave = org.image;
         String path = null;
         int status;
-        try {
-            String encoding = ImageWR.makeEncodingFromImage(toSave);
-            path = ImageWR.writeImageToFile(encoding);
+        try {;
+            path = ImageWR.writeImageToFile(org.getImage());
 
         } catch (IOException e) {
             System.out.println("Error adding image.");
