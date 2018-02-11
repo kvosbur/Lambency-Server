@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -17,22 +18,41 @@ import java.util.Date;
 
 public class ImageWR {
 
-    ImageWR(){
 
-    }
-
-    public static String makeEncodingFromImage(Image img){
+    /**
+     * This method will take in an image and transform it to a base 64 encoded string
+     *
+     * @param img   a Rendered Image that has to be encoded
+     * @return  returns String that has a base 64 encoding
+     * @throws IOException In the case there is an error turning image into byte array
+     */
+    public static String makeEncodingFromImage(RenderedImage img) throws IOException{
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        ImageIo.w
         ImageIO.write(img, "png", os);
         os.flush();
         BASE64Encoder encoder = new BASE64Encoder();
         String imageString = encoder.encode(os.toByteArray());
-        System.out.println("Encoded: "+imageString);
-        os.close();
+        return imageString;
     }
 
-    /*
+    /**
+     * This method will take a base 64 string and try to turn it into an image.
+     *
+     * @param encoding  A String that represents a base 64 encoded image
+     * @return          Returns an image that was decoded from the string
+     * @throws IOException  Throws the exception if the decoder fails to decode the string
+     */
+
+    public static RenderedImage makeImageFromEncoding(String encoding) throws  IOException{
+        byte[] imageByte;
+        BASE64Decoder decoder = new BASE64Decoder();
+        imageByte = decoder.decodeBuffer(encoding);
+        ByteArrayInputStream bis = new ByteArrayInputStream(imageByte);
+        BufferedImage image = ImageIO.read(bis);
+        return image;
+    }
+
+    /**
         Returns a string representing the file path to the image
         the input should be an image encoded using a base 64 encoding.
 
@@ -63,7 +83,7 @@ public class ImageWR {
         return path+fileName;
     }
 
-    /*
+    /**
 
         Returns the base 64 encoded string stored in a file represented by 'filepath'
 
@@ -100,19 +120,20 @@ public class ImageWR {
             os.flush();
             BASE64Encoder encoder = new BASE64Encoder();
             String imageString = encoder.encode(os.toByteArray());
-            System.out.println("Encoded: "+imageString);
+            //System.out.println("Encoded: "+imageString);
             os.close();
             ImageWR iwr = new ImageWR();
             String ptName = iwr.writeImageToFile(imageString);
+            System.out.println(ptName);
 
             byte[] imageByte;
             BASE64Decoder decoder = new BASE64Decoder();
             String returned = iwr.getEncodedImageFromFile(ptName);
-            System.out.println("returned: "+returned);
+            //System.out.println("returned: "+returned);
             imageByte = decoder.decodeBuffer(returned);
             ByteArrayInputStream bis = new ByteArrayInputStream(imageByte);
             BufferedImage image = ImageIO.read(bis);
-            showImage(image);
+            //showImage(image);
             bis.close();
 
 

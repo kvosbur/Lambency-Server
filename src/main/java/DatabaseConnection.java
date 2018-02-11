@@ -187,7 +187,7 @@ public class DatabaseConnection {
      * @return  -1 if failure otherwise return org_id
      */
 
-    public int createOrganization(String name, String description, String email, int userContact_id, String location, String img_path, int organizer_id ){
+    public int createOrganization(String name, String description, String email, int userContact_id, String location, String img_path, int organizer_id ) throws SQLException{
 
         return -1;
     }

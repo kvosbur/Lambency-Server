@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 
 public class Organization {
@@ -11,10 +12,10 @@ public class Organization {
     public String description;
     public String email;
     public User contact;
-    public Image image;
+    public RenderedImage image;
     public ArrayList<User> organizers;
 
-    public Organization(User owner, String name, String location, int orgID, String description, String email, User contact, Image image) {
+    public Organization(User owner, String name, String location, int orgID, String description, String email, User contact, RenderedImage image) {
         this.owner = owner;
         this.name = name;
         this.location = location;
@@ -98,11 +99,11 @@ public class Organization {
         this.contact = contact;
     }
 
-    public Image getImage() {
+    public RenderedImage getImage() {
         return image;
     }
 
-    public void setImage(Image image) {
+    public void setImage(RenderedImage image) {
         this.image = image;
     }
 

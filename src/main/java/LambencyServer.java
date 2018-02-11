@@ -30,9 +30,10 @@ public class LambencyServer{
             Integer ret = User.followOrg(oAuthCode, orgID);
             return ret;
         }, new JsonTransformer());
-        post("/Organization/create", "application/json", (request, response) -> {
-                return OrganizationHandler.createOrganization( new Gson().fromJson(request.body(), Organization.class));
-        }, new JsonTransformer());
+        post("/Organization/create", "application/json",
+                (request, response) ->
+                        OrganizationHandler.createOrganization( new Gson().fromJson(request.body(), Organization.class))
+                , new JsonTransformer());
     }
 
     public static void main(String[]args){
