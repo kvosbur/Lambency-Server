@@ -6,12 +6,12 @@ import static spark.Spark.*;
 
 public class LambencyServer{
 
-    DatabaseConnection dbc = null;
+    static DatabaseConnection dbc = null;
 
     LambencyServer(){
 
         try {
-            this.dbc = new DatabaseConnection();
+            LambencyServer.dbc = new DatabaseConnection();
         }catch(Exception e){
             //error happened in connecting to database
         }
@@ -22,8 +22,15 @@ public class LambencyServer{
     public void addroutes(){
         // example of responding with a json object made from a java object
         get("/User/login/google", "application/json", (request, response) -> {
-            Test t = new Test();
-            return t.array;
+            String token = request.queryParams("idToken");
+            GoogleLoginHandler glh = new GoogleLoginHandler();
+            return glh.getAuthenticator("token");
+        }, new JsonTransformer());
+        get("/User/followOrg", "application/json", (request, response) -> {
+            String oAuthCode = request.queryParams("oAuthCode");
+            String orgID = request.queryParams("orgId");
+            Integer ret = User.followOrg(oAuthCode, orgID);
+            return ret;
         }, new JsonTransformer());
         post("/Organization/create", "application/json", (request, response) -> {
 
