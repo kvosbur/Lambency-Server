@@ -1,6 +1,4 @@
-import sun.jvm.hotspot.utilities.BitMap;
 
-import java.awt.image.RenderedImage;
 import java.io.IOException;
 
 public class OrganizationHandler {
