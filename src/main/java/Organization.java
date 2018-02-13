@@ -1,7 +1,4 @@
-import sun.jvm.hotspot.utilities.BitMap;
 
-
-import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 
 public class Organization {
