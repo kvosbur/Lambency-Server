@@ -21,6 +21,7 @@ public class DatabaseConnection {
     /**
      Description: given unique string identifier return matching user object
 
+
      @param identifier either represents google user id or facebook user id depending on situation
      @param type whether it is a google or facebook login (static numbers defined at top)
 
@@ -55,6 +56,7 @@ public class DatabaseConnection {
 
         return null;
     }
+
 
 
     /**
@@ -177,6 +179,26 @@ public class DatabaseConnection {
         return true;
     }
 
+
+    /**
+     *
+     * @param name
+     * @param description
+     * @param email
+     * @param userContact_id
+     * @param location
+     * @param img_path
+     * @param organizer_id
+     *
+     * @return  -1 if failure otherwise return org_id
+     */
+
+    public int createOrganization(String name, String description, String email, int userContact_id, String location, String img_path, int organizer_id ) throws SQLException{
+
+        return -1;
+    }
+
+
     /**
      Description: Given user information create a user profile that is either associated with a google or facebook profile
 
@@ -204,6 +226,7 @@ public class DatabaseConnection {
         ps.executeUpdate();
 
         return searchForUser("" + lambencyID, LAMBNECYUSERID);
+
     }
 
     public static void main(String[] args) {
