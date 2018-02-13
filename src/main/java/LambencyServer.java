@@ -45,7 +45,6 @@ public class LambencyServer{
                         OrganizationHandler.createOrganization( new Gson().fromJson(request.body(), Organization.class))
                 , new JsonTransformer());
 
-        }, new JsonTransformer());
         get("/User/login/facebook", "application/json", (request, response) -> {
             UserAuthenticator ua = FacebookLogin.facebookLogin(request.queryParams("id"), request.queryParams("first"), request.queryParams("last"), request.queryParams("email"));
             return ua.getoAuthCode();
