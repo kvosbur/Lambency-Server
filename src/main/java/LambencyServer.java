@@ -44,7 +44,7 @@ public class LambencyServer{
                 (request, response) ->
                         OrganizationHandler.createOrganization( new Gson().fromJson(request.body(), Organization.class))
                 , new JsonTransformer());
-        post("/Organization/upate", "application/json",
+        post("/Event/update", "application/json",
                 (request, response) ->
                         EventHandler.updateEvent( new Gson().fromJson(request.body(), Event.class))
                 , new JsonTransformer());
