@@ -9,6 +9,8 @@ public class Event {
     private Timestamp end;
     private String description;
     private String location;
+    private double lattitude;
+    private double longitude;
     private String image_path; // file path for server only
     private String imageFile; // base 64 encoded
     private int event_id;
@@ -137,4 +139,19 @@ public class Event {
         return event_id;
     }
 
+    public double getLattitude() {
+        return lattitude;
+    }
+
+    public void setLattitude(double lattitude) {
+        this.lattitude = lattitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
 }
