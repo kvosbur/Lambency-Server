@@ -11,7 +11,7 @@ public class Event {
     private String location;
     private String image_path; // file path for server only
     private String imageFile; // base 64 encoded
-    private String event_id;
+    private int event_id;
 
     public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location) {
         this.name = name;
@@ -40,7 +40,7 @@ public class Event {
 
 
     public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
-                 String image_path, String event_id) {
+                 String image_path, int event_id) {
         this(name, org_id, start, end, description, location);
         this.image_path = image_path;
         this.event_id = event_id;
@@ -133,7 +133,7 @@ public class Event {
         this.imageFile = imageFile;
     }
 
-    public String getEvent_id() {
+    public int getEvent_id() {
         return event_id;
     }
 
