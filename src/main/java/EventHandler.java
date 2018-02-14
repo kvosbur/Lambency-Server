@@ -1,0 +1,26 @@
+import java.sql.SQLException;
+
+public class EventHandler {
+
+    /**
+     *
+     * @param event   Event that is to be added to the database
+     * @return  (int)   Will return 0 on success, 1 on failure
+     */
+
+
+    public static int createEvent(Event event) {
+
+        try {
+            LambencyServer.dbc.createEvent(event.getOrg_id(),event.getName(),event.getStart(),
+                    event.getEnd(),event.getDescription(),event.getLocation(),event.getImage_path());
+            return 1;
+        } catch (SQLException e) {
+            System.out.println("Error in creating event: "+event.getName());
+            return 0;
+        }
+
+    }
+
+
+}
