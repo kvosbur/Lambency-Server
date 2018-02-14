@@ -208,6 +208,39 @@ public class DatabaseConnection {
 
     }
 
+    /**
+     * Updates the event with the id event_id.
+     *
+     *
+     * @param event_id      int id of event that needs to be updated
+     * @param name          string name of event
+     * @param start         Timestamp of start time of event
+     * @param end           Timestamp of end time of event
+     * @param description   String description of event
+     * @param location      String location of event
+     * @param imgPath       String file path to image
+     * @throws SQLException Throws if there is an issue with the database
+     */
+
+    public void modifyEventInfo(int event_id, String name , Timestamp start, Timestamp end, String description, String location, String imgPath) throws SQLException{
+
+        //create prepare statement for sql query
+        PreparedStatement ps = connect.prepareStatement("UPDATE Events SET name = ? , start_time = ?, " +
+                "end_time = ? , description = ? , location = ? , event_image = ?  WHERE event_id = ?");
+
+        //set parameters for prepared statement
+        ps.setString(1, name);
+        ps.setObject(2,start);      // According to google, java should know how to turn a Timestamp object into a dateTime object for the db
+        ps.setObject(3,end);
+        ps.setString(4,description);
+        ps.setString(5, location);
+        ps.setString(6, imgPath);
+
+        //execute query
+        ps.executeUpdate();
+
+    }
+
 
 
     /**
