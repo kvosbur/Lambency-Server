@@ -88,6 +88,7 @@ public class GoogleLoginHandler {
 
             System.out.println("Exception from database: " + e);
             status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
+
         }
         if(ua == null){
             ua = new UserAuthenticator(status);
