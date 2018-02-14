@@ -23,4 +23,15 @@ public class EventHandler {
     }
 
 
+    public static int updateEvent(Event event) {
+        try{
+            LambencyServer.dbc.modifyEventInfo(event.getEvent_id(),event.getName(),event.getStart(),event.getEnd(),
+                    event.getDescription(),event.getLocation(),event.getImage_path());
+            return 1;
+        }
+        catch (SQLException e){
+            System.out.println("Error in updating Event: "+event.getName());
+            return 0;
+        }
+    }
 }
