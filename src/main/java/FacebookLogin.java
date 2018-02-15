@@ -14,6 +14,12 @@ public class FacebookLogin {
         UserAuthenticator ua = null;
         User user;
         try{
+            //check if email is valid
+            if(LambencyServer.dbc.verifyUserEmail(email) == -1){
+                status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
+                ua = new UserAuthenticator(status);
+                return ua;
+            }
             //check if user exist
             user = LambencyServer.dbc.searchForUser(facebookId, 2);
             if(user != null){
