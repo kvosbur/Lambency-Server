@@ -1,4 +1,6 @@
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 //TODO 235 searchForOrg(name)
 //TODO 283 modifyGroupies(userid, orgid, type)
@@ -29,6 +31,9 @@ public class DatabaseConnection {
     set following status
      */
 
+    /**
+     * BEGIN USER METHODS
+     */
 
     /**
      * Description: given unique string identifier return matching user object
@@ -68,7 +73,6 @@ public class DatabaseConnection {
     }
 
 
-
     /**
      Description: given oauthCode
 
@@ -106,6 +110,7 @@ public class DatabaseConnection {
         }
         return null;
     }
+
 
     /**
      Description: Given user information create a user profile that is either associated with a google or facebook profile
@@ -163,6 +168,72 @@ public class DatabaseConnection {
 
     }
 
+
+    /**
+     Description: given unique string identifier return matching user object
+
+     @param lambencyId userId of user
+     @param oauthCode string to be set as oauthCode for specified user
+
+     @return true = success, false = failure ( most failures will result in thrown exception )
+     */
+
+    public boolean setOauthCode(int lambencyId, String oauthCode) throws SQLException{
+
+
+        //check to make sure user exists
+        User user = this.searchForUser("" + lambencyId, LAMBNECYUSERID);
+        if (user == null){
+            return false;
+        }
+
+        //update user with new oauthCode
+        PreparedStatement ps = connect.prepareStatement("UPDATE user SET oauth_token = ? WHERE user_id = " + lambencyId);
+        ps.setString(1, oauthCode);
+        ps.executeUpdate();
+
+        return true;
+    }
+
+
+    /**
+     Description: Given user information create a user profile that is either associated with a google or facebook profile
+
+     @param lambencyID userid that is stored in the table
+     @param firstName users first name to be changed to
+     @param lastName users last name to be changed to
+     @param email users email to be changed to
+
+     @return returns User object of updated values
+     */
+
+    public User modifyUserInfo(int lambencyID, String firstName, String lastName, String email) throws SQLException{
+
+        //create prepare statement for sql query
+        PreparedStatement ps = connect.prepareStatement("UPDATE user SET first_name = ? , last_name = ?, " +
+                "user_email = ? WHERE user_id = ?");
+
+        //set parameters for prepared statement
+        ps.setString(1,firstName);
+        ps.setString(2,lastName);
+        ps.setString(3,email);
+        ps.setInt(4,lambencyID);
+
+        //execute query
+        ps.executeUpdate();
+
+        return searchForUser("" + lambencyID, LAMBNECYUSERID);
+
+    }
+
+    /**
+     * END USER METHODS
+     */
+
+    /**
+     * BEGIN EVENT METHODS
+     */
+
     /**
      *  Description: Creates an event in the database from these elements
      *
@@ -180,7 +251,6 @@ public class DatabaseConnection {
      *
      * @throws SQLException Throws the exception if there is an issue in the database.
      */
-
 
     public int createEvent(int org_id, String name , Timestamp start, Timestamp end, String description, String location, String imgPath, double latitude, double longitude) throws SQLException{
 
@@ -223,34 +293,78 @@ public class DatabaseConnection {
     }
 
 
-
     /**
-     Description: given unique string identifier return matching user object
-
-     @param lambencyId userId of user
-     @param oauthCode string to be set as oauthCode for specified user
-
-     @return true = success, false = failure ( most failures will result in thrown exception )
+     * Description : Search events by latitude and longitude locations
+     *
+     * @param latitude double which is latitude to search by
+     * @param longitude double which is the longitude to search by
+     *
+     * @return List of all event id's in the order of distance to coordinates
      */
 
-    public boolean setOauthCode(int lambencyId, String oauthCode) throws SQLException{
+    public List<Integer> searchEventsByLocation(double latitude, double longitude) throws SQLException{
 
+        //create string for query
+        String fields = "event_id, sqrt(pow(latitude - " + latitude + ",2) + " +
+                "pow(longitude - " + longitude + ",2)) as distance";
+        String query = "SELECT " + fields + " FROM events order by distance";
 
-        //check to make sure user exists
-        User user = this.searchForUser("" + lambencyId, LAMBNECYUSERID);
-        if (user == null){
-            return false;
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ResultSet rs = ps.executeQuery();
+
+        //create resulting list
+        List<Integer> results = new ArrayList<>();
+
+        //check for results and if any then return user
+        while(rs.next()){
+            results.add(rs.getInt(1));
         }
 
-        //update user with new oauthCode
-        PreparedStatement ps = connect.prepareStatement("UPDATE user SET oauth_token = ? WHERE user_id = " + lambencyId);
-        ps.setString(1, oauthCode);
-        ps.executeUpdate();
+        if(results.size() != 0){
+            return results;
+        }
 
-        return true;
+        return null;
     }
 
+    /**
+     * Description : Search events by latitude and longitude locations
+     *
+     * @param eventId Id of event to search for
+     *
+     * @return Event object of corresponding event id , null otherwise
+     */
 
+    public Event searchEvents(int eventId) throws SQLException{
+
+        //create string for query
+        String fields = "event_id, org_id, name, start_time, end_time, description," +
+                "location, event_img, latitude, longitude";
+        String query = "SELECT " + fields + " FROM events WHERE event_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventId);
+        ResultSet rs = ps.executeQuery();
+
+        //check for results and if any then return user
+        if(rs.next()){
+            return new Event(rs.getString(3),rs.getInt(2), rs.getTimestamp(4), rs.getTimestamp(5),
+                    rs.getString(6), rs.getString(7), rs.getString(8), rs.getInt(1),
+                    rs.getDouble(9), rs.getDouble(10));
+        }
+
+        return null;
+    }
+
+    /**
+     * END EVENT METHODS
+     */
+
+    /**
+     * BEGIN ORGANIZATION METHODS
+     */
     /**
      *
      * @param name the name of the organization
@@ -300,44 +414,16 @@ public class DatabaseConnection {
         return orgID;
     }
 
+
     /**
      * TODO
      * @param name name of the organization
      * @return null if no results, otherwise the organiztion
      */
+
     public Organization searchForOrg(String name){
 
         return null;
-    }
-
-    /**
-     Description: Given user information create a user profile that is either associated with a google or facebook profile
-
-     @param lambencyID userid that is stored in the table
-     @param firstName users first name to be changed to
-     @param lastName users last name to be changed to
-     @param email users email to be changed to
-
-     @return returns User object of updated values
-     */
-
-    public User modifyUserInfo(int lambencyID, String firstName, String lastName, String email) throws SQLException{
-
-        //create prepare statement for sql query
-        PreparedStatement ps = connect.prepareStatement("UPDATE user SET first_name = ? , last_name = ?, " +
-                "user_email = ? WHERE user_id = ?");
-
-        //set parameters for prepared statement
-        ps.setString(1,firstName);
-        ps.setString(2,lastName);
-        ps.setString(3,email);
-        ps.setInt(4,lambencyID);
-
-        //execute query
-        ps.executeUpdate();
-
-        return searchForUser("" + lambencyID, LAMBNECYUSERID);
-
     }
 
     /**
@@ -347,16 +433,30 @@ public class DatabaseConnection {
      * @param type type to be changed to: FOLLOW, MEMBER, or ORGANIZER
      * @return -1 on failure, else 0
      */
+
     public int modifyGroupies(int user_id, int org_id, int type){
         return -1;
     }
+
+    /**
+     * END ORGANIZATION METHODS
+     */
 
     public static void main(String[] args) {
         try {
             DatabaseConnection db = new DatabaseConnection();
             System.out.println("connected successfully");
 
-            db.createEvent(1,"event", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description", "location", "path", 23, 45);
+
+            /*
+            test for searching for events
+            Event event = db.searchEvents(2);
+            List<Integer> events = db.searchEventsByLocation(110,110);
+            for(Integer i: events){
+                System.out.println(i);
+            }
+            db.createEvent(1,"Another Event", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description", "location", "path", 100, 120);
+            */
             /*
             test of creation of org
             int result = db.createOrganization("org","this is an org","org@gmail.com", 123, "Purdue", "img", 123);
