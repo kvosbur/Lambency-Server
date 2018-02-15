@@ -2,13 +2,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO 235 searchForOrg(name)
 //TODO 283 modifyGroupies(userid, orgid, type)
 //TODO setFollowing, searchForOrg(orgID)
     /*
-    TODO:search organization by id
-    search for organization by name
-    search for event by location
+    TODO:
     search for following status
     set following status
      */
@@ -536,7 +533,27 @@ public class DatabaseConnection {
      * @return null if no results, otherwise the organiztion
      */
 
-    public Organization searchForOrg(String name){
+    public Organization searchForOrg(String name) throws SQLException{
+
+        //create string for query
+        String fields = "org_id, name, description, org_email," +
+                "`org_ contact`, org_img, org_location";
+        String query = "SELECT " + fields + " FROM organization WHERE name = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setString(1, name);
+        ResultSet rs = ps.executeQuery();
+
+        //check for results and if any then return user
+        if(rs.next()){
+            User owner = searchForUser("" + rs.getInt(5), LAMBNECYUSERID);
+            if(owner == null){
+                return null;
+            }
+            return new Organization(owner,rs.getString(2),rs.getString(7), rs.getInt(1),
+                    rs.getString(3),rs.getString(4),owner,rs.getString(6));
+        }
 
         return null;
     }
@@ -546,6 +563,27 @@ public class DatabaseConnection {
      * @return the organization corresponding to the org id
      */
     public Organization searchForOrg(int orgID) throws SQLException{
+
+        //create string for query
+        String fields = "org_id, name, description, org_email," +
+                "`org_ contact`, org_img, org_location";
+        String query = "SELECT " + fields + " FROM organization WHERE org_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, orgID);
+        ResultSet rs = ps.executeQuery();
+
+        //check for results and if any then return user
+        if(rs.next()){
+            User owner = searchForUser("" + rs.getInt(5), LAMBNECYUSERID);
+            if(owner == null){
+                return null;
+            }
+            return new Organization(owner,rs.getString(2),rs.getString(7), rs.getInt(1),
+                    rs.getString(3),rs.getString(4),owner,rs.getString(6));
+        }
+
         return null;
     }
 
@@ -591,6 +629,8 @@ public class DatabaseConnection {
         try {
             DatabaseConnection db = new DatabaseConnection();
             System.out.println("connected successfully");
+
+
             /*
             test for unique email
             db.createUser("123", "first", "last", "email.com", FACEBOOK);
