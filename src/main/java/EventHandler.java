@@ -30,7 +30,7 @@ public class EventHandler {
     public static int updateEvent(Event event) {
         try{
             LambencyServer.dbc.modifyEventInfo(event.getEvent_id(),event.getName(),event.getStart(),event.getEnd(),
-                    event.getDescription(),event.getLocation(),event.getImage_path());
+                    event.getDescription(),event.getLocation(),event.getImage_path(),event.getLattitude(),event.getLongitude());
             return 1;
         }
         catch (SQLException e){
