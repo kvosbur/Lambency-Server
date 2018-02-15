@@ -12,19 +12,24 @@ public class Event {
     private String image_path; // file path for server only
     private String imageFile; // base 64 encoded
     private int event_id;
+    private double lattitude;
+    private double longitude;
 
-    public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location) {
+    public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
+                 double lattitude, double longitude) {
         this.name = name;
         this.org_id = org_id;
         this.start = start;
         this.end = end;
         this.description = description;
         this.location = location;
+        this.lattitude = lattitude;
+        this.longitude = longitude;
     }
 
     public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
-                 String imageFile) {
-        this(name, org_id, start, end, description, location);
+                 String imageFile, double latitude, double longitude) {
+        this(name, org_id, start, end, description, location, latitude, longitude);
         try {
             updateImage(imageFile);
         } catch (IOException e) {
@@ -33,15 +38,14 @@ public class Event {
     }
 
     public Event(String image_path, String name, int org_id, Timestamp start,
-                 Timestamp end, String description, String location) {
-        this(name, org_id, start, end, description, location);
+                 Timestamp end, String description, String location, double latitude, double longitude) {
+        this(name, org_id, start, end, description, location, latitude, longitude);
         this.image_path = image_path;
     }
 
-
     public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
-                 String image_path, int event_id) {
-        this(name, org_id, start, end, description, location);
+                 String image_path, int event_id, double latitude, double longitude) {
+        this(name, org_id, start, end, description, location, latitude, longitude);
         this.image_path = image_path;
         this.event_id = event_id;
     }
@@ -56,6 +60,26 @@ public class Event {
         this.imageFile = encodedImage;
         this.image_path = ImageWR.writeImageToFile(encodedImage);
 
+    }
+
+    public void setEvent_id(int event_id) {
+        this.event_id = event_id;
+    }
+
+    public double getLattitude() {
+        return lattitude;
+    }
+
+    public void setLattitude(double lattitude) {
+        this.lattitude = lattitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 
     public String getName() {
