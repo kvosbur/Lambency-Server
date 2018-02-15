@@ -6,7 +6,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class LambencyAPIHelper implements Callback<UserAuthenticator> {
+public class LambencyAPIHelper {
 
 
     public LambencyAPI getInstance(){
@@ -38,34 +38,28 @@ public class LambencyAPIHelper implements Callback<UserAuthenticator> {
                     System.out.println("ERROR!!!!!");
                 }
                 //when response is back
-                System.out.println("SUCCESS");
                 UserAuthenticator ua = response.body();
-                System.out.println(ua.getoAuthCode());
-                System.out.println(ua.getStatus());
+                String authCode = ua.getoAuthCode();//System.out.println(ua.getoAuthCode());
+                //System.out.println(ua.getStatus());
+                if(ua.getStatus() == UserAuthenticator.Status.SUCCESS){
+                    //System.out.println("SUCCESS");
+                }
+                else if(ua.getStatus() == UserAuthenticator.Status.NON_DETERMINANT_ERROR){
+                    //System.out.println("NON_DETERMINANT_ERROR");
+                }
+                else if(ua.getStatus() == UserAuthenticator.Status.NON_UNIQUE_EMAIL){
+                    //System.out.println("NON_UNIQUE_EMAIL");
+                }
             }
 
             @Override
             public void onFailure(Call<UserAuthenticator> call, Throwable throwable) {
                 //when failure
-                System.out.println("FAILED");
+                System.out.println("FAILED CALL");
             }
         });
     }
 
-    @Override
-    public void onResponse(Call<UserAuthenticator> call, Response<UserAuthenticator> response) {
-        if(response.isSuccessful()) {
-            UserAuthenticator ua = response.body();
-            System.out.println(ua.getoAuthCode() + "\n" + ua.getStatus());
-        } else {
-            System.out.println(response.errorBody());
-        }
-    }
-
-    @Override
-    public void onFailure(Call<UserAuthenticator> call, Throwable t) {
-        t.printStackTrace();
-    }
 
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
