@@ -12,17 +12,19 @@ public class Event {
     private String image_path; // file path for server only
     private String imageFile; // base 64 encoded
     private int event_id;
+    private double latitude;
+    private double longitude;
 
 
     public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
-                 double lattitude, double longitude) {
+                 double latitude, double longitude) {
         this.name = name;
         this.org_id = org_id;
         this.start = start;
         this.end = end;
         this.description = description;
         this.location = location;
-        this.lattitude = lattitude;
+        this.latitude = latitude;
         this.longitude = longitude;
     }
 
@@ -141,11 +143,11 @@ public class Event {
     }
 
     public double getLattitude() {
-        return lattitude;
+        return latitude;
     }
 
-    public void setLattitude(double lattitude) {
-        this.lattitude = lattitude;
+    public void setLattitude(double latitude) {
+        this.latitude = latitude;
     }
 
     public double getLongitude() {
