@@ -196,17 +196,6 @@ public class DatabaseConnection {
 
         return true;
     }
-      /**
-     * TODO
-     * @param userID id of the usere
-     * @param orgID id of the organization
-     * @return returns 0 on success, -1 on error
-     */
-    public int setFollowing(int userID, int orgID) throws SQLException{
-        return -1;
-    }
-
-
     /**
      Description: Given user information create a user profile that is either associated with a google or facebook profile
 
@@ -421,7 +410,7 @@ public class DatabaseConnection {
         ps.setString(1, name);
         ps.executeUpdate();
 
-        modifyGroupies(organizer_id, orgID, ORGANIZER);
+        addGroupies(organizer_id, orgID, ORGANIZER, true);
         return orgID;
     }
 
@@ -447,17 +436,38 @@ public class DatabaseConnection {
 
     /**
      * TODO
-     * @param user_id the id of the user to be changed
+     * @param user_id the id of the user to be added
+     * @param org_id the id of the organization
+     * @param type type to be changed to: FOLLOW, MEMBER, or ORGANIZER
+     * @param confirmed whether the user status is confirmed
+     * @return -1 on failure, else 0
+     */
+
+    public int addGroupies(int user_id, int org_id, int type, boolean confirmed){
+        return -1;
+    }
+    /**
+     * TODO
+     * @param user_id the id of the user to be deleted
      * @param org_id the id of the organization
      * @param type type to be changed to: FOLLOW, MEMBER, or ORGANIZER
      * @return -1 on failure, else 0
      */
 
-    public int modifyGroupies(int user_id, int org_id, int type){
+    public int deleteGroupies(int user_id, int org_id, int type){
         return -1;
     }
+    /**
+     * TODO
+     * @param user_id the id of the user to be search for
+     * @param org_id the id of the organization
+     * @return Groupies a groupies object if exist, else return null
+     */
 
-  
+    public Groupies searchGroupies(int user_id, int org_id){
+        return null;
+    }
+
     /**
      * END ORGANIZATION METHODS
      */

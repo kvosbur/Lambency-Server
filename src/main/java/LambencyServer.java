@@ -38,6 +38,12 @@ public class LambencyServer{
             Integer ret = UserHandler.followOrg(oAuthCode, Integer.parseInt(orgID));
             return ret;
         }, new JsonTransformer());
+        post("/User/requestJoinOrg", "application/json", (request, response) -> {
+            String oAuthCode = request.queryParams("oAuthCode");
+            String orgID = request.queryParams("orgId");
+            Integer ret = UserHandler.requestJoinOrg(oAuthCode, Integer.parseInt(orgID));
+            return ret;
+        }, new JsonTransformer());
         post("/Organization/create", "application/json",
                 (request, response) ->
                         OrganizationHandler.createOrganization( new Gson().fromJson(request.body(), Organization.class))
