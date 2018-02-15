@@ -282,7 +282,7 @@ public class DatabaseConnection {
             ps.execute();
 
         }else{
-            throw new SQLException("Improper use. Please specify either a google or facebook login");
+            throw new SQLException("Improper use. There was an error in creating the SQL statement");
         }
 
         //get user id from sql table
