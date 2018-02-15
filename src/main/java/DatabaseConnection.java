@@ -4,8 +4,15 @@ import java.util.List;
 
 //TODO 235 searchForOrg(name)
 //TODO 283 modifyGroupies(userid, orgid, type)
-public class DatabaseConnection {
 //TODO setFollowing, searchForOrg(orgID)
+    /*
+    TODO:search organization by id
+    search for organization by name
+    search for event by location
+    search for following status
+    set following status
+     */
+public class DatabaseConnection {
     private Connection connect = null;
     public final static int GOOGLE = 1;
     public final static int FACEBOOK = 2;
@@ -23,13 +30,6 @@ public class DatabaseConnection {
 
     }
 
-    /*
-    TODO:search organization by id
-    search for organization by name
-    search for event by location
-    search for following status
-    set following status
-     */
 
     /**
      * BEGIN USER METHODS
@@ -444,6 +444,7 @@ public class DatabaseConnection {
     public Organization searchForOrg(int orgID) throws SQLException{
         return null;
     }
+
     /**
      * TODO
      * @param user_id the id of the user to be changed
