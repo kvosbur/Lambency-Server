@@ -238,6 +238,28 @@ public class DatabaseConnection {
     }
 
     /**
+     *
+     * @param email email to be verified to be unique
+     * @return -1 on non-unique, 0 on unique
+     */
+    public int verifyUserEmail(String email) throws SQLException{
+        //create string for query
+        String fields = "user_id";
+        String query = "SELECT " + fields + " FROM user WHERE user_email = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setString(1, email);
+        ResultSet rs = ps.executeQuery();
+
+
+        //check for results and if any then return user
+        if(rs.next()){
+            return -1;
+        }
+        return 1;
+    }
+    /**
      * END USER METHODS
      */
 
@@ -466,7 +488,12 @@ public class DatabaseConnection {
         try {
             DatabaseConnection db = new DatabaseConnection();
             System.out.println("connected successfully");
-
+            /*
+            test for unique email
+            db.createUser("123", "first", "last", "email.com", FACEBOOK);
+            System.out.println(db.verifyUserEmail("email.com"));
+            System.out.println(db.verifyUserEmail("unique"));
+            */
 
             /*
             test for searching for events
