@@ -17,7 +17,7 @@ public class EventHandler {
             //get latitude and longitude for database
             LatLng latlng = GoogleGeoCodeUtil.getGeoData(event.getLocation());
             int event_id = LambencyServer.dbc.createEvent(event.getOrg_id(),event.getName(),event.getStart(),
-                    event.getEnd(),event.getDescription(),event.getLocation(),event.getImage_path());
+                    event.getEnd(),event.getDescription(),event.getLocation(),event.getImage_path(), latlng.lat, latlng.lng);
             return event_id;
         } catch (SQLException e) {
             System.out.println("Error in creating event: "+event.getName());

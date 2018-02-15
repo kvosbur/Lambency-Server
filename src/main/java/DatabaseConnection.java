@@ -169,6 +169,8 @@ public class DatabaseConnection {
      * @param description   String that represents a description of the events activities
      * @param location  String representing the physical address of the event.
      * @param imgPath   String representing the file_path to the image
+     * @param latitude   double representing latitude of location of event
+     * @param longitude   double representing longitude of location of event
      *
      * @return          Returns the int for the event_id
      *
@@ -176,12 +178,12 @@ public class DatabaseConnection {
      */
 
 
-    public int createEvent(int org_id, String name , Timestamp start, Timestamp end, String description, String location, String imgPath) throws SQLException{
+    public int createEvent(int org_id, String name , Timestamp start, Timestamp end, String description, String location, String imgPath, double latitude, double longitude) throws SQLException{
 
 
         //insert event into table
         PreparedStatement ps;
-        ps = connect.prepareStatement("INSERT INTO Events (name, org_id, start_time, end_time, description, location, event_img) VALUES ('TEMP',?,?,?,?,?,?)");
+        ps = connect.prepareStatement("INSERT INTO Events (name, org_id, start_time, end_time, description, location, event_img, latitude, longitude) VALUES ('TEMP',?,?,?,?,?,?,?,?)");
 
 
         if(ps != null) {
@@ -192,6 +194,8 @@ public class DatabaseConnection {
             ps.setString(4,description);
             ps.setString(5, location);
             ps.setString(6, imgPath);
+            ps.setDouble(7,latitude);
+            ps.setDouble(8, longitude);
             ps.execute();
 
         }else{
@@ -297,7 +301,7 @@ public class DatabaseConnection {
             DatabaseConnection db = new DatabaseConnection();
             System.out.println("connected successfully");
 
-            db.createEvent(1,"event", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description", "location", "path");
+            db.createEvent(1,"event", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description", "location", "path", 23, 45);
             /*
             test insertion of user
             int result = db.createUser("myggoogleidentity", "mock", "user", "dummy@dummy.com", GOOGLE);
