@@ -1,5 +1,7 @@
 import java.sql.*;
 
+//TODO 235 searchForOrg(name)
+//TODO 283 modifyGroupies(userid, orgid, type)
 public class DatabaseConnection {
 
     private Connection connect = null;
@@ -184,13 +186,13 @@ public class DatabaseConnection {
 
     /**
      *
-     * @param name
-     * @param description
-     * @param email
-     * @param userContact_id
-     * @param location
-     * @param img_path
-     * @param organizer_id
+     * @param name the name of the organization
+     * @param description description for the organization
+     * @param email email for the organization
+     * @param userContact_id id of the contact for the organization
+     * @param location the location of the organization
+     * @param img_path profile image for the organization
+     * @param organizer_id id of the creator of the organization to become an organizer
      *
      * @return  -1 if failure otherwise return org_id
      */
@@ -272,7 +274,7 @@ public class DatabaseConnection {
     }
 
     /**
-     *
+     * TODO
      * @param user_id the id of the user to be changed
      * @param org_id the id of the organization
      * @param type type to be changed to: FOLLOW, MEMBER, or ORGANIZER
