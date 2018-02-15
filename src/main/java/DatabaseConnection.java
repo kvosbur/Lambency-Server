@@ -4,8 +4,15 @@ import java.util.List;
 
 //TODO 235 searchForOrg(name)
 //TODO 283 modifyGroupies(userid, orgid, type)
+//TODO setFollowing, searchForOrg(orgID)
+    /*
+    TODO:search organization by id
+    search for organization by name
+    search for event by location
+    search for following status
+    set following status
+     */
 public class DatabaseConnection {
-
     private Connection connect = null;
     public final static int GOOGLE = 1;
     public final static int FACEBOOK = 2;
@@ -23,17 +30,11 @@ public class DatabaseConnection {
 
     }
 
-    /*
-    TODO:search organization by id
-    search for organization by name
-    search for event by location
-    search for following status
-    set following status
-     */
 
     /**
      * BEGIN USER METHODS
      */
+
 
     /**
      * Description: given unique string identifier return matching user object
@@ -71,6 +72,7 @@ public class DatabaseConnection {
 
         return null;
     }
+
 
 
     /**
@@ -170,6 +172,99 @@ public class DatabaseConnection {
 
 
     /**
+     *  Description: Creates an event in the database from these elements
+     *
+     * @param org_id    Integer that represents an organization in this database
+     * @param name      String that represents the name of the event
+     * @param start     Timestamp that represents the start time of the event
+     * @param end       Timestamp that represents the end time of the event
+     * @param description   String that represents a description of the events activities
+     * @param location  String representing the physical address of the event.
+     * @param imgPath   String representing the file_path to the image
+     *
+     * @return          Returns the int for the event_id
+     *
+     * @throws SQLException Throws the exception if there is an issue in the database.
+     */
+
+
+    public int createEvent(int org_id, String name , Timestamp start, Timestamp end, String description, String location, String imgPath) throws SQLException{
+
+
+        //insert event into table
+        PreparedStatement ps;
+        ps = connect.prepareStatement("INSERT INTO Events (name, org_id, start_time, end_time, description, location, event_image) VALUES ('TEMP',?,?,?,?,?,?)");
+
+
+        if(ps != null) {
+            //insert values into prepare statement
+            ps.setInt(1, org_id);
+            ps.setObject(2,start);      // According to google, java should know how to turn a Timestamp object into a dateTime object for the db
+            ps.setObject(3,end);
+            ps.setString(4,description);
+            ps.setString(5, location);
+            ps.setString(6, imgPath);
+            ps.execute();
+
+        }else{
+            throw new SQLException("Error in SQL database.");
+        }
+
+        //get event id from sql table
+        Statement st = connect.createStatement();
+        ResultSet rs = st.executeQuery("SELECT event_id FROM Events WHERE name = 'TEMP'");
+        rs.next();
+        int event_id = rs.getInt(1);
+
+        //update event with actual name
+        ps = connect.prepareStatement("UPDATE Events SET name = ? WHERE event_id = " + event_id);
+        ps.setString(1, name);
+
+        ps.executeUpdate();
+
+        return event_id;
+
+    }
+
+    /**
+     * Updates the event with the id event_id.
+     *
+     *
+     * @param event_id      int id of event that needs to be updated
+     * @param name          string name of event
+     * @param start         Timestamp of start time of event
+     * @param end           Timestamp of end time of event
+     * @param description   String description of event
+     * @param location      String location of event
+     * @param imgPath       String file path to image
+     * @throws SQLException Throws if there is an issue with the database
+     */
+
+    public void modifyEventInfo(int event_id, String name , Timestamp start, Timestamp end, String description, String location, String imgPath, double lat, double longit) throws SQLException{
+
+        //create prepare statement for sql query
+        PreparedStatement ps = connect.prepareStatement("UPDATE Events SET name = ? , start_time = ?, " +
+                "end_time = ? , description = ? , location = ? , event_image = ?, latitude = ?, longitude = ? WHERE event_id = ?");
+
+        //set parameters for prepared statement
+        ps.setString(1, name);
+        ps.setObject(2,start);      // According to google, java should know how to turn a Timestamp object into a dateTime object for the db
+        ps.setObject(3,end);
+        ps.setString(4,description);
+        ps.setString(5, location);
+        ps.setString(6, imgPath);
+        ps.setDouble(7,lat);
+        ps.setDouble(8,longit);
+        ps.setInt(9,event_id);
+
+        //execute query
+        ps.executeUpdate();
+
+    }
+
+
+
+    /**
      Description: given unique string identifier return matching user object
 
      @param lambencyId userId of user
@@ -193,6 +288,15 @@ public class DatabaseConnection {
         ps.executeUpdate();
 
         return true;
+    }
+      /**
+     * TODO
+     * @param userID id of the usere
+     * @param orgID id of the organization
+     * @return returns 0 on success, -1 on error
+     */
+    public int setFollowing(int userID, int orgID) throws SQLException{
+        return -1;
     }
 
 
@@ -226,6 +330,28 @@ public class DatabaseConnection {
 
     }
 
+    /**
+     *
+     * @param email email to be verified to be unique
+     * @return -1 on non-unique, 0 on unique
+     */
+    public int verifyUserEmail(String email) throws SQLException{
+        //create string for query
+        String fields = "user_id";
+        String query = "SELECT " + fields + " FROM user WHERE user_email = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setString(1, email);
+        ResultSet rs = ps.executeQuery();
+
+
+        //check for results and if any then return user
+        if(rs.next()){
+            return -1;
+        }
+        return 1;
+    }
     /**
      * END USER METHODS
      */
@@ -425,6 +551,14 @@ public class DatabaseConnection {
 
         return null;
     }
+      /**
+     *  TODO
+     * @param orgID id of the organization
+     * @return the organization corresponding to the org id
+     */
+    public Organization searchForOrg(int orgID) throws SQLException{
+        return null;
+    }
 
     /**
      * TODO
@@ -438,6 +572,7 @@ public class DatabaseConnection {
         return -1;
     }
 
+  
     /**
      * END ORGANIZATION METHODS
      */
@@ -446,7 +581,12 @@ public class DatabaseConnection {
         try {
             DatabaseConnection db = new DatabaseConnection();
             System.out.println("connected successfully");
-
+            /*
+            test for unique email
+            db.createUser("123", "first", "last", "email.com", FACEBOOK);
+            System.out.println(db.verifyUserEmail("email.com"));
+            System.out.println(db.verifyUserEmail("unique"));
+            */
 
             /*
             test for searching for events

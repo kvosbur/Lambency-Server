@@ -3,7 +3,6 @@ import com.google.gson.Gson;
 
 import static spark.Spark.*;
 
-
 public class LambencyServer{
 
 
@@ -32,17 +31,20 @@ public class LambencyServer{
             String token = request.queryParams("idToken");
             GoogleLoginHandler glh = new GoogleLoginHandler();
             return glh.getAuthenticator("token");
-
         }, new JsonTransformer());
         get("/User/followOrg", "application/json", (request, response) -> {
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgId");
-            Integer ret = User.followOrg(oAuthCode, orgID);
+            Integer ret = UserHandler.followOrg(oAuthCode, Integer.parseInt(orgID));
             return ret;
         }, new JsonTransformer());
         post("/Organization/create", "application/json",
                 (request, response) ->
                         OrganizationHandler.createOrganization( new Gson().fromJson(request.body(), Organization.class))
+                , new JsonTransformer());
+        post("/Event/update", "application/json",
+                (request, response) ->
+                        EventHandler.updateEvent( new Gson().fromJson(request.body(), Event.class))
                 , new JsonTransformer());
         post("/Event/create", "application/json", (request, response) ->
                         EventHandler.createEvent( new Gson().fromJson(request.body(), Event.class))
@@ -50,7 +52,7 @@ public class LambencyServer{
 
         get("/User/login/facebook", "application/json", (request, response) -> {
             UserAuthenticator ua = FacebookLogin.facebookLogin(request.queryParams("id"), request.queryParams("first"), request.queryParams("last"), request.queryParams("email"));
-            return ua.getoAuthCode();
+            return ua;
         }, new JsonTransformer());
 
     }
