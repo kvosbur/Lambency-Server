@@ -287,9 +287,12 @@ public class DatabaseConnection {
             DatabaseConnection db = new DatabaseConnection();
             System.out.println("connected successfully");
 
+            /*
+            test of creation of org
             int result = db.createOrganization("org","this is an org","org@gmail.com", 123, "Purdue", "img", 123);
             db.createOrganization("org2","this is an org","org@gmail.com", 123, "Purdue", "img", 123);
             System.out.println(result);
+            /*
 
             /*
             test insertion of user
