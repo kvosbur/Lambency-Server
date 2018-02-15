@@ -1,7 +1,7 @@
 import java.sql.*;
 
 public class DatabaseConnection {
-
+//TODO setFollowing, searchForOrg(orgID)
     private Connection connect = null;
     public final static int GOOGLE = 1;
     public final static int FACEBOOK = 2;
@@ -172,6 +172,25 @@ public class DatabaseConnection {
         ps.executeUpdate();
 
         return true;
+    }
+
+    /**
+     *  TODO
+     * @param orgID id of the organization
+     * @return the organization corresponding to the org id
+     */
+    public Organization searchForOrg(int orgID) throws SQLException{
+        return null;
+    }
+
+    /**
+     * TODO
+     * @param userID id of the usere
+     * @param orgID id of the organization
+     * @return returns 0 on success, -1 on error
+     */
+    public int setFollowing(int userID, int orgID) throws SQLException{
+        return -1;
     }
 
     public static void main(String[] args) {

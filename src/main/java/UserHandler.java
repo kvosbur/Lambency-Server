@@ -7,7 +7,7 @@ public class UserHandler {
      * @param orgID id of organization to be followed
      * @return returns 0 on success, 1 if not able to find user or org, 2 on SQLException
      */
-    public static Integer followOrg(String oAuthCode, String orgID){
+    public static Integer followOrg(String oAuthCode, int orgID){
         try {
             //search for user
             if(LambencyServer.dbc.searchForUser(oAuthCode) == null){
@@ -15,11 +15,11 @@ public class UserHandler {
                 return 1;
             }
             //search for organization by ID
-            Organization org = null;//Organization org = LambencyServer.dbc.searchForOrg(orgID);
+            Organization org = LambencyServer.dbc.searchForOrg(orgID);
             if (org != null) {
                 //if org is found, set to follow in database
-                //LambencyServer.dbc.setFollowing(this.oauthToken, orgID);
-                //
+                User u = LambencyServer.dbc.searchForUser(oAuthCode);
+                LambencyServer.dbc.setFollowing(u.getUserId(), orgID);
                 return 0;
             } else {
                 //org is not found, return error
