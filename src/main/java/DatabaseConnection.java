@@ -6,7 +6,9 @@ public class DatabaseConnection {
     public final static int GOOGLE = 1;
     public final static int FACEBOOK = 2;
     public final static int LAMBNECYUSERID = 3;
-
+    public final static int FOLLOW = 0;
+    public final static int MEMBER = 1;
+    public final static int ORGANIZER = 2;
     DatabaseConnection() throws Exception{
         // This will load the MySQL driver, each DB has its own driver
 
@@ -194,10 +196,50 @@ public class DatabaseConnection {
      */
 
     public int createOrganization(String name, String description, String email, int userContact_id, String location, String img_path, int organizer_id ) throws SQLException{
+        if(searchForOrg(name) != null){
+            return -1;
+        }
+        PreparedStatement ps = null;
+        ps = connect.prepareStatement("INSERT INTO organization (name, description, org_email, `org_ contact`, org_img, org_location, date_created) VALUES ('TEMP',?,?,?,?,?,NOW())");
 
-        return -1;
+
+        if(ps != null) {
+            //insert values into prepare statement
+            ps.setString(1, description);
+            ps.setString(2, email);
+            ps.setInt(3, userContact_id);
+            ps.setString(4, img_path);
+            ps.setString(5, location);
+            ps.execute();
+
+        }else{
+            throw new SQLException("Improper use. Please specify either a google or facebook login");
+        }
+
+        //get user id from sql table
+        Statement st = connect.createStatement();
+        ResultSet rs = st.executeQuery("SELECT org_id FROM organization WHERE name = 'TEMP'");
+        rs.next();
+        int orgID = rs.getInt(1);
+
+        //update user with actual firstname
+        ps = connect.prepareStatement("UPDATE organization SET name = ? WHERE org_id = " + orgID);
+        ps.setString(1, name);
+        ps.executeUpdate();
+
+        modifyGroupies(organizer_id, orgID, ORGANIZER);
+        return orgID;
     }
 
+    /**
+     * TODO
+     * @param name name of the organization
+     * @return null if no results, otherwise the organiztion
+     */
+    public Organization searchForOrg(String name){
+
+        return null;
+    }
 
     /**
      Description: Given user information create a user profile that is either associated with a google or facebook profile
@@ -229,10 +271,25 @@ public class DatabaseConnection {
 
     }
 
+    /**
+     *
+     * @param user_id the id of the user to be changed
+     * @param org_id the id of the organization
+     * @param type type to be changed to: FOLLOW, MEMBER, or ORGANIZER
+     * @return -1 on failure, else 0
+     */
+    public int modifyGroupies(int user_id, int org_id, int type){
+        return -1;
+    }
+
     public static void main(String[] args) {
         try {
             DatabaseConnection db = new DatabaseConnection();
             System.out.println("connected successfully");
+
+            int result = db.createOrganization("org","this is an org","org@gmail.com", 123, "Purdue", "img", 123);
+            db.createOrganization("org2","this is an org","org@gmail.com", 123, "Purdue", "img", 123);
+            System.out.println(result);
 
             /*
             test insertion of user
