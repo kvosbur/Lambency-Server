@@ -22,6 +22,8 @@ public class LambencyServer{
             //error happened in connecting to database
         }
 
+        //port(20000);
+
         addroutes();
     }
 
