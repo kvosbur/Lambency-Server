@@ -16,14 +16,6 @@ public class Event {
     private double longitude;
 
 
-    public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
-                 double latitude, double longitude) {
-    private double lattitude;
-    private double longitude;
-    private String image_path; // file path for server only
-    private String imageFile; // base 64 encoded
-    private int event_id;
-
     public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location) {
         this.name = name;
         this.org_id = org_id;
@@ -31,12 +23,17 @@ public class Event {
         this.end = end;
         this.description = description;
         this.location = location;
+    }
+
+    public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location, double latitude, double longitude) {
+        this(name, org_id, start, end, description, location);
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
     public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
                  String imageFile, double latitude, double longitude) {
+
         this(name, org_id, start, end, description, location, latitude, longitude);
     }
 
@@ -50,11 +47,7 @@ public class Event {
         }
     }
 
-    public Event(String image_path, String name, int org_id, Timestamp start,
-                 Timestamp end, String description, String location, double latitude, double longitude) {
-        this(name, org_id, start, end, description, location, latitude, longitude);
-        this.image_path = image_path;
-    }
+
 
     public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
                  String image_path, int event_id, double latitude, double longitude) {
