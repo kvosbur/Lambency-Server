@@ -142,6 +142,10 @@ public class Event {
         return event_id;
     }
 
+    public void setEvent_id(int id){
+        this.event_id = id;
+    }
+
     public double getLattitude() {
         return latitude;
     }

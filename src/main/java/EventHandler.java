@@ -1,6 +1,8 @@
 import com.google.maps.model.LatLng;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EventHandler {
 
@@ -25,6 +27,45 @@ public class EventHandler {
         }
 
     }
+
+
+    public static int updateEvent(Event event) {
+        try{
+            LambencyServer.dbc.modifyEventInfo(event.getEvent_id(),event.getName(),event.getStart(),event.getEnd(),
+                    event.getDescription(),event.getLocation(),event.getImage_path(),event.getLattitude(),event.getLongitude());
+            return 1;
+        }
+        catch (SQLException e){
+            System.out.println("Error in updating Event: "+event.getName());
+            return 0;
+        }
+    }
+
+    /**
+     *
+     * @param lattitude
+     * @param longitude
+     * @return
+     */
+
+    public static List<Event> getEventsByLocation(double lattitude, double longitude){
+        List<Integer> eventIDs;
+        List<Event> events = new ArrayList<Event>();
+        try{
+            eventIDs = LambencyServer.dbc.searchEventsByLocation(lattitude,longitude);
+            for(Integer i: eventIDs){
+                events.add(LambencyServer.dbc.searchEvents(i));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in get events by location: "+e);
+            return null;
+        }
+
+        return events;
+
+
+    }
+
 
 
 }
