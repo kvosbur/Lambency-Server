@@ -12,8 +12,7 @@ public class Event {
     private String image_path; // file path for server only
     private String imageFile; // base 64 encoded
     private int event_id;
-    private double lattitude;
-    private double longitude;
+
 
     public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
                  double lattitude, double longitude) {
@@ -60,26 +59,6 @@ public class Event {
         this.imageFile = encodedImage;
         this.image_path = ImageWR.writeImageToFile(encodedImage);
 
-    }
-
-    public void setEvent_id(int event_id) {
-        this.event_id = event_id;
-    }
-
-    public double getLattitude() {
-        return lattitude;
-    }
-
-    public void setLattitude(double lattitude) {
-        this.lattitude = lattitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
     }
 
     public String getName() {
@@ -161,4 +140,19 @@ public class Event {
         return event_id;
     }
 
+    public double getLattitude() {
+        return lattitude;
+    }
+
+    public void setLattitude(double lattitude) {
+        this.lattitude = lattitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
 }
