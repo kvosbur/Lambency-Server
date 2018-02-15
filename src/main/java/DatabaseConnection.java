@@ -17,11 +17,17 @@ public class DatabaseConnection {
 
     }
 
+    /*
+    TODO:search organization by id
+    search for organization by name
+    search for event by location
+    search for following status
+    set following status
+     */
+
 
     /**
-     Description: given unique string identifier return matching user object
-
-
+     * Description: given unique string identifier return matching user object
      @param identifier either represents google user id or facebook user id depending on situation
      @param type whether it is a google or facebook login (static numbers defined at top)
 
@@ -175,7 +181,7 @@ public class DatabaseConnection {
 
         //insert event into table
         PreparedStatement ps;
-        ps = connect.prepareStatement("INSERT INTO Events (name, org_id, start_time, end_time, description, location, event_image) VALUES ('TEMP',?,?,?,?,?,?)");
+        ps = connect.prepareStatement("INSERT INTO Events (name, org_id, start_time, end_time, description, location, event_img) VALUES ('TEMP',?,?,?,?,?,?)");
 
 
         if(ps != null) {
@@ -291,6 +297,7 @@ public class DatabaseConnection {
             DatabaseConnection db = new DatabaseConnection();
             System.out.println("connected successfully");
 
+            db.createEvent(1,"event", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description", "location", "path");
             /*
             test insertion of user
             int result = db.createUser("myggoogleidentity", "mock", "user", "dummy@dummy.com", GOOGLE);

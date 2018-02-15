@@ -1,3 +1,5 @@
+import com.google.maps.model.LatLng;
+
 import java.sql.SQLException;
 
 public class EventHandler {
@@ -12,6 +14,8 @@ public class EventHandler {
     public static int createEvent(Event event) {
 
         try {
+            //get latitude and longitude for database
+            LatLng latlng = GoogleGeoCodeUtil.getGeoData(event.getLocation());
             int event_id = LambencyServer.dbc.createEvent(event.getOrg_id(),event.getName(),event.getStart(),
                     event.getEnd(),event.getDescription(),event.getLocation(),event.getImage_path());
             return event_id;
