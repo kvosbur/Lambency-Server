@@ -9,6 +9,15 @@ public class Event {
     private Timestamp end;
     private String description;
     private String location;
+    private String image_path; // file path for server only
+    private String imageFile; // base 64 encoded
+    private int event_id;
+    private double latitude;
+    private double longitude;
+
+
+    public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
+                 double latitude, double longitude) {
     private double lattitude;
     private double longitude;
     private String image_path; // file path for server only
@@ -22,6 +31,13 @@ public class Event {
         this.end = end;
         this.description = description;
         this.location = location;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
+                 String imageFile, double latitude, double longitude) {
+        this(name, org_id, start, end, description, location, latitude, longitude);
     }
 
     public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
@@ -35,15 +51,14 @@ public class Event {
     }
 
     public Event(String image_path, String name, int org_id, Timestamp start,
-                 Timestamp end, String description, String location) {
-        this(name, org_id, start, end, description, location);
+                 Timestamp end, String description, String location, double latitude, double longitude) {
+        this(name, org_id, start, end, description, location, latitude, longitude);
         this.image_path = image_path;
     }
 
-
     public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
-                 String image_path, int event_id) {
-        this(name, org_id, start, end, description, location);
+                 String image_path, int event_id, double latitude, double longitude) {
+        this(name, org_id, start, end, description, location, latitude, longitude);
         this.image_path = image_path;
         this.event_id = event_id;
     }
@@ -140,11 +155,11 @@ public class Event {
     }
 
     public double getLattitude() {
-        return lattitude;
+        return latitude;
     }
 
-    public void setLattitude(double lattitude) {
-        this.lattitude = lattitude;
+    public void setLattitude(double latitude) {
+        this.latitude = latitude;
     }
 
     public double getLongitude() {
