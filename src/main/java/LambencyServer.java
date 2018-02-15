@@ -48,7 +48,7 @@ public class LambencyServer{
 
         get("/User/login/facebook", "application/json", (request, response) -> {
             UserAuthenticator ua = FacebookLogin.facebookLogin(request.queryParams("id"), request.queryParams("first"), request.queryParams("last"), request.queryParams("email"));
-            return ua.getoAuthCode();
+            return ua;
         }, new JsonTransformer());
 
     }
