@@ -238,11 +238,11 @@ public class DatabaseConnection {
      * @throws SQLException Throws if there is an issue with the database
      */
 
-    public void modifyEventInfo(int event_id, String name , Timestamp start, Timestamp end, String description, String location, String imgPath) throws SQLException{
+    public void modifyEventInfo(int event_id, String name , Timestamp start, Timestamp end, String description, String location, String imgPath, double lat, double longit) throws SQLException{
 
         //create prepare statement for sql query
         PreparedStatement ps = connect.prepareStatement("UPDATE Events SET name = ? , start_time = ?, " +
-                "end_time = ? , description = ? , location = ? , event_image = ?  WHERE event_id = ?");
+                "end_time = ? , description = ? , location = ? , event_image = ?, latitude = ?, longitude = ? WHERE event_id = ?");
 
         //set parameters for prepared statement
         ps.setString(1, name);
@@ -251,6 +251,9 @@ public class DatabaseConnection {
         ps.setString(4,description);
         ps.setString(5, location);
         ps.setString(6, imgPath);
+        ps.setDouble(7,lat);
+        ps.setDouble(8,longit);
+        ps.setInt(9,event_id);
 
         //execute query
         ps.executeUpdate();
