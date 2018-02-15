@@ -3,7 +3,6 @@ import com.google.gson.Gson;
 
 import static spark.Spark.*;
 
-
 public class LambencyServer{
 
 
@@ -32,12 +31,11 @@ public class LambencyServer{
             String token = request.queryParams("idToken");
             GoogleLoginHandler glh = new GoogleLoginHandler();
             return glh.getAuthenticator("token");
-
         }, new JsonTransformer());
         get("/User/followOrg", "application/json", (request, response) -> {
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgId");
-            Integer ret = User.followOrg(oAuthCode, orgID);
+            Integer ret = UserHandler.followOrg(oAuthCode, Integer.parseInt(orgID));
             return ret;
         }, new JsonTransformer());
         post("/Organization/create", "application/json",

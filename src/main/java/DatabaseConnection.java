@@ -5,7 +5,7 @@ import java.util.List;
 //TODO 235 searchForOrg(name)
 //TODO 283 modifyGroupies(userid, orgid, type)
 public class DatabaseConnection {
-
+//TODO setFollowing, searchForOrg(orgID)
     private Connection connect = null;
     public final static int GOOGLE = 1;
     public final static int FACEBOOK = 2;
@@ -34,6 +34,7 @@ public class DatabaseConnection {
     /**
      * BEGIN USER METHODS
      */
+
 
     /**
      * Description: given unique string identifier return matching user object
@@ -71,6 +72,7 @@ public class DatabaseConnection {
 
         return null;
     }
+
 
 
     /**
@@ -193,6 +195,15 @@ public class DatabaseConnection {
         ps.executeUpdate();
 
         return true;
+    }
+      /**
+     * TODO
+     * @param userID id of the usere
+     * @param orgID id of the organization
+     * @return returns 0 on success, -1 on error
+     */
+    public int setFollowing(int userID, int orgID) throws SQLException{
+        return -1;
     }
 
 
@@ -425,7 +436,14 @@ public class DatabaseConnection {
 
         return null;
     }
-
+      /**
+     *  TODO
+     * @param orgID id of the organization
+     * @return the organization corresponding to the org id
+     */
+    public Organization searchForOrg(int orgID) throws SQLException{
+        return null;
+    }
     /**
      * TODO
      * @param user_id the id of the user to be changed
@@ -438,6 +456,7 @@ public class DatabaseConnection {
         return -1;
     }
 
+  
     /**
      * END ORGANIZATION METHODS
      */
