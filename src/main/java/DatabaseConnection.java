@@ -17,11 +17,17 @@ public class DatabaseConnection {
 
     }
 
+    /*
+    TODO:search organization by id
+    search for organization by name
+    search for event by location
+    search for following status
+    set following status
+     */
+
 
     /**
-     Description: given unique string identifier return matching user object
-
-
+     * Description: given unique string identifier return matching user object
      @param identifier either represents google user id or facebook user id depending on situation
      @param type whether it is a google or facebook login (static numbers defined at top)
 
@@ -154,6 +160,67 @@ public class DatabaseConnection {
     }
 
     /**
+     *  Description: Creates an event in the database from these elements
+     *
+     * @param org_id    Integer that represents an organization in this database
+     * @param name      String that represents the name of the event
+     * @param start     Timestamp that represents the start time of the event
+     * @param end       Timestamp that represents the end time of the event
+     * @param description   String that represents a description of the events activities
+     * @param location  String representing the physical address of the event.
+     * @param imgPath   String representing the file_path to the image
+     * @param latitude   double representing latitude of location of event
+     * @param longitude   double representing longitude of location of event
+     *
+     * @return          Returns the int for the event_id
+     *
+     * @throws SQLException Throws the exception if there is an issue in the database.
+     */
+
+
+    public int createEvent(int org_id, String name , Timestamp start, Timestamp end, String description, String location, String imgPath, double latitude, double longitude) throws SQLException{
+
+
+        //insert event into table
+        PreparedStatement ps;
+        ps = connect.prepareStatement("INSERT INTO Events (name, org_id, start_time, end_time, description, location, event_img, latitude, longitude) VALUES ('TEMP',?,?,?,?,?,?,?,?)");
+
+
+        if(ps != null) {
+            //insert values into prepare statement
+            ps.setInt(1, org_id);
+            ps.setObject(2,start);      // According to google, java should know how to turn a Timestamp object into a dateTime object for the db
+            ps.setObject(3,end);
+            ps.setString(4,description);
+            ps.setString(5, location);
+            ps.setString(6, imgPath);
+            ps.setDouble(7,latitude);
+            ps.setDouble(8, longitude);
+            ps.execute();
+
+        }else{
+            throw new SQLException("Error in SQL database.");
+        }
+
+        //get event id from sql table
+        Statement st = connect.createStatement();
+        ResultSet rs = st.executeQuery("SELECT event_id FROM Events WHERE name = 'TEMP'");
+        rs.next();
+        int event_id = rs.getInt(1);
+
+        //update event with actual name
+        ps = connect.prepareStatement("UPDATE Events SET name = ? WHERE event_id = " + event_id);
+        ps.setString(1, name);
+
+        ps.executeUpdate();
+
+        return event_id;
+
+    }
+
+
+
+    /**
      Description: given unique string identifier return matching user object
 
      @param lambencyId userId of user
@@ -234,6 +301,7 @@ public class DatabaseConnection {
             DatabaseConnection db = new DatabaseConnection();
             System.out.println("connected successfully");
 
+            db.createEvent(1,"event", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description", "location", "path", 23, 45);
             /*
             test insertion of user
             int result = db.createUser("myggoogleidentity", "mock", "user", "dummy@dummy.com", GOOGLE);
