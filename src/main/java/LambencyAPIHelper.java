@@ -6,6 +6,9 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import java.io.IOException;
+import java.util.List;
+
 import java.util.ArrayList;
 
 public class LambencyAPIHelper {
@@ -61,6 +64,25 @@ public class LambencyAPIHelper {
             }
         });
     }
+
+    public List<EventModel> findEventsWithParam(double lattitude, double longitude, String name, int org_id){
+        List<EventModel> events = null;
+
+        try {
+            Response<List<EventModel>> response = this.getInstance().getEventsWithParams(lattitude,longitude,name,Double.toString(org_id)).execute();
+            if(response.isSuccessful()) {
+                events = response.body();
+            }
+            else{
+                System.out.println("failed to gather events");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return events;
+    }
+
 
     public void googleLoginRetrofit(String id){
 
@@ -124,5 +146,6 @@ public class LambencyAPIHelper {
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
         lh.facebookLoginRetrofit("id", "fist", "last", "email.com");
+        System.out.println(lh.findEventsWithParam(0.0,0.0,null,0));
     }
 }
