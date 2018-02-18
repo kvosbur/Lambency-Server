@@ -596,8 +596,25 @@ public class DatabaseConnection {
      * @return -1 on failure, else 0
      */
 
-    public int addGroupies(int user_id, int org_id, int type, boolean confirmed){
-        return -1;
+    public int addGroupies(int user_id, int org_id, int type, boolean confirmed) throws SQLException{
+
+        PreparedStatement ps = null;
+        ps = connect.prepareStatement("INSERT INTO groupies (org_id, user_id, groupies_type, confirmed)" +
+                " VALUES (?,?,?,?)");
+
+
+        if(ps != null) {
+            //insert values into prepare statement
+            ps.setInt(1, org_id);
+            ps.setInt(2, user_id);
+            ps.setInt(3, type);
+            ps.setBoolean(4, confirmed);
+            ps.execute();
+
+        }else{
+            return -1;
+        }
+        return 0;
     }
     /**
      * TODO
@@ -607,8 +624,24 @@ public class DatabaseConnection {
      * @return -1 on failure, else 0
      */
 
-    public int deleteGroupies(int user_id, int org_id, int type){
-        return -1;
+    public int deleteGroupies(int user_id, int org_id, int type) throws SQLException{
+
+        PreparedStatement ps = null;
+        ps = connect.prepareStatement("Delete FROM groupies WHERE org_id = ? and user_id = ? and" +
+                " groupies_type = ?");
+
+
+        if(ps != null) {
+            //insert values into prepare statement
+            ps.setInt(1, org_id);
+            ps.setInt(2, user_id);
+            ps.setInt(3, type);
+            ps.executeUpdate();
+
+        }else{
+            return -1;
+        }
+        return 0;
     }
     /**
      * TODO
@@ -631,6 +664,13 @@ public class DatabaseConnection {
             System.out.println("connected successfully");
 
 
+
+            /*
+            test for adding / searching groupies
+            int a = db.deleteGroupies(21,20, MEMBER);
+            int a = db.addGroupies(21,20, MEMBER, false);
+            System.out.println(a);
+            */
             /*
             test for unique email
             db.createUser("123", "first", "last", "email.com", FACEBOOK);
