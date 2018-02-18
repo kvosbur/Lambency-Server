@@ -25,6 +25,12 @@ public class FacebookLogin {
             }
             else{
                 //user doesnt exist
+                //check if email is valid/not in table already
+                if(LambencyServer.dbc.verifyUserEmail(email) == -1){
+                    status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
+                    ua = new UserAuthenticator(status);
+                    return ua;
+                }
                 //create user
                 int userId = LambencyServer.dbc.createUser(facebookId, firstName, lastName, email, 2);
                 //make and set oAuthCode

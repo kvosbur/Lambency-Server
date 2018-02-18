@@ -1,8 +1,9 @@
 
 import com.google.gson.Gson;
 
-import static spark.Spark.*;
+import java.util.ArrayList;
 
+import static spark.Spark.*;
 
 public class LambencyServer{
 
@@ -23,6 +24,8 @@ public class LambencyServer{
             //error happened in connecting to database
         }
 
+        //port(20000);
+
         addroutes();
     }
 
@@ -32,29 +35,50 @@ public class LambencyServer{
             String token = request.queryParams("idToken");
             GoogleLoginHandler glh = new GoogleLoginHandler();
             return glh.getAuthenticator("token");
-
         }, new JsonTransformer());
         get("/User/followOrg", "application/json", (request, response) -> {
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgId");
-            Integer ret = User.followOrg(oAuthCode, orgID);
+            Integer ret = UserHandler.followOrg(oAuthCode, Integer.parseInt(orgID));
+            return ret;
+        }, new JsonTransformer());
+        post("/User/requestJoinOrg", "application/json", (request, response) -> {
+            String oAuthCode = request.queryParams("oAuthCode");
+            String orgID = request.queryParams("orgId");
+            Integer ret = UserHandler.requestJoinOrg(oAuthCode, Integer.parseInt(orgID));
             return ret;
         }, new JsonTransformer());
         post("/Organization/create", "application/json",
                 (request, response) ->
                         OrganizationHandler.createOrganization( new Gson().fromJson(request.body(), Organization.class))
                 , new JsonTransformer());
+        get("/Organization/search", "application/json", (request, response) -> {
+            ArrayList<Organization> orgList = OrganizationHandler.searchOrgName(request.queryParams("name"));
+            return orgList;
+        }, new JsonTransformer());
+        post("/Event/update", "application/json",
+                (request, response) ->
+                        EventHandler.updateEvent( new Gson().fromJson(request.body(), EventModel.class))
+                , new JsonTransformer());
         post("/Event/update", "application/json",
                 (request, response) ->
                         EventHandler.updateEvent( new Gson().fromJson(request.body(), Event.class))
                 , new JsonTransformer());
         post("/Event/create", "application/json", (request, response) ->
-                        EventHandler.createEvent( new Gson().fromJson(request.body(), Event.class))
+                        EventHandler.createEvent( new Gson().fromJson(request.body(), EventModel.class))
                 , new JsonTransformer());
+
+        get("Event/search","application/json", (request,response)->{
+            String latStr = request.queryParams("lat");
+            String longStr = request.queryParams("long");
+            String name = request.queryParams("name");
+            String org_idStr = request.queryParams("org_id");
+            return EventHandler.getEventsByLocation(Double.parseDouble(latStr), Double.parseDouble(longStr));
+        }, new JsonTransformer());
 
         get("/User/login/facebook", "application/json", (request, response) -> {
             UserAuthenticator ua = FacebookLogin.facebookLogin(request.queryParams("id"), request.queryParams("first"), request.queryParams("last"), request.queryParams("email"));
-            return ua.getoAuthCode();
+            return ua;
         }, new JsonTransformer());
 
     }
