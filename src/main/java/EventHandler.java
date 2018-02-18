@@ -41,16 +41,20 @@ public class EventHandler {
         }
     }
 
-    /**
+    /** Call from the API to gather the events that are searched by location
      *
-     * @param lattitude
-     * @param longitude
-     * @return
+     * @param lattitude    double for lat
+     * @param longitude    double for long
+     * @return     List of events if successful, null otherwise
      */
 
     public static List<Event> getEventsByLocation(double lattitude, double longitude){
+        // I am assuming that the odds of them being at exactly 0,0 (lat,long) is so microscopic that the only case that it would be 0 is if Double.parse(null) == 0
+        if(lattitude == 0 || longitude == 0){
+            return null;
+        }
         List<Integer> eventIDs;
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
         try{
             eventIDs = LambencyServer.dbc.searchEventsByLocation(lattitude,longitude);
             for(Integer i: eventIDs){
