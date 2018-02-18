@@ -644,13 +644,31 @@ public class DatabaseConnection {
         return 0;
     }
     /**
-     * TODO
+     * DESCRIPTION - search for groupie status for a user and a given organization
      * @param user_id the id of the user to be search for
      * @param org_id the id of the organization
      * @return Groupies a groupies object if exist, else return null
      */
 
-    public Groupies searchGroupies(int user_id, int org_id){
+    public Groupies searchGroupies(int user_id, int org_id) throws SQLException{
+        //create string for query
+        String fields = "org_id, user_id, groupies_type, confirmed";
+        String query = "SELECT " + fields + " FROM organization WHERE user_id = ? and org_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, user_id);
+        ps.setInt(1, org_id);
+        ResultSet rs = ps.executeQuery();
+
+        //check for results and if any then return user
+        if(rs.next()){
+            Groupies groupies = new Groupies(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getBoolean(4));
+            if(rs.next()){
+                throw new SQLException("there are mulitple group entries for user_id = " + user_id);
+            }
+        }
+
         return null;
     }
 
