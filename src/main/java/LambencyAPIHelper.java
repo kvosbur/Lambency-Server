@@ -60,6 +60,38 @@ public class LambencyAPIHelper {
         });
     }
 
+    public void googleLoginRetrofit(String id){
+
+        this.getInstance().getGoogleLogin(id).enqueue(new Callback<UserAuthenticator>() {
+            @Override
+            public void onResponse(Call<UserAuthenticator> call, Response<UserAuthenticator> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                }
+                //when response is back
+                UserAuthenticator ua = response.body();
+                String authCode = ua.getoAuthCode();
+                //System.out.println(ua.getoAuthCode());
+                //System.out.println(ua.getStatus());
+                if(ua.getStatus() == UserAuthenticator.Status.SUCCESS){
+                    //System.out.println("SUCCESS");
+                }
+                else if(ua.getStatus() == UserAuthenticator.Status.NON_DETERMINANT_ERROR){
+                    //System.out.println("NON_DETERMINANT_ERROR");
+                }
+                else if(ua.getStatus() == UserAuthenticator.Status.NON_UNIQUE_EMAIL){
+                    //System.out.println("NON_UNIQUE_EMAIL");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserAuthenticator> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
 
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
