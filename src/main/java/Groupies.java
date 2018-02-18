@@ -5,6 +5,13 @@ public class Groupies {
     public int type;
     public boolean confirmed;
 
+    Groupies(int orgID, int userId, int type, boolean confirmed){
+        this.orgID = orgID;
+        this.userID = userId;
+        this.type = type;
+        this.confirmed = confirmed;
+    }
+
     public int getOrgID() {
         return orgID;
     }
