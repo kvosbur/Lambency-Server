@@ -62,7 +62,7 @@ public class LambencyServer{
             UserAuthenticator ua = FacebookLogin.facebookLogin(request.queryParams("id"), request.queryParams("first"), request.queryParams("last"), request.queryParams("email"));
             return ua;
         }, new JsonTransformer());
-
+        get("/User/unfollowOrg","application/json",(request, response) -> UserHandler.unfollowOrg(request.queryParams("oAuthCode"),Integer.parseInt(request.queryParams("org_id"))), new JsonTransformer());
 
     }
 
