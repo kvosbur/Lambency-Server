@@ -1,7 +1,7 @@
 import java.io.IOException;
 import java.sql.Timestamp;
 
-public class Event {
+public class EventModel {
 
     private String name;
     private int org_id;
@@ -16,7 +16,7 @@ public class Event {
     private double longitude;
 
 
-    public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location) {
+    public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location) {
         this.name = name;
         this.org_id = org_id;
         this.start = start;
@@ -25,20 +25,20 @@ public class Event {
         this.location = location;
     }
 
-    public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location, double latitude, double longitude) {
+    public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location, double latitude, double longitude) {
         this(name, org_id, start, end, description, location);
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
-    public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
-                 String imageFile, double latitude, double longitude) {
+    public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
+                      String imageFile, double latitude, double longitude) {
 
         this(name, org_id, start, end, description, location, latitude, longitude);
     }
 
-    public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
-                 String imageFile) {
+    public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
+                      String imageFile) {
         this(name, org_id, start, end, description, location);
         try {
             updateImage(imageFile);
@@ -49,8 +49,8 @@ public class Event {
 
 
 
-    public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
-                 String image_path, int event_id, double latitude, double longitude) {
+    public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
+                      String image_path, int event_id, double latitude, double longitude) {
         this(name, org_id, start, end, description, location, latitude, longitude);
         this.image_path = image_path;
         this.event_id = event_id;

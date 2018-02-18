@@ -462,7 +462,7 @@ public class DatabaseConnection {
      * @return Event object of corresponding event id , null otherwise
      */
 
-    public Event searchEvents(int eventId) throws SQLException{
+    public EventModel searchEvents(int eventId) throws SQLException{
 
         //create string for query
         String fields = "event_id, org_id, name, start_time, end_time, description," +
@@ -476,7 +476,7 @@ public class DatabaseConnection {
 
         //check for results and if any then return user
         if(rs.next()){
-            return new Event(rs.getString(3),rs.getInt(2), rs.getTimestamp(4), rs.getTimestamp(5),
+            return new EventModel(rs.getString(3),rs.getInt(2), rs.getTimestamp(4), rs.getTimestamp(5),
                     rs.getString(6), rs.getString(7), rs.getString(8), rs.getInt(1),
                     rs.getDouble(9), rs.getDouble(10));
         }

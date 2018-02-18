@@ -13,7 +13,7 @@ public class EventHandler {
      */
 
 
-    public static int createEvent(Event event) {
+    public static int createEvent(EventModel event) {
 
         try {
             //get latitude and longitude for database
@@ -29,7 +29,7 @@ public class EventHandler {
     }
 
 
-    public static int updateEvent(Event event) {
+    public static int updateEvent(EventModel event) {
         try{
             LambencyServer.dbc.modifyEventInfo(event.getEvent_id(),event.getName(),event.getStart(),event.getEnd(),
                     event.getDescription(),event.getLocation(),event.getImage_path(),event.getLattitude(),event.getLongitude());
@@ -48,13 +48,13 @@ public class EventHandler {
      * @return     List of events if successful, null otherwise
      */
 
-    public static List<Event> getEventsByLocation(double lattitude, double longitude){
+    public static List<EventModel> getEventsByLocation(double lattitude, double longitude){
         // I am assuming that the odds of them being at exactly 0,0 (lat,long) is so microscopic that the only case that it would be 0 is if Double.parse(null) == 0
         if(lattitude == 0 || longitude == 0){
             return null;
         }
         List<Integer> eventIDs;
-        List<Event> events = new ArrayList<>();
+        List<EventModel> events = new ArrayList<>();
         try{
             eventIDs = LambencyServer.dbc.searchEventsByLocation(lattitude,longitude);
             for(Integer i: eventIDs){
