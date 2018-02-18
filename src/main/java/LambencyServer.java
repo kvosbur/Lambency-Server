@@ -1,6 +1,8 @@
 
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
+
 import static spark.Spark.*;
 
 public class LambencyServer{
@@ -50,6 +52,10 @@ public class LambencyServer{
                 (request, response) ->
                         OrganizationHandler.createOrganization( new Gson().fromJson(request.body(), Organization.class))
                 , new JsonTransformer());
+        get("/Organization/search", "application/json", (request, response) -> {
+            ArrayList<Organization> orgList = OrganizationHandler.searchOrgName(request.queryParams("name"));
+            return orgList;
+        }, new JsonTransformer());
         post("/Event/update", "application/json",
                 (request, response) ->
                         EventHandler.updateEvent( new Gson().fromJson(request.body(), Event.class))
