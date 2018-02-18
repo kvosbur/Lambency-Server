@@ -16,7 +16,7 @@ public class EventModel {
     private double longitude;
 
 
-    public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location) {
+    public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location) {
         this.name = name;
         this.org_id = org_id;
         this.start = start;
@@ -46,6 +46,7 @@ public class EventModel {
             System.out.println("Failed to save image to event: "+name);
         }
     }
+
 
 
 
