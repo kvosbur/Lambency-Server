@@ -4,6 +4,7 @@ import java.util.List;
 
 //TODO 283 modifyGroupies(userid, orgid, type)
 //TODO setFollowing, searchForOrg(orgID)
+//TODO searchForOrgArray
     /*
     TODO:
     search for following status
@@ -556,6 +557,18 @@ public class DatabaseConnection {
         }
 
         return null;
+    }
+
+    /**
+     * TODO
+     * Returns all organizations beginning with the substring 'name'
+     * @param name name of the organization
+     * @return an arraylist of organizations with a size of 0 or greater.
+     */
+
+    public ArrayList<Organization> searchForOrgArray(String name) throws SQLException{
+        ArrayList<Organization> array = new ArrayList<Organization>();
+        return array;
     }
       /**
      *  TODO

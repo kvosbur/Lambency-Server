@@ -9,6 +9,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import java.io.IOException;
 import java.util.List;
 
+import java.util.ArrayList;
+
 public class LambencyAPIHelper {
 
 
@@ -108,6 +110,32 @@ public class LambencyAPIHelper {
 
             @Override
             public void onFailure(Call<UserAuthenticator> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+    public void getOrganizationSearch(String name){
+
+        this.getInstance().getOrganizationSearch(name).enqueue(new Callback<ArrayList<Organization>>() {
+            @Override
+            public void onResponse(Call<ArrayList<Organization>> call, Response<ArrayList<Organization>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                }
+                //when response is back
+                ArrayList<Organization> orgList = response.body();
+                if(orgList.size() == 0){
+                    //no results found
+                }
+                else{
+                    //results found
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<Organization>> call, Throwable throwable) {
                 //when failure
                 System.out.println("FAILED CALL");
             }
