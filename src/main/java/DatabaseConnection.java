@@ -2,13 +2,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO 235 searchForOrg(name)
 //TODO 283 modifyGroupies(userid, orgid, type)
 //TODO setFollowing, searchForOrg(orgID)
     /*
-    TODO:search organization by id
-    search for organization by name
-    search for event by location
+    TODO:
     search for following status
     set following status
      */
@@ -289,17 +286,6 @@ public class DatabaseConnection {
 
         return true;
     }
-      /**
-     * TODO
-     * @param userID id of the usere
-     * @param orgID id of the organization
-     * @return returns 0 on success, -1 on error
-     */
-    public int setFollowing(int userID, int orgID) throws SQLException{
-        return -1;
-    }
-
-
     /**
      Description: Given user information create a user profile that is either associated with a google or facebook profile
 
@@ -536,7 +522,7 @@ public class DatabaseConnection {
         ps.setString(1, name);
         ps.executeUpdate();
 
-        modifyGroupies(organizer_id, orgID, ORGANIZER);
+        addGroupies(organizer_id, orgID, ORGANIZER, true);
         return orgID;
     }
 
@@ -547,7 +533,27 @@ public class DatabaseConnection {
      * @return null if no results, otherwise the organiztion
      */
 
-    public Organization searchForOrg(String name){
+    public Organization searchForOrg(String name) throws SQLException{
+
+        //create string for query
+        String fields = "org_id, name, description, org_email," +
+                "`org_ contact`, org_img, org_location";
+        String query = "SELECT " + fields + " FROM organization WHERE name = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setString(1, name);
+        ResultSet rs = ps.executeQuery();
+
+        //check for results and if any then return user
+        if(rs.next()){
+            User owner = searchForUser("" + rs.getInt(5), LAMBNECYUSERID);
+            if(owner == null){
+                return null;
+            }
+            return new Organization(owner,rs.getString(2),rs.getString(7), rs.getInt(1),
+                    rs.getString(3),rs.getString(4),owner,rs.getString(6));
+        }
 
         return null;
     }
@@ -557,22 +563,115 @@ public class DatabaseConnection {
      * @return the organization corresponding to the org id
      */
     public Organization searchForOrg(int orgID) throws SQLException{
+
+        //create string for query
+        String fields = "org_id, name, description, org_email," +
+                "`org_ contact`, org_img, org_location";
+        String query = "SELECT " + fields + " FROM organization WHERE org_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, orgID);
+        ResultSet rs = ps.executeQuery();
+
+        //check for results and if any then return user
+        if(rs.next()){
+            User owner = searchForUser("" + rs.getInt(5), LAMBNECYUSERID);
+            if(owner == null){
+                return null;
+            }
+            return new Organization(owner,rs.getString(2),rs.getString(7), rs.getInt(1),
+                    rs.getString(3),rs.getString(4),owner,rs.getString(6));
+        }
+
         return null;
     }
 
     /**
      * TODO
-     * @param user_id the id of the user to be changed
+     * @param user_id the id of the user to be added
+     * @param org_id the id of the organization
+     * @param type type to be changed to: FOLLOW, MEMBER, or ORGANIZER
+     * @param confirmed whether the user status is confirmed
+     * @return -1 on failure, else 0
+     */
+
+    public int addGroupies(int user_id, int org_id, int type, boolean confirmed) throws SQLException{
+
+        PreparedStatement ps = null;
+        ps = connect.prepareStatement("INSERT INTO groupies (org_id, user_id, groupies_type, confirmed)" +
+                " VALUES (?,?,?,?)");
+
+
+        if(ps != null) {
+            //insert values into prepare statement
+            ps.setInt(1, org_id);
+            ps.setInt(2, user_id);
+            ps.setInt(3, type);
+            ps.setBoolean(4, confirmed);
+            ps.execute();
+
+        }else{
+            return -1;
+        }
+        return 0;
+    }
+    /**
+     * TODO
+     * @param user_id the id of the user to be deleted
      * @param org_id the id of the organization
      * @param type type to be changed to: FOLLOW, MEMBER, or ORGANIZER
      * @return -1 on failure, else 0
      */
 
-    public int modifyGroupies(int user_id, int org_id, int type){
-        return -1;
+    public int deleteGroupies(int user_id, int org_id, int type) throws SQLException{
+
+        PreparedStatement ps = null;
+        ps = connect.prepareStatement("Delete FROM groupies WHERE org_id = ? and user_id = ? and" +
+                " groupies_type = ?");
+
+
+        if(ps != null) {
+            //insert values into prepare statement
+            ps.setInt(1, org_id);
+            ps.setInt(2, user_id);
+            ps.setInt(3, type);
+            ps.executeUpdate();
+
+        }else{
+            return -1;
+        }
+        return 0;
+    }
+    /**
+     * DESCRIPTION - search for groupie status for a user and a given organization
+     * @param user_id the id of the user to be search for
+     * @param org_id the id of the organization
+     * @return Groupies a groupies object if exist, else return null
+     */
+
+    public Groupies searchGroupies(int user_id, int org_id) throws SQLException{
+        //create string for query
+        String fields = "org_id, user_id, groupies_type, confirmed";
+        String query = "SELECT " + fields + " FROM organization WHERE user_id = ? and org_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, user_id);
+        ps.setInt(1, org_id);
+        ResultSet rs = ps.executeQuery();
+
+        //check for results and if any then return user
+        if(rs.next()){
+            Groupies groupies = new Groupies(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getBoolean(4));
+            if(rs.next()){
+                throw new SQLException("there are mulitple group entries for user_id = " + user_id);
+            }
+        }
+
+        return null;
     }
 
-  
     /**
      * END ORGANIZATION METHODS
      */
@@ -581,6 +680,15 @@ public class DatabaseConnection {
         try {
             DatabaseConnection db = new DatabaseConnection();
             System.out.println("connected successfully");
+
+
+
+            /*
+            test for adding / searching groupies
+            int a = db.deleteGroupies(21,20, MEMBER);
+            int a = db.addGroupies(21,20, MEMBER, false);
+            System.out.println(a);
+            */
             /*
             test for unique email
             db.createUser("123", "first", "last", "email.com", FACEBOOK);

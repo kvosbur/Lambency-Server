@@ -1,12 +1,12 @@
-CREATE DATABASE Lambencydb;
+CREATE DATABASE lambencydb;
 
 CREATE USER 'lambencyuser'@'localhost' IDENTIFIED BY 'jCAbyTP<?VQ3)dv';
 
-GRANT SELECT,INSERT,UPDATE,DELETE ON Lambencydb.* TO 'lambencyuser'@'localhost';
+GRANT SELECT,INSERT,UPDATE,DELETE ON lambencydb.* TO 'lambencyuser'@'localhost';
 
-USE Lambencydb;
+USE lambencydb;
 
-CREATE TABLE `User` (
+CREATE TABLE `user` (
 	`user_id` int NOT NULL AUTO_INCREMENT UNIQUE,
 	`first_name` varchar(50) NOT NULL,
 	`last_name` varchar(50) NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE `User` (
 	PRIMARY KEY (`user_id`)
 );
 
-CREATE TABLE `Organization` (
+CREATE TABLE `organization` (
 	`org_id` int NOT NULL AUTO_INCREMENT,
 	`name` varchar(300) NOT NULL UNIQUE,
 	`description` TEXT NOT NULL,
@@ -31,14 +31,14 @@ CREATE TABLE `Organization` (
 	PRIMARY KEY (`org_id`)
 );
 
-CREATE TABLE `Groupies` (
+CREATE TABLE `groupies` (
 	`org_id` int NOT NULL,
 	`user_id` int NOT NULL,
 	`groupies_type` int NOT NULL,
 	`confirmed` bit NOT NULL
 );
 
-CREATE TABLE `Events` (
+CREATE TABLE `events` (
 	`event_id` int NOT NULL AUTO_INCREMENT,
 	`org_id` int NOT NULL,
 	`name` TEXT NOT NULL,
@@ -52,20 +52,20 @@ CREATE TABLE `Events` (
 	PRIMARY KEY (`event_id`)
 );
 
-CREATE TABLE `Event_Attendence` (
+CREATE TABLE `event_attendence` (
 	`event_id` int NOT NULL,
 	`user_id` int NOT NULL,
 	`check_in_time` DATETIME,
 	`check_out_time` DATETIME
 );
 
-CREATE TABLE `Endorse` (
+CREATE TABLE `endorse` (
 	`org_id` int NOT NULL,
 	`endorsed_id` int NOT NULL,
 	`endorse_type` bit NOT NULL
 );
 
-CREATE TABLE `Message` (
+CREATE TABLE `message` (
 	`message_id` int NOT NULL AUTO_INCREMENT,
 	`sender_id` int NOT NULL,
 	`date_sent` DATETIME NOT NULL,
@@ -74,7 +74,7 @@ CREATE TABLE `Message` (
 	PRIMARY KEY (`message_id`)
 );
 
-CREATE TABLE `Chat` (
+CREATE TABLE `chat` (
 	`chat_id` int NOT NULL AUTO_INCREMENT,
 	`user1_id` int NOT NULL,
 	`user2_id` int NOT NULL,

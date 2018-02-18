@@ -22,6 +22,8 @@ public class LambencyServer{
             //error happened in connecting to database
         }
 
+        //port(20000);
+
         addroutes();
     }
 
@@ -36,6 +38,12 @@ public class LambencyServer{
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgId");
             Integer ret = UserHandler.followOrg(oAuthCode, Integer.parseInt(orgID));
+            return ret;
+        }, new JsonTransformer());
+        post("/User/requestJoinOrg", "application/json", (request, response) -> {
+            String oAuthCode = request.queryParams("oAuthCode");
+            String orgID = request.queryParams("orgId");
+            Integer ret = UserHandler.requestJoinOrg(oAuthCode, Integer.parseInt(orgID));
             return ret;
         }, new JsonTransformer());
         post("/Organization/create", "application/json",
@@ -62,6 +70,7 @@ public class LambencyServer{
             UserAuthenticator ua = FacebookLogin.facebookLogin(request.queryParams("id"), request.queryParams("first"), request.queryParams("last"), request.queryParams("email"));
             return ua;
         }, new JsonTransformer());
+
 
     }
 
