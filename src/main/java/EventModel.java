@@ -16,7 +16,7 @@ public class EventModel {
     private double longitude;
 
 
-    public Event(String name, int org_id, Timestamp start, Timestamp end, String description, String location) {
+    public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location) {
         this.name = name;
         this.org_id = org_id;
         this.start = start;
