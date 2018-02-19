@@ -60,10 +60,6 @@ public class LambencyServer{
                 (request, response) ->
                         EventHandler.updateEvent( new Gson().fromJson(request.body(), EventModel.class))
                 , new JsonTransformer());
-        post("/Event/update", "application/json",
-                (request, response) ->
-                        EventHandler.updateEvent( new Gson().fromJson(request.body(), EventModel.class))
-                , new JsonTransformer());
         post("/Event/create", "application/json", (request, response) ->
                         EventHandler.createEvent( new Gson().fromJson(request.body(), EventModel.class))
                 , new JsonTransformer());
