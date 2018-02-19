@@ -2,6 +2,7 @@
 import java.awt.image.AreaAveragingScaleFilter;
 import java.io.IOException;
 import java.sql.SQLException;
+
 import java.util.ArrayList;
 
 public class OrganizationHandler {
@@ -35,6 +36,7 @@ public class OrganizationHandler {
         return status;
 
     }
+
 
     /**
      * Searches for organizations beginning with the substring name
