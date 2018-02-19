@@ -166,4 +166,12 @@ public class User {
 
         return result;
     }
+
+    /** Method to unfollow an organization
+     *
+     * @param user_id   ID of user who wants to do the user_id
+     * @param org_id    ID of organization that you are unfollowing
+     * @return          0 if success and 1 if failure
+     */
+
 }
