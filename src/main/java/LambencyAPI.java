@@ -5,6 +5,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 import java.util.ArrayList;
+
 import java.util.List;
 
 public interface LambencyAPI {
@@ -23,5 +24,6 @@ public interface LambencyAPI {
     @GET("Event/search")
     Call<List<EventModel>> getEventsWithParams(@Query("lat") double lat, @Query("long") double longitude,
                                                @Query("name") String name, @Query("org_idStr") String org_idStr);
-
+    @POST("User/requestJoinOrg")
+    Call<Integer> postJoinOrganization(@Query("oAuthCode") String oAuthCode, @Query("orgId") int orgID);
 }
