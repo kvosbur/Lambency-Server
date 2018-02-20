@@ -165,7 +165,7 @@ public void getListOfUsersRetrofit(String oAuthCode, int event_id)
             }
             else
             {
-                //results found
+                //users attending found
             }
         }
 
