@@ -229,7 +229,7 @@ public class DatabaseConnection {
 
         //create prepare statement for sql query
         PreparedStatement ps = connect.prepareStatement("UPDATE Events SET name = ? , start_time = ?, " +
-                "end_time = ? , description = ? , location = ? , event_image = ?, latitude = ?, longitude = ? WHERE event_id = ?");
+                "end_time = ? , description = ? , location = ? , event_img = ?, latitude = ?, longitude = ? WHERE event_id = ?");
 
         //set parameters for prepared statement
         ps.setString(1, name);
