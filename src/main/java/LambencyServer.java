@@ -1,7 +1,6 @@
 
 import com.google.gson.Gson;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import static spark.Spark.*;
@@ -38,6 +37,11 @@ public class LambencyServer{
             GoogleLoginHandler glh = new GoogleLoginHandler();
             return glh.getAuthenticator(token);
         }, new JsonTransformer());
+        get("/User/search", "application/json", (request, response) -> {
+            String oAuthCode = request.queryParams("oAuthCode");
+            String id = request.queryParams("id");
+            return UserHandler.searchForUser(oAuthCode,id);
+        }, new JsonTransformer());
         get("/User/followOrg", "application/json", (request, response) -> {
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgId");
@@ -57,9 +61,9 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
         post("/Organization/create", "application/json",
-                (request, response) ->
-                        OrganizationHandler.createOrganization( new Gson().fromJson(request.body(), Organization.class))
-                , new JsonTransformer());
+                (request, response) -> {
+                       return OrganizationHandler.createOrganization( new Gson().fromJson(request.body(), Organization.class));
+                }, new JsonTransformer());
         get("/Organization/search", "application/json", (request, response) -> {
             ArrayList<Organization> orgList = OrganizationHandler.searchOrgName(request.queryParams("name"));
             return orgList;
