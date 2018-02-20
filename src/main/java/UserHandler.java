@@ -1,4 +1,3 @@
-import javax.xml.crypto.Data;
 import java.sql.SQLException;
 
 public class UserHandler {
@@ -130,6 +129,32 @@ public class UserHandler {
         } catch (SQLException e) {
             System.out.println("SQLExcpetion");
             return 2;
+        }
+    }
+
+    /**
+     *
+     * @param oAuthCode oAuthCode for the user
+     * @param userID id of user to search for
+     * @return returns User object on success or null if failure
+     */
+    public static User searchForUser(String oAuthCode, String userID) {
+        try {
+            //search for user
+            if (userID != null && LambencyServer.dbc.searchForUser(oAuthCode) == null) {
+                System.out.println("User not found");
+                return null;
+            }
+            //search for organization by ID
+            if(userID == null){
+                return LambencyServer.dbc.searchForUser(oAuthCode);
+            }else{
+                return LambencyServer.dbc.searchForUser(userID, DatabaseConnection.LAMBNECYUSERID);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("SQLExcpetion");
+            return null;
         }
     }
 }
