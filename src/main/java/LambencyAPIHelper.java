@@ -154,6 +154,11 @@ public void getListOfUsersRetrofit(String oAuthCode, int event_id)
 
             ArrayList<User> userList = response.body();
 
+            if(userList == null)
+            {
+                //error
+            }
+
             if(userList.size() == 0)
             {
                 //no users attending
