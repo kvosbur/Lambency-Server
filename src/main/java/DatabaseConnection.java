@@ -754,6 +754,39 @@ public class DatabaseConnection {
      * END ORGANIZATION METHODS
      */
 
+    /**
+     * BEGIN UTIL METHODS
+     */
+
+    /**
+     * This method deletes data from all tables and resets the auto increment ids in the process (For testing purposes)
+     * @return -1 if there was an error in deleting one of the tables, 0 on success
+     */
+
+    public int truncateTables() throws SQLException{
+
+        //array of tables that exist in database
+        String[] tables = {"chat", "endorse", "event_attendence", "events",
+            "groupies", "message", "organization", "user"};
+
+        String sql = "TRUNCATE TABLE ";
+
+        int error = 0;
+        for(String table:tables){
+            Statement statement = connect.createStatement();
+            int result = statement.executeUpdate(sql + table);
+            if(result == -1){
+                error = -1;
+            }
+        }
+
+        return error;
+    }
+
+    /**
+     * END UTIL METHODS
+     */
+
     public static void main(String[] args) {
         try {
             DatabaseConnection db = new DatabaseConnection();
