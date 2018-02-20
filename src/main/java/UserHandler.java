@@ -20,7 +20,7 @@ public class UserHandler {
                 User u = LambencyServer.dbc.searchForUser(oAuthCode);
                 //check if already has a groupie for this org
                 Groupies g = LambencyServer.dbc.searchGroupies(u.getUserId(), orgID);
-                if (g != null) {
+                if (g == null) {
                     //if org is found and no groupies already exist, set to follow in database
                     LambencyServer.dbc.addGroupies(u.getUserId(), orgID, DatabaseConnection.FOLLOW, true);
                     return 0;
@@ -105,7 +105,7 @@ public class UserHandler {
                 User u = LambencyServer.dbc.searchForUser(oAuthCode);
                 //check if already has a groupie for this org
                 Groupies g = LambencyServer.dbc.searchGroupies(u.getUserId(), orgID);
-                if (g != null) {
+                if (g == null) {
                     //if org is found and no groupies already exist, set to follow in database
                     LambencyServer.dbc.addGroupies(u.getUserId(), orgID, DatabaseConnection.MEMBER, false);
                     return 0;
@@ -119,6 +119,39 @@ public class UserHandler {
                     }
                     //user already has higher or equal permissions
                     System.out.println("Groupies already exists with equal or higher permissions");
+                    return 1;
+                }
+            } else {
+                //org is not found, return error
+                System.out.println("Organization not found");
+                return 1;
+            }
+        } catch (SQLException e) {
+            System.out.println("SQLExcpetion");
+            return 2;
+        }
+    }
+
+    public static Integer registerEvent(String oAuthCode, int eventID){
+        try {
+            //search for user
+            if (LambencyServer.dbc.searchForUser(oAuthCode) == null) {
+                System.out.println("User not found");
+                return 1;
+            }
+            //search for organization by ID
+            EventModel event = LambencyServer.dbc.searchEvents(eventID);
+            if (event != null) {
+                User u = LambencyServer.dbc.searchForUser(oAuthCode);
+                //check if user is already registered for an event
+                EventAttendance ea = LambencyServer.dbc.searchEventAttendance(u.getUserId(), eventID);
+                if (ea == null) {
+                    //if event is found and no event attended already exist, register user for event
+                    LambencyServer.dbc.registerForEvent(u.getUserId(), eventID);
+                    return 0;
+                } else {
+                    //User is already registered
+                    System.out.println("User is already registered for the event");
                     return 1;
                 }
             } else {

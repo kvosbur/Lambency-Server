@@ -1,6 +1,7 @@
 
 import com.google.gson.Gson;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import static spark.Spark.*;
@@ -22,6 +23,7 @@ public class LambencyServer{
             LambencyServer.dbc = new DatabaseConnection();
         }catch(Exception e){
             //error happened in connecting to database
+            System.out.println("TEst");
         }
 
         port(20000);
@@ -51,6 +53,12 @@ public class LambencyServer{
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgId");
             Integer ret = UserHandler.requestJoinOrg(oAuthCode, Integer.parseInt(orgID));
+            return ret;
+        }, new JsonTransformer());
+        get("/User/registerForEvent", "application/json", (request, response) -> {
+            String oAuthCode = request.queryParams("oAuthCode");
+            String eventID = request.queryParams("eventId");
+            Integer ret = UserHandler.registerEvent(oAuthCode, Integer.parseInt(eventID));
             return ret;
         }, new JsonTransformer());
         post("/Organization/create", "application/json",
@@ -89,6 +97,11 @@ public class LambencyServer{
     public static void main(String[]args){
 
         LambencyServer lb = new LambencyServer();
-
+        /*
+        UserAuthenticator ua = FacebookLogin.facebookLogin("id","first", "last", "email@mail.com" );
+        EventModel e = new EventModel("Event", 8 , new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description","location", "path", 10,   100, 1200);
+        int eventID = EventHandler.createEvent(e);
+        UserHandler.registerEvent(ua.getoAuthCode(), eventID);
+        */
     }
 }
