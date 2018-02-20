@@ -320,7 +320,7 @@ public class DatabaseConnection {
     /**
      *
      * @param email email to be verified to be unique
-     * @return -1 on non-unique, 0 on unique
+     * @return -1 on non-unique, 1 on unique
      */
     public int verifyUserEmail(String email) throws SQLException{
         //create string for query
