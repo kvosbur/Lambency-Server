@@ -1,3 +1,5 @@
+import java.sql.Timestamp;
+
 public class Testing {
     private static DatabaseConnection dbc;
     private static void clearDatabase(){
@@ -73,6 +75,30 @@ public class Testing {
         return false;
     }
 
+    public static boolean testCreateEvent(){
+        try{
+            User u = dbc.searchForUser("facebookUser", 2);
+            Organization org = dbc.searchForOrg("My Organization");
+            int eventID = dbc.createEvent(org.getOrgID(),"Event 1", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 500),
+                    "This is a test event", "Location", "imgg", 5 , 5);
+            if (eventID <= 0){
+                System.out.println("Event creation failed");
+                return false;
+            }
+            EventModel e = dbc.searchEvents(eventID);
+            if(!(e.getName().equals("Event 1") && e.getOrg_id() == org.getOrgID() && e.getDescription().equals("This is a test event") && e.getLocation().equals("Location")
+                    && e.getImage_path().equals("imgg") && Math.abs(e.getLattitude()-5) < 0.01 && Math.abs(e.getLongitude() -5) < 0.01)){
+                System.out.println("search for event by name failed: incorrect fields");
+                return false;
+            }
+            return true;
+        }
+        catch (Exception e){
+            System.out.println("database exception");
+        }
+        return false;
+    }
+
     public static void main(String[] args){
         try {
             dbc = new DatabaseConnection();
@@ -94,6 +120,16 @@ public class Testing {
             System.out.print("Test Create Organization: ");
             count++;
             if (testCreateOrg()) {
+                passed++;
+                System.out.println("PASSED");
+            } else {
+                System.out.println("FAILED");
+                passedAll = false;
+            }
+
+            System.out.print("Test Create Event: ");
+            count++;
+            if (testCreateEvent()) {
                 passed++;
                 System.out.println("PASSED");
             } else {
