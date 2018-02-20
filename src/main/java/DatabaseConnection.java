@@ -2,7 +2,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO searchForOrgArray
 
 public class DatabaseConnection {
     private Connection connect = null;
