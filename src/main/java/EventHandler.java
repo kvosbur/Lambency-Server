@@ -1,6 +1,8 @@
 import com.google.maps.model.LatLng;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EventHandler {
 
@@ -11,7 +13,7 @@ public class EventHandler {
      */
 
 
-    public static int createEvent(Event event) {
+    public static int createEvent(EventModel event) {
 
         try {
             //get latitude and longitude for database
@@ -27,7 +29,7 @@ public class EventHandler {
     }
 
 
-    public static int updateEvent(Event event) {
+    public static int updateEvent(EventModel event) {
         try{
             LambencyServer.dbc.modifyEventInfo(event.getEvent_id(),event.getName(),event.getStart(),event.getEnd(),
                     event.getDescription(),event.getLocation(),event.getImage_path(),event.getLattitude(),event.getLongitude());
@@ -37,5 +39,34 @@ public class EventHandler {
             System.out.println("Error in updating Event: "+event.getName());
             return 0;
         }
+    }
+
+    /** Call from the API to gather the events that are searched by location
+     *
+     * @param lattitude    double for lat
+     * @param longitude    double for long
+     * @return     List of events if successful, null otherwise
+     */
+
+    public static List<EventModel> getEventsByLocation(double lattitude, double longitude){
+        // I am assuming that the odds of them being at exactly 0,0 (lat,long) is so microscopic that the only case that it would be 0 is if Double.parse(null) == 0
+        if(lattitude == 0 || longitude == 0){
+            return null;
+        }
+        List<Integer> eventIDs;
+        List<EventModel> events = new ArrayList<>();
+        try{
+            eventIDs = LambencyServer.dbc.searchEventsByLocation(lattitude,longitude);
+            for(Integer i: eventIDs){
+                events.add(LambencyServer.dbc.searchEvents(i));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in get events by location: "+e);
+            return null;
+        }
+
+        return events;
+
+
     }
 }

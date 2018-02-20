@@ -6,6 +6,11 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import java.io.IOException;
+import java.util.List;
+
+import java.util.ArrayList;
+
 public class LambencyAPIHelper {
 
 
@@ -60,6 +65,25 @@ public class LambencyAPIHelper {
         });
     }
 
+    public List<EventModel> findEventsWithParam(double lattitude, double longitude, String name, int org_id){
+        List<EventModel> events = null;
+
+        try {
+            Response<List<EventModel>> response = this.getInstance().getEventsWithParams(lattitude,longitude,name,Double.toString(org_id)).execute();
+            if(response.isSuccessful()) {
+                events = response.body();
+            }
+            else{
+                System.out.println("failed to gather events");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return events;
+    }
+
+
     public void googleLoginRetrofit(String id){
 
         this.getInstance().getGoogleLogin(id).enqueue(new Callback<UserAuthenticator>() {
@@ -92,7 +116,33 @@ public class LambencyAPIHelper {
         });
     }
 
-    public void createOrganizationRetrofit(Organization org){
+public void getOrganizationSearch(String name){
+
+        this.getInstance().getOrganizationSearch(name).enqueue(new Callback<ArrayList<Organization>>() {
+            @Override
+            public void onResponse(Call<ArrayList<Organization>> call, Response<ArrayList<Organization>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                }
+                //when response is back
+                ArrayList<Organization> orgList = response.body();
+                if(orgList.size() == 0){
+                    //no results found
+                }
+                else{
+                    //results found
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<Organization>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+}
+
+public void createOrganizationRetrofit(Organization org){
 
         this.getInstance().postCreateOrganization(org).enqueue(new Callback<Integer>() {
             @Override
@@ -121,12 +171,12 @@ public class LambencyAPIHelper {
             }
         });
     }
-
-
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
-        Organization org = new Organization(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");
-        lh.createOrganizationRetrofit(org);
+        //Organization org = new Organization(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");
+        //lh.createOrganizationRetrofit(org);
         //lh.facebookLoginRetrofit("id", "fist", "last", "email.com");
+        lh.facebookLoginRetrofit("id", "fist", "last", "email.com");
+        System.out.println(lh.findEventsWithParam(0.0,0.0,null,0));
     }
 }

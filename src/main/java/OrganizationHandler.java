@@ -1,5 +1,9 @@
 
+import java.awt.image.AreaAveragingScaleFilter;
 import java.io.IOException;
+import java.sql.SQLException;
+
+import java.util.ArrayList;
 
 public class OrganizationHandler {
 
@@ -31,6 +35,23 @@ public class OrganizationHandler {
         }
         return status;
 
+    }
+
+
+    /**
+     * Searches for organizations beginning with the substring name
+     * @param name name of the organization to be searched for
+     * @return an ArrayList of organizations
+     */
+    public static ArrayList<Organization> searchOrgName(String name){
+        ArrayList<Organization> array;
+        try {
+            array = LambencyServer.dbc.searchForOrgArray(name);
+        }
+        catch (SQLException e){
+            array = new ArrayList<Organization>();
+        }
+        return array;
     }
 
 }
