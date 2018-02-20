@@ -512,6 +512,40 @@ public class DatabaseConnection {
     }
 
     /**
+     * Searches for all users who are attending the specified event
+     * @param eventID the id of the event to search for
+     * @return Arraylist of User objects, null if no users found
+     */
+    public ArrayList<User> searchEventAttendanceUsers(int eventID) throws SQLException{
+
+        //create string for query
+        String fields = "user_id";
+        String query = "SELECT " + fields + " FROM event_attendence WHERE event_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<User> users = new ArrayList<>();
+
+        //check for results and return object
+        while(rs.next()){
+            int userID = rs.getInt(1);
+            User user = searchForUser("" + userID, LAMBNECYUSERID);
+            if(user != null){
+                users.add(user);
+            }
+        }
+
+        if(users.size() == 0){
+            return null;
+        }
+
+        return users;
+    }
+
+    /**
      * END EVENT METHODS
      */
 
@@ -600,7 +634,6 @@ public class DatabaseConnection {
     }
 
     /**
-     * TODO
      * Returns all organizations beginning with the substring 'name'
      * @param name name of the organization
      * @return an arraylist of organizations with a size of 0 or greater.
