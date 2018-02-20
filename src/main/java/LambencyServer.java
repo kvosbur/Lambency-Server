@@ -24,7 +24,7 @@ public class LambencyServer{
             //error happened in connecting to database
         }
 
-        //port(20000);
+        port(20000);
 
         addroutes();
     }
@@ -34,7 +34,7 @@ public class LambencyServer{
         get("/User/login/google", "application/json", (request, response) -> {
             String token = request.queryParams("idToken");
             GoogleLoginHandler glh = new GoogleLoginHandler();
-            return glh.getAuthenticator("token");
+            return glh.getAuthenticator(token);
         }, new JsonTransformer());
         get("/User/followOrg", "application/json", (request, response) -> {
             String oAuthCode = request.queryParams("oAuthCode");
