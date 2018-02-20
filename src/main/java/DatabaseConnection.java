@@ -472,6 +472,30 @@ public class DatabaseConnection {
     }
 
     /**
+     * TODO
+     * Returns the EventAttendance object associated with the given userID and eventID
+     * @param userID the id of the user to search for
+     * @param eventID the id of the event to search for
+     * @return EventAttendance object for the corresponding userID and eventId, null if non-existent
+     */
+    public EventAttendance searchEventAttendance(int userID, int eventID){
+
+        return null;
+    }
+
+    /**
+     * TODO
+     * Registers a user to an event
+     * @param userID the id of the user registering for an event
+     * @param eventID the id of the event
+     * @return 0 on success, -1 on failure
+     */
+    public int registerForEvent(int userID, int eventID){
+
+        return -1;
+    }
+
+    /**
      * END EVENT METHODS
      */
 
@@ -695,7 +719,10 @@ public class DatabaseConnection {
             System.out.println("connected successfully");
 
 
-
+            int eventID = db.createEvent(1,"Event", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description", "location", "path",  100, 120);
+            int ua = db.createUser("id2", "first", "last", "email@mail.com", 2);
+            User u = db.searchForUser("id2", 2);
+            UserHandler.registerEvent(u.getOauthToken(), eventID);
             /*
             test for adding / searching groupies
             int a = db.deleteGroupies(21,20, MEMBER);
