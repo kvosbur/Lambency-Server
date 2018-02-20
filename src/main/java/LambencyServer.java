@@ -22,6 +22,7 @@ public class LambencyServer{
             LambencyServer.dbc = new DatabaseConnection();
         }catch(Exception e){
             //error happened in connecting to database
+            System.out.println("TEst");
         }
 
         port(20000);
@@ -36,6 +37,11 @@ public class LambencyServer{
             GoogleLoginHandler glh = new GoogleLoginHandler();
             return glh.getAuthenticator(token);
         }, new JsonTransformer());
+        get("/User/search", "application/json", (request, response) -> {
+            String oAuthCode = request.queryParams("oAuthCode");
+            String id = request.queryParams("id");
+            return UserHandler.searchForUser(oAuthCode,id);
+        }, new JsonTransformer());
         get("/User/followOrg", "application/json", (request, response) -> {
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgId");
@@ -48,10 +54,16 @@ public class LambencyServer{
             Integer ret = UserHandler.requestJoinOrg(oAuthCode, Integer.parseInt(orgID));
             return ret;
         }, new JsonTransformer());
+        get("/User/registerForEvent", "application/json", (request, response) -> {
+            String oAuthCode = request.queryParams("oAuthCode");
+            String eventID = request.queryParams("eventId");
+            Integer ret = UserHandler.registerEvent(oAuthCode, Integer.parseInt(eventID));
+            return ret;
+        }, new JsonTransformer());
         post("/Organization/create", "application/json",
-                (request, response) ->
-                        OrganizationHandler.createOrganization( new Gson().fromJson(request.body(), Organization.class))
-                , new JsonTransformer());
+                (request, response) -> {
+                       return OrganizationHandler.createOrganization( new Gson().fromJson(request.body(), Organization.class));
+                }, new JsonTransformer());
         get("/Organization/search", "application/json", (request, response) -> {
             ArrayList<Organization> orgList = OrganizationHandler.searchOrgName(request.queryParams("name"));
             return orgList;
@@ -84,6 +96,11 @@ public class LambencyServer{
     public static void main(String[]args){
 
         LambencyServer lb = new LambencyServer();
-
+        /*
+        UserAuthenticator ua = FacebookLogin.facebookLogin("id","first", "last", "email@mail.com" );
+        EventModel e = new EventModel("Event", 8 , new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description","location", "path", 10,   100, 1200);
+        int eventID = EventHandler.createEvent(e);
+        UserHandler.registerEvent(ua.getoAuthCode(), eventID);
+        */
     }
 }
