@@ -2,7 +2,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO searchForOrgArray
 
 public class DatabaseConnection {
     private Connection connect = null;
@@ -609,13 +608,34 @@ public class DatabaseConnection {
 
     public ArrayList<Organization> searchForOrgArray(String name) throws SQLException{
         ArrayList<Organization> array = new ArrayList<Organization>();
+
+        //create string for query
+        String fields = "org_id, name, description, org_email," +
+                "`org_ contact`, org_img, org_location";
+        String query = "SELECT " + fields + " FROM organization WHERE name LIKE ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setString(1, name + "%");
+        ResultSet rs = ps.executeQuery();
+
+        while(rs.next()){
+            User owner = searchForUser("" + rs.getInt(5), LAMBNECYUSERID);
+            Organization organization = new Organization(owner,rs.getString(2),rs.getString(7), rs.getInt(1),
+                    rs.getString(3),rs.getString(4),owner,rs.getString(6));
+            array.add(organization);
+        }
+
         return array;
     }
+
+
       /**
      *  Search for organization by org_id
      * @param orgID id of the organization
      * @return the organization corresponding to the org id
      */
+
     public Organization searchForOrg(int orgID) throws SQLException{
 
         //create string for query
@@ -738,6 +758,13 @@ public class DatabaseConnection {
         try {
             DatabaseConnection db = new DatabaseConnection();
             System.out.println("connected successfully");
+
+            /*
+            Test for searching for orgnizations by name
+            ArrayList<Organization> organizations = db.searchForOrgArray("my");
+            for(Organization o: organizations){
+                System.out.println(o.name);
+            }
 
             /*
             test for registering for events and searching for attendence
