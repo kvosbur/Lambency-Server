@@ -1,8 +1,6 @@
 
-import java.awt.image.AreaAveragingScaleFilter;
 import java.io.IOException;
 import java.sql.SQLException;
-
 import java.util.ArrayList;
 
 public class OrganizationHandler {
@@ -15,12 +13,12 @@ public class OrganizationHandler {
      * @return an integer representing the org_id on success and an error code on failure.
      *           -1 Database Error | -2 Non Determinant Error
      */
-    public static int createOrganization(Organization org){
+    public static Organization createOrganization(Organization org){
 
         // Saves the orgs image to a file
         String path = null;
         int status;
-        try {;
+        try {
             path = ImageWR.writeImageToFile(org.getImage());
 
         } catch (IOException e) {
@@ -29,11 +27,12 @@ public class OrganizationHandler {
         try {
             status = LambencyServer.dbc.createOrganization(org.getName(), org.getDescription(), org.getEmail(), org.getContact()
                     .getUserId(), org.getLocation(), path, org.getOrganizers().get(0).getUserId());
+            return LambencyServer.dbc.searchForOrg(status);
         }
         catch (Exception e){
             status = -2;
         }
-        return status;
+        return null;
 
     }
 
