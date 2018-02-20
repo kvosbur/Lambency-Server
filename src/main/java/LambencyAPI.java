@@ -3,12 +3,9 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
-import javax.annotation.PostConstruct;
+
 import java.util.ArrayList;
-
 import java.util.List;
-
-import javax.annotation.PostConstruct;
 
 public interface LambencyAPI {
 
@@ -26,6 +23,5 @@ public interface LambencyAPI {
     @GET("Event/search")
     Call<List<EventModel>> getEventsWithParams(@Query("lat") double lat, @Query("long") double longitude,
                                                @Query("name") String name, @Query("org_idStr") String org_idStr);
-    @POST("Organization/Create")
-    Call<Integer> postCreateOrganization(@Body Organization org);
+
 }
