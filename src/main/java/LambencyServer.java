@@ -64,12 +64,17 @@ public class LambencyServer{
                         EventHandler.createEvent( new Gson().fromJson(request.body(), EventModel.class))
                 , new JsonTransformer());
 
-        get("Event/search","application/json", (request,response)->{
+        get("/Event/search","application/json", (request,response)->{
             String latStr = request.queryParams("lat");
             String longStr = request.queryParams("long");
             String name = request.queryParams("name");
             String org_idStr = request.queryParams("org_id");
             return EventHandler.getEventsByLocation(Double.parseDouble(latStr), Double.parseDouble(longStr));
+        }, new JsonTransformer());
+        get("/Event/users","application/json",(request,response)->{
+            String oauthcode = request.queryParams("oauthcode");
+            int event_id = Integer.parseInt(request.queryParams("event_id"));
+            return null;
         }, new JsonTransformer());
 
         get("/User/login/facebook", "application/json", (request, response) -> {

@@ -69,4 +69,39 @@ public class EventHandler {
 
 
     }
+
+    public static List<User> getUsersAttending(String oauthcode, int event_id){
+        // verify oauthcode is a user
+        try {
+            User us = LambencyServer.dbc.searchForUser(oauthcode);
+            if(us == null){
+                return null;
+            }
+            else{
+                //verify that event exists
+                EventModel eventModel = LambencyServer.dbc.searchEvents(event_id);
+                if(eventModel == null){
+                    return null;
+                }
+                else{
+                    // check if they have organizer permission
+                    Groupies gp = LambencyServer.dbc.searchGroupies(us.getUserId(),eventModel.getOrg_id());
+                    if(gp == null || gp.getType() != DatabaseConnection.ORGANIZER){
+                        return null;
+                    }
+                    else if(gp.getType() == DatabaseConnection.ORGANIZER){
+                        
+                    }
+                    else {
+                        return null;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
 }
