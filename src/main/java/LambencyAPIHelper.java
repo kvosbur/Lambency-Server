@@ -7,6 +7,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.List;
 
 import java.util.ArrayList;
@@ -140,6 +141,35 @@ public void getOrganizationSearch(String name){
                 System.out.println("FAILED CALL");
             }
         });
+}
+
+public void getListOfUsersRetrofit(String oAuthCode, int event_id)
+{
+    this.getInstance().getListOfUsers(oAuthCode, event_id).enqueue(new Callback<ArrayList<User>>() {
+        @Override
+        public void onResponse(Call<ArrayList<User>> call, Response<ArrayList<User>> response) {
+            if (response.body() == null || response.code() != 200) {
+                System.out.println("ERROR!!!!!");
+            }
+
+            ArrayList<User> userList = response.body();
+
+            if(userList.size() == 0)
+            {
+                //no users attending
+            }
+            else
+            {
+                //results found
+            }
+        }
+
+        @Override
+        public void onFailure(Call<ArrayList<User>> call, Throwable throwable) {
+            //when failure
+            System.out.println("FAILED CALL");
+        }
+    });
 }
 
 public void createOrganizationRetrofit(Organization org){
