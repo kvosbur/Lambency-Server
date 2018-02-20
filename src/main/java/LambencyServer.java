@@ -92,9 +92,11 @@ public class LambencyServer{
     public static void main(String[]args){
 
         LambencyServer lb = new LambencyServer();
+        /*
         UserAuthenticator ua = FacebookLogin.facebookLogin("id","first", "last", "email@mail.com" );
         EventModel e = new EventModel("Event", 8 , new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description","location", "path", 10,   100, 1200);
         int eventID = EventHandler.createEvent(e);
         UserHandler.registerEvent(ua.getoAuthCode(), eventID);
+        */
     }
 }
