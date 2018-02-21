@@ -31,6 +31,7 @@ public class OrganizationHandler {
         }
         catch (Exception e){
             status = -2;
+            e.printStackTrace();
         }
         return null;
 
