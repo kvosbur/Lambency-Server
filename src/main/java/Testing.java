@@ -194,6 +194,34 @@ public class Testing {
         return false;
     }
 
+    private static boolean testChangeUserInfo(){
+        try{
+            User u = dbc.searchForUser("facebookUser", 2);
+            u.setEmail("newemail@gmail.com");
+            u.setFirstName("George");
+            u.setLastName("Adams");
+            u = UserHandler.changeInfo(u);
+            if(u == null){
+                System.out.println("change user info failed: returned null");
+                return false;
+            }
+            if(!(u.getEmail().equals("newemail@gmail.com") && u.getFirstName().equals("George") && u.getLastName().equals("Adams"))){
+                System.out.println("change user info failed: returned incorrect user object");
+                return false;
+            }
+            u = dbc.searchForUser("facebookUser", 2);
+            if(!(u.getEmail().equals("newemail@gmail.com") && u.getFirstName().equals("George") && u.getLastName().equals("Adams"))){
+                System.out.println("change user info failed: failed to update database");
+                return false;
+            }
+            return true;
+        }
+        catch (Exception e){
+            System.out.println("database error");
+        }
+        return false;
+    }
+
     public static void main(String[] args){
         try {
             dbc = new DatabaseConnection();
@@ -256,6 +284,16 @@ public class Testing {
             System.out.print("Test Unfollow Org: ");
             count++;
             if (testUnfollowOrg()) {
+                passed++;
+                System.out.println("PASSED");
+            } else {
+                System.out.println("FAILED");
+                passedAll = false;
+            }
+
+            System.out.print("Test Change User Info: ");
+            count++;
+            if (testChangeUserInfo()) {
                 passed++;
                 System.out.println("PASSED");
             } else {
