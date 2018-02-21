@@ -2,8 +2,15 @@ import java.sql.Timestamp;
 
 public class Testing {
     private static DatabaseConnection dbc;
+    private static int event_id = 0;
     private static void clearDatabase(){
         //method that clears database
+        try {
+            dbc.truncateTables();
+        }
+        catch (Exception e){
+            System.out.println("Reset database failed");
+        }
     }
     private static boolean testCreateUser(){
         try {
@@ -75,12 +82,13 @@ public class Testing {
         return false;
     }
 
-    public static boolean testCreateEvent(){
+    private static boolean testCreateEvent(){
         try{
             User u = dbc.searchForUser("facebookUser", 2);
             Organization org = dbc.searchForOrg("My Organization");
             int eventID = dbc.createEvent(org.getOrgID(),"Event 1", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 500),
                     "This is a test event", "Location", "imgg", 5 , 5);
+            event_id = eventID;
             if (eventID <= 0){
                 System.out.println("Event creation failed");
                 return false;
@@ -95,6 +103,33 @@ public class Testing {
         }
         catch (Exception e){
             System.out.println("database exception");
+        }
+        return false;
+    }
+    private static boolean testModifyEvent(){
+        try {
+            EventModel e = dbc.searchEvents(event_id);
+            if(e == null){
+                System.out.println("search for event failed");
+                return false;
+            }
+            dbc.modifyEventInfo(event_id, "Updated Name", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 10), "Updated description",
+                    "Location 2", "img2", 20, 20);
+            e = dbc.searchEvents(event_id);
+            if(e == null){
+                System.out.println("search for event failed");
+                return false;
+            }
+            if(!(e.getName().equals("Updated Name") && e.getDescription().equals("Updated description") && e.getLocation().equals("Location 2")
+                    && e.getImage_path().equals("img2") && Math.abs(e.getLattitude()-20) < 0.01 && Math.abs(e.getLongitude() -20) < 0.01)){
+                System.out.println("search for event by name failed: incorrect fields");
+                return false;
+            }
+            return true;
+
+        }
+        catch (Exception e){
+            System.out.println("database error");
         }
         return false;
     }
@@ -137,6 +172,17 @@ public class Testing {
                 passedAll = false;
             }
 
+            System.out.print("Test Modify Event: ");
+            count++;
+            if (testModifyEvent()) {
+                passed++;
+                System.out.println("PASSED");
+            } else {
+                System.out.println("FAILED");
+                passedAll = false;
+            }
+
+
             if (passedAll) {
                 System.out.println("\nAll Tests Passed");
             } else {
@@ -147,5 +193,6 @@ public class Testing {
         catch (Exception e){
             e.printStackTrace();
         }
+
     }
 }
