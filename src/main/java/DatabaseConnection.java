@@ -2,14 +2,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO 283 modifyGroupies(userid, orgid, type)
-//TODO setFollowing, searchForOrg(orgID)
-//TODO searchForOrgArray
-    /*
-    TODO:
-    search for following status
-    set following status
-     */
+
 public class DatabaseConnection {
     private Connection connect = null;
     public final static int GOOGLE = 1;
@@ -71,12 +64,6 @@ public class DatabaseConnection {
         return null;
     }
 
-
-
-    /**
-     Description: given oauthCode
-
-     @param oauthCode oauthcode for the given user to search
 
     /**
      Description: given oauthCode
@@ -261,7 +248,6 @@ public class DatabaseConnection {
     }
 
 
-
     /**
      Description: given unique string identifier return matching user object
 
@@ -287,6 +273,8 @@ public class DatabaseConnection {
 
         return true;
     }
+
+
     /**
      Description: Given user information create a user profile that is either associated with a google or facebook profile
 
@@ -320,8 +308,9 @@ public class DatabaseConnection {
     /**
      *
      * @param email email to be verified to be unique
-     * @return -1 on non-unique, 0 on unique
+     * @return -1 on non-unique, 1 on unique
      */
+
     public int verifyUserEmail(String email) throws SQLException{
         //create string for query
         String fields = "user_id";
@@ -472,6 +461,91 @@ public class DatabaseConnection {
     }
 
     /**
+     * Returns the EventAttendance object associated with the given userID and eventID
+     * @param userID the id of the user to search for
+     * @param eventID the id of the event to search for
+     * @return EventAttendance object for the corresponding userID and eventId, null if non-existent
+     */
+    public EventAttendance searchEventAttendance(int userID, int eventID) throws SQLException{
+
+        //create string for query
+        String fields = "event_id, user_id";
+        String query = "SELECT " + fields + " FROM event_attendence WHERE event_id = ? and user_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ps.setInt(2, userID);
+        ResultSet rs = ps.executeQuery();
+
+        //check for results and return object
+        if(rs.next()){
+            return new EventAttendance(rs.getInt(2), rs.getInt(1));
+        }
+
+        return null;
+    }
+
+    /**
+     * Registers a user to an event
+     * @param userID the id of the user registering for an event
+     * @param eventID the id of the event
+     * @return 0 on success, -1 on failure
+     */
+    public int registerForEvent(int userID, int eventID) throws SQLException{
+
+        //create string for query
+        String fields = "(event_id, user_id)";
+        String query = "INSERT INTO event_attendence  " + fields + " VALUES (?,?)";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ps.setInt(2, userID);
+        int result = ps.executeUpdate();
+
+        if(result > 0){
+            return 0;
+        }else{
+            return -1;
+        }
+    }
+
+    /**
+     * Searches for all users who are attending the specified event
+     * @param eventID the id of the event to search for
+     * @return Arraylist of User objects, null if no users found
+     */
+    public ArrayList<User> searchEventAttendanceUsers(int eventID) throws SQLException{
+
+        //create string for query
+        String fields = "user_id";
+        String query = "SELECT " + fields + " FROM event_attendence WHERE event_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<User> users = new ArrayList<>();
+
+        //check for results and return object
+        while(rs.next()){
+            int userID = rs.getInt(1);
+            User user = searchForUser("" + userID, LAMBNECYUSERID);
+            if(user != null){
+                users.add(user);
+            }
+        }
+
+        if(users.size() == 0){
+            return null;
+        }
+
+        return users;
+    }
+
+    /**
      * END EVENT METHODS
      */
 
@@ -529,7 +603,7 @@ public class DatabaseConnection {
 
 
     /**
-     * TODO
+     * Searches for an organization by name
      * @param name name of the organization
      * @return null if no results, otherwise the organiztion
      */
@@ -560,7 +634,6 @@ public class DatabaseConnection {
     }
 
     /**
-     * TODO
      * Returns all organizations beginning with the substring 'name'
      * @param name name of the organization
      * @return an arraylist of organizations with a size of 0 or greater.
@@ -568,13 +641,34 @@ public class DatabaseConnection {
 
     public ArrayList<Organization> searchForOrgArray(String name) throws SQLException{
         ArrayList<Organization> array = new ArrayList<Organization>();
+
+        //create string for query
+        String fields = "org_id, name, description, org_email," +
+                "`org_ contact`, org_img, org_location";
+        String query = "SELECT " + fields + " FROM organization WHERE name LIKE ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setString(1, name + "%");
+        ResultSet rs = ps.executeQuery();
+
+        while(rs.next()){
+            User owner = searchForUser("" + rs.getInt(5), LAMBNECYUSERID);
+            Organization organization = new Organization(owner,rs.getString(2),rs.getString(7), rs.getInt(1),
+                    rs.getString(3),rs.getString(4),owner,rs.getString(6));
+            array.add(organization);
+        }
+
         return array;
     }
+
+
       /**
-     *  TODO
+     *  Search for organization by org_id
      * @param orgID id of the organization
      * @return the organization corresponding to the org id
      */
+
     public Organization searchForOrg(int orgID) throws SQLException{
 
         //create string for query
@@ -601,7 +695,7 @@ public class DatabaseConnection {
     }
 
     /**
-     * TODO
+     * Add a groupies relationship between a given user and organization
      * @param user_id the id of the user to be added
      * @param org_id the id of the organization
      * @param type type to be changed to: FOLLOW, MEMBER, or ORGANIZER
@@ -629,8 +723,10 @@ public class DatabaseConnection {
         }
         return 0;
     }
+
+
     /**
-     * TODO
+     * Remove groupie relationship between user and organization
      * @param user_id the id of the user to be deleted
      * @param org_id the id of the organization
      * @param type type to be changed to: FOLLOW, MEMBER, or ORGANIZER
@@ -656,6 +752,8 @@ public class DatabaseConnection {
         }
         return 0;
     }
+
+
     /**
      * DESCRIPTION - search for groupie status for a user and a given organization
      * @param user_id the id of the user to be search for
@@ -689,13 +787,65 @@ public class DatabaseConnection {
      * END ORGANIZATION METHODS
      */
 
+    /**
+     * BEGIN UTIL METHODS
+     */
+
+    /**
+     * This method deletes data from all tables and resets the auto increment ids in the process (For testing purposes)
+     * @return -1 if there was an error in deleting one of the tables, 0 on success
+     */
+
+    public int truncateTables() throws SQLException{
+
+        //array of tables that exist in database
+        String[] tables = {"chat", "endorse", "event_attendence", "events",
+            "groupies", "message", "organization", "user"};
+
+        String sql = "TRUNCATE TABLE ";
+
+        int error = 0;
+        for(String table:tables){
+            Statement statement = connect.createStatement();
+            int result = statement.executeUpdate(sql + table);
+            if(result == -1){
+                error = -1;
+            }
+        }
+
+        return error;
+    }
+
+    /**
+     * END UTIL METHODS
+     */
+
     public static void main(String[] args) {
         try {
             DatabaseConnection db = new DatabaseConnection();
             System.out.println("connected successfully");
 
+            /*
+            Test for searching for orgnizations by name
+            ArrayList<Organization> organizations = db.searchForOrgArray("my");
+            for(Organization o: organizations){
+                System.out.println(o.name);
+            }
 
-
+            /*
+            test for registering for events and searching for attendence
+            db.registerForEvent(23,10);
+            EventAttendance eventAttendance = db.searchEventAttendance(23,10);
+            System.out.println(eventAttendance.getEventID());
+            System.out.println(eventAttendance.getUserID());
+            */
+            /*
+            test for create event
+            int eventID = db.createEvent(1,"Event", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description", "location", "path",  100, 120);
+            int ua = db.createUser("id2", "first", "last", "email@mail.com", 2);
+            User u = db.searchForUser("id2", 2);
+            UserHandler.registerEvent(u.getOauthToken(), eventID);
+            */
             /*
             test for adding / searching groupies
             int a = db.deleteGroupies(21,20, MEMBER);
