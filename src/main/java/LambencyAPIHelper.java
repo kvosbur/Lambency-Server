@@ -231,6 +231,31 @@ public void createOrganizationRetrofit(Organization org){
             }
         });
     }
+
+    public void changeAccountInfoRetrofit(User user){
+
+        this.getInstance().getChangeAccountInfo(user).enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                }
+                //when response is back
+                User u  = response.body();
+                if(u == null){
+                    System.out.println("failed: returned null");
+                }
+                //u.getEmail();
+                //updated user object
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
         //Organization org = new Organization(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");
