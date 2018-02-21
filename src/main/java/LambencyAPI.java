@@ -4,6 +4,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 
+import javax.annotation.Generated;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -29,4 +30,8 @@ public interface LambencyAPI {
 
     @POST("User/requestJoinOrg")
     Call<Integer> postJoinOrganization(@Query("oAuthCode") String oAuthCode, @Query("orgId") int orgID);
+
+    @GET("User/changeInfo/")
+    Call<User> getChangeAccountInfo(@Query("user") User u);
+
 }
