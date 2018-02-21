@@ -127,4 +127,40 @@ public class Organization {
     public int checkPermissions(User u){
         return 0;
     }
+
+    public String toString(){
+
+        String result = "";
+        result += "Org ID: " + orgID + "\n";
+        result += "Name: " + name + "\n";
+        result += "Contact:\n" + contact.toString();
+        result += "Owner:\n" + owner.toString();
+        result += "Location:" + location + "\n";
+        result += "Description: " + description + "\n";
+        result += "Email: " + email + "\n";
+        if(members == null){
+            result += "Members: NULL\n";
+        } else if(members.size() == 0){
+            result += "Members: NONE\n";
+        }else{
+            result += "Members: Some\n";
+        }
+
+        if(organizers == null){
+            result += "Organizers: NULL\n";
+        } else if(organizers.size() == 0){
+            result += "Organizers: NONE\n";
+        }else{
+            result += "Organizers: Some\n";
+        }
+
+        if(events == null){
+            result += "Events: NULL\n";
+        } else if(events.size() == 0){
+            result += "Events: NONE\n";
+        }else{
+            result += "Events: Some\n";
+        }
+        return result;
+    }
 }

@@ -38,7 +38,7 @@ public class LambencyServer{
             return glh.getAuthenticator(token);
         }, new JsonTransformer());
         get("/User/search", "application/json", (request, response) -> {
-            String oAuthCode = request.queryParams("oAuthCode");
+            String oAuthCode = request.queryParams("oAuthToken");
             String id = request.queryParams("id");
             return UserHandler.searchForUser(oAuthCode,id);
         }, new JsonTransformer());
