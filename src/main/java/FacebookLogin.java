@@ -27,6 +27,7 @@ public class FacebookLogin {
                 //user doesnt exist
                 //check if email is valid/not in table already
                 if(LambencyServer.dbc.verifyUserEmail(email) == -1){
+                    System.out.println("Could not verify email");
                     status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
                     ua = new UserAuthenticator(status);
                     return ua;
@@ -43,6 +44,7 @@ public class FacebookLogin {
             //error occurred
             System.out.println("Exception from database");
             status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
+            e.printStackTrace();
             ua = new UserAuthenticator(status);
         }
         return ua;
