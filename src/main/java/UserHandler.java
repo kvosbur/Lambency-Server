@@ -195,8 +195,32 @@ public class UserHandler {
         }
     }
 
+    /**
+     * Changes the account information to the information in the user object
+     * @param u the user object with the info to be changed in the database
+     * @return updated user object from the database
+     */
     public static User changeInfo(User u){
-
-        return null;
+        try {
+            if(u == null){
+                System.out.println("Null user");
+                return null;
+            }
+            if(LambencyServer.dbc.searchForUser(u.getOauthToken()) == null){
+                System.out.println("User not found");
+                return null;
+            }
+            if(u.getEmail() == null || u.getLastName() == null| u.getFirstName() == null){
+                System.out.println("User info invalid");
+                return null;
+            }
+            u = LambencyServer.dbc.modifyUserInfo(u.getUserId(), u.getFirstName(), u.getLastName(), u.getEmail());
+            return u;
+        }
+        catch (SQLException e){
+            System.out.println("SQLException");
+            e.printStackTrace();
+            return null;
+        }
     }
 }
