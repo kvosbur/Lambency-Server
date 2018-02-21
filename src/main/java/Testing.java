@@ -1,4 +1,5 @@
 import java.sql.Timestamp;
+import java.util.concurrent.ExecutionException;
 
 public class Testing {
     private static DatabaseConnection dbc;
@@ -24,6 +25,8 @@ public class Testing {
                 return false;
             }
             User u = dbc.searchForUser("facebookUser", 2);
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            dbc.setOauthCode(userID, ua.getoAuthCode());
             if(u == null){
                 System.out.println("search for user failed: returned null");
                 return false;
@@ -134,6 +137,37 @@ public class Testing {
         return false;
     }
 
+    private static boolean testFollowOrg(){
+        try{
+            UserAuthenticator ua = FacebookLogin.facebookLogin("User2", "Jeff", "Turkstra", "jeff@purdue.edu");
+            User u = dbc.searchForUser("User2", 2);
+            Organization org = dbc.searchForOrg("My Organization");
+            int ret = UserHandler.followOrg(u.getOauthToken(), org.getOrgID());
+            if(ret == 1){
+                System.out.println("Unable to find user or organization");
+                return false;
+            }
+            if(ret == 2){
+                System.out.println("SQL exception");
+                return false;
+            }
+            Groupies g = dbc.searchGroupies(u.getUserId(), org.getOrgID());
+            if(g == null){
+                System.out.println("Error in groupies: returned null");
+                return false;
+            }
+            if(g.getType() != DatabaseConnection.FOLLOW){
+                System.out.println("Error in groupies: not set to follow");
+                return false;
+            }
+            return true;
+        }
+        catch (Exception e){
+            System.out.println("database error");
+        }
+        return false;
+    }
+
     public static void main(String[] args){
         try {
             dbc = new DatabaseConnection();
@@ -141,6 +175,7 @@ public class Testing {
             clearDatabase();
             int passed = 0;
             int count = 0;
+            LambencyServer.dbc = dbc;
 
             System.out.print("Test Create User: ");
             count++;
@@ -175,6 +210,16 @@ public class Testing {
             System.out.print("Test Modify Event: ");
             count++;
             if (testModifyEvent()) {
+                passed++;
+                System.out.println("PASSED");
+            } else {
+                System.out.println("FAILED");
+                passedAll = false;
+            }
+
+            System.out.print("Test Follow Org: ");
+            count++;
+            if (testFollowOrg()) {
                 passed++;
                 System.out.println("PASSED");
             } else {

@@ -764,7 +764,7 @@ public class DatabaseConnection {
     public Groupies searchGroupies(int user_id, int org_id) throws SQLException{
         //create string for query
         String fields = "org_id, user_id, groupies_type, confirmed";
-        String query = "SELECT " + fields + " FROM organization WHERE user_id = ? and org_id = ?";
+        String query = "SELECT " + fields + " FROM groupies WHERE user_id = ? and org_id = ?";
 
         //run query
         PreparedStatement ps = connect.prepareStatement(query);
@@ -778,6 +778,7 @@ public class DatabaseConnection {
             if(rs.next()){
                 throw new SQLException("there are mulitple group entries for user_id = " + user_id);
             }
+            return groupies;
         }
 
         return null;
