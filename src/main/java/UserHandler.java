@@ -194,4 +194,9 @@ public class UserHandler {
             return null;
         }
     }
+
+    public static User changeInfo(User u){
+
+        return null;
+    }
 }
