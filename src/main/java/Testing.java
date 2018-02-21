@@ -168,6 +168,32 @@ public class Testing {
         return false;
     }
 
+    private static boolean testUnfollowOrg(){
+        try{
+            User u = dbc.searchForUser("User2", 2);
+            Organization org = dbc.searchForOrg("My Organization");
+            int ret = UserHandler.unfollowOrg(u.getOauthToken(), org.getOrgID());
+            if(ret == 1){
+                System.out.println("Unable to find user or organization");
+                return false;
+            }
+            if(ret == 2){
+                System.out.println("SQL exception");
+                return false;
+            }
+            Groupies g = dbc.searchGroupies(u.getUserId(), org.getOrgID());
+            if(g != null){
+                System.out.println("Error in groupies: not deleted");
+                return false;
+            }
+            return true;
+        }
+        catch (Exception e){
+            System.out.println("database error");
+        }
+        return false;
+    }
+
     public static void main(String[] args){
         try {
             dbc = new DatabaseConnection();
@@ -220,6 +246,16 @@ public class Testing {
             System.out.print("Test Follow Org: ");
             count++;
             if (testFollowOrg()) {
+                passed++;
+                System.out.println("PASSED");
+            } else {
+                System.out.println("FAILED");
+                passedAll = false;
+            }
+
+            System.out.print("Test Unfollow Org: ");
+            count++;
+            if (testUnfollowOrg()) {
                 passed++;
                 System.out.println("PASSED");
             } else {
