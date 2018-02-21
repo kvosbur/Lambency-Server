@@ -174,19 +174,23 @@ public class UserHandler {
     public static User searchForUser(String oAuthCode, String userID) {
         try {
             //search for user
-            if (userID != null && LambencyServer.dbc.searchForUser(oAuthCode) == null) {
+            User user = LambencyServer.dbc.searchForUser(oAuthCode);
+            if (userID != null && user == null) {
                 System.out.println("User not found");
                 return null;
             }
             //search for organization by ID
             if(userID == null){
-                return LambencyServer.dbc.searchForUser(oAuthCode);
+                user =  LambencyServer.dbc.searchForUser(oAuthCode);
+                return user;
             }else{
-                return LambencyServer.dbc.searchForUser(userID, DatabaseConnection.LAMBNECYUSERID);
+                user = LambencyServer.dbc.searchForUser(userID, DatabaseConnection.LAMBNECYUSERID);
+                return user;
             }
 
         } catch (SQLException e) {
             System.out.println("SQLExcpetion");
+            e.printStackTrace();
             return null;
         }
     }
