@@ -86,7 +86,7 @@ public class LambencyServer{
         get("/Event/users","application/json",(request,response)->{
             String oauthcode = request.queryParams("oauthcode");
             int event_id = Integer.parseInt(request.queryParams("event_id"));
-            return null;
+            return EventHandler.getUsersAttending(oauthcode,event_id);
         }, new JsonTransformer());
 
         get("/User/login/facebook", "application/json", (request, response) -> {

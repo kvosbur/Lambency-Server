@@ -70,6 +70,15 @@ public class EventHandler {
 
     }
 
+    /** This will return a list of all users who are attending an event
+     *  This will only return if the user has organizer role in the organization
+     *
+     *
+     * @param oauthcode   code for user who requests it
+     * @param event_id      id of event that they want user list for
+     * @return List of users if it succeeds. Null if database error, no user, no event, or wrong permission
+     */
+
     public static List<User> getUsersAttending(String oauthcode, int event_id){
         // verify oauthcode is a user
         try {
@@ -89,8 +98,10 @@ public class EventHandler {
                     if(gp == null || gp.getType() != DatabaseConnection.ORGANIZER){
                         return null;
                     }
-                    else if(gp.getType() == DatabaseConnection.ORGANIZER){
-                        
+
+                    else if(gp.getType() == DatabaseConnection.ORGANIZER){ // if you want members too, add || gp.getType() == DatabaseConnection.MEMBER
+                        // yayy they have permission!!!!! Get the users
+                        return LambencyServer.dbc.searchEventAttendanceUsers(event_id);
                     }
                     else {
                         return null;
