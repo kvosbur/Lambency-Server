@@ -7,10 +7,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.List;
-
 import java.util.ArrayList;
+import java.util.List;
 
 public class LambencyAPIHelper {
 

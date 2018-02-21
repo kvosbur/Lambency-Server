@@ -769,7 +769,7 @@ public class DatabaseConnection {
         //run query
         PreparedStatement ps = connect.prepareStatement(query);
         ps.setInt(1, user_id);
-        ps.setInt(1, org_id);
+        ps.setInt(2, org_id);
         ResultSet rs = ps.executeQuery();
 
         //check for results and if any then return user
@@ -782,6 +782,8 @@ public class DatabaseConnection {
 
         return null;
     }
+
+
 
     /**
      * END ORGANIZATION METHODS
