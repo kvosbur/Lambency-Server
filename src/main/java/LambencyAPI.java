@@ -24,6 +24,9 @@ public interface LambencyAPI {
     @GET("Event/search")
     Call<List<EventModel>> getEventsWithParams(@Query("lat") double lat, @Query("long") double longitude,
                                                @Query("name") String name, @Query("org_idStr") String org_idStr);
+    @GET("Event/users")
+    Call<ArrayList<User>> getListOfUsers(@Query("oauthcode") String oAuthCode, @Query("event_id") int eventId);
+
     @POST("User/requestJoinOrg")
     Call<Integer> postJoinOrganization(@Query("oAuthCode") String oAuthCode, @Query("orgId") int orgID);
 }
