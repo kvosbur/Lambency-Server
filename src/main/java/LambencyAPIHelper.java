@@ -256,6 +256,38 @@ public void createOrganizationRetrofit(Organization org){
             }
         });
     }
+
+    public void registerEventRetrofit(String oAuthCode, int eventID){
+
+        this.getInstance().getRegisterEvent(oAuthCode, eventID).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == 0){
+                    System.out.println("Successfully registered for event");
+                }
+                else if(ret == 1){
+                    System.out.println("failed to find user or event");
+                }
+                else if(ret == 2){
+                    System.out.println("failed to register");
+                }
+                else if(ret == 3){
+                    System.out.println("user already registered");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
         //Organization org = new Organization(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");
