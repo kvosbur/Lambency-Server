@@ -1,4 +1,5 @@
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -319,6 +320,54 @@ public class Testing {
         return false;
     }
 
+    private static boolean testSearchOrg(){
+        try{
+            Organization org = dbc.searchForOrg("My Organization");
+            Organization org2 = OrganizationHandler.searchOrgID(org.getOrgID());
+            if(!(org.getOrgID() == org2.getOrgID() && org.getName().equals(org2.getName()) && org.getDescription().equals(org2.getDescription()))){
+                System.out.println("failed to find org by org id: incorrect fields");
+                return false;
+            }
+            ArrayList<Organization> array = dbc.searchForOrgArray("M");
+            if(array == null){
+                System.out.println("failed to search org by name: returned null");
+                return false;
+            }
+            if(!(array.size() == 1 && array.get(0).getOrgID() == org.getOrgID())){
+                System.out.println("failed to search org by name: returned incorrect org");
+                return false;
+            }
+            User u = dbc.searchForUser("User2", 2);
+            int orgID = dbc.createOrganization("My Second Organization", "Second", "Org2@gmail.com", u.getUserId(), "Purdue",
+                    "img2", u.getUserId());
+
+            array = dbc.searchForOrgArray("M");
+            if(array == null){
+                System.out.println("failed to search org by name: returned null");
+                return false;
+            }
+            if(!(array.size() == 2 && array.get(0).getOrgID() == org.getOrgID() && array.get(1).getOrgID() == orgID)){
+                System.out.println("failed to search org by name: returned incorrect org");
+                return false;
+            }
+            array = dbc.searchForOrgArray("My Sec");
+            if(array == null){
+                System.out.println("failed to search org by name: returned null");
+                return false;
+            }
+            if(!(array.size() == 1 && array.get(0).getOrgID() == orgID)){
+                System.out.println("failed to search org by name: returned incorrect org");
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception e){
+            System.out.println("database error");
+        }
+        return false;
+    }
+
     public static void main(String[] args){
         try {
             dbc = new DatabaseConnection();
@@ -421,6 +470,16 @@ public class Testing {
             System.out.print("Test Request Join Org: ");
             count++;
             if (testRequestJoinOrg()) {
+                passed++;
+                System.out.println("PASSED");
+            } else {
+                System.out.println("FAILED");
+                passedAll = false;
+            }
+
+            System.out.print("Test Search Org: ");
+            count++;
+            if (testSearchOrg()) {
                 passed++;
                 System.out.println("PASSED");
             } else {
