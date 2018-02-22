@@ -23,6 +23,9 @@ public interface LambencyAPI {
     @GET("User/followOrg/")
     Call<Integer> getFollowOrg(@Query("oAuthCode") String oAuthCode, @Query("orgID") String orgID);
 
+    @GET("User/unfollowOrg/")
+    Call<Integer> getUnfollowOrg(@Query("oAuthCode") String oAuthCode, @Query("org_id") String orgID);
+
     @POST("Organization/Create")
     Call<Integer> postCreateOrganization(@Body Organization org);
     @GET("Organization/search")
