@@ -67,4 +67,21 @@ public class OrganizationHandler {
         return array;
     }
 
+    /**
+     *
+     * @param orgID the id of the organization
+     * @return the organization object for the id, otherwise null
+     */
+    public static Organization searchOrgID(int orgID) {
+
+        try {
+            Organization organization = LambencyServer.dbc.searchForOrg(orgID);
+            return organization;
+        } catch (SQLException e) {
+            System.out.println("Error in finding organization");
+            return null;
+        }
+
+    }
+
 }
