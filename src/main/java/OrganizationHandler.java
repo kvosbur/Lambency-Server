@@ -34,10 +34,10 @@ public class OrganizationHandler {
             path = ImageWR.writeImageToFile(org.getImage());
 
         } catch (IOException e) {
-            System.out.println("Error adding image.");
+            Printing.println("Error adding image.");
         }
         try {
-            System.out.println(org.toString());
+            Printing.println(org.toString());
             status = LambencyServer.dbc.createOrganization(org.getName(), org.getDescription(), org.getEmail(), org.getContact()
                     .getUserId(), org.getLocation(), path, org.getOrganizers().get(0).getUserId());
             OrganizationModel organization = LambencyServer.dbc.searchForOrg(status);
@@ -88,7 +88,7 @@ public class OrganizationHandler {
             OrganizationModel organization = LambencyServer.dbc.searchForOrg(orgID);
             return organization;
         } catch (SQLException e) {
-            System.out.println("Error in finding organization");
+            Printing.println("Error in finding organization");
             return null;
         }
 

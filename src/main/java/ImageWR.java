@@ -28,14 +28,14 @@ public class ImageWR {
      */
 
     public static String writeImageToFile(String imgEncoding) throws IOException{
-        System.out.println("Write");
+        Printing.println("Write");
 
         String path = "~/Lambency/files/images/";
         Date date = new Date();
         String fileName = date.toString() + ".txt";
 
         File directory = new File(path);
-        System.out.println("dir exists: "+directory.exists());
+        Printing.println("dir exists: "+directory.exists());
         if (!directory.exists()){
             directory.mkdirs();
             // If you require it to make the entire directory path including parents,
@@ -58,7 +58,7 @@ public class ImageWR {
 
      */
     public static String getEncodedImageFromFile(String filepath) throws IOException{
-        System.out.println("Read");
+        Printing.println("Read");
         File file = new File(filepath);
         FileReader fileReader = new FileReader(file);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -69,8 +69,8 @@ public class ImageWR {
             stringBuffer.append("\n");
         }
         fileReader.close();
-        System.out.println("Contents of file:");
-        //System.out.println(stringBuffer.toString());
+        Printing.println("Contents of file:");
+        //Printing.println(stringBuffer.toString());
 
         return stringBuffer.toString();
     }
@@ -78,23 +78,23 @@ public class ImageWR {
     public static void main(String[] args){
         BufferedImage img = null;
         try {
-            System.out.println(System.getProperty("user.dir"));
+            Printing.println(System.getProperty("user.dir"));
             img = ImageIO.read(new File(System.getProperty("user.dir")+"/resources/image.png"));
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageIO.write(img, "png", os);
             os.flush();
             BASE64Encoder encoder = new BASE64Encoder();
             String imageString = encoder.encode(os.toByteArray());
-            //System.out.println("Encoded: "+imageString);
+            //Printing.println("Encoded: "+imageString);
             os.close();
             ImageWR iwr = new ImageWR();
             String ptName = iwr.writeImageToFile(imageString);
-            System.out.println(ptName);
+            Printing.println(ptName);
 
             byte[] imageByte;
             BASE64Decoder decoder = new BASE64Decoder();
             String returned = iwr.getEncodedImageFromFile(ptName);
-            //System.out.println("returned: "+returned);
+            //Printing.println("returned: "+returned);
             imageByte = decoder.decodeBuffer(returned);
             ByteArrayInputStream bis = new ByteArrayInputStream(imageByte);
             BufferedImage image = ImageIO.read(bis);
@@ -103,7 +103,7 @@ public class ImageWR {
 
 
         } catch (IOException e) {
-            System.out.println("ERROR Main: "+e);
+            Printing.println("ERROR Main: "+e);
         }
 
     }
