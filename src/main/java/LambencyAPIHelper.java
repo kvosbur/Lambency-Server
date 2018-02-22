@@ -288,6 +288,33 @@ public void createOrganizationRetrofit(Organization org){
             }
         });
     }
+
+    public void searchUserRetrofit(String oAuthCode, String id){
+
+        this.getInstance().getUserSearch(oAuthCode, id).enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                }
+                //when response is back
+                User u = response.body();
+                if(u == null){
+                    System.out.println("failed to find user");
+                }
+                else{
+                    System.out.println("first name = " + u.getFirstName());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
         //Organization org = new Organization(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");
