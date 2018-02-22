@@ -117,4 +117,21 @@ public class EventHandler {
     }
 
 
+    /**
+     *
+     * @param eventID the id of the event
+     * @return the event object for the id, otherwise null
+     */
+    public static EventModel searchEventID(int eventID) {
+
+        try {
+            EventModel eventModel = LambencyServer.dbc.searchEvents(eventID);
+            return eventModel;
+        } catch (SQLException e) {
+            System.out.println("Error in finding event");
+            return null;
+        }
+
+    }
+
 }

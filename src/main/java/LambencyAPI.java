@@ -31,9 +31,15 @@ public interface LambencyAPI {
     @GET("Organization/search")
     Call<ArrayList<Organization>> getOrganizationSearch(@Query("name") String name);
 
+    @GET("Organization/searchByID")
+    Call<Organization> getOrgSearchByID(@Query("id") String org_id);
+
     @GET("Event/search")
     Call<List<EventModel>> getEventsWithParams(@Query("lat") double lat, @Query("long") double longitude,
                                                @Query("name") String name, @Query("org_idStr") String org_idStr);
+    @GET("Event/searchByID")
+    Call<EventModel> getEventSearchByID(@Query("id") String event_id);
+
     @GET("Event/users")
     Call<ArrayList<User>> getListOfUsers(@Query("oauthcode") String oAuthCode, @Query("event_id") int eventId);
 
@@ -43,7 +49,7 @@ public interface LambencyAPI {
     @POST("User/requestJoinOrg")
     Call<Integer> postJoinOrganization(@Query("oAuthCode") String oAuthCode, @Query("orgId") int orgID);
 
-    @GET("User/changeInfo/")
+    @GET("User/changeInfo")
     Call<User> getChangeAccountInfo(@Query("user") User u);
 
     @GET("User/registerForEvent")
