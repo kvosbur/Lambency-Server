@@ -72,6 +72,10 @@ public class LambencyServer{
             ArrayList<Organization> orgList = OrganizationHandler.searchOrgName(request.queryParams("name"));
             return orgList;
         }, new JsonTransformer());
+        get("/Organization/searchByID", "application/json", (request, response) -> {
+            Organization organization = OrganizationHandler.searchOrgID(Integer.parseInt(request.queryParams("id")));
+            return organization;
+        }, new JsonTransformer());
         post("/Event/update", "application/json",
                 (request, response) ->
                         EventHandler.updateEvent( new Gson().fromJson(request.body(), EventModel.class))
