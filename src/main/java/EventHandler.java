@@ -94,10 +94,10 @@ public class EventHandler {
      * @return List of users if it succeeds. Null if database error, no user, no event, or wrong permission
      */
 
-    public static List<User> getUsersAttending(String oauthcode, int event_id){
+    public static List<UserModel> getUsersAttending(String oauthcode, int event_id){
         // verify oauthcode is a user
         try {
-            User us = LambencyServer.dbc.searchForUser(oauthcode);
+            UserModel us = LambencyServer.dbc.searchForUser(oauthcode);
             if(us == null){
                 return null;
             }
@@ -109,7 +109,7 @@ public class EventHandler {
                 }
                 else{
                     // check if they have organizer permission
-                    Groupies gp = LambencyServer.dbc.searchGroupies(us.getUserId(),eventModel.getOrg_id());
+                    GroupiesModel gp = LambencyServer.dbc.searchGroupies(us.getUserId(),eventModel.getOrg_id());
                     if(gp == null || gp.getType() != DatabaseConnection.ORGANIZER){
                         return null;
                     }

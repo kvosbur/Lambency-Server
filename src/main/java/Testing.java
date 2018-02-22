@@ -1,7 +1,6 @@
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class Testing {
     private static DatabaseConnection dbc;
@@ -26,7 +25,7 @@ public class Testing {
                 System.out.println("verifyUserEmail failed: fake@mail.com should not exist");
                 return false;
             }
-            User u = dbc.searchForUser("facebookUser", 2);
+            UserModel u = dbc.searchForUser("facebookUser", 2);
             UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
             dbc.setOauthCode(userID, ua.getoAuthCode());
             if(u == null){
@@ -34,11 +33,11 @@ public class Testing {
                 return false;
             }
             if(u.getEmail().equals("email@gmail.com") && u.getFirstName().equals("First") && u.getLastName().equals("Last")){
-                //User was created and found successfully
+                //UserModel was created and found successfully
                 return true;
             }
             else{
-                System.out.println("User information failed: information was incorrect");
+                System.out.println("UserModel information failed: information was incorrect");
                 return false;
             }
 
@@ -51,20 +50,20 @@ public class Testing {
     }
     private static boolean testCreateOrg(){
         try {
-            User u = dbc.searchForUser("facebookUser", 2);
-            int orgID = dbc.createOrganization("My Organization", "This is a description", "Org@gmail.com", u.getUserId(), "West Lafayette",
+            UserModel u = dbc.searchForUser("facebookUser", 2);
+            int orgID = dbc.createOrganization("My OrganizationModel", "This is a description", "Org@gmail.com", u.getUserId(), "West Lafayette",
                     "img", u.getUserId());
             if(orgID == -1){
                 System.out.println("createOrganization failed: returned -1");
                 return false;
             }
-            Organization org = dbc.searchForOrg(orgID);
-            Organization org2 = dbc.searchForOrg("My Organization");
+            OrganizationModel org = dbc.searchForOrg(orgID);
+            OrganizationModel org2 = dbc.searchForOrg("My OrganizationModel");
             if(org == null){
                 System.out.println("search for org by id failed: returned null");
                 return false;
             }
-            if(!(org.getName().equals("My Organization") && org.getDescription().equals("This is a description") && org.getEmail().equals("Org@gmail.com")
+            if(!(org.getName().equals("My OrganizationModel") && org.getDescription().equals("This is a description") && org.getEmail().equals("Org@gmail.com")
                     && org.getContact().getUserId() == u.getUserId() && org.getLocation().equals("West Lafayette") && org.getImage().equals("img"))){
                 System.out.println("search for org by id failed: incorrect fields");
                 return false;
@@ -74,7 +73,7 @@ public class Testing {
                 System.out.println("search for org by name failed: returned null");
                 return false;
             }
-            if(!(org.getName().equals("My Organization") && org.getDescription().equals("This is a description") && org.getEmail().equals("Org@gmail.com")
+            if(!(org.getName().equals("My OrganizationModel") && org.getDescription().equals("This is a description") && org.getEmail().equals("Org@gmail.com")
                     && org.getContact().getUserId() == u.getUserId() && org.getLocation().equals("West Lafayette") && org.getImage().equals("img"))){
                 System.out.println("search for org by name failed: incorrect fields");
                 return false;
@@ -89,8 +88,8 @@ public class Testing {
 
     private static boolean testCreateEvent(){
         try{
-            User u = dbc.searchForUser("facebookUser", 2);
-            Organization org = dbc.searchForOrg("My Organization");
+            UserModel u = dbc.searchForUser("facebookUser", 2);
+            OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
             int eventID = dbc.createEvent(org.getOrgID(),"Event 1", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 500),
                     "This is a test event", "Location", "imgg", 5 , 5);
             event_id = eventID;
@@ -142,8 +141,8 @@ public class Testing {
     private static boolean testFollowOrg(){
         try{
             UserAuthenticator ua = FacebookLogin.facebookLogin("User2", "Jeff", "Turkstra", "jeff@purdue.edu");
-            User u = dbc.searchForUser("User2", 2);
-            Organization org = dbc.searchForOrg("My Organization");
+            UserModel u = dbc.searchForUser("User2", 2);
+            OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
             int ret = UserHandler.followOrg(u.getOauthToken(), org.getOrgID());
             if(ret == 1){
                 System.out.println("Unable to find user or organization");
@@ -153,7 +152,7 @@ public class Testing {
                 System.out.println("SQL exception");
                 return false;
             }
-            Groupies g = dbc.searchGroupies(u.getUserId(), org.getOrgID());
+            GroupiesModel g = dbc.searchGroupies(u.getUserId(), org.getOrgID());
             if(g == null){
                 System.out.println("Error in groupies: returned null");
                 return false;
@@ -172,8 +171,8 @@ public class Testing {
 
     private static boolean testUnfollowOrg(){
         try{
-            User u = dbc.searchForUser("User2", 2);
-            Organization org = dbc.searchForOrg("My Organization");
+            UserModel u = dbc.searchForUser("User2", 2);
+            OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
             int ret = UserHandler.unfollowOrg(u.getOauthToken(), org.getOrgID());
             if(ret == 1){
                 System.out.println("Unable to find user or organization");
@@ -183,7 +182,7 @@ public class Testing {
                 System.out.println("SQL exception");
                 return false;
             }
-            Groupies g = dbc.searchGroupies(u.getUserId(), org.getOrgID());
+            GroupiesModel g = dbc.searchGroupies(u.getUserId(), org.getOrgID());
             if(g != null){
                 System.out.println("Error in groupies: not deleted");
                 return false;
@@ -198,7 +197,7 @@ public class Testing {
 
     private static boolean testChangeUserInfo(){
         try{
-            User u = dbc.searchForUser("facebookUser", 2);
+            UserModel u = dbc.searchForUser("facebookUser", 2);
             u.setEmail("newemail@gmail.com");
             u.setFirstName("George");
             u.setLastName("Adams");
@@ -226,7 +225,7 @@ public class Testing {
 
     private static boolean testRegisterEvent(){
         try{
-            User u = dbc.searchForUser("facebookUser", 2);
+            UserModel u = dbc.searchForUser("facebookUser", 2);
             int ret = UserHandler.registerEvent(u.getOauthToken(), event_id);
             if(ret == 1){
                 System.out.println("event registration failed: failed to find user or org");
@@ -240,7 +239,7 @@ public class Testing {
                 System.out.println("event registration failed: user already registered");
                 return false;
             }
-            EventAttendance ea = dbc.searchEventAttendance(u.getUserId(), event_id);
+            EventAttendanceModel ea = dbc.searchEventAttendance(u.getUserId(), event_id);
             if(ea == null){
                 System.out.println("event registration failed: failed to update database");
                 return false;
@@ -260,8 +259,8 @@ public class Testing {
 
     private static boolean testUsersAttending(){
         try {
-            User u = dbc.searchForUser("facebookUser", 2);
-            List<User> userList = EventHandler.getUsersAttending(u.getOauthToken(), event_id);
+            UserModel u = dbc.searchForUser("facebookUser", 2);
+            List<UserModel> userList = EventHandler.getUsersAttending(u.getOauthToken(), event_id);
             if(userList == null){
                 System.out.println("making user list failed: returned null");
                 return false;
@@ -285,8 +284,8 @@ public class Testing {
 
     private static boolean testRequestJoinOrg(){
         try{
-            User u = dbc.searchForUser("User2", 2);
-            Organization org = dbc.searchForOrg("My Organization");
+            UserModel u = dbc.searchForUser("User2", 2);
+            OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
             int ret = UserHandler.requestJoinOrg(u.getOauthToken(), org.getOrgID());
             if(ret == 1){
                 System.out.println("request to join org failed: unable to find user or org or is already registered");
@@ -296,7 +295,7 @@ public class Testing {
                 System.out.println("request to join org failed: SQL error");
                 return false;
             }
-            Groupies g = dbc.searchGroupies(u.getUserId(), org.getOrgID());
+            GroupiesModel g = dbc.searchGroupies(u.getUserId(), org.getOrgID());
             if(g == null){
                 System.out.println("Error in groupies: returned null");
                 return false;
@@ -322,13 +321,13 @@ public class Testing {
 
     private static boolean testSearchOrg(){
         try{
-            Organization org = dbc.searchForOrg("My Organization");
-            Organization org2 = OrganizationHandler.searchOrgID(org.getOrgID());
+            OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+            OrganizationModel org2 = OrganizationHandler.searchOrgID(org.getOrgID());
             if(!(org.getOrgID() == org2.getOrgID() && org.getName().equals(org2.getName()) && org.getDescription().equals(org2.getDescription()))){
                 System.out.println("failed to find org by org id: incorrect fields");
                 return false;
             }
-            ArrayList<Organization> array = dbc.searchForOrgArray("M");
+            ArrayList<OrganizationModel> array = dbc.searchForOrgArray("M");
             if(array == null){
                 System.out.println("failed to search org by name: returned null");
                 return false;
@@ -337,8 +336,8 @@ public class Testing {
                 System.out.println("failed to search org by name: returned incorrect org");
                 return false;
             }
-            User u = dbc.searchForUser("User2", 2);
-            int orgID = dbc.createOrganization("My Second Organization", "Second", "Org2@gmail.com", u.getUserId(), "Purdue",
+            UserModel u = dbc.searchForUser("User2", 2);
+            int orgID = dbc.createOrganization("My Second OrganizationModel", "Second", "Org2@gmail.com", u.getUserId(), "Purdue",
                     "img2", u.getUserId());
 
             array = dbc.searchForOrgArray("M");
@@ -377,7 +376,7 @@ public class Testing {
             int count = 0;
             LambencyServer.dbc = dbc;
 
-            System.out.print("Test Create User: ");
+            System.out.print("Test Create UserModel: ");
             count++;
             if (testCreateUser()) {
                 System.out.println("PASSED");
@@ -387,7 +386,7 @@ public class Testing {
                 passedAll = false;
             }
 
-            System.out.print("Test Create Organization: ");
+            System.out.print("Test Create OrganizationModel: ");
             count++;
             if (testCreateOrg()) {
                 passed++;
@@ -437,7 +436,7 @@ public class Testing {
                 passedAll = false;
             }
 
-            System.out.print("Test Change User Info: ");
+            System.out.print("Test Change UserModel Info: ");
             count++;
             if (testChangeUserInfo()) {
                 passed++;

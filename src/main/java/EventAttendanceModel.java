@@ -1,7 +1,7 @@
-public class EventAttendance {
+public class EventAttendanceModel {
     private int userID;
     private int eventID;
-    public EventAttendance(int userID, int eventID) {
+    public EventAttendanceModel(int userID, int eventID) {
         this.userID = userID;
         this.eventID = eventID;
     }
