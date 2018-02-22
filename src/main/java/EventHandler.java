@@ -14,8 +14,8 @@ public class EventHandler {
      */
 
 
-    public static int createEvent(EventModel event) {
-
+    public static EventModel createEvent(EventModel event) {
+        System.out.println("Updated");
         try {
             //get latitude and longitude for database
             LatLng latlng = GoogleGeoCodeUtil.getGeoData(event.getLocation());
@@ -26,17 +26,18 @@ public class EventHandler {
             int event_id = LambencyServer.dbc.createEvent(event.getOrg_id(),event.getName(),event.getStart(),
                     event.getEnd(),event.getDescription(),event.getLocation(),event.getImage_path(), latlng.lat, latlng.lng);
             System.out.println((latlng == null));
-            int event_id = LambencyServer.dbc.createEvent(event.getOrg_id(),event.getName(),event.getStart(), event.getEnd(),event.getDescription(),event.getLocation(),event.getImage_path(), latlng.lat, latlng.lng);
-            return event_id;
+            return LambencyServer.dbc.searchEvents(event_id);
         } catch (SQLException e) {
-            System.out.println("Error in creating event: "+event.getName() + "Due to sql error: "+e);
-            return -1;
+            System.out.println("SQL exception: ");
+            e.printStackTrace();
+            System.out.println("Error in creating event: "+event.getName());
+            return null;
         }
         catch (IOException e){
             System.out.println("Error in writing image.");
             System.out.println("Error in creating event: "+event.getName());
             e.printStackTrace();
-            return -1;
+            return null;
         }
 
     }
