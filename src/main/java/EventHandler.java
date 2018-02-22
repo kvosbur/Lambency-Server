@@ -33,11 +33,11 @@ public class EventHandler {
         try{
             LambencyServer.dbc.modifyEventInfo(event.getEvent_id(),event.getName(),event.getStart(),event.getEnd(),
                     event.getDescription(),event.getLocation(),event.getImage_path(),event.getLattitude(),event.getLongitude());
-            return 1;
+            return 0;
         }
         catch (SQLException e){
             System.out.println("Error in updating Event: "+event.getName());
-            return 0;
+            return 1;
         }
     }
 

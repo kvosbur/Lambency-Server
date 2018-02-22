@@ -37,13 +37,16 @@ public interface LambencyAPI {
     @GET("Event/users")
     Call<ArrayList<User>> getListOfUsers(@Query("oauthcode") String oAuthCode, @Query("event_id") int eventId);
 
+    @POST("Event/update")
+    Call<Integer> postUpdateEvent(@Body EventModel event);
+
     @POST("User/requestJoinOrg")
     Call<Integer> postJoinOrganization(@Query("oAuthCode") String oAuthCode, @Query("orgId") int orgID);
 
     @GET("User/changeInfo/")
     Call<User> getChangeAccountInfo(@Query("user") User u);
 
-    @GET("User/registerEvent/")
+    @GET("User/registerForEvent/")
     Call<Integer> getRegisterEvent(@Query("oAuthCode") String oAuthCode, @Query("eventID") int eventID);
 
 }
