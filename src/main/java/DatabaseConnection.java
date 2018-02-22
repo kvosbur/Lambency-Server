@@ -26,6 +26,36 @@ public class DatabaseConnection {
      * BEGIN USER METHODS
      */
 
+    /**
+     * Description: given unique string identifier return matching user object
+     @param userID userid of user in question
+     @param groupieType what type of relationship to organization looking for
+
+     @return returns array on org_ids that match userid and relationship type
+     */
+
+    public ArrayList<Integer> getUserList(int userID, int groupieType) throws SQLException{
+
+        //create string for query
+        String fields = "org_id";
+        String query = "SELECT " + fields + " FROM groupies WHERE user_id = ? and groupies_type = ? and  confirmed = 1";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, userID);
+        ps.setInt(2,groupieType);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> array = new ArrayList<>();
+
+        //check for results and return object
+        while(rs.next()){
+            int org_id = rs.getInt(1);
+            array.add(org_id);
+        }
+        return array;
+    }
+
 
     /**
      * Description: given unique string identifier return matching user object

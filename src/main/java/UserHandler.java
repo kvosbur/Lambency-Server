@@ -191,6 +191,7 @@ public class UserHandler {
                 return user;
             }else{
                 user = LambencyServer.dbc.searchForUser(userID, DatabaseConnection.LAMBNECYUSERID);
+                user = UserHandler.updateOrgLists(user);
                 return user;
             }
 
@@ -222,6 +223,7 @@ public class UserHandler {
                 return null;
             }
             u = LambencyServer.dbc.modifyUserInfo(user.getUserId(), u.getFirstName(), u.getLastName(), u.getEmail());
+            u = UserHandler.updateOrgLists(u);
             return u;
         }
         catch (SQLException e){
@@ -229,5 +231,20 @@ public class UserHandler {
             e.printStackTrace();
             return null;
         }
+    }
+
+
+    /**
+     * Changes the account information to the information in the user object
+     * @param u the user object to update the arraylist of orgs for
+     * @return updated user object
+     */
+
+    public static User updateOrgLists(User u) throws SQLException{
+
+        u.setMyOrgs(LambencyServer.dbc.getUserList(u.getUserId(),DatabaseConnection.ORGANIZER));
+        u.setJoinedOrgs(LambencyServer.dbc.getUserList(u.getUserId(),DatabaseConnection.MEMBER));
+        u.setFollowingOrgs(LambencyServer.dbc.getUserList(u.getUserId(),DatabaseConnection.FOLLOW));
+        return u;
     }
 }
