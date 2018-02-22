@@ -65,7 +65,7 @@ public class DatabaseConnection {
      @return returns user that matches given identifier
      */
 
-    public User searchForUser(String identifier, int type) throws SQLException{
+    public UserModel searchForUser(String identifier, int type) throws SQLException{
 
         //figure query to use dependent on identifier type
         String query;
@@ -87,7 +87,7 @@ public class DatabaseConnection {
 
         //check if entry in results and if so create new user object with information
         if(rs.next()){
-            return new User(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
+            return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
                     null, null,rs.getInt(1), 0, rs.getString(5));
         }
 
@@ -103,7 +103,7 @@ public class DatabaseConnection {
      @return returns user that matches given oauthCode
      */
 
-    public User searchForUser(String oauthCode) throws SQLException{
+    public UserModel searchForUser(String oauthCode) throws SQLException{
 
         //create string for query
         String fields = "user_id, first_name, last_name, user_email, oauth_token";
@@ -122,7 +122,7 @@ public class DatabaseConnection {
             rs.getString(3);
             rs.getString(4);
             rs.getString(5);
-            return new User(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
+            return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
                     null, null,rs.getInt(1), 0, rs.getString(5));
         }
         return null;
@@ -291,7 +291,7 @@ public class DatabaseConnection {
 
 
         //check to make sure user exists
-        User user = this.searchForUser("" + lambencyId, LAMBNECYUSERID);
+        UserModel user = this.searchForUser("" + lambencyId, LAMBNECYUSERID);
         if (user == null){
             return false;
         }
@@ -313,10 +313,10 @@ public class DatabaseConnection {
      @param lastName users last name to be changed to
      @param email users email to be changed to
 
-     @return returns User object of updated values
+     @return returns UserModel object of updated values
      */
 
-    public User modifyUserInfo(int lambencyID, String firstName, String lastName, String email) throws SQLException{
+    public UserModel modifyUserInfo(int lambencyID, String firstName, String lastName, String email) throws SQLException{
 
         //create prepare statement for sql query
         PreparedStatement ps = connect.prepareStatement("UPDATE user SET first_name = ? , last_name = ?, " +
@@ -491,12 +491,12 @@ public class DatabaseConnection {
     }
 
     /**
-     * Returns the EventAttendance object associated with the given userID and eventID
+     * Returns the EventAttendanceModel object associated with the given userID and eventID
      * @param userID the id of the user to search for
      * @param eventID the id of the event to search for
-     * @return EventAttendance object for the corresponding userID and eventId, null if non-existent
+     * @return EventAttendanceModel object for the corresponding userID and eventId, null if non-existent
      */
-    public EventAttendance searchEventAttendance(int userID, int eventID) throws SQLException{
+    public EventAttendanceModel searchEventAttendance(int userID, int eventID) throws SQLException{
 
         //create string for query
         String fields = "event_id, user_id";
@@ -510,7 +510,7 @@ public class DatabaseConnection {
 
         //check for results and return object
         if(rs.next()){
-            return new EventAttendance(rs.getInt(2), rs.getInt(1));
+            return new EventAttendanceModel(rs.getInt(2), rs.getInt(1));
         }
 
         return null;
@@ -544,9 +544,9 @@ public class DatabaseConnection {
     /**
      * Searches for all users who are attending the specified event
      * @param eventID the id of the event to search for
-     * @return Arraylist of User objects, null if no users found
+     * @return Arraylist of UserModel objects, null if no users found
      */
-    public ArrayList<User> searchEventAttendanceUsers(int eventID) throws SQLException{
+    public ArrayList<UserModel> searchEventAttendanceUsers(int eventID) throws SQLException{
 
         //create string for query
         String fields = "user_id";
@@ -557,12 +557,12 @@ public class DatabaseConnection {
         ps.setInt(1, eventID);
         ResultSet rs = ps.executeQuery();
 
-        ArrayList<User> users = new ArrayList<>();
+        ArrayList<UserModel> users = new ArrayList<>();
 
         //check for results and return object
         while(rs.next()){
             int userID = rs.getInt(1);
-            User user = searchForUser("" + userID, LAMBNECYUSERID);
+            UserModel user = searchForUser("" + userID, LAMBNECYUSERID);
             if(user != null){
                 users.add(user);
             }
@@ -638,7 +638,7 @@ public class DatabaseConnection {
      * @return null if no results, otherwise the organiztion
      */
 
-    public Organization searchForOrg(String name) throws SQLException{
+    public OrganizationModel searchForOrg(String name) throws SQLException{
 
         //create string for query
         String fields = "org_id, name, description, org_email," +
@@ -652,11 +652,11 @@ public class DatabaseConnection {
 
         //check for results and if any then return user
         if(rs.next()){
-            User owner = searchForUser("" + rs.getInt(5), LAMBNECYUSERID);
+            UserModel owner = searchForUser("" + rs.getInt(5), LAMBNECYUSERID);
             if(owner == null){
                 return null;
             }
-            return new Organization(owner,rs.getString(2),rs.getString(7), rs.getInt(1),
+            return new OrganizationModel(owner,rs.getString(2),rs.getString(7), rs.getInt(1),
                     rs.getString(3),rs.getString(4),owner,rs.getString(6));
         }
 
@@ -669,8 +669,8 @@ public class DatabaseConnection {
      * @return an arraylist of organizations with a size of 0 or greater.
      */
 
-    public ArrayList<Organization> searchForOrgArray(String name) throws SQLException{
-        ArrayList<Organization> array = new ArrayList<Organization>();
+    public ArrayList<OrganizationModel> searchForOrgArray(String name) throws SQLException{
+        ArrayList<OrganizationModel> array = new ArrayList<OrganizationModel>();
 
         //create string for query
         String fields = "org_id, name, description, org_email," +
@@ -683,8 +683,8 @@ public class DatabaseConnection {
         ResultSet rs = ps.executeQuery();
 
         while(rs.next()){
-            User owner = searchForUser("" + rs.getInt(5), LAMBNECYUSERID);
-            Organization organization = new Organization(owner,rs.getString(2),rs.getString(7), rs.getInt(1),
+            UserModel owner = searchForUser("" + rs.getInt(5), LAMBNECYUSERID);
+            OrganizationModel organization = new OrganizationModel(owner,rs.getString(2),rs.getString(7), rs.getInt(1),
                     rs.getString(3),rs.getString(4),owner,rs.getString(6));
             array.add(organization);
         }
@@ -699,7 +699,7 @@ public class DatabaseConnection {
      * @return the organization corresponding to the org id
      */
 
-    public Organization searchForOrg(int orgID) throws SQLException{
+    public OrganizationModel searchForOrg(int orgID) throws SQLException{
 
         //create string for query
         String fields = "org_id, name, description, org_email," +
@@ -713,11 +713,11 @@ public class DatabaseConnection {
 
         //check for results and if any then return user
         if(rs.next()){
-            User owner = searchForUser("" + rs.getInt(5), LAMBNECYUSERID);
+            UserModel owner = searchForUser("" + rs.getInt(5), LAMBNECYUSERID);
             if(owner == null){
                 return null;
             }
-            return new Organization(owner,rs.getString(2),rs.getString(7), rs.getInt(1),
+            return new OrganizationModel(owner,rs.getString(2),rs.getString(7), rs.getInt(1),
                     rs.getString(3),rs.getString(4),owner,rs.getString(6));
         }
 
@@ -788,10 +788,10 @@ public class DatabaseConnection {
      * DESCRIPTION - search for groupie status for a user and a given organization
      * @param user_id the id of the user to be search for
      * @param org_id the id of the organization
-     * @return Groupies a groupies object if exist, else return null
+     * @return GroupiesModel a groupies object if exist, else return null
      */
 
-    public Groupies searchGroupies(int user_id, int org_id) throws SQLException{
+    public GroupiesModel searchGroupies(int user_id, int org_id) throws SQLException{
         //create string for query
         String fields = "org_id, user_id, groupies_type, confirmed";
         String query = "SELECT " + fields + " FROM groupies WHERE user_id = ? and org_id = ?";
@@ -804,7 +804,7 @@ public class DatabaseConnection {
 
         //check for results and if any then return user
         if(rs.next()){
-            Groupies groupies = new Groupies(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getBoolean(4));
+            GroupiesModel groupies = new GroupiesModel(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getBoolean(4));
             if(rs.next()){
                 throw new SQLException("there are mulitple group entries for user_id = " + user_id);
             }
@@ -860,15 +860,15 @@ public class DatabaseConnection {
 
             /*
             Test for searching for orgnizations by name
-            ArrayList<Organization> organizations = db.searchForOrgArray("my");
-            for(Organization o: organizations){
+            ArrayList<OrganizationModel> organizations = db.searchForOrgArray("my");
+            for(OrganizationModel o: organizations){
                 System.out.println(o.name);
             }
 
             /*
             test for registering for events and searching for attendence
             db.registerForEvent(23,10);
-            EventAttendance eventAttendance = db.searchEventAttendance(23,10);
+            EventAttendanceModel eventAttendance = db.searchEventAttendance(23,10);
             System.out.println(eventAttendance.getEventID());
             System.out.println(eventAttendance.getUserID());
             */
@@ -876,7 +876,7 @@ public class DatabaseConnection {
             test for create event
             int eventID = db.createEvent(1,"Event", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description", "location", "path",  100, 120);
             int ua = db.createUser("id2", "first", "last", "email@mail.com", 2);
-            User u = db.searchForUser("id2", 2);
+            UserModel u = db.searchForUser("id2", 2);
             UserHandler.registerEvent(u.getOauthToken(), eventID);
             */
             /*
@@ -916,17 +916,17 @@ public class DatabaseConnection {
 
             /*
             test oauth methods and searching for user
-            User user = db.searchForUser("myggoogleidentity", GOOGLE);
-            User user = db.searchForUser("" + user.getUserId(), LAMBNECYUSERID);
+            UserModel user = db.searchForUser("myggoogleidentity", GOOGLE);
+            UserModel user = db.searchForUser("" + user.getUserId(), LAMBNECYUSERID);
             System.out.println(user.toString());
             UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
             db.setOauthCode(4, ua.getoAuthCode());
-            User user = db.searchForUser(ua.gettoAuthCode());
+            UserModel user = db.searchForUser(ua.gettoAuthCode());
             System.out.println(user.toString());
             */
             /*
             test modifing user data
-            User user = db.modifyUserInfo(4, "changedFirst", "changedLast", "changedemail@changed.com");
+            UserModel user = db.modifyUserInfo(4, "changedFirst", "changedLast", "changedemail@changed.com");
             System.out.println(user.toString());
             */
 

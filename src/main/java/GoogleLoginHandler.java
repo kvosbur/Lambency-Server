@@ -59,7 +59,7 @@ public class GoogleLoginHandler {
 
                 // Print user identifier
                 String userId = payload.get("sub");
-                System.out.println("User ID: " + userId);
+                System.out.println("UserModel ID: " + userId);
 
                 // Get profile information from payload
                 String email = payload.get("email");
@@ -72,7 +72,7 @@ public class GoogleLoginHandler {
                 String sub = (String) payload.get("sub");
                 String aud = (String) payload.get("aud");
                 String iss = (String) payload.get("iss");
-                User us;
+                UserModel us;
 
                 if (emailVerified.equals("false")) {
                     status = UserAuthenticator.Status.NON_UNIQUE_EMAIL;

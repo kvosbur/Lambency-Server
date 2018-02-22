@@ -12,7 +12,7 @@ public class FacebookLogin {
     public static UserAuthenticator facebookLogin(String facebookId, String firstName, String lastName, String email){
         UserAuthenticator.Status status;
         UserAuthenticator ua = null;
-        User user;
+        UserModel user;
         try{
             //check if user exist
             user = LambencyServer.dbc.searchForUser(facebookId, 2);
