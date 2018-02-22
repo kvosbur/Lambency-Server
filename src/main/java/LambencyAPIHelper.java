@@ -315,6 +315,35 @@ public void createOrganizationRetrofit(Organization org){
         });
     }
 
+    public void followOrgRetrofit(String oAuthCode, String orgID){
+
+        this.getInstance().getFollowOrg(oAuthCode, orgID).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == 0){
+                    System.out.println("successfully followed organization");
+                }
+                else if (ret == 1){
+                    System.out.println("failed to find user or organization");
+                }
+                else if (ret == 2){
+                    System.out.println("undetermined error");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
         //Organization org = new Organization(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");
