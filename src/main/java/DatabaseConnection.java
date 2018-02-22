@@ -178,7 +178,7 @@ public class DatabaseConnection {
 
         //insert event into table
         PreparedStatement ps;
-        ps = connect.prepareStatement("INSERT INTO Events (name, org_id, start_time, end_time, description, location, event_image) VALUES ('TEMP',?,?,?,?,?,?)");
+        ps = connect.prepareStatement("INSERT INTO events (name, org_id, start_time, end_time, description, location, event_image) VALUES ('TEMP',?,?,?,?,?,?)");
 
 
         if(ps != null) {
@@ -197,12 +197,12 @@ public class DatabaseConnection {
 
         //get event id from sql table
         Statement st = connect.createStatement();
-        ResultSet rs = st.executeQuery("SELECT event_id FROM Events WHERE name = 'TEMP'");
+        ResultSet rs = st.executeQuery("SELECT event_id FROM events WHERE name = 'TEMP'");
         rs.next();
         int event_id = rs.getInt(1);
 
         //update event with actual name
-        ps = connect.prepareStatement("UPDATE Events SET name = ? WHERE event_id = " + event_id);
+        ps = connect.prepareStatement("UPDATE events SET name = ? WHERE event_id = " + event_id);
         ps.setString(1, name);
 
         ps.executeUpdate();
@@ -228,7 +228,7 @@ public class DatabaseConnection {
     public void modifyEventInfo(int event_id, String name , Timestamp start, Timestamp end, String description, String location, String imgPath, double lat, double longit) throws SQLException{
 
         //create prepare statement for sql query
-        PreparedStatement ps = connect.prepareStatement("UPDATE Events SET name = ? , start_time = ?, " +
+        PreparedStatement ps = connect.prepareStatement("UPDATE events SET name = ? , start_time = ?, " +
                 "end_time = ? , description = ? , location = ? , event_img = ?, latitude = ?, longitude = ? WHERE event_id = ?");
 
         //set parameters for prepared statement
@@ -359,7 +359,7 @@ public class DatabaseConnection {
 
         //insert event into table
         PreparedStatement ps;
-        ps = connect.prepareStatement("INSERT INTO Events (name, org_id, start_time, end_time, description, location, event_img, latitude, longitude) VALUES ('TEMP',?,?,?,?,?,?,?,?)");
+        ps = connect.prepareStatement("INSERT INTO events (name, org_id, start_time, end_time, description, location, event_img, latitude, longitude) VALUES ('TEMP',?,?,?,?,?,?,?,?)");
 
 
         if(ps != null) {
@@ -380,12 +380,12 @@ public class DatabaseConnection {
 
         //get event id from sql table
         Statement st = connect.createStatement();
-        ResultSet rs = st.executeQuery("SELECT event_id FROM Events WHERE name = 'TEMP'");
+        ResultSet rs = st.executeQuery("SELECT event_id FROM events WHERE name = 'TEMP'");
         rs.next();
         int event_id = rs.getInt(1);
 
         //update event with actual name
-        ps = connect.prepareStatement("UPDATE Events SET name = ? WHERE event_id = " + event_id);
+        ps = connect.prepareStatement("UPDATE events SET name = ? WHERE event_id = " + event_id);
         ps.setString(1, name);
 
         ps.executeUpdate();
