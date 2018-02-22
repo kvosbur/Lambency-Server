@@ -188,6 +188,7 @@ public class UserHandler {
             //search for organization by ID
             if(userID == null){
                 user =  LambencyServer.dbc.searchForUser(oAuthCode);
+                user = UserHandler.updateOrgLists(user);
                 return user;
             }else{
                 user = LambencyServer.dbc.searchForUser(userID, DatabaseConnection.LAMBNECYUSERID);
