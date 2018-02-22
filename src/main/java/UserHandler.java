@@ -132,6 +132,12 @@ public class UserHandler {
         }
     }
 
+    /**
+     *
+     * @param oAuthCode the oAuthCode of the given user
+     * @param eventID the id of the event
+     * @return 0 on success, 1 on failing to find user or organization, 2 on SQL exception, 3 on already registered
+     */
     public static Integer registerEvent(String oAuthCode, int eventID){
         try {
             //search for user
@@ -152,7 +158,7 @@ public class UserHandler {
                 } else {
                     //User is already registered
                     System.out.println("User is already registered for the event");
-                    return 1;
+                    return 3;
                 }
             } else {
                 //org is not found, return error
