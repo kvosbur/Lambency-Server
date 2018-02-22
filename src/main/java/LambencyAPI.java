@@ -11,22 +11,22 @@ import java.util.List;
 
 public interface LambencyAPI {
 
-    @GET("User/login/google/")
+    @GET("User/login/google")
     Call<UserAuthenticator> getGoogleLogin(@Query("id") String id);
 
     @GET("User/login/facebook")
     Call<UserAuthenticator> getFacebookLogin(@Query("id") String id, @Query("first") String first, @Query("last") String last, @Query("email") String email);
 
-    @GET("User/search/")
+    @GET("User/search")
     Call<User> getUserSearch(@Query("oAuthCode") String oAuthCode, @Query("id") String id);
 
-    @GET("User/followOrg/")
+    @GET("User/followOrg")
     Call<Integer> getFollowOrg(@Query("oAuthCode") String oAuthCode, @Query("orgID") String orgID);
 
-    @GET("User/unfollowOrg/")
+    @GET("User/unfollowOrg")
     Call<Integer> getUnfollowOrg(@Query("oAuthCode") String oAuthCode, @Query("org_id") String orgID);
 
-    @POST("Organization/Create")
+    @POST("Organization/create")
     Call<Integer> postCreateOrganization(@Body Organization org);
     @GET("Organization/search")
     Call<ArrayList<Organization>> getOrganizationSearch(@Query("name") String name);
@@ -46,7 +46,7 @@ public interface LambencyAPI {
     @GET("User/changeInfo/")
     Call<User> getChangeAccountInfo(@Query("user") User u);
 
-    @GET("User/registerForEvent/")
+    @GET("User/registerForEvent")
     Call<Integer> getRegisterEvent(@Query("oAuthCode") String oAuthCode, @Query("eventID") int eventID);
 
     @POST("Event/create")
