@@ -242,12 +242,13 @@ public void createOrganizationRetrofit(Organization org){
                 //when response is back
                 Integer status = response.body();
                 System.out.println(status);
-                if(status == 0){
-                    //System.out.println("SUCCESS");
+
+                if(status == -1){
+                    System.out.println("Error in creating event");
                 }
-                else if(status == -1){
-                    //System.out.println("BAD USER ID");
-                }
+
+                // Status now contains event_id
+                int event_id = status;
             }
 
             @Override
