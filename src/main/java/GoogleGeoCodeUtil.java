@@ -20,7 +20,7 @@ public class GoogleGeoCodeUtil {
             Geometry s = results[0].geometry;
 
             return s.location;
-            //System.out.println(gson.toJson(results[0].addressComponents));
+            //Printing.println(gson.toJson(results[0].addressComponents));
         }catch(Exception e){
             e.printStackTrace();
             return null;
