@@ -1,19 +1,19 @@
 import java.util.ArrayList;
 
-public class Organization {
-    public User owner;
+public class OrganizationModel {
+    public UserModel owner;
     public String name;
-    public ArrayList<User> members;
+    public ArrayList<UserModel> members;
     public String location;
     public int orgID;
     public ArrayList<Object> events;
     public String description;
     public String email;
-    public User contact;
+    public UserModel contact;
     public String image;
-    public ArrayList<User> organizers;
+    public ArrayList<UserModel> organizers;
 
-    public Organization(User owner, String name, String location, int orgID, String description, String email, User contact, String image) {
+    public OrganizationModel(UserModel owner, String name, String location, int orgID, String description, String email, UserModel contact, String image) {
         this.owner = owner;
         this.name = name;
         this.location = location;
@@ -22,10 +22,10 @@ public class Organization {
         this.email = email;
         this.contact = contact;
         this.image = image;
-        members = new ArrayList<User>();
+        members = new ArrayList<UserModel>();
         members.add(owner);
         events = new ArrayList<>();
-        this.organizers = new ArrayList<User>();
+        this.organizers = new ArrayList<UserModel>();
         organizers.add(owner);
 
     }
@@ -41,11 +41,11 @@ public class Organization {
         this.name = name;
     }
 
-    public ArrayList<User> getMembers() {
+    public ArrayList<UserModel> getMembers() {
         return members;
     }
 
-    public void setMembers(ArrayList<User> members) {
+    public void setMembers(ArrayList<UserModel> members) {
         this.members = members;
     }
 
@@ -89,11 +89,11 @@ public class Organization {
         this.email = email;
     }
 
-    public User getContact() {
+    public UserModel getContact() {
         return contact;
     }
 
-    public void setContact(User contact) {
+    public void setContact(UserModel contact) {
         this.contact = contact;
     }
 
@@ -105,11 +105,11 @@ public class Organization {
         this.image = image;
     }
 
-    public ArrayList<User> getOrganizers() {
+    public ArrayList<UserModel> getOrganizers() {
         return organizers;
     }
 
-    public void setOrganizers(ArrayList<User> organizers) {
+    public void setOrganizers(ArrayList<UserModel> organizers) {
         this.organizers = organizers;
     }
 
@@ -124,7 +124,7 @@ public class Organization {
         this.numFollowing -= 1;
     }
 
-    public int checkPermissions(User u){
+    public int checkPermissions(UserModel u){
         return 0;
     }
 

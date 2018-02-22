@@ -32,48 +32,48 @@ public class LambencyServer{
 
     public void addroutes(){
         // example of responding with a json object made from a java object
-        get("/User/login/google", "application/json", (request, response) -> {
+        get("/UserModel/login/google", "application/json", (request, response) -> {
             String token = request.queryParams("idToken");
             GoogleLoginHandler glh = new GoogleLoginHandler();
             return glh.getAuthenticator(token);
         }, new JsonTransformer());
-        get("/User/search", "application/json", (request, response) -> {
+        get("/UserModel/search", "application/json", (request, response) -> {
             String oAuthCode = request.queryParams("oAuthToken");
             String id = request.queryParams("id");
             return UserHandler.searchForUser(oAuthCode,id);
         }, new JsonTransformer());
-        post("/User/changeInfo", "application/json", (request, response) -> {
-            User u = new Gson().fromJson(request.body(), User.class);
+        post("/UserModel/changeInfo", "application/json", (request, response) -> {
+            UserModel u = new Gson().fromJson(request.body(), UserModel.class);
             return UserHandler.changeInfo(u);
         }, new JsonTransformer());
-        get("/User/followOrg", "application/json", (request, response) -> {
+        get("/UserModel/followOrg", "application/json", (request, response) -> {
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgId");
             Integer ret = UserHandler.followOrg(oAuthCode, Integer.parseInt(orgID));
             return ret;
         }, new JsonTransformer());
-        post("/User/requestJoinOrg", "application/json", (request, response) -> {
+        post("/UserModel/requestJoinOrg", "application/json", (request, response) -> {
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgId");
             Integer ret = UserHandler.requestJoinOrg(oAuthCode, Integer.parseInt(orgID));
             return ret;
         }, new JsonTransformer());
-        get("/User/registerForEvent", "application/json", (request, response) -> {
+        get("/UserModel/registerForEvent", "application/json", (request, response) -> {
             String oAuthCode = request.queryParams("oAuthCode");
             String eventID = request.queryParams("eventId");
             Integer ret = UserHandler.registerEvent(oAuthCode, Integer.parseInt(eventID));
             return ret;
         }, new JsonTransformer());
-        post("/Organization/create", "application/json",
+        post("/OrganizationModel/create", "application/json",
                 (request, response) -> {
-                       return OrganizationHandler.createOrganization( new Gson().fromJson(request.body(), Organization.class));
+                       return OrganizationHandler.createOrganization( new Gson().fromJson(request.body(), OrganizationModel.class));
                 }, new JsonTransformer());
-        get("/Organization/search", "application/json", (request, response) -> {
-            ArrayList<Organization> orgList = OrganizationHandler.searchOrgName(request.queryParams("name"));
+        get("/OrganizationModel/search", "application/json", (request, response) -> {
+            ArrayList<OrganizationModel> orgList = OrganizationHandler.searchOrgName(request.queryParams("name"));
             return orgList;
         }, new JsonTransformer());
-        get("/Organization/searchByID", "application/json", (request, response) -> {
-            Organization organization = OrganizationHandler.searchOrgID(Integer.parseInt(request.queryParams("id")));
+        get("/OrganizationModel/searchByID", "application/json", (request, response) -> {
+            OrganizationModel organization = OrganizationHandler.searchOrgID(Integer.parseInt(request.queryParams("id")));
             return organization;
         }, new JsonTransformer());
         post("/Event/update", "application/json",
@@ -101,11 +101,11 @@ public class LambencyServer{
             return EventHandler.getUsersAttending(oauthcode,event_id);
         }, new JsonTransformer());
 
-        get("/User/login/facebook", "application/json", (request, response) -> {
+        get("/UserModel/login/facebook", "application/json", (request, response) -> {
             UserAuthenticator ua = FacebookLogin.facebookLogin(request.queryParams("id"), request.queryParams("first"), request.queryParams("last"), request.queryParams("email"));
             return ua;
         }, new JsonTransformer());
-        get("/User/unfollowOrg","application/json",(request, response) -> UserHandler.unfollowOrg(request.queryParams("oAuthCode"),Integer.parseInt(request.queryParams("org_id"))), new JsonTransformer());
+        get("/UserModel/unfollowOrg","application/json",(request, response) -> UserHandler.unfollowOrg(request.queryParams("oAuthCode"),Integer.parseInt(request.queryParams("org_id"))), new JsonTransformer());
 
 
     }

@@ -9,15 +9,15 @@ public class OrganizationHandler {
     /**
      * This method will take an organziation and save it in the databse
      *
-     * @param org the Organization to be saved in the databse
+     * @param org the OrganizationModel to be saved in the databse
      * @return an integer representing the org_id on success and an error code on failure.
      *           -1 Database Error | -2 Non Determinant Error
      */
-    public static Organization createOrganization(Organization org){
+    public static OrganizationModel createOrganization(OrganizationModel org){
 
         //check if organization with same name already exists
         try {
-            Organization organization = LambencyServer.dbc.searchForOrg(org.name);
+            OrganizationModel organization = LambencyServer.dbc.searchForOrg(org.name);
             if (organization != null) {
                 organization.name = null;
                 return organization;
@@ -40,7 +40,7 @@ public class OrganizationHandler {
             System.out.println(org.toString());
             status = LambencyServer.dbc.createOrganization(org.getName(), org.getDescription(), org.getEmail(), org.getContact()
                     .getUserId(), org.getLocation(), path, org.getOrganizers().get(0).getUserId());
-            Organization organization = LambencyServer.dbc.searchForOrg(status);
+            OrganizationModel organization = LambencyServer.dbc.searchForOrg(status);
             //image is currently storing path so change it to store
             organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
             return organization;
@@ -59,20 +59,20 @@ public class OrganizationHandler {
      * @param name name of the organization to be searched for
      * @return an ArrayList of organizations
      */
-    public static ArrayList<Organization> searchOrgName(String name){
-        ArrayList<Organization> array;
+    public static ArrayList<OrganizationModel> searchOrgName(String name){
+        ArrayList<OrganizationModel> array;
         try {
             array = LambencyServer.dbc.searchForOrgArray(name);
 
             //for each organization in the array
-            for(Organization org: array){
+            for(OrganizationModel org: array){
                 org.setImage(ImageWR.getEncodedImageFromFile(org.getImage()));
             }
         }
         catch (SQLException e){
-            array = new ArrayList<Organization>();
+            array = new ArrayList<OrganizationModel>();
         }catch(Exception e){
-            array = new ArrayList<Organization>();
+            array = new ArrayList<OrganizationModel>();
         }
         return array;
     }
@@ -82,10 +82,10 @@ public class OrganizationHandler {
      * @param orgID the id of the organization
      * @return the organization object for the id, otherwise null
      */
-    public static Organization searchOrgID(int orgID) {
+    public static OrganizationModel searchOrgID(int orgID) {
 
         try {
-            Organization organization = LambencyServer.dbc.searchForOrg(orgID);
+            OrganizationModel organization = LambencyServer.dbc.searchForOrg(orgID);
             return organization;
         } catch (SQLException e) {
             System.out.println("Error in finding organization");

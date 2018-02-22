@@ -1,11 +1,11 @@
-public class Groupies {
+public class GroupiesModel {
     //TODO
     public int orgID;
     public int userID;
     public int type;
     public boolean confirmed;
 
-    Groupies(int orgID, int userId, int type, boolean confirmed){
+    GroupiesModel(int orgID, int userId, int type, boolean confirmed){
         this.orgID = orgID;
         this.userID = userId;
         this.type = type;
