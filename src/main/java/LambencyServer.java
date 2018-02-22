@@ -87,6 +87,10 @@ public class LambencyServer{
             String org_idStr = request.queryParams("org_id");
             return EventHandler.getEventsByLocation(Double.parseDouble(latStr), Double.parseDouble(longStr));
         }, new JsonTransformer());
+        get("/Event/searchByID", "application/json", (request, response) -> {
+            EventModel eventModel = EventHandler.searchEventID(Integer.parseInt(request.queryParams("id")));
+            return eventModel;
+        }, new JsonTransformer());
         get("/Event/users","application/json",(request,response)->{
             String oauthcode = request.queryParams("oauthcode");
             int event_id = Integer.parseInt(request.queryParams("event_id"));

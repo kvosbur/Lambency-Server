@@ -114,5 +114,17 @@ public class EventHandler {
         return null;
     }
 
+    public static EventModel searchEventID(int eventID) {
+
+        try {
+            //get latitude and longitude for database
+            EventModel eventModel = LambencyServer.dbc.searchEvents(eventID);
+            return eventModel;
+        } catch (SQLException e) {
+            System.out.println("Error in finding event");
+            return null;
+        }
+
+    }
 
 }

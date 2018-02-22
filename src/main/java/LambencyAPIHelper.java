@@ -368,6 +368,32 @@ public void createOrganizationRetrofit(Organization org){
         });
     }
 
+    public void searchEventByIDRetrofit(String event_id){
+
+        this.getInstance().getEventSearchByID(event_id).enqueue(new Callback<EventModel>() {
+            @Override
+            public void onResponse(Call<EventModel> call, Response<EventModel> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                }
+                //when response is back
+                EventModel eventModel= response.body();
+                if(eventModel == null){
+                    System.out.println("failed to event");
+                }
+                else{
+                    System.out.println("event description: " + eventModel.getDescription());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<EventModel> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
     public void followOrgRetrofit(String oAuthCode, String orgID){
 
         this.getInstance().getFollowOrg(oAuthCode, orgID).enqueue(new Callback<Integer>() {
