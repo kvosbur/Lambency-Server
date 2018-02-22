@@ -1,7 +1,7 @@
 import java.sql.SQLException;
 import java.util.List;
 
-public class User {
+public class UserModel {
 
     private String firstName;
     private String lastName;
@@ -15,8 +15,8 @@ public class User {
     private String oauthToken;
 
 
-    public User(String firstName, String lastName, String email, List<Integer> myOrgs, List<Integer> eventsAttending,
-                List<Integer> followingOrgs, List<Integer> joinedOrgs, int userId, int hoursWorked, String oauthToken) {
+    public UserModel(String firstName, String lastName, String email, List<Integer> myOrgs, List<Integer> eventsAttending,
+                     List<Integer> followingOrgs, List<Integer> joinedOrgs, int userId, int hoursWorked, String oauthToken) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;

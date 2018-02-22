@@ -117,14 +117,14 @@ public class LambencyAPIHelper {
 
 public void getOrganizationSearch(String name){
 
-        this.getInstance().getOrganizationSearch(name).enqueue(new Callback<ArrayList<Organization>>() {
+        this.getInstance().getOrganizationSearch(name).enqueue(new Callback<ArrayList<OrganizationModel>>() {
             @Override
-            public void onResponse(Call<ArrayList<Organization>> call, Response<ArrayList<Organization>> response) {
+            public void onResponse(Call<ArrayList<OrganizationModel>> call, Response<ArrayList<OrganizationModel>> response) {
                 if (response.body() == null || response.code() != 200) {
                     System.out.println("ERROR!!!!!");
                 }
                 //when response is back
-                ArrayList<Organization> orgList = response.body();
+                ArrayList<OrganizationModel> orgList = response.body();
                 if(orgList.size() == 0){
                     //no results found
                 }
@@ -134,7 +134,7 @@ public void getOrganizationSearch(String name){
             }
 
             @Override
-            public void onFailure(Call<ArrayList<Organization>> call, Throwable throwable) {
+            public void onFailure(Call<ArrayList<OrganizationModel>> call, Throwable throwable) {
                 //when failure
                 System.out.println("FAILED CALL");
             }
@@ -169,14 +169,14 @@ public void getOrganizationSearch(String name){
 
 public void getListOfUsersRetrofit(String oAuthCode, int event_id)
 {
-    this.getInstance().getListOfUsers(oAuthCode, event_id).enqueue(new Callback<ArrayList<User>>() {
+    this.getInstance().getListOfUsers(oAuthCode, event_id).enqueue(new Callback<ArrayList<UserModel>>() {
         @Override
-        public void onResponse(Call<ArrayList<User>> call, Response<ArrayList<User>> response) {
+        public void onResponse(Call<ArrayList<UserModel>> call, Response<ArrayList<UserModel>> response) {
             if (response.body() == null || response.code() != 200) {
                 System.out.println("ERROR!!!!!");
             }
 
-            ArrayList<User> userList = response.body();
+            ArrayList<UserModel> userList = response.body();
 
             if(userList == null)
             {
@@ -194,7 +194,7 @@ public void getListOfUsersRetrofit(String oAuthCode, int event_id)
         }
 
         @Override
-        public void onFailure(Call<ArrayList<User>> call, Throwable throwable) {
+        public void onFailure(Call<ArrayList<UserModel>> call, Throwable throwable) {
             //when failure
             System.out.println("FAILED CALL");
         }
@@ -228,7 +228,7 @@ public void joinOrganizationRetrofit(String oAuthCode, int orgId)
     });
 }
 
-public void createOrganizationRetrofit(Organization org){
+public void createOrganizationRetrofit(OrganizationModel org){
 
         this.getInstance().postCreateOrganization(org).enqueue(new Callback<Integer>() {
             @Override
@@ -285,16 +285,16 @@ public void createOrganizationRetrofit(Organization org){
         });
     }
 
-    public void changeAccountInfoRetrofit(User user){
+    public void changeAccountInfoRetrofit(UserModel user){
 
-        this.getInstance().getChangeAccountInfo(user).enqueue(new Callback<User>() {
+        this.getInstance().getChangeAccountInfo(user).enqueue(new Callback<UserModel>() {
             @Override
-            public void onResponse(Call<User> call, Response<User> response) {
+            public void onResponse(Call<UserModel> call, Response<UserModel> response) {
                 if (response.body() == null || response.code() != 200) {
                     System.out.println("ERROR!!!!!");
                 }
                 //when response is back
-                User u  = response.body();
+                UserModel u  = response.body();
                 if(u == null){
                     System.out.println("failed: returned null");
                 }
@@ -303,7 +303,7 @@ public void createOrganizationRetrofit(Organization org){
             }
 
             @Override
-            public void onFailure(Call<User> call, Throwable throwable) {
+            public void onFailure(Call<UserModel> call, Throwable throwable) {
                 //when failure
                 System.out.println("FAILED CALL");
             }
@@ -344,14 +344,14 @@ public void createOrganizationRetrofit(Organization org){
 
     public void searchUserRetrofit(String oAuthCode, String id){
 
-        this.getInstance().getUserSearch(oAuthCode, id).enqueue(new Callback<User>() {
+        this.getInstance().getUserSearch(oAuthCode, id).enqueue(new Callback<UserModel>() {
             @Override
-            public void onResponse(Call<User> call, Response<User> response) {
+            public void onResponse(Call<UserModel> call, Response<UserModel> response) {
                 if (response.body() == null || response.code() != 200) {
                     System.out.println("ERROR!!!!!");
                 }
                 //when response is back
-                User u = response.body();
+                UserModel u = response.body();
                 if(u == null){
                     System.out.println("failed to find user");
                 }
@@ -361,7 +361,7 @@ public void createOrganizationRetrofit(Organization org){
             }
 
             @Override
-            public void onFailure(Call<User> call, Throwable throwable) {
+            public void onFailure(Call<UserModel> call, Throwable throwable) {
                 //when failure
                 System.out.println("FAILED CALL");
             }
@@ -396,14 +396,14 @@ public void createOrganizationRetrofit(Organization org){
 
     public void searchOrgByIDRetrofit(String org_id){
 
-        this.getInstance().getOrgSearchByID(org_id).enqueue(new Callback<Organization>() {
+        this.getInstance().getOrgSearchByID(org_id).enqueue(new Callback<OrganizationModel>() {
             @Override
-            public void onResponse(Call<Organization> call, Response<Organization> response) {
+            public void onResponse(Call<OrganizationModel> call, Response<OrganizationModel> response) {
                 if (response.body() == null || response.code() != 200) {
                     System.out.println("ERROR!!!!!");
                 }
                 //when response is back
-                Organization organization= response.body();
+                OrganizationModel organization= response.body();
                 if(organization == null){
                     System.out.println("failed to find organization");
                 }
@@ -413,7 +413,7 @@ public void createOrganizationRetrofit(Organization org){
             }
 
             @Override
-            public void onFailure(Call<Organization> call, Throwable throwable) {
+            public void onFailure(Call<OrganizationModel> call, Throwable throwable) {
                 //when failure
                 System.out.println("FAILED CALL");
             }
@@ -480,7 +480,7 @@ public void createOrganizationRetrofit(Organization org){
 
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
-        //Organization org = new Organization(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");
+        //OrganizationModel org = new OrganizationModel(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");
         //lh.createOrganizationRetrofit(org);
         //lh.facebookLoginRetrofit("id", "fist", "last", "email.com");
         lh.facebookLoginRetrofit("id", "fist", "last", "email.com");
