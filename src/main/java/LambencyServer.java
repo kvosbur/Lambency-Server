@@ -22,7 +22,7 @@ public class LambencyServer{
             LambencyServer.dbc = new DatabaseConnection();
         }catch(Exception e){
             //error happened in connecting to database
-            System.out.println("TEst");
+            Printing.println("TEst");
         }
 
         port(20000);

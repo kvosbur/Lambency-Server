@@ -11,7 +11,7 @@ public class UserHandler {
         try {
             //search for user
             if(LambencyServer.dbc.searchForUser(oAuthCode) == null){
-                System.out.println("UserModel not found");
+                Printing.println("UserModel not found");
                 return 1;
             }
             //search for organization by ID
@@ -26,18 +26,18 @@ public class UserHandler {
                     return 0;
                 } else {
                     //GroupiesModel already exist for this user
-                    System.out.println("GroupiesModel already exists with equal or higher permissions");
+                    Printing.println("GroupiesModel already exists with equal or higher permissions");
                     return 1;
                 }
             }
             else {
                 //org is not found, return error
-                System.out.println("OrganizationModel not found");
+                Printing.println("OrganizationModel not found");
                 return 1;
             }
         }
         catch (SQLException e){
-            System.out.println("SQLExcpetion");
+            Printing.println("SQLExcpetion");
             return 2;
         }
     }
@@ -54,7 +54,7 @@ public class UserHandler {
         try {
             //search for user
             if(LambencyServer.dbc.searchForUser(oAuthCode) == null){
-                System.out.println("UserModel not found");
+                Printing.println("UserModel not found");
                 return 1;
             }
             //search for organization by ID
@@ -69,18 +69,18 @@ public class UserHandler {
                     return -1 * LambencyServer.dbc.deleteGroupies(u.getUserId(), orgID, DatabaseConnection.FOLLOW);
                 } else {
                     //GroupiesModel already exist for this user
-                    System.out.println("Following of OrganizationModel doesn't exist.");
+                    Printing.println("Following of OrganizationModel doesn't exist.");
                     return 1;
                 }
             }
             else {
                 //org is not found, return error
-                System.out.println("OrganizationModel not found");
+                Printing.println("OrganizationModel not found");
                 return 1;
             }
         }
         catch (SQLException e){
-            System.out.println("SQLExcpetion");
+            Printing.println("SQLExcpetion");
             return 2;
         }
     }
@@ -96,7 +96,7 @@ public class UserHandler {
         try {
             //search for user
             if (LambencyServer.dbc.searchForUser(oAuthCode) == null) {
-                System.out.println("UserModel not found");
+                Printing.println("UserModel not found");
                 return 1;
             }
             //search for organization by ID
@@ -118,16 +118,16 @@ public class UserHandler {
                         return 0;
                     }
                     //user already has higher or equal permissions
-                    System.out.println("GroupiesModel already exists with equal or higher permissions");
+                    Printing.println("GroupiesModel already exists with equal or higher permissions");
                     return 1;
                 }
             } else {
                 //org is not found, return error
-                System.out.println("OrganizationModel not found");
+                Printing.println("OrganizationModel not found");
                 return 1;
             }
         } catch (SQLException e) {
-            System.out.println("SQLExcpetion");
+            Printing.println("SQLExcpetion");
             return 2;
         }
     }
@@ -142,7 +142,7 @@ public class UserHandler {
         try {
             //search for user
             if (LambencyServer.dbc.searchForUser(oAuthCode) == null) {
-                System.out.println("UserModel not found");
+                Printing.println("UserModel not found");
                 return 1;
             }
             //search for organization by ID
@@ -157,16 +157,16 @@ public class UserHandler {
                     return 0;
                 } else {
                     //UserModel is already registered
-                    System.out.println("UserModel is already registered for the event");
+                    Printing.println("UserModel is already registered for the event");
                     return 3;
                 }
             } else {
                 //org is not found, return error
-                System.out.println("OrganizationModel not found");
+                Printing.println("OrganizationModel not found");
                 return 1;
             }
         } catch (SQLException e) {
-            System.out.println("SQLExcpetion");
+            Printing.println("SQLExcpetion");
             return 2;
         }
     }
@@ -182,7 +182,7 @@ public class UserHandler {
             //search for user
             UserModel user = LambencyServer.dbc.searchForUser(oAuthCode);
             if (userID != null && user == null) {
-                System.out.println("UserModel not found");
+                Printing.println("UserModel not found");
                 return null;
             }
             //search for organization by ID
@@ -197,7 +197,7 @@ public class UserHandler {
             }
 
         } catch (SQLException e) {
-            System.out.println("SQLExcpetion");
+            Printing.println("SQLExcpetion");
             e.printStackTrace();
             return null;
         }
@@ -211,16 +211,16 @@ public class UserHandler {
     public static UserModel changeInfo(UserModel u){
         try {
             if(u == null){
-                System.out.println("Null user");
+                Printing.println("Null user");
                 return null;
             }
             UserModel user = LambencyServer.dbc.searchForUser(u.getOauthToken());
             if(user == null){
-                System.out.println("UserModel not found");
+                Printing.println("UserModel not found");
                 return null;
             }
             if(u.getEmail() == null || u.getLastName() == null| u.getFirstName() == null){
-                System.out.println("UserModel info invalid");
+                Printing.println("UserModel info invalid");
                 return null;
             }
             u = LambencyServer.dbc.modifyUserInfo(user.getUserId(), u.getFirstName(), u.getLastName(), u.getEmail());
@@ -228,7 +228,7 @@ public class UserHandler {
             return u;
         }
         catch (SQLException e){
-            System.out.println("SQLException");
+            Printing.println("SQLException");
             e.printStackTrace();
             return null;
         }
