@@ -282,6 +282,43 @@ public class Testing {
         return false;
     }
 
+    private static boolean testRequestJoinOrg(){
+        try{
+            User u = dbc.searchForUser("User2", 2);
+            Organization org = dbc.searchForOrg("My Organization");
+            int ret = UserHandler.requestJoinOrg(u.getOauthToken(), org.getOrgID());
+            if(ret == 1){
+                System.out.println("request to join org failed: unable to find user or org or is already registered");
+                return false;
+            }
+            if(ret == 2){
+                System.out.println("request to join org failed: SQL error");
+                return false;
+            }
+            Groupies g = dbc.searchGroupies(u.getUserId(), org.getOrgID());
+            if(g == null){
+                System.out.println("Error in groupies: returned null");
+                return false;
+            }
+            if(g.getType() != DatabaseConnection.MEMBER){
+                System.out.println("Error in groupies: not set to member");
+                return false;
+            }
+
+            if(g.isConfirmed()){
+                System.out.println("Error in groupies: set to confirmed when not");
+                return false;
+            }
+            return true;
+
+
+        }
+        catch (Exception e){
+            System.out.println("database error");
+        }
+        return false;
+    }
+
     public static void main(String[] args){
         try {
             dbc = new DatabaseConnection();
@@ -374,6 +411,16 @@ public class Testing {
             System.out.print("Test List Users Attending: ");
             count++;
             if (testUsersAttending()) {
+                passed++;
+                System.out.println("PASSED");
+            } else {
+                System.out.println("FAILED");
+                passedAll = false;
+            }
+
+            System.out.print("Test Request Join Org: ");
+            count++;
+            if (testRequestJoinOrg()) {
                 passed++;
                 System.out.println("PASSED");
             } else {
