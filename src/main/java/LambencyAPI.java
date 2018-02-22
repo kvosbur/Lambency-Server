@@ -34,4 +34,7 @@ public interface LambencyAPI {
     @GET("User/changeInfo/")
     Call<User> getChangeAccountInfo(@Query("user") User u);
 
+    @GET("User/registerEvent/")
+    Call<Integer> getRegisterEvent(@Query("oAuthCode") String oAuthCode, @Query("eventID") int eventID);
+
 }
