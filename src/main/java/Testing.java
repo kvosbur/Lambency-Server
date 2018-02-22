@@ -1,4 +1,5 @@
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class Testing {
@@ -222,6 +223,65 @@ public class Testing {
         return false;
     }
 
+    private static boolean testRegisterEvent(){
+        try{
+            User u = dbc.searchForUser("facebookUser", 2);
+            int ret = UserHandler.registerEvent(u.getOauthToken(), event_id);
+            if(ret == 1){
+                System.out.println("event registration failed: failed to find user or org");
+                return false;
+            }
+            if(ret == 2){
+                System.out.println("event registration failed: SQL exception");
+                return false;
+            }
+            if(ret == 3){
+                System.out.println("event registration failed: user already registered");
+                return false;
+            }
+            EventAttendance ea = dbc.searchEventAttendance(u.getUserId(), event_id);
+            if(ea == null){
+                System.out.println("event registration failed: failed to update database");
+                return false;
+            }
+            if(!(ea.getUserID() == u.getUserId() || ea.getEventID() == event_id)){
+                System.out.println("event registration failed: incorrect information in database");
+                return false;
+            }
+            return true;
+
+        }
+        catch (Exception e){
+            System.out.println("database error");
+        }
+        return false;
+    }
+
+    private static boolean testUsersAttending(){
+        try {
+            User u = dbc.searchForUser("facebookUser", 2);
+            List<User> userList = EventHandler.getUsersAttending(u.getOauthToken(), event_id);
+            if(userList == null){
+                System.out.println("making user list failed: returned null");
+                return false;
+            }
+            if(userList.size() > 1){
+                System.out.println("making user list failed: returned list of incorrect length");
+                return false;
+            }
+            u = userList.get(0);
+            if(!(u.getEmail().equals("newemail@gmail.com") && u.getFirstName().equals("George") && u.getLastName().equals("Adams"))){
+                System.out.println("making user list failed: returned incorrect user object");
+                return false;
+            }
+            return true;
+        }
+        catch (Exception e){
+            System.out.println("database error");
+        }
+        return false;
+    }
+
     public static void main(String[] args){
         try {
             dbc = new DatabaseConnection();
@@ -301,6 +361,25 @@ public class Testing {
                 passedAll = false;
             }
 
+            System.out.print("Test Register Event: ");
+            count++;
+            if (testRegisterEvent()) {
+                passed++;
+                System.out.println("PASSED");
+            } else {
+                System.out.println("FAILED");
+                passedAll = false;
+            }
+
+            System.out.print("Test List Users Attending: ");
+            count++;
+            if (testUsersAttending()) {
+                passed++;
+                System.out.println("PASSED");
+            } else {
+                System.out.println("FAILED");
+                passedAll = false;
+            }
 
             if (passedAll) {
                 System.out.println("\nAll Tests Passed");
