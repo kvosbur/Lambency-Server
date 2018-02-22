@@ -70,7 +70,7 @@ public class ImageWR {
         }
         fileReader.close();
         System.out.println("Contents of file:");
-        System.out.println(stringBuffer.toString());
+        //System.out.println(stringBuffer.toString());
 
         return stringBuffer.toString();
     }
