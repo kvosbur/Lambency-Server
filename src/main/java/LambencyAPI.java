@@ -40,4 +40,6 @@ public interface LambencyAPI {
     @GET("User/registerEvent/")
     Call<Integer> getRegisterEvent(@Query("oAuthCode") String oAuthCode, @Query("eventID") int eventID);
 
+    @POST("Event/create")
+    Call<Integer> createEvent(@Body EventModel eventModel);
 }
