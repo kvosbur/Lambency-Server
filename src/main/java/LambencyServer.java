@@ -72,6 +72,10 @@ public class LambencyServer{
             ArrayList<Organization> orgList = OrganizationHandler.searchOrgName(request.queryParams("name"));
             return orgList;
         }, new JsonTransformer());
+        get("/Organization/searchByID", "application/json", (request, response) -> {
+            Organization organization = OrganizationHandler.searchOrgID(Integer.parseInt(request.queryParams("id")));
+            return organization;
+        }, new JsonTransformer());
         post("/Event/update", "application/json",
                 (request, response) ->
                         EventHandler.updateEvent( new Gson().fromJson(request.body(), EventModel.class))
@@ -86,6 +90,10 @@ public class LambencyServer{
             String name = request.queryParams("name");
             String org_idStr = request.queryParams("org_id");
             return EventHandler.getEventsByLocation(Double.parseDouble(latStr), Double.parseDouble(longStr));
+        }, new JsonTransformer());
+        get("/Event/searchByID", "application/json", (request, response) -> {
+            EventModel eventModel = EventHandler.searchEventID(Integer.parseInt(request.queryParams("id")));
+            return eventModel;
         }, new JsonTransformer());
         get("/Event/users","application/json",(request,response)->{
             String oauthcode = request.queryParams("oauthcode");

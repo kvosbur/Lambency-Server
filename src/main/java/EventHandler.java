@@ -25,6 +25,8 @@ public class EventHandler {
             }
             int event_id = LambencyServer.dbc.createEvent(event.getOrg_id(),event.getName(),event.getStart(),
                     event.getEnd(),event.getDescription(),event.getLocation(),event.getImage_path(), latlng.lat, latlng.lng);
+            System.out.println((latlng == null));
+            int event_id = LambencyServer.dbc.createEvent(event.getOrg_id(),event.getName(),event.getStart(), event.getEnd(),event.getDescription(),event.getLocation(),event.getImage_path(), latlng.lat, latlng.lng);
             return event_id;
         } catch (SQLException e) {
             System.out.println("Error in creating event: "+event.getName() + "Due to sql error: "+e);
@@ -32,6 +34,8 @@ public class EventHandler {
         }
         catch (IOException e){
             System.out.println("Error in writing image.");
+            System.out.println("Error in creating event: "+event.getName());
+            e.printStackTrace();
             return -1;
         }
 
@@ -70,6 +74,7 @@ public class EventHandler {
                 events.add(LambencyServer.dbc.searchEvents(i));
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             System.out.println("Error in get events by location: "+e);
             return null;
         }
@@ -123,5 +128,22 @@ public class EventHandler {
         return null;
     }
 
+
+    /**
+     *
+     * @param eventID the id of the event
+     * @return the event object for the id, otherwise null
+     */
+    public static EventModel searchEventID(int eventID) {
+
+        try {
+            EventModel eventModel = LambencyServer.dbc.searchEvents(eventID);
+            return eventModel;
+        } catch (SQLException e) {
+            System.out.println("Error in finding event");
+            return null;
+        }
+
+    }
 
 }
