@@ -1,4 +1,5 @@
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class Testing {
@@ -222,6 +223,31 @@ public class Testing {
         return false;
     }
 
+    private static boolean testUsersAttending(){
+        try {
+            User u = dbc.searchForUser("facebookUser", 2);
+            List<User> userList = EventHandler.getUsersAttending(u.getOauthToken(), event_id);
+            if(userList == null){
+                System.out.println("making user list failed: returned null");
+                return false;
+            }
+            if(userList.size() > 1){
+                System.out.println("making user list failed: returned list of incorrect length");
+                return false;
+            }
+            u = userList.get(0);
+            if(!(u.getEmail().equals("newemail@gmail.com") && u.getFirstName().equals("George") && u.getLastName().equals("Adams"))){
+                System.out.println("making user list failed: returned incorrect user object");
+                return false;
+            }
+            return true;
+        }
+        catch (Exception e){
+            System.out.println("database error");
+        }
+        return false;
+    }
+
     public static void main(String[] args){
         try {
             dbc = new DatabaseConnection();
@@ -301,6 +327,15 @@ public class Testing {
                 passedAll = false;
             }
 
+            System.out.print("Test List Users Attending: ");
+            count++;
+            if (testUsersAttending()) {
+                passed++;
+                System.out.println("PASSED");
+            } else {
+                System.out.println("FAILED");
+                passedAll = false;
+            }
 
             if (passedAll) {
                 System.out.println("\nAll Tests Passed");
