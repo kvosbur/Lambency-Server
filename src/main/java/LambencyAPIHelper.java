@@ -141,6 +141,32 @@ public void getOrganizationSearch(String name){
         });
 }
 
+    public void updateEventRetrofit(EventModel event){
+
+        this.getInstance().postUpdateEvent(event).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == 0){
+                    System.out.println("successfully updated event");
+                }
+                else{
+                    System.out.println("failed to update event");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
 public void getListOfUsersRetrofit(String oAuthCode, int event_id)
 {
     this.getInstance().getListOfUsers(oAuthCode, event_id).enqueue(new Callback<ArrayList<User>>() {
