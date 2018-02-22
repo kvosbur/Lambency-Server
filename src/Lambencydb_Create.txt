@@ -10,7 +10,7 @@ CREATE TABLE `user` (
 	`user_id` int NOT NULL AUTO_INCREMENT UNIQUE,
 	`first_name` varchar(50) NOT NULL,
 	`last_name` varchar(50) NOT NULL,
-	`user_email` varchar(100) NOT NULL UNIQUE,
+	`user_email` varchar(100) NOT NULL,
 	`hash_password` TEXT,
 	`salt` TEXT,
 	`facebook_id` TEXT,

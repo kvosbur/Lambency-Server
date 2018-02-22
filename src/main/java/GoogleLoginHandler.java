@@ -25,11 +25,11 @@ public class GoogleLoginHandler {
 
     GoogleLoginHandler() {
 
-        GOOGLE_CLIENT_ID = "406595282653-cc9eb7143bvpgfe5da941r3jq174b4dq.apps.googleusercontent.com";
-        GOOGLE_ANDROID_ID = "406595282653-87c0rdih5bqi4nrei8catgh3pq1usith.apps.googleusercontent.com";
+        //GOOGLE_CLIENT_ID = "406595282653-cc9eb7143bvpgfe5da941r3jq174b4dq.apps.googleusercontent.com";
+        //GOOGLE_ANDROID_ID = "406595282653-87c0rdih5bqi4nrei8catgh3pq1usith.apps.googleusercontent.com";
         //kevins
-        //GOOGLE_CLIENT_ID = "801710608826-ai9n5mnitg4ea1e92c1o7c9j77f02fbq.apps.googleusercontent.com";
-        //GOOGLE_ANDROID_ID = "801710608826-06vpf384rl9nfcbumav56niql251419n.apps.googleusercontent.com";
+        GOOGLE_CLIENT_ID = "801710608826-ai9n5mnitg4ea1e92c1o7c9j77f02fbq.apps.googleusercontent.com";
+        GOOGLE_ANDROID_ID = "801710608826-06vpf384rl9nfcbumav56niql251419n.apps.googleusercontent.com";
 
         //used this as reference for fix https://stackoverflow.com/questions/43043526/java-web-googlesignin-googleidtokenverifier-verify-token-string-returns-null/43203748
 

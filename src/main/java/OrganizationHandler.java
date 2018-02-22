@@ -15,6 +15,18 @@ public class OrganizationHandler {
      */
     public static Organization createOrganization(Organization org){
 
+        //check if organization with same name already exists
+        try {
+            Organization organization = LambencyServer.dbc.searchForOrg(org.name);
+            if (organization != null) {
+                organization.name = null;
+                return organization;
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+
         // Saves the orgs image to a file
         String path = null;
         int status;
@@ -25,6 +37,7 @@ public class OrganizationHandler {
             System.out.println("Error adding image.");
         }
         try {
+            System.out.println(org.toString());
             status = LambencyServer.dbc.createOrganization(org.getName(), org.getDescription(), org.getEmail(), org.getContact()
                     .getUserId(), org.getLocation(), path, org.getOrganizers().get(0).getUserId());
             return LambencyServer.dbc.searchForOrg(status);

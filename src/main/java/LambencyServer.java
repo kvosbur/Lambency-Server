@@ -42,8 +42,8 @@ public class LambencyServer{
             String id = request.queryParams("id");
             return UserHandler.searchForUser(oAuthCode,id);
         }, new JsonTransformer());
-        get("/User/changeInfo", "application/json", (request, response) -> {
-            User u = new Gson().fromJson(request.queryParams("user"), User.class);
+        post("/User/changeInfo", "application/json", (request, response) -> {
+            User u = new Gson().fromJson(request.body(), User.class);
             return UserHandler.changeInfo(u);
         }, new JsonTransformer());
         get("/User/followOrg", "application/json", (request, response) -> {

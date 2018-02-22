@@ -206,7 +206,8 @@ public class UserHandler {
                 System.out.println("Null user");
                 return null;
             }
-            if(LambencyServer.dbc.searchForUser(u.getOauthToken()) == null){
+            User user = LambencyServer.dbc.searchForUser(u.getOauthToken());
+            if(user == null){
                 System.out.println("User not found");
                 return null;
             }
@@ -214,7 +215,7 @@ public class UserHandler {
                 System.out.println("User info invalid");
                 return null;
             }
-            u = LambencyServer.dbc.modifyUserInfo(u.getUserId(), u.getFirstName(), u.getLastName(), u.getEmail());
+            u = LambencyServer.dbc.modifyUserInfo(user.getUserId(), u.getFirstName(), u.getLastName(), u.getEmail());
             return u;
         }
         catch (SQLException e){
