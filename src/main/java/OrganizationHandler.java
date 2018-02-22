@@ -40,7 +40,10 @@ public class OrganizationHandler {
             System.out.println(org.toString());
             status = LambencyServer.dbc.createOrganization(org.getName(), org.getDescription(), org.getEmail(), org.getContact()
                     .getUserId(), org.getLocation(), path, org.getOrganizers().get(0).getUserId());
-            return LambencyServer.dbc.searchForOrg(status);
+            Organization organization = LambencyServer.dbc.searchForOrg(status);
+            //image is currently storing path so change it to store
+            organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
+            return organization;
         }
         catch (Exception e){
             status = -2;
@@ -60,8 +63,15 @@ public class OrganizationHandler {
         ArrayList<Organization> array;
         try {
             array = LambencyServer.dbc.searchForOrgArray(name);
+
+            //for each organization in the array
+            for(Organization org: array){
+                org.setImage(ImageWR.getEncodedImageFromFile(org.getImage()));
+            }
         }
         catch (SQLException e){
+            array = new ArrayList<Organization>();
+        }catch(Exception e){
             array = new ArrayList<Organization>();
         }
         return array;
