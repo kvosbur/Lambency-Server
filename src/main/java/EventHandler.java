@@ -172,7 +172,7 @@ public class EventHandler {
             for (int id : list) {
                 EventModel eventModel = searchEventID(id);
                 if(eventModel == null){
-                    //dont add
+                    //dont add to list
                 }
                 else {
                     ret.add(eventModel);
