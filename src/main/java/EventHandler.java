@@ -72,11 +72,16 @@ public class EventHandler {
         try{
             eventIDs = LambencyServer.dbc.searchEventsByLocation(lattitude,longitude);
             for(Integer i: eventIDs){
-                events.add(LambencyServer.dbc.searchEvents(i));
+                EventModel eventModel = LambencyServer.dbc.searchEvents(i);
+                eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                events.add(eventModel);
             }
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("Error in get events by location: "+e);
+            return null;
+        } catch (Exception e){
+            System.out.println("Error in get events by location");
             return null;
         }
 
@@ -139,9 +144,13 @@ public class EventHandler {
 
         try {
             EventModel eventModel = LambencyServer.dbc.searchEvents(eventID);
+            eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
             return eventModel;
         } catch (SQLException e) {
             System.out.println("Error in finding event");
+            return null;
+        }catch(Exception e){
+            System.out.println("error in getting event image");
             return null;
         }
 

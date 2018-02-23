@@ -86,9 +86,13 @@ public class OrganizationHandler {
 
         try {
             OrganizationModel organization = LambencyServer.dbc.searchForOrg(orgID);
+            organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
             return organization;
         } catch (SQLException e) {
             System.out.println("Error in finding organization");
+            return null;
+        } catch (Exception e) {
+            System.out.println("General Error SearchOrgID");
             return null;
         }
 
