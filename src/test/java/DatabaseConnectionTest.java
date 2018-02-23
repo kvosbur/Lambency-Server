@@ -37,7 +37,61 @@ public class DatabaseConnectionTest {
         } else {
             throw new Exception("UserModel information failed: information was incorrect");
         }
+
+        userID = dbc.createUser("googleUser", "GoogleFirst", "GoogleLast", "Googleemail@gmail.com", 1);
+        if (dbc.verifyUserEmail("Googleemail@gmail.com") == 1) {
+            //System.out.println("verifyUserEmail failed: email@gmail.com should exist");
+            throw new Exception("verifyUserEmail failed: Googleemail@gmail.com should exist");
+        }
+        if (dbc.verifyUserEmail("fake@mail.com") == -1) {
+            throw new Exception("verifyUserEmail failed: fake@mail.com should not exist");
+
+        }
+        u = dbc.searchForUser("googleUser", 1);
+        ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+        dbc.setOauthCode(userID, ua.getoAuthCode());
+        if (u == null) {
+            throw new Exception("search for user failed: returned null");
+        }
+        if (u.getEmail().equals("Googleemail@gmail.com") && u.getFirstName().equals("GoogleFirst") && u.getLastName().equals("GoogleLast")) {
+            //UserModel was created and found successfully
+        } else {
+            throw new Exception("UserModel information failed: information was incorrect");
+        }
     }
+
+    @org.junit.Test
+    public void userLoginFacebook() throws Exception{
+        createUser();
+        UserModel u = dbc.searchForUser("facebookUser", 2);
+        UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+        dbc.setOauthCode(u.getUserId(), ua.getoAuthCode());
+        if (u == null) {
+            throw new Exception("search for user failed: returned null");
+        }
+        if (u.getEmail().equals("email@gmail.com") && u.getFirstName().equals("First") && u.getLastName().equals("Last")) {
+            //UserModel was created and found successfully
+        } else {
+            throw new Exception("UserModel information failed: information was incorrect");
+        }
+    }
+
+    @org.junit.Test
+    public void userLoginGoogle() throws Exception{
+        createUser();
+        UserModel u = dbc.searchForUser("googleUser", 1);
+        UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+        dbc.setOauthCode(u.getUserId(), ua.getoAuthCode());
+        if (u == null) {
+            throw new Exception("search for user failed: returned null");
+        }
+        if (u.getEmail().equals("Googleemail@gmail.com") && u.getFirstName().equals("GoogleFirst") && u.getLastName().equals("GoogleLast")) {
+            //UserModel was created and found successfully
+        } else {
+            throw new Exception("UserModel information failed: information was incorrect");
+        }
+    }
+
     @org.junit.Test
     public void createOrganization() throws Exception{
         createUser();
@@ -187,7 +241,7 @@ public class DatabaseConnectionTest {
     }
 
     @org.junit.Test
-    public void searchEventAttendanceUsers() throws Exception{
+    public void listUsersRegistered() throws Exception{
         registerForEvent();
         UserModel u = dbc.searchForUser("facebookUser", 2);
         List<UserModel> userList = EventHandler.getUsersAttending(u.getOauthToken(), event_id);
@@ -205,7 +259,7 @@ public class DatabaseConnectionTest {
 
     @org.junit.Test
     public void requestJoinOrg() throws Exception{
-        searchEventAttendanceUsers();
+        listUsersRegistered();
         UserModel u = dbc.searchForUser("User2", 2);
         OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
         int ret = UserHandler.requestJoinOrg(u.getOauthToken(), org.getOrgID());
@@ -257,6 +311,32 @@ public class DatabaseConnectionTest {
         if(!(array.size() == 1 && array.get(0).getOrgID() == orgID)){
             throw new Exception("failed to search org by name: returned incorrect org");
         }
+    }
+
+    @org.junit.Test
+    public void searchEventsByLocation() throws Exception{
+        searchForOrg();
+        List<Integer> list = dbc.searchEventsByLocation(0,0);
+        if(list == null){
+            throw new Exception("failed to search events by location: returned null");
+        }
+        if(list.get(0) != 1){
+            throw new Exception("failed to search events by location: returned incorrect list");
+        }
+        OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+        int eventID = dbc.createEvent(org.getOrgID(),"Event 2", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 500),
+                "This is my second event", "Location 2", "event2img", 5 , 5);
+        list = dbc.searchEventsByLocation(0,0);
+        if(list == null){
+            throw new Exception("failed to search events by location: returned null");
+        }
+        if(list.get(0) != 2){
+            throw new Exception("failed to search events by location: returned incorrect list");
+        }
+        if(list.get(1) != 1){
+            throw new Exception("failed to search events by location: returned incorrect list");
+        }
+
     }
 
     public void setUpTests(){
