@@ -171,7 +171,12 @@ public class EventHandler {
             List<EventModel> ret = new ArrayList<EventModel>();
             for (int id : list) {
                 EventModel eventModel = searchEventID(id);
-                ret.add(eventModel);
+                if(eventModel == null){
+                    //dont add
+                }
+                else {
+                    ret.add(eventModel);
+                }
             }
             return ret;
         }
