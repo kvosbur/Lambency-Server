@@ -23,7 +23,7 @@ public class OrganizationHandler {
                 return organization;
             }
         }catch(Exception e){
-            e.printStackTrace();
+            Printing.println(e.toString());
         }
 
 
@@ -47,7 +47,7 @@ public class OrganizationHandler {
         }
         catch (Exception e){
             status = -2;
-            e.printStackTrace();
+            Printing.println(e.toString());
         }
         return null;
 

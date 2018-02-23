@@ -108,7 +108,7 @@ public class GoogleLoginHandler {
             Printing.println("Exception from database: " + e);
             status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
             Printing.println(idTokenString);
-            e.printStackTrace();
+            Printing.println(e.toString());
         }
         if(ua == null){
             ua = new UserAuthenticator(status);
@@ -143,18 +143,18 @@ public class GoogleLoginHandler {
 
             // exception handling :
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            Printing.println(e.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            Printing.println(e.toString());
         } catch(Exception e){
             Printing.println("\n\n\tFailed to transform json to string\n");
-            e.printStackTrace();
+            Printing.println(e.toString());
         } finally{
             if(in!=null){
                 try {
                     in.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Printing.println(e.toString());
                 }
             }
         }

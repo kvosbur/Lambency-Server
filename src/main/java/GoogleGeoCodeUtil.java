@@ -22,7 +22,7 @@ public class GoogleGeoCodeUtil {
             return s.location;
             //Printing.println(gson.toJson(results[0].addressComponents));
         }catch(Exception e){
-            e.printStackTrace();
+            Printing.println(e.toString());
             return null;
         }
     }

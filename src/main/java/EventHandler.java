@@ -29,14 +29,14 @@ public class EventHandler {
             return LambencyServer.dbc.searchEvents(event_id);
         } catch (SQLException e) {
             Printing.println("SQL exception: ");
-            e.printStackTrace();
+            Printing.println(e.toString());
             Printing.println("Error in creating event: "+event.getName());
             return null;
         }
         catch (IOException e){
             Printing.println("Error in writing image.");
             Printing.println("Error in creating event: "+event.getName());
-            e.printStackTrace();
+            Printing.println(e.toString());
             return null;
         }
 
@@ -75,7 +75,7 @@ public class EventHandler {
                 events.add(LambencyServer.dbc.searchEvents(i));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            Printing.println(e.toString());
             Printing.println("Error in get events by location: "+e);
             return null;
         }
@@ -124,7 +124,7 @@ public class EventHandler {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            Printing.println(e.toString());
         }
         return null;
     }

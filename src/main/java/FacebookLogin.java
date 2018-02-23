@@ -44,7 +44,7 @@ public class FacebookLogin {
             //error occurred
             Printing.println("Exception from database");
             status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
-            e.printStackTrace();
+            Printing.println(e.toString());
             ua = new UserAuthenticator(status);
         }
         return ua;
