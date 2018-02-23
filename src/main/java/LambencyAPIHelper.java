@@ -77,7 +77,7 @@ public class LambencyAPIHelper {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            Printing.println(e.toString());
         }
         return events;
     }

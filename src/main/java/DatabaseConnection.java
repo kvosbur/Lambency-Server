@@ -856,21 +856,21 @@ public class DatabaseConnection {
     public static void main(String[] args) {
         try {
             DatabaseConnection db = new DatabaseConnection();
-            System.out.println("connected successfully");
+            Printing.println("connected successfully");
 
             /*
             Test for searching for orgnizations by name
             ArrayList<OrganizationModel> organizations = db.searchForOrgArray("my");
             for(OrganizationModel o: organizations){
-                System.out.println(o.name);
+                Printing.println(o.name);
             }
 
             /*
             test for registering for events and searching for attendence
             db.registerForEvent(23,10);
             EventAttendanceModel eventAttendance = db.searchEventAttendance(23,10);
-            System.out.println(eventAttendance.getEventID());
-            System.out.println(eventAttendance.getUserID());
+            Printing.println(eventAttendance.getEventID());
+            Printing.println(eventAttendance.getUserID());
             */
             /*
             test for create event
@@ -883,13 +883,13 @@ public class DatabaseConnection {
             test for adding / searching groupies
             int a = db.deleteGroupies(21,20, MEMBER);
             int a = db.addGroupies(21,20, MEMBER, false);
-            System.out.println(a);
+            Printing.println(a);
             */
             /*
             test for unique email
             db.createUser("123", "first", "last", "email.com", FACEBOOK);
-            System.out.println(db.verifyUserEmail("email.com"));
-            System.out.println(db.verifyUserEmail("unique"));
+            Printing.println(db.verifyUserEmail("email.com"));
+            Printing.println(db.verifyUserEmail("unique"));
             */
 
             /*
@@ -897,7 +897,7 @@ public class DatabaseConnection {
             Event event = db.searchEvents(2);
             List<Integer> events = db.searchEventsByLocation(110,110);
             for(Integer i: events){
-                System.out.println(i);
+                Printing.println(i);
             }
             db.createEvent(1,"Another Event", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description", "location", "path", 100, 120);
             */
@@ -905,33 +905,33 @@ public class DatabaseConnection {
             test of creation of org
             int result = db.createOrganization("org","this is an org","org@gmail.com", 123, "Purdue", "img", 123);
             db.createOrganization("org2","this is an org","org@gmail.com", 123, "Purdue", "img", 123);
-            System.out.println(result);
+            Printing.println(result);
             /*
 
             /*
             test insertion of user
             int result = db.createUser("myggoogleidentity", "mock", "user", "dummy@dummy.com", GOOGLE);
-            System.out.println(result);
+            Printing.println(result);
             */
 
             /*
             test oauth methods and searching for user
             UserModel user = db.searchForUser("myggoogleidentity", GOOGLE);
             UserModel user = db.searchForUser("" + user.getUserId(), LAMBNECYUSERID);
-            System.out.println(user.toString());
+            Printing.println(user.toString());
             UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
             db.setOauthCode(4, ua.getoAuthCode());
             UserModel user = db.searchForUser(ua.gettoAuthCode());
-            System.out.println(user.toString());
+            Printing.println(user.toString());
             */
             /*
             test modifing user data
             UserModel user = db.modifyUserInfo(4, "changedFirst", "changedLast", "changedemail@changed.com");
-            System.out.println(user.toString());
+            Printing.println(user.toString());
             */
 
         }catch(Exception e){
-            e.printStackTrace();
+            Printing.println(e.toString());
         }
     }
 }

@@ -23,7 +23,7 @@ public class OrganizationHandler {
                 return organization;
             }
         }catch(Exception e){
-            e.printStackTrace();
+            Printing.println(e.toString());
         }
 
 
@@ -34,10 +34,10 @@ public class OrganizationHandler {
             path = ImageWR.writeImageToFile(org.getImage());
 
         } catch (IOException e) {
-            System.out.println("Error adding image.");
+            Printing.println("Error adding image.");
         }
         try {
-            System.out.println(org.toString());
+            Printing.println(org.toString());
             status = LambencyServer.dbc.createOrganization(org.getName(), org.getDescription(), org.getEmail(), org.getContact()
                     .getUserId(), org.getLocation(), path, org.getOrganizers().get(0).getUserId());
             OrganizationModel organization = LambencyServer.dbc.searchForOrg(status);
@@ -47,7 +47,7 @@ public class OrganizationHandler {
         }
         catch (Exception e){
             status = -2;
-            e.printStackTrace();
+            Printing.println(e.toString());
         }
         return null;
 
@@ -89,7 +89,7 @@ public class OrganizationHandler {
             organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
             return organization;
         } catch (SQLException e) {
-            System.out.println("Error in finding organization");
+            Printing.println("Error in finding organization");
             return null;
         } catch (Exception e) {
             System.out.println("General Error SearchOrgID");

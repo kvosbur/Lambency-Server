@@ -43,7 +43,7 @@ public class EventModel {
         try {
             updateImage(imageFile);
         } catch (IOException e) {
-            System.out.println("Failed to save image to event: "+name);
+            Printing.println("Failed to save image to event: "+name);
         }
     }
 

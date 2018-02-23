@@ -15,28 +15,28 @@ public class EventHandler {
 
 
     public static EventModel createEvent(EventModel event) {
-        System.out.println("Updated");
+        Printing.println("Updated");
         try {
             //get latitude and longitude for database
             LatLng latlng = GoogleGeoCodeUtil.getGeoData(event.getLocation());
-            System.out.println("file_path is null: "+event.getImage_path() == null);
+            Printing.println("file_path is null: "+event.getImage_path() == null);
             if(event.getImage_path() == null && event.getImageFile() != null){
                 event.setImage_path(ImageWR.writeImageToFile(event.getImageFile()));
             }
             int event_id = LambencyServer.dbc.createEvent(event.getOrg_id(),event.getName(),event.getStart(),
                     event.getEnd(),event.getDescription(),event.getLocation(),event.getImage_path(), latlng.lat, latlng.lng);
-            System.out.println((latlng == null));
+            Printing.println((latlng == null));
             return LambencyServer.dbc.searchEvents(event_id);
         } catch (SQLException e) {
-            System.out.println("SQL exception: ");
-            e.printStackTrace();
-            System.out.println("Error in creating event: "+event.getName());
+            Printing.println("SQL exception: ");
+            Printing.println(e.toString());
+            Printing.println("Error in creating event: "+event.getName());
             return null;
         }
         catch (IOException e){
-            System.out.println("Error in writing image.");
-            System.out.println("Error in creating event: "+event.getName());
-            e.printStackTrace();
+            Printing.println("Error in writing image.");
+            Printing.println("Error in creating event: "+event.getName());
+            Printing.println(e.toString());
             return null;
         }
 
@@ -50,7 +50,7 @@ public class EventHandler {
             return 0;
         }
         catch (SQLException e){
-            System.out.println("Error in updating Event: "+event.getName());
+            Printing.println("Error in updating Event: "+event.getName());
             return 1;
         }
     }
@@ -77,8 +77,8 @@ public class EventHandler {
                 events.add(eventModel);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Error in get events by location: "+e);
+            Printing.println(e.toString());
+            Printing.println("Error in get events by location: "+e);
             return null;
         } catch (Exception e){
             System.out.println("Error in get events by location");
@@ -129,7 +129,7 @@ public class EventHandler {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            Printing.println(e.toString());
         }
         return null;
     }
@@ -147,7 +147,7 @@ public class EventHandler {
             eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
             return eventModel;
         } catch (SQLException e) {
-            System.out.println("Error in finding event");
+            Printing.println("Error in finding event");
             return null;
         }catch(Exception e){
             System.out.println("error in getting event image");

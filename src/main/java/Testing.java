@@ -494,7 +494,7 @@ public class Testing {
             System.out.println("Score: " + passed + "/" + count);
         }
         catch (Exception e){
-            e.printStackTrace();
+            Printing.println(e.toString());
         }
 
     }
