@@ -66,7 +66,7 @@ public class LambencyServer{
         get("/User/registerForEvent", "application/json", (request, response) -> {
             Printing.println("/User/registerForEvent");
             String oAuthCode = request.queryParams("oAuthCode");
-            String eventID = request.queryParams("eventId");
+            String eventID = request.queryParams("eventID");
             Integer ret = UserHandler.registerEvent(oAuthCode, Integer.parseInt(eventID));
             return ret;
         }, new JsonTransformer());
