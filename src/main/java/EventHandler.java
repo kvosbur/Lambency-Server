@@ -159,4 +159,26 @@ public class EventHandler {
 
     }
 
+    /**
+     *
+     * @param userID the id of the user
+     * @param oAuthCode the oAuthCode of the user
+     * @return a list of all the events the user is attending, if size =0, the user is attending no events
+     */
+    public static List<EventModel> searchEventIDS(int userID, String oAuthCode){
+        try {
+            List<Integer> list = LambencyServer.dbc.searchUserEventAttendance(userID);
+            List<EventModel> ret = new ArrayList<EventModel>();
+            for (int id : list) {
+                EventModel eventModel = searchEventID(id);
+                ret.add(eventModel);
+            }
+            return ret;
+        }
+        catch (SQLException e){
+            Printing.println("Failed to find user event attendance");
+            return new ArrayList<EventModel>();
+        }
+    }
+
 }

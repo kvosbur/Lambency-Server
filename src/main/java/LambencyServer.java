@@ -2,6 +2,7 @@
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static spark.Spark.*;
 
@@ -108,6 +109,13 @@ public class LambencyServer{
             Printing.println("/Event/searchByID");
             EventModel eventModel = EventHandler.searchEventID(Integer.parseInt(request.queryParams("id")));
             return eventModel;
+        }, new JsonTransformer());
+        get("/Event/searchByIDs", "application/json", (request, response) -> {
+            Printing.println("/Event/searchByIDs");
+            String userID = request.queryParams("userID");
+            String oAuthCode = request.queryParams("oAuthCode");
+            List<EventModel> eventModels = EventHandler.searchEventIDS(Integer.parseInt(userID), oAuthCode);
+            return eventModels;
         }, new JsonTransformer());
         get("/Event/users","application/json",(request,response)->{
             Printing.println("/Event/users");
