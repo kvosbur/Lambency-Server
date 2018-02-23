@@ -522,7 +522,7 @@ public class DatabaseConnection {
      * @param userID the id of the user to search for
      * @return ArrayList<Integer> object for the corresponding userID and eventId, null if non-existent
      */
-    public ArrayList<Integer> searchEventAttendance(int userID) throws SQLException{
+    public ArrayList<Integer> searchUserEventAttendance(int userID) throws SQLException{
 
         //create string for query
         String fields = "event_id";
