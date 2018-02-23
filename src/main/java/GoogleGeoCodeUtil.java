@@ -15,7 +15,7 @@ public class GoogleGeoCodeUtil {
                     .apiKey("AIzaSyBTmYB1b5wyp_jMEtCFuicmlfSA3kLKbMg")
                     .build();
             GeocodingResult[] results = GeocodingApi.geocode(context,
-                    "1210 West East Branch Rd. Bloomington,IN").await();
+                    address).await();
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             Geometry s = results[0].geometry;
 
