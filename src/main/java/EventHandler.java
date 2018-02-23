@@ -19,6 +19,9 @@ public class EventHandler {
         try {
             //get latitude and longitude for database
             LatLng latlng = GoogleGeoCodeUtil.getGeoData(event.getLocation());
+            if(latlng == null){
+                latlng = new LatLng(180,180);
+            }
             Printing.println("file_path is null: "+event.getImage_path() == null);
             if(event.getImage_path() == null && event.getImageFile() != null){
                 event.setImage_path(ImageWR.writeImageToFile(event.getImageFile()));
