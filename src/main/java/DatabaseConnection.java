@@ -34,16 +34,17 @@ public class DatabaseConnection {
      @return returns array on org_ids that match userid and relationship type
      */
 
-    public ArrayList<Integer> getUserList(int userID, int groupieType) throws SQLException{
+    public ArrayList<Integer> getUserList(int userID, int groupieType, boolean confirmed) throws SQLException{
 
         //create string for query
         String fields = "org_id";
-        String query = "SELECT " + fields + " FROM groupies WHERE user_id = ? and groupies_type = ? and  confirmed = 1";
+        String query = "SELECT " + fields + " FROM groupies WHERE user_id = ? and groupies_type = ? and  confirmed = ?";
 
         //run query
         PreparedStatement ps = connect.prepareStatement(query);
         ps.setInt(1, userID);
         ps.setInt(2,groupieType);
+        ps.setBoolean(3,confirmed);
         ResultSet rs = ps.executeQuery();
 
         ArrayList<Integer> array = new ArrayList<>();

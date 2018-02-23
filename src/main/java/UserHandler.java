@@ -243,9 +243,9 @@ public class UserHandler {
 
     public static UserModel updateOrgLists(UserModel u) throws SQLException{
 
-        u.setMyOrgs(LambencyServer.dbc.getUserList(u.getUserId(),DatabaseConnection.ORGANIZER));
-        u.setJoinedOrgs(LambencyServer.dbc.getUserList(u.getUserId(),DatabaseConnection.MEMBER));
-        u.setFollowingOrgs(LambencyServer.dbc.getUserList(u.getUserId(),DatabaseConnection.FOLLOW));
+        u.setMyOrgs(LambencyServer.dbc.getUserList(u.getUserId(),DatabaseConnection.ORGANIZER, true));
+        u.setJoinedOrgs(LambencyServer.dbc.getUserList(u.getUserId(),DatabaseConnection.MEMBER, true));
+        u.setFollowingOrgs(LambencyServer.dbc.getUserList(u.getUserId(),DatabaseConnection.FOLLOW, true));
         return u;
     }
 }
