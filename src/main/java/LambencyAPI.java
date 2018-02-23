@@ -10,27 +10,27 @@ import java.util.List;
 
 public interface LambencyAPI {
 
-    @GET("UserModel/login/google")
+    @GET("User/login/google")
     Call<UserAuthenticator> getGoogleLogin(@Query("id") String id);
 
-    @GET("UserModel/login/facebook")
+    @GET("User/login/facebook")
     Call<UserAuthenticator> getFacebookLogin(@Query("id") String id, @Query("first") String first, @Query("last") String last, @Query("email") String email);
 
-    @GET("UserModel/search")
+    @GET("User/search")
     Call<UserModel> getUserSearch(@Query("oAuthCode") String oAuthCode, @Query("id") String id);
 
-    @GET("UserModel/followOrg")
+    @GET("User/followOrg")
     Call<Integer> getFollowOrg(@Query("oAuthCode") String oAuthCode, @Query("orgID") String orgID);
 
-    @GET("UserModel/unfollowOrg")
+    @GET("User/unfollowOrg")
     Call<Integer> getUnfollowOrg(@Query("oAuthCode") String oAuthCode, @Query("org_id") String orgID);
 
-    @POST("OrganizationModel/create")
+    @POST("Organization/create")
     Call<Integer> postCreateOrganization(@Body OrganizationModel org);
-    @GET("OrganizationModel/search")
+    @GET("Organization/search")
     Call<ArrayList<OrganizationModel>> getOrganizationSearch(@Query("name") String name);
 
-    @GET("OrganizationModel/searchByID")
+    @GET("Organization/searchByID")
     Call<OrganizationModel> getOrgSearchByID(@Query("id") String org_id);
 
     @GET("Event/search")
@@ -45,13 +45,13 @@ public interface LambencyAPI {
     @POST("Event/update")
     Call<Integer> postUpdateEvent(@Body EventModel event);
 
-    @POST("UserModel/requestJoinOrg")
+    @POST("User/requestJoinOrg")
     Call<Integer> postJoinOrganization(@Query("oAuthCode") String oAuthCode, @Query("orgId") int orgID);
 
-    @GET("UserModel/changeInfo")
+    @GET("User/changeInfo")
     Call<UserModel> getChangeAccountInfo(@Query("user") UserModel u);
 
-    @GET("UserModel/registerForEvent")
+    @GET("User/registerForEvent")
     Call<Integer> getRegisterEvent(@Query("oAuthCode") String oAuthCode, @Query("eventID") int eventID);
 
     @POST("Event/create")

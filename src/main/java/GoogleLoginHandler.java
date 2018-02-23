@@ -59,7 +59,7 @@ public class GoogleLoginHandler {
 
                 // Print user identifier
                 String userId = payload.get("sub");
-                System.out.println("UserModel ID: " + userId);
+                Printing.println("UserModel ID: " + userId);
 
                 // Get profile information from payload
                 String email = payload.get("email");
@@ -76,14 +76,14 @@ public class GoogleLoginHandler {
 
                 if (emailVerified.equals("false")) {
                     status = UserAuthenticator.Status.NON_UNIQUE_EMAIL;
-                    System.out.println("Failed to have verified email.");
+                    Printing.println("Failed to have verified email.");
                 }
                 else if(!(aud.equals(GOOGLE_ANDROID_ID))){
-                    System.out.println("Error with comparing aud: "+aud);
+                    Printing.println("Error with comparing aud: "+aud);
                     status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
                 }
                 else if(!(iss.equals("https://accounts.google.com"))) { //&& !(iss.equals()))
-                    System.out.println("Error with comparing iss: "+iss);
+                    Printing.println("Error with comparing iss: "+iss);
                     status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
                 }
                 else if ((us = dbc.searchForUser(sub,1))!= null) {
@@ -100,15 +100,15 @@ public class GoogleLoginHandler {
 
             }
             else {
-                System.out.println("Invalid ID token.");
+                Printing.println("Invalid ID token.");
                 status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
             }
         } catch (Exception e) {
 
-            System.out.println("Exception from database: " + e);
+            Printing.println("Exception from database: " + e);
             status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
-            System.out.println(idTokenString);
-            e.printStackTrace();
+            Printing.println(idTokenString);
+            Printing.println(e.toString());
         }
         if(ua == null){
             ua = new UserAuthenticator(status);
@@ -143,18 +143,18 @@ public class GoogleLoginHandler {
 
             // exception handling :
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            Printing.println(e.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            Printing.println(e.toString());
         } catch(Exception e){
-            System.out.println("\n\n\tFailed to transform json to string\n");
-            e.printStackTrace();
+            Printing.println("\n\n\tFailed to transform json to string\n");
+            Printing.println(e.toString());
         } finally{
             if(in!=null){
                 try {
                     in.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Printing.println(e.toString());
                 }
             }
         }
@@ -167,10 +167,10 @@ public class GoogleLoginHandler {
             try{
                 return Boolean.valueOf(tokenPayload.get("email_verified")) && tokenPayload.get("email").contains("@gmail.");
             }catch(Exception e){
-                System.out.println("\n\n\tCheck emailVerified failed - cannot parse "+tokenPayload.get("email_verified")+" to boolean\n");
+                Printing.println("\n\n\tCheck emailVerified failed - cannot parse "+tokenPayload.get("email_verified")+" to boolean\n");
             }
         }else{
-            System.out.println("\n\n\tCheck emailVerified failed - required information missing in the token");
+            Printing.println("\n\n\tCheck emailVerified failed - required information missing in the token");
         }
         return false;
     }
@@ -182,10 +182,10 @@ public class GoogleLoginHandler {
                 // the "exp" value is in seconds and Date().getTime is in mili seconds
                 return Long.parseLong(tokenPayload.get("exp")+"000") > new java.util.Date().getTime();
             }else{
-                System.out.println("\n\n\tCheck expiration failed - required information missing in the token\n");
+                Printing.println("\n\n\tCheck expiration failed - required information missing in the token\n");
             }
         }catch(Exception e){
-            System.out.println("\n\n\tCheck expiration failed - cannot parse "+tokenPayload.get("exp")+" into long\n");
+            Printing.println("\n\n\tCheck expiration failed - cannot parse "+tokenPayload.get("exp")+" into long\n");
         }
         return false;
     }
@@ -198,11 +198,11 @@ public class GoogleLoginHandler {
             if(pom.contains(tokenPayload.get("aud")) || pom.contains(tokenPayload.get("azp"))){
                 return true;
             }else{
-                System.out.println("\n\n\tCheck audience failed - audiences differ\n");
+                Printing.println("\n\n\tCheck audience failed - audiences differ\n");
                 return false;
             }
         }
-        System.out.println("\n\n\tCheck audience failed - required information missing in the token\n");
+        Printing.println("\n\n\tCheck audience failed - required information missing in the token\n");
         return false;
     }
 
