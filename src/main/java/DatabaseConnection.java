@@ -440,7 +440,7 @@ public class DatabaseConnection {
         //create string for query
         String fields = "event_id, sqrt(pow(latitude - " + latitude + ",2) + " +
                 "pow(longitude - " + longitude + ",2)) as distance";
-        String query = "SELECT " + fields + " FROM events order by distance";
+        String query = "SELECT " + fields + " FROM events order by distance asc";
 
         //run query
         PreparedStatement ps = connect.prepareStatement(query);

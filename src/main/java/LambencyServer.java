@@ -43,7 +43,9 @@ public class LambencyServer{
             Printing.println("/User/search");
             String oAuthCode = request.queryParams("oAuthToken");
             String id = request.queryParams("id");
-            return UserHandler.searchForUser(oAuthCode,id);
+            UserModel u = UserHandler.searchForUser(oAuthCode,id);
+            Printing.println(u.toString());
+            return u;
         }, new JsonTransformer());
         post("/User/changeInfo", "application/json", (request, response) -> {
             Printing.println("/User/changeInfo");
