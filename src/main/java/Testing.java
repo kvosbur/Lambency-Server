@@ -322,11 +322,6 @@ public class Testing {
     private static boolean testSearchOrg(){
         try{
             OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
-            OrganizationModel org2 = OrganizationHandler.searchOrgID(org.getOrgID());
-            if(!(org.getOrgID() == org2.getOrgID() && org.getName().equals(org2.getName()) && org.getDescription().equals(org2.getDescription()))){
-                System.out.println("failed to find org by org id: incorrect fields");
-                return false;
-            }
             ArrayList<OrganizationModel> array = dbc.searchForOrgArray("M");
             if(array == null){
                 System.out.println("failed to search org by name: returned null");
