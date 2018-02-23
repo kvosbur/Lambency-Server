@@ -198,7 +198,7 @@ public class UserHandler {
 
         } catch (SQLException e) {
             Printing.println("SQLExcpetion");
-            e.printStackTrace();
+            Printing.println(e.toString());
             return null;
         }
     }
@@ -229,7 +229,7 @@ public class UserHandler {
         }
         catch (SQLException e){
             Printing.println("SQLException");
-            e.printStackTrace();
+            Printing.println(e.toString());
             return null;
         }
     }
