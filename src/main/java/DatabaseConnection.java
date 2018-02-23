@@ -518,6 +518,32 @@ public class DatabaseConnection {
     }
 
     /**
+     * Returns the Events associated with the given userID
+     * @param userID the id of the user to search for
+     * @return ArrayList<Integer> object for the corresponding userID and eventId, null if non-existent
+     */
+    public ArrayList<Integer> searchEventAttendance(int userID) throws SQLException{
+
+        //create string for query
+        String fields = "event_id";
+        String query = "SELECT " + fields + " FROM event_attendence WHERE user_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, userID);
+        ResultSet rs = ps.executeQuery();
+
+
+        ArrayList<Integer> array = new ArrayList<>();
+        //check for results and return object
+        while(rs.next()){
+            array.add(rs.getInt(1));
+        }
+
+        return array;
+    }
+
+    /**
      * Registers a user to an event
      * @param userID the id of the user registering for an event
      * @param eventID the id of the event
