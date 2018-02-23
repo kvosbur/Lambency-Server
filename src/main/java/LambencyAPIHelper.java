@@ -40,6 +40,7 @@ public class LambencyAPIHelper {
             public void onResponse(Call<UserAuthenticator> call, Response<UserAuthenticator> response) {
                 if (response.body() == null || response.code() != 200) {
                     System.out.println("ERROR!!!!!");
+                    return;
                 }
                 //when response is back
                 UserAuthenticator ua = response.body();
@@ -90,6 +91,7 @@ public class LambencyAPIHelper {
             public void onResponse(Call<UserAuthenticator> call, Response<UserAuthenticator> response) {
                 if (response.body() == null || response.code() != 200) {
                     System.out.println("ERROR!!!!!");
+                    return;
                 }
                 //when response is back
                 UserAuthenticator ua = response.body();
@@ -122,6 +124,7 @@ public void getOrganizationSearch(String name){
             public void onResponse(Call<ArrayList<OrganizationModel>> call, Response<ArrayList<OrganizationModel>> response) {
                 if (response.body() == null || response.code() != 200) {
                     System.out.println("ERROR!!!!!");
+                    return;
                 }
                 //when response is back
                 ArrayList<OrganizationModel> orgList = response.body();
@@ -148,6 +151,7 @@ public void getOrganizationSearch(String name){
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.body() == null || response.code() != 200) {
                     System.out.println("ERROR!!!!!");
+                    return;
                 }
                 //when response is back
                 Integer ret = response.body();
@@ -180,13 +184,9 @@ public void getListOfUsersRetrofit(String oAuthCode, int event_id)
 
             if(userList == null)
             {
-                //error
+                //error or no users registered
             }
 
-            if(userList.size() == 0)
-            {
-                //no users attending
-            }
             else
             {
                 //users attending found
@@ -208,6 +208,7 @@ public void joinOrganizationRetrofit(String oAuthCode, int orgId)
         public void onResponse(Call<Integer> call, Response<Integer> response) {
             if (response.body() == null || response.code() != 200) {
                 System.out.println("ERROR!!!!!");
+                return;
             }
             //when response is back
             Integer status = response.body();
@@ -235,6 +236,7 @@ public void createOrganizationRetrofit(OrganizationModel org){
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.body() == null || response.code() != 200) {
                     System.out.println("ERROR!!!!!");
+                    return;
                 }
                 //when response is back
                 Integer status = response.body();
@@ -264,6 +266,7 @@ public void createOrganizationRetrofit(OrganizationModel org){
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.body() == null || response.code() != 200) {
                     System.out.println("ERROR!!!!!");
+                    return;
                 }
                 //when response is back
                 Integer status = response.body();
@@ -317,6 +320,7 @@ public void createOrganizationRetrofit(OrganizationModel org){
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.body() == null || response.code() != 200) {
                     System.out.println("ERROR!!!!!");
+                    return;
                 }
                 //when response is back
                 Integer ret = response.body();
@@ -427,6 +431,7 @@ public void createOrganizationRetrofit(OrganizationModel org){
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.body() == null || response.code() != 200) {
                     System.out.println("ERROR!!!!!");
+                    return;
                 }
                 //when response is back
                 Integer ret = response.body();
@@ -456,6 +461,7 @@ public void createOrganizationRetrofit(OrganizationModel org){
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.body() == null || response.code() != 200) {
                     System.out.println("ERROR!!!!!");
+                    return;
                 }
                 //when response is back
                 Integer ret = response.body();
