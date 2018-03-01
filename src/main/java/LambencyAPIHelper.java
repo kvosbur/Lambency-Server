@@ -229,6 +229,33 @@ public void joinOrganizationRetrofit(String oAuthCode, int orgId)
     });
 }
 
+    public void eventsByOrgRetrofit(String oAuthCode, String orgId)
+    {
+        this.getInstance().getEventsByOrg(oAuthCode, orgId).enqueue(new Callback<List<EventModel>>() {
+            @Override
+            public void onResponse(Call<List<EventModel>> call, Response<List<EventModel>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                List<EventModel> list = response.body();
+                if(list == null){
+                    //System.out.println("Org has no events or error has occurred");
+                }
+                else{
+                    //System.out.println("list is a list of events for that org");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<EventModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
 public void createOrganizationRetrofit(OrganizationModel org){
 
         this.getInstance().postCreateOrganization(org).enqueue(new Callback<Integer>() {
