@@ -339,6 +339,33 @@ public class DatabaseConnectionTest {
 
     }
 
+    @org.junit.Test
+    public void getOrgEvents() throws Exception{
+        searchEventsByLocation();
+        OrganizationModel org = dbc.searchForOrg("My Second OrganizationModel");
+        List<Integer> list = dbc.getOrgEvents(org.getOrgID());
+        if(list == null){
+            throw new Exception("failed to search events by org: returned null");
+        }
+        if(list.size() != 0){
+            throw new Exception("failed to search events by org: list contained incorrect entries");
+        }
+        org = dbc.searchForOrg("My OrganizationModel");
+        list = dbc.getOrgEvents(org.getOrgID());
+        if(list == null){
+            throw new Exception("failed to search events by org: returned null");
+        }
+        if(list.size() != 2 || list.get(0) != 1 || list.get(1) != 2){
+            throw new Exception("failed to search events by org: list contained incorrect entries");
+        }
+        list = dbc.getOrgEvents(-1);
+        if(list == null){
+            throw new Exception("failed to search events by org: returned null");
+        }
+        if(list.size() != 0){
+            throw new Exception("failed to search events by org: list contained incorrect entries");
+        }
+    }
     public void setUpTests(){
         try {
             dbc = new DatabaseConnection();
