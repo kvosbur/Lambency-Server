@@ -1,5 +1,7 @@
 
+import java.awt.*;
 import java.io.IOException;
+import java.lang.invoke.LambdaConversionException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -96,6 +98,29 @@ public class OrganizationHandler {
             return null;
         }
 
+    }
+
+    public static ArrayList<EventModel> searchEventsByOrg(String oAuthCode, int orgID){
+        try {
+            if(LambencyServer.dbc.searchForUser(oAuthCode) == null){
+                Printing.println("Unable to verify user");
+                return null;
+            }
+            ArrayList<Integer> ids = LambencyServer.dbc.getOrgEvents(orgID);
+            if(ids == null || ids.size() == 0){
+                Printing.println("Organization has no events");
+                return null;
+            }
+            ArrayList<EventModel> list = new ArrayList<EventModel>();
+            for(int i: ids){
+                list.add(LambencyServer.dbc.searchEvents(i));
+            }
+            return list;
+        }
+        catch (SQLException e){
+            Printing.println(e.toString());
+        }
+        return null;
     }
 
 }

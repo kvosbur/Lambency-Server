@@ -841,6 +841,33 @@ public class DatabaseConnection {
         return null;
     }
 
+    /**
+     * Description: given unique string identifier return matching user object
+     @param orgID id of the organization in question
+
+     @return returns array of event ids that match orgID
+     */
+
+    public ArrayList<Integer> getOrgEvents(int orgID) throws SQLException{
+
+        //create string for query
+        String fields = "event_id";
+        String query = "SELECT " + fields + " FROM events WHERE org_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, orgID);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> array = new ArrayList<>();
+
+        //check for results and return object
+        while(rs.next()){
+            int event_id = rs.getInt(1);
+            array.add(event_id);
+        }
+        return array;
+    }
 
 
     /**
