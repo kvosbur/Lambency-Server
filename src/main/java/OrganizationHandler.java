@@ -102,6 +102,9 @@ public class OrganizationHandler {
 
     public static ArrayList<EventModel> searchEventsByOrg(String oAuthCode, int orgID){
         try {
+            if(oAuthCode == null){
+                return null;
+            }
             if(LambencyServer.dbc.searchForUser(oAuthCode) == null){
                 Printing.println("Unable to verify user");
                 return null;
