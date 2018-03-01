@@ -362,6 +362,29 @@ public class Testing {
         return false;
     }
 
+    public static boolean testSearchEventsByOrg(){
+        try{
+            UserModel u = dbc.searchForUser("User2", 2);
+            OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+            ArrayList<EventModel> list = OrganizationHandler.searchEventsByOrg(u.getOauthToken(), org.getOrgID());
+            if(list == null){
+                System.out.println("search failed: returned null");
+                return false;
+            }
+            if(!list.get(0).getName().equals("Updated Name")){
+                System.out.println("search failed: returned incorrect event");
+                return false;
+            }
+            return true;
+
+
+        }
+        catch (Exception e){
+            System.out.println("database error");
+        }
+        return false;
+    }
+
     public static void main(String[] args){
         try {
             dbc = new DatabaseConnection();
@@ -474,6 +497,16 @@ public class Testing {
             System.out.print("Test Search Org: ");
             count++;
             if (testSearchOrg()) {
+                passed++;
+                System.out.println("PASSED");
+            } else {
+                System.out.println("FAILED");
+                passedAll = false;
+            }
+
+            System.out.print("Test Search Events By Org: ");
+            count++;
+            if (testSearchEventsByOrg()) {
                 passed++;
                 System.out.println("PASSED");
             } else {
