@@ -88,10 +88,13 @@ public class LambencyServer{
             OrganizationModel organization = OrganizationHandler.searchOrgID(Integer.parseInt(request.queryParams("id")));
             return organization;
         }, new JsonTransformer());
-        post("/Organization/events", "application/json", (request, response) -> {
+        get("/Organization/events", "application/json", (request, response) -> {
             Printing.println("/User/requestJoinOrg");
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("id");
+            if(oAuthCode == null || orgID == null){
+                return null;
+            }
             List<EventModel> list = OrganizationHandler.searchEventsByOrg(oAuthCode, Integer.parseInt(orgID));
             return list;
         }, new JsonTransformer());
