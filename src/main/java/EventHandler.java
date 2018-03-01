@@ -58,9 +58,35 @@ public class EventHandler {
         }
     }
 
+    /** Call from the API to gather the events that are searched by location
+     *
+     * @param efm EventFilterModel that contains all constraints for the search
+     * @return     List of events if successful, null otherwise
+     */
 
     public static List<EventModel> getEventsWithFilter(EventFilterModel efm){
-        return null;
+        if(efm == null){
+            return null;
+        }
+        List<Integer> eventIDs;
+        List<EventModel> events = new ArrayList<>();
+        try{
+            eventIDs = LambencyServer.dbc.searchEventsWithFilterModel(efm);
+            for(Integer i: eventIDs){
+                EventModel eventModel = LambencyServer.dbc.searchEvents(i);
+                eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                events.add(eventModel);
+            }
+        } catch (SQLException e) {
+            Printing.println(e.toString());
+            Printing.println("Error in get events by location: "+e);
+            return null;
+        } catch (Exception e){
+            System.out.println("Error in get events by location");
+            return null;
+        }
+
+        return events;
     }
 
     /** Call from the API to gather the events that are searched by location

@@ -1,3 +1,4 @@
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -362,6 +363,23 @@ public class Testing {
         return false;
     }
 
+    private static boolean testSearchEvents(){
+        long start = 15164244 * 100000;
+        long end = 15199408 * 100000;
+        EventFilterModel efm = new EventFilterModel(70,-90, new Timestamp(start),new Timestamp(end));
+        List<Integer> events = null;
+        try {
+            events = dbc.searchEventsWithFilterModel(efm);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        System.out.println(events);
+        return true;
+    }
+
+
+
     public static void main(String[] args){
         try {
             dbc = new DatabaseConnection();
@@ -477,6 +495,17 @@ public class Testing {
                 passed++;
                 System.out.println("PASSED");
             } else {
+                System.out.println("FAILED");
+                passedAll = false;
+            }
+
+            System.out.println("Test Filter Dates");
+            count++;
+            if(testSearchEvents()){
+                passed++;
+                System.out.println("PASSED");
+            }
+            else{
                 System.out.println("FAILED");
                 passedAll = false;
             }

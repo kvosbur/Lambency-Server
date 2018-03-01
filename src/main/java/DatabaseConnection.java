@@ -462,6 +462,34 @@ public class DatabaseConnection {
     }
 
     /**
+     *
+     * @param efm   EventFilterModel Object that contains all of the constraints for searching for events
+     *
+     * @return  List<Integers> of event ids on success and null on failure.
+     *
+     * @throws SQLException
+     */
+
+    public List<Integer> searchEventsWithFilterModel(EventFilterModel efm) throws SQLException{
+        PreparedStatement ps = connect.prepareStatement(efm.createStringQuery());
+        ResultSet rs = ps.executeQuery();
+
+        //create resulting list
+        List<Integer> results = new ArrayList<>();
+
+        //check for results and if any then return user
+        while(rs.next()){
+            results.add(rs.getInt(1));
+        }
+
+        if(results.size() != 0){
+            return results;
+        }
+
+        return null;
+    }
+
+    /**
      * Description : Search events by latitude and longitude locations
      *
      * @param eventId Id of event to search for
