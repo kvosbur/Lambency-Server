@@ -116,7 +116,7 @@ public class OrganizationHandler {
             }
             ArrayList<EventModel> list = new ArrayList<EventModel>();
             for(int i: ids){
-                list.add(LambencyServer.dbc.searchEvents(i));
+                list.add(EventHandler.searchEventID(i));
             }
             return list;
         }
