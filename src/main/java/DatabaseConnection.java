@@ -607,12 +607,39 @@ public class DatabaseConnection {
     }
 
     /**
-     * @TODO
+     * Given an event check if right code is given to clock in or clock out
      * @param eventID the id of the event to search for
+     * @param clockInOutCode code to check against
+     * @param type whether it is clock in or clock out
      * @return boolean of whether given code is correct or not
      */
     public boolean verifyEventClockInOutCode(int eventID, String clockInOutCode, int type) throws SQLException{
+        //create string for query
+        String fields;
+        if(type == EventAttendanceModel.CLOCKINCODE) {
+            fields = "clock_in_code";
+        }else if(type == EventAttendanceModel.CLOCKOUTCODE){
+            fields = "clock_out_code";
+        }else{
+            throw new SQLException("please give a valid code type from EventAttendanceModel.");
+        }
+        String query = "SELECT " + fields + " FROM events WHERE event_id = ?";
 
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ResultSet rs = ps.executeQuery();
+
+        String expected;
+        if(rs.next()){
+            expected = rs.getString(1);
+        }else{
+            throw new SQLException("no event found for given eventid " + eventID);
+        }
+
+        if(expected.equals(clockInOutCode)){
+            return true;
+        }
         return true;
     }
 
@@ -626,7 +653,28 @@ public class DatabaseConnection {
      */
     public int eventClockInOutUser(int eventID, int userID, Timestamp startEndTime, int type) throws SQLException{
 
-        return 0;
+        //create string for query
+        String field;
+        if(type == EventAttendanceModel.CLOCKINCODE) {
+            field = "check_in_time";
+        }else if(type == EventAttendanceModel.CLOCKOUTCODE){
+            field = "check_out_time";
+        }else{
+            throw new SQLException("please give a valid code type from EventAttendanceModel.");
+        }
+
+        String query = "UPDATE event_attendence SET " + field + " = ? WHERE event_id = ? and user_id = ?";
+
+        //run update
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setTimestamp(1,startEndTime);
+        ps.setInt(2, eventID);
+        ps.setInt(3, userID);
+        int result = ps.executeUpdate();
+        if(result == 1){
+            return 0;
+        }
+        return 1;
     }
 
     /**
@@ -939,80 +987,8 @@ public class DatabaseConnection {
             DatabaseConnection db = new DatabaseConnection();
             Printing.println("connected successfully");
 
-            /*
-            Test for searching for orgnizations by name
-            ArrayList<OrganizationModel> organizations = db.searchForOrgArray("my");
-            for(OrganizationModel o: organizations){
-                Printing.println(o.name);
-            }
-
-            /*
-            test for registering for events and searching for attendence
-            db.registerForEvent(23,10);
-            EventAttendanceModel eventAttendance = db.searchEventAttendance(23,10);
-            Printing.println(eventAttendance.getEventID());
-            Printing.println(eventAttendance.getUserID());
-            */
-            /*
-            test for create event
-            int eventID = db.createEvent(1,"Event", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description", "location", "path",  100, 120);
-            int ua = db.createUser("id2", "first", "last", "email@mail.com", 2);
-            UserModel u = db.searchForUser("id2", 2);
-            UserHandler.registerEvent(u.getOauthToken(), eventID);
-            */
-            /*
-            test for adding / searching groupies
-            int a = db.deleteGroupies(21,20, MEMBER);
-            int a = db.addGroupies(21,20, MEMBER, false);
-            Printing.println(a);
-            */
-            /*
-            test for unique email
-            db.createUser("123", "first", "last", "email.com", FACEBOOK);
-            Printing.println(db.verifyUserEmail("email.com"));
-            Printing.println(db.verifyUserEmail("unique"));
-            */
-
-            /*
-            test for searching for events
-            Event event = db.searchEvents(2);
-            List<Integer> events = db.searchEventsByLocation(110,110);
-            for(Integer i: events){
-                Printing.println(i);
-            }
-            db.createEvent(1,"Another Event", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description", "location", "path", 100, 120);
-            */
-            /*
-            test of creation of org
-            int result = db.createOrganization("org","this is an org","org@gmail.com", 123, "Purdue", "img", 123);
-            db.createOrganization("org2","this is an org","org@gmail.com", 123, "Purdue", "img", 123);
-            Printing.println(result);
-            /*
-
-            /*
-            test insertion of user
-            int result = db.createUser("myggoogleidentity", "mock", "user", "dummy@dummy.com", GOOGLE);
-            Printing.println(result);
-            */
-
-            /*
-            test oauth methods and searching for user
-            UserModel user = db.searchForUser("myggoogleidentity", GOOGLE);
-            UserModel user = db.searchForUser("" + user.getUserId(), LAMBNECYUSERID);
-            Printing.println(user.toString());
-            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
-            db.setOauthCode(4, ua.getoAuthCode());
-            UserModel user = db.searchForUser(ua.gettoAuthCode());
-            Printing.println(user.toString());
-            */
-            /*
-            test modifing user data
-            UserModel user = db.modifyUserInfo(4, "changedFirst", "changedLast", "changedemail@changed.com");
-            Printing.println(user.toString());
-            */
-
         }catch(Exception e){
-            Printing.println(e.toString());
+            e.printStackTrace();
         }
     }
 }
