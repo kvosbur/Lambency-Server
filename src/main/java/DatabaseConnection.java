@@ -678,6 +678,54 @@ public class DatabaseConnection {
     }
 
     /**
+     * Searches database for events that have ended
+     * @param endTime optional argument of end time used (defaults to now)
+     * @return list of event_ids of events that have ended
+     */
+    public ArrayList<Integer> getEventsThatEnded(Timestamp endTime) throws SQLException{
+
+        String query;
+        if(endTime != null){
+            query = "SELECT event_id FROM events WHERE end_time < ?";
+        }else {
+            query = "SELECT event_id FROM events WHERE end_time < now()";
+        }
+
+        PreparedStatement ps = connect.prepareStatement(query);
+        if(endTime != null){
+            ps.setTimestamp(1,endTime);
+        }
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> events = new ArrayList<>();
+
+        while(rs.next()){
+            events.add(rs.getInt(1));
+        }
+        return events;
+    }
+
+    /**
+     * Searches database for users that don't have end times for specific events
+     * @return list of userIDs that fit criteria
+     */
+    public ArrayList<Integer> getUsersNoEndTime(int eventID) throws SQLException{
+
+        String query = "SELECT user_id FROM event_attendence WHERE check_in_time IS NOT NULL and check_out_time IS NULL and event_id = ?";
+
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> users = new ArrayList<>();
+
+        while(rs.next()){
+            users.add(rs.getInt(1));
+        }
+        return users;
+    }
+
+    /**
      * END EVENT METHODS
      */
 
