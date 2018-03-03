@@ -607,17 +607,44 @@ public class DatabaseConnection {
     }
 
     /**
-     * @TODO
+     * Given an event check if right code is given to clock in or clock out
      * @param eventID the id of the event to search for
+     * @param clockInOutCode code to check against
+     * @param type whether it is clock in or clock out
      * @return boolean of whether given code is correct or not
      */
     public boolean verifyEventClockInOutCode(int eventID, String clockInOutCode, int type) throws SQLException{
+        //create string for query
+        String fields;
+        if(type == EventAttendanceModel.CLOCKINCODE) {
+            fields = "clock_in_code";
+        }else if(type == EventAttendanceModel.CLOCKOUTCODE){
+            fields = "clock_out_code";
+        }else{
+            throw new SQLException("please give a valid code type from EventAttendanceModel.");
+        }
+        String query = "SELECT " + fields + " FROM events WHERE event_id = ?";
 
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ResultSet rs = ps.executeQuery();
+
+        String expected;
+        if(rs.next()){
+            expected = rs.getString(1);
+        }else{
+            throw new SQLException("no event found for given eventid " + eventID);
+        }
+
+        if(expected.equals(clockInOutCode)){
+            return true;
+        }
         return true;
     }
 
     /**
-     * @TODO
+     * Clocks a user to an event for either the start or end of the event
      * @param eventID the id of the event
      * @param userID id of the user to change event attendance for
      * @param startEndTime time to enter
@@ -626,7 +653,28 @@ public class DatabaseConnection {
      */
     public int eventClockInOutUser(int eventID, int userID, Timestamp startEndTime, int type) throws SQLException{
 
-        return 0;
+        //create string for query
+        String field;
+        if(type == EventAttendanceModel.CLOCKINCODE) {
+            field = "check_in_time";
+        }else if(type == EventAttendanceModel.CLOCKOUTCODE){
+            field = "check_out_time";
+        }else{
+            throw new SQLException("please give a valid code type from EventAttendanceModel.");
+        }
+
+        String query = "UPDATE event_attendence SET " + field + " = ? WHERE event_id = ? and user_id = ?";
+
+        //run update
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setTimestamp(1,startEndTime);
+        ps.setInt(2, eventID);
+        ps.setInt(3, userID);
+        int result = ps.executeUpdate();
+        if(result == 1){
+            return 0;
+        }
+        return 1;
     }
 
     /**

@@ -49,6 +49,8 @@ CREATE TABLE `events` (
 	`event_img` TEXT NOT NULL,
 	`latitude` DOUBLE,
 	`longitude` DOUBLE,
+	`clock_out_code` text NOT NULL,
+	`clock_in_code` text NOT NULL
 	PRIMARY KEY (`event_id`)
 );
 
