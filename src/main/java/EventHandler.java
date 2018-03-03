@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class EventHandler {
 
@@ -22,12 +23,18 @@ public class EventHandler {
             if(latlng == null){
                 latlng = new LatLng(180,180);
             }
+            //write event image
             Printing.println("file_path is null: "+event.getImage_path() == null);
             if(event.getImage_path() == null && event.getImageFile() != null){
                 event.setImage_path(ImageWR.writeImageToFile(event.getImageFile()));
             }
+            //create clock in and clock out code
+            event.setClockInCode(EventHandler.generateClockInOutCodes());
+            event.setClockOutCode(EventHandler.generateClockInOutCodes());
+            //create event
             int event_id = LambencyServer.dbc.createEvent(event.getOrg_id(),event.getName(),event.getStart(),
-                    event.getEnd(),event.getDescription(),event.getLocation(),event.getImage_path(), latlng.lat, latlng.lng);
+                    event.getEnd(),event.getDescription(),event.getLocation(),event.getImage_path(), latlng.lat, latlng.lng,
+                    event.getClockInCode(), event.getClockOutCode());
             Printing.println((latlng == null));
             return LambencyServer.dbc.searchEvents(event_id);
         } catch (SQLException e) {
@@ -84,7 +91,8 @@ public class EventHandler {
             Printing.println("Error in get events by location: "+e);
             return null;
         } catch (Exception e){
-            System.out.println("Error in get events by location");
+            Printing.println(e.toString());
+            Printing.println("Error in get events by location" + e);
             return null;
         }
 
@@ -153,6 +161,7 @@ public class EventHandler {
             Printing.println("Error in finding event");
             return null;
         }catch(Exception e){
+            Printing.println(e.toString());
             System.out.println("error in getting event image");
             return null;
         }
@@ -184,6 +193,16 @@ public class EventHandler {
             Printing.println("Failed to find user event attendance");
             return new ArrayList<EventModel>();
         }
+    }
+
+    public static String generateClockInOutCodes(){
+        char[] charArray = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
+        StringBuilder code = new StringBuilder();
+        Random r = new Random();
+        for(int i = 0; i < 8; i++){
+            code.append(charArray[r.nextInt(charArray.length)]);
+        }
+        return code.toString();
     }
 
 }

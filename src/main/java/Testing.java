@@ -91,7 +91,7 @@ public class Testing {
             UserModel u = dbc.searchForUser("facebookUser", 2);
             OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
             int eventID = dbc.createEvent(org.getOrgID(),"Event 1", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 500),
-                    "This is a test event", "Location", "imgg", 5 , 5);
+                    "This is a test event", "Location", "imgg", 5 , 5, "ClockIn", "ClockOut");
             event_id = eventID;
             if (eventID <= 0){
                 System.out.println("Event creation failed");
@@ -99,7 +99,8 @@ public class Testing {
             }
             EventModel e = dbc.searchEvents(eventID);
             if(!(e.getName().equals("Event 1") && e.getOrg_id() == org.getOrgID() && e.getDescription().equals("This is a test event") && e.getLocation().equals("Location")
-                    && e.getImage_path().equals("imgg") && Math.abs(e.getLattitude()-5) < 0.01 && Math.abs(e.getLongitude() -5) < 0.01)){
+                    && e.getImage_path().equals("imgg") && Math.abs(e.getLattitude()-5) < 0.01 && Math.abs(e.getLongitude() -5) < 0.01 &&
+                    e.getClockInCode().equals("ClockIn") && e.getClockOutCode().equals("ClockOut"))){
                 System.out.println("search for event by name failed: incorrect fields");
                 return false;
             }
