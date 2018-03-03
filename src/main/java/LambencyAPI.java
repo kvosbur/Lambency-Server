@@ -51,6 +51,9 @@ public interface LambencyAPI {
     @POST("User/requestJoinOrg")
     Call<Integer> postJoinOrganization(@Query("oAuthCode") String oAuthCode, @Query("orgId") int orgID);
 
+    @POST("User/leaveOrg")
+    Call<Integer> postLeaveOrganization(@Query("oAuthCode") String oAuthCode, @Query("orgID") int orgID);
+
     @GET("User/changeInfo")
     Call<UserModel> getChangeAccountInfo(@Query("user") UserModel u);
 
