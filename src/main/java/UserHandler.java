@@ -297,6 +297,7 @@ public class UserHandler {
         u.setJoinedOrgs(LambencyServer.dbc.getUserList(u.getUserId(),DatabaseConnection.MEMBER, true));
         u.setFollowingOrgs(LambencyServer.dbc.getUserList(u.getUserId(),DatabaseConnection.FOLLOW, true));
         u.setEventsAttending(LambencyServer.dbc.searchUserEventAttendance(u.getUserId()));
+        u.setRequestedJoinOrgIds(LambencyServer.dbc.getUserList(u.getUserId(),DatabaseConnection.MEMBER, false));
         return u;
     }
 }
