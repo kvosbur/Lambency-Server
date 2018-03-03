@@ -644,7 +644,7 @@ public class DatabaseConnection {
     }
 
     /**
-     * @TODO
+     * Clocks a user to an event for either the start or end of the event
      * @param eventID the id of the event
      * @param userID id of the user to change event attendance for
      * @param startEndTime time to enter
