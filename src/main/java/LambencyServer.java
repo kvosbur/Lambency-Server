@@ -118,6 +118,10 @@ public class LambencyServer{
             String org_idStr = request.queryParams("org_id");
             return EventHandler.getEventsByLocation(Double.parseDouble(latStr), Double.parseDouble(longStr));
         }, new JsonTransformer());
+        get("/Event/searchWithFilter","application/json",(request, response) -> {
+            EventFilterModel efm = new Gson().fromJson(request.body(), EventFilterModel.class);
+            return EventHandler.getEventsWithFilter(efm);
+        }, new JsonTransformer());
         get("/Event/searchByID", "application/json", (request, response) -> {
             Printing.println("/Event/searchByID");
             EventModel eventModel = EventHandler.searchEventID(Integer.parseInt(request.queryParams("id")));
@@ -157,6 +161,29 @@ public class LambencyServer{
                 return -1;
             }
             return UserHandler.leaveOrganization(oAuthCode,Integer.parseInt(orgID));
+        },new JsonTransformer());
+
+        post("/User/ClockIn","application/json",(request, response) -> {
+
+            Printing.println("/Event/ClockIn");
+            String oAuthCode = request.queryParams("oAuthCode");
+            EventAttendanceModel eventAttendanceModel = new Gson().fromJson(request.body(), EventAttendanceModel.class);
+            if(oAuthCode == null || eventAttendanceModel == null){
+                Printing.println("oAuthCode is null or eventAttendanceModel is null. (Note: those are the correct spellings for params)");
+                return -1;
+            }
+            return EventHandler.clockInEvent(eventAttendanceModel,oAuthCode,EventAttendanceModel.CLOCKINCODE);
+        },new JsonTransformer());
+        post("/User/ClockOut","application/json",(request, response) -> {
+
+            Printing.println("/Event/ClockOut");
+            String oAuthCode = request.queryParams("oAuthCode");
+            EventAttendanceModel eventAttendanceModel = new Gson().fromJson(request.body(), EventAttendanceModel.class);
+            if(oAuthCode == null || eventAttendanceModel == null){
+                Printing.println("oAuthCode is null or eventAttendanceModel is null. (Note: those are the correct spellings for params)");
+                return -1;
+            }
+            return EventHandler.clockInEvent(eventAttendanceModel,oAuthCode,EventAttendanceModel.CLOCKOUTCODE);
         },new JsonTransformer());
 
 
