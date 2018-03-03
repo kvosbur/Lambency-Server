@@ -89,7 +89,7 @@ public class DatabaseConnection {
         //check if entry in results and if so create new user object with information
         if(rs.next()){
             return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
-                    null, null,rs.getInt(1), 0, rs.getString(5));
+                    null, null,null,rs.getInt(1), 0, rs.getString(5));
         }
 
         return null;
@@ -124,7 +124,7 @@ public class DatabaseConnection {
             rs.getString(4);
             rs.getString(5);
             return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
-                    null, null,rs.getInt(1), 0, rs.getString(5));
+                    null, null,null,rs.getInt(1), 0, rs.getString(5));
         }
         return null;
     }
@@ -992,4 +992,6 @@ public class DatabaseConnection {
             Printing.println(e.toString());
         }
     }
+
+
 }
