@@ -146,7 +146,9 @@ public class LambencyServer{
             Printing.println("/User/unfollowOrg");
             return UserHandler.unfollowOrg(request.queryParams("oAuthCode"), Integer.parseInt(request.queryParams("org_id")));
         }, new JsonTransformer());
-        get("/User/leaveOrg","application/json",(request, response) -> {
+
+        post("/User/leaveOrg","application/json",(request, response) -> {
+
             Printing.println("/User/leaveOrg");
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgID");

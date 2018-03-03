@@ -511,6 +511,44 @@ public void createOrganizationRetrofit(OrganizationModel org){
         });
     }
 
+
+    public void leaveOrganization(String oAuthCode, int orgID){
+        this.getInstance().postLeaveOrganization(oAuthCode,orgID).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == 0){
+                    System.out.println("successfully left organization");
+                }
+                else if(ret == 100){
+                    System.out.println("Join request canceled");
+                }
+                else if (ret == -1){
+                    System.out.println("Database error caught.");
+                }
+                else if (ret == 1){
+                    System.out.println("User not found");
+                }
+                else if (ret == 2){
+                    System.out.println("Org does not exist");
+                }
+                else if(ret == 3){
+                    System.out.println("Not a member of the organization, so can not leave.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
         //OrganizationModel org = new OrganizationModel(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");
