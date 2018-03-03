@@ -385,12 +385,14 @@ public class DatabaseConnection {
      * @throws SQLException Throws the exception if there is an issue in the database.
      */
 
-    public int createEvent(int org_id, String name , Timestamp start, Timestamp end, String description, String location, String imgPath, double latitude, double longitude) throws SQLException{
+    public int createEvent(int org_id, String name , Timestamp start, Timestamp end, String description, String location,
+                           String imgPath, double latitude, double longitude, String clockInCode, String clockOutCode) throws SQLException{
 
 
         //insert event into table
         PreparedStatement ps;
-        ps = connect.prepareStatement("INSERT INTO events (name, org_id, start_time, end_time, description, location, event_img, latitude, longitude) VALUES ('TEMP',?,?,?,?,?,?,?,?)");
+        ps = connect.prepareStatement("INSERT INTO events (name, org_id, start_time, end_time, description, location, " +
+                "event_img, latitude, longitude, clock_in_code, clock_out_code) VALUES ('TEMP',?,?,?,?,?,?,?,?,?,?)");
 
 
         if(ps != null) {
@@ -403,6 +405,8 @@ public class DatabaseConnection {
             ps.setString(6, imgPath);
             ps.setDouble(7,latitude);
             ps.setDouble(8, longitude);
+            ps.setString(9, clockInCode);
+            ps.setString(10, clockOutCode);
             ps.execute();
 
         }else{
@@ -473,7 +477,7 @@ public class DatabaseConnection {
 
         //create string for query
         String fields = "event_id, org_id, name, start_time, end_time, description," +
-                "location, event_img, latitude, longitude";
+                "location, event_img, latitude, longitude, clock_in_code, clock_out_code";
         String query = "SELECT " + fields + " FROM events WHERE event_id = ?";
 
         //run query
@@ -485,7 +489,7 @@ public class DatabaseConnection {
         if(rs.next()){
             return new EventModel(rs.getString(3),rs.getInt(2), rs.getTimestamp(4), rs.getTimestamp(5),
                     rs.getString(6), rs.getString(7), rs.getString(8), rs.getInt(1),
-                    rs.getDouble(9), rs.getDouble(10));
+                    rs.getDouble(9), rs.getDouble(10), rs.getString(11), rs.getString(12));
         }
 
         return null;

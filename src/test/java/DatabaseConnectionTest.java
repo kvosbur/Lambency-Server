@@ -1,10 +1,6 @@
-import org.junit.Test;
-
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by Evan on 2/23/2018.
@@ -126,14 +122,15 @@ public class DatabaseConnectionTest {
         UserModel u = dbc.searchForUser("facebookUser", 2);
         OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
         int eventID = dbc.createEvent(org.getOrgID(),"Event 1", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 500),
-                "This is a test event", "Location", "imgg", 5 , 5);
+                "This is a test event", "Location", "imgg", 5 , 5, "ClockIn", "ClockOut");
         event_id = eventID;
         if (eventID <= 0){
             throw new Exception("Event creation failed");
         }
         EventModel e = dbc.searchEvents(eventID);
         if(!(e.getName().equals("Event 1") && e.getOrg_id() == org.getOrgID() && e.getDescription().equals("This is a test event") && e.getLocation().equals("Location")
-                && e.getImage_path().equals("imgg") && Math.abs(e.getLattitude()-5) < 0.01 && Math.abs(e.getLongitude() -5) < 0.01)){
+                && e.getImage_path().equals("imgg") && Math.abs(e.getLattitude()-5) < 0.01 && Math.abs(e.getLongitude() -5) < 0.01 &&
+                e.getClockInCode().equals("ClockIn") && e.getClockOutCode().equals("ClockOut"))){
             throw new Exception("search for event by name failed: incorrect fields");
         }
     }
@@ -325,7 +322,7 @@ public class DatabaseConnectionTest {
         }
         OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
         int eventID = dbc.createEvent(org.getOrgID(),"Event 2", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 500),
-                "This is my second event", "Location 2", "event2img", 5 , 5);
+                "This is my second event", "Location 2", "event2img", 5 , 5, "ClockIn", "ClockOut");
         list = dbc.searchEventsByLocation(0,0);
         if(list == null){
             throw new Exception("failed to search events by location: returned null");
