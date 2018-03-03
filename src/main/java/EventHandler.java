@@ -200,6 +200,53 @@ public class EventHandler {
         }
     }
 
+    /**
+     *
+     * @param eventAttendanceModel the model of the info to use to clock in with
+     * @param oAuthCode the oAuthCode of the user
+     * @return an integer telling success of request, 0 = success / 1 = failure
+     */
+
+    public static int clockInEvent(EventAttendanceModel eventAttendanceModel, String oAuthCode, int clockType){
+        // verify oauthcode is a user
+        try {
+            UserModel us = LambencyServer.dbc.searchForUser(oAuthCode);
+            if(us == null || us.getUserId() != eventAttendanceModel.getUserID()){
+                Printing.println("oauth token is not valid or does not match userid in eventAttendanceModel");
+                return 1;
+            }
+            else{
+                //verify that event exists
+                EventAttendanceModel basicModel = LambencyServer.dbc.searchEventAttendance(us.getUserId(), eventAttendanceModel.getEventID());
+                if(basicModel != null){
+                    //they have already signed up for event(required in order to clock in)
+                    //get clock in code for this event and check against one give to see if successful start
+                    if(LambencyServer.dbc.verifyEventClockInOutCode(eventAttendanceModel.getEventID(),
+                            eventAttendanceModel.getClockInOutCode(), clockType)){
+                        //clock in user with given start time
+                        int result = LambencyServer.dbc.eventClockInOutUser(eventAttendanceModel.getEventID(), eventAttendanceModel.getUserID(),
+                                eventAttendanceModel.getStartTime(), clockType);
+                        if(result == 0){
+                            return 0;
+                        }
+                        return 4;
+
+                    }else{
+                        //return error to client if codes don't match
+                        return 3;
+                    }
+
+                }else{
+                    return 2;
+                }
+
+            }
+        } catch (SQLException e) {
+            Printing.println(e.toString());
+        }
+        return 1;
+    }
+
     public static String generateClockInOutCodes(){
         char[] charArray = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
         StringBuilder code = new StringBuilder();

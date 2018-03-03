@@ -163,6 +163,29 @@ public class LambencyServer{
             return UserHandler.leaveOrganization(oAuthCode,Integer.parseInt(orgID));
         },new JsonTransformer());
 
+        post("/User/ClockIn","application/json",(request, response) -> {
+
+            Printing.println("/Event/ClockIn");
+            String oAuthCode = request.queryParams("oAuthCode");
+            EventAttendanceModel eventAttendanceModel = new Gson().fromJson(request.body(), EventAttendanceModel.class);
+            if(oAuthCode == null || eventAttendanceModel == null){
+                Printing.println("oAuthCode is null or eventAttendanceModel is null. (Note: those are the correct spellings for params)");
+                return -1;
+            }
+            return EventHandler.clockInEvent(eventAttendanceModel,oAuthCode,EventAttendanceModel.CLOCKINCODE);
+        },new JsonTransformer());
+        post("/User/ClockOut","application/json",(request, response) -> {
+
+            Printing.println("/Event/ClockOut");
+            String oAuthCode = request.queryParams("oAuthCode");
+            EventAttendanceModel eventAttendanceModel = new Gson().fromJson(request.body(), EventAttendanceModel.class);
+            if(oAuthCode == null || eventAttendanceModel == null){
+                Printing.println("oAuthCode is null or eventAttendanceModel is null. (Note: those are the correct spellings for params)");
+                return -1;
+            }
+            return EventHandler.clockInEvent(eventAttendanceModel,oAuthCode,EventAttendanceModel.CLOCKOUTCODE);
+        },new JsonTransformer());
+
 
     }
 
