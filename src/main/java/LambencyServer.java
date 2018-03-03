@@ -98,6 +98,7 @@ public class LambencyServer{
             List<EventModel> list = OrganizationHandler.searchEventsByOrg(oAuthCode, Integer.parseInt(orgID));
             return list;
         }, new JsonTransformer());
+
         post("/Event/update", "application/json",
                 (request, response) ->{
                     Printing.println("/Event/update");
@@ -145,6 +146,16 @@ public class LambencyServer{
             Printing.println("/User/unfollowOrg");
             return UserHandler.unfollowOrg(request.queryParams("oAuthCode"), Integer.parseInt(request.queryParams("org_id")));
         }, new JsonTransformer());
+        get("/User/leaveOrg","application/json",(request, response) -> {
+            Printing.println("/User/leaveOrg");
+            String oAuthCode = request.queryParams("oAuthCode");
+            String orgID = request.queryParams("orgID");
+            if(oAuthCode == null || orgID == null){
+                Printing.println("oAuthCode is null or orgID is null. (Note: those are the correct spellings for params)");
+                return -1;
+            }
+            return UserHandler.leaveOrganization(oAuthCode,Integer.parseInt(orgID));
+        },new JsonTransformer());
 
 
     }
