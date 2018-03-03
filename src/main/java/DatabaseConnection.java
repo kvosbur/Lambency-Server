@@ -607,6 +607,29 @@ public class DatabaseConnection {
     }
 
     /**
+     * @TODO
+     * @param eventID the id of the event to search for
+     * @return boolean of whether given code is correct or not
+     */
+    public boolean verifyEventClockInOutCode(int eventID, String clockInOutCode, int type) throws SQLException{
+
+        return true;
+    }
+
+    /**
+     * @TODO
+     * @param eventID the id of the event
+     * @param userID id of the user to change event attendance for
+     * @param startEndTime time to enter
+     * @param type whether to enter clock in or clock out
+     * @return code of successfulness, 0 = success, 1 = failure
+     */
+    public int eventClockInOutUser(int eventID, int userID, Timestamp startEndTime, int type) throws SQLException{
+
+        return 0;
+    }
+
+    /**
      * END EVENT METHODS
      */
 
