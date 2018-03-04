@@ -1144,6 +1144,67 @@ public class DatabaseConnection {
 
 
     /**
+     * Endorses the given event id for the organization
+     * @param orgID the id of the organization
+     * @param eventID the event that is being endorsed
+     *
+     * @return  0 on success, -1 on failure
+     */
+
+    public int endorseEvent(int orgID, int eventID) throws SQLException{
+        if(orgID < 1 || eventID < 1){
+            return -1;
+        }
+        PreparedStatement ps = null;
+        ps = connect.prepareStatement("INSERT INTO endorse (org_id, endorsed_id, endorse_type) VALUES (?, ?, ?)");
+
+
+        if(ps != null) {
+            //insert values into prepare statement
+            ps.setInt(1, orgID);
+            ps.setInt(2, eventID);
+            ps.setBoolean(3, true);
+            ps.execute();
+
+        }else{
+            throw new SQLException("Improper use. There was an error in creating the SQL statement");
+        }
+
+        return 0;
+    }
+
+    /**
+     *  Unendorses the event for the given org
+     * @param orgID the id of the organization
+     * @param eventID the event that is being endorsed
+     *
+     * @return  0 on success, -1 on failure
+     */
+
+    public int unendorseEvent(int orgID, int eventID) throws SQLException{
+        if(orgID < 1 || eventID < 1){
+            return -1;
+        }
+        PreparedStatement ps = null;
+        ps = connect.prepareStatement("Delete FROM endorse WHERE org_id = ? and endorsed_id = ? and" +
+                " endorse_type = ?");
+
+
+        if(ps != null) {
+            //insert values into prepare statement
+            ps.setInt(1, orgID);
+            ps.setInt(2, eventID);
+            ps.setBoolean(3, true);
+            ps.execute();
+
+        }else{
+            throw new SQLException("Improper use. There was an error in creating the SQL statement");
+        }
+
+        return 0;
+    }
+
+    /**
      * END ORGANIZATION METHODS
      */
 
