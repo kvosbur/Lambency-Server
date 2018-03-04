@@ -1,6 +1,7 @@
 import com.google.gson.Gson;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static spark.Spark.*;
 
@@ -58,7 +59,7 @@ public class LambencyServer{
 
         //Setup and start timer for midnight server task
         Calendar date = Calendar.getInstance();
-        date.set(Calendar.HOUR, 0);
+        date.set(Calendar.HOUR_OF_DAY, 0);
         date.set(Calendar.MINUTE, 0);
         date.set(Calendar.SECOND, 0);
         date.set(Calendar.MILLISECOND, 0);
@@ -66,7 +67,7 @@ public class LambencyServer{
         Thread serverTaskThread = new ServerTaskThread();
         Timer timer = new Timer();
 
-        timer.schedule(new ServerTaskTimer(serverTaskThread),date.getTime(),1000 * 60 * 60 * 24);
+        timer.schedule(new ServerTaskTimer(serverTaskThread),date.getTime(),TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS));
     }
 
     public void addroutes(){
@@ -223,7 +224,7 @@ public class LambencyServer{
         },new JsonTransformer());
         post("/User/ClockOut","application/json",(request, response) -> {
 
-            Printing.println("/Event/ClockOut");
+            Printing.println("/User/ClockOut");
             String oAuthCode = request.queryParams("oAuthCode");
             EventAttendanceModel eventAttendanceModel = new Gson().fromJson(request.body(), EventAttendanceModel.class);
             if(oAuthCode == null || eventAttendanceModel == null){
@@ -231,6 +232,16 @@ public class LambencyServer{
                 return -1;
             }
             return EventHandler.clockInEvent(eventAttendanceModel,oAuthCode,EventAttendanceModel.CLOCKOUTCODE);
+        },new JsonTransformer());
+        get("/User/MyLambency","application/json",(request, response) -> {
+
+            Printing.println("/User/MyLambency");
+            String oAuthCode = request.queryParams("oAuthCode");
+            if(oAuthCode == null){
+                Printing.println("oAuthCode is null. (Note: those are the correct spellings for params)");
+                return -1;
+            }
+            return UserHandler.getMyLambency(oAuthCode);
         },new JsonTransformer());
 
 
