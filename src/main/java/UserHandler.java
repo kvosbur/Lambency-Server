@@ -1,4 +1,5 @@
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class UserHandler {
     /**
@@ -276,6 +277,62 @@ public class UserHandler {
             u = LambencyServer.dbc.modifyUserInfo(user.getUserId(), u.getFirstName(), u.getLastName(), u.getEmail());
             u = UserHandler.updateOrgLists(u);
             return u;
+        }
+        catch (SQLException e){
+            Printing.println("SQLException");
+            Printing.println(e.toString());
+            return null;
+        }
+    }
+
+    /**
+     * Changes the account information to the information in the user object
+     * @param oAuthCode oauthcode of user requesting mylambency info
+     * @return updated user object from the database
+     */
+    public static MyLambencyModel getMyLambency(String oAuthCode){
+        try {
+            UserModel user = LambencyServer.dbc.searchForUser(oAuthCode);
+            if(user == null){
+                Printing.println("User Model not found");
+                return null;
+            }
+            user = updateOrgLists(user);
+            //create arraylist of organization models from myOrgs also create arraylist of events that user is organizer for
+            ArrayList<OrganizationModel> myOrgs = new ArrayList<>();
+            ArrayList<EventModel> eventsOrganizing = new ArrayList<>();
+            for(Integer i: user.getMyOrgs()){
+                OrganizationModel org = LambencyServer.dbc.searchForOrg(i);
+                if(org != null){
+                    myOrgs.add(org);
+                    ArrayList<Integer> events = LambencyServer.dbc.getOrgEvents(i);
+                    for(Integer j: events){
+                        EventModel event = LambencyServer.dbc.searchEvents(j);
+                        if(event != null){
+                            eventsOrganizing.add(event);
+                        }
+                    }
+                }
+            }
+
+            //create arraylist of organization models from joinedOrgs
+            ArrayList<OrganizationModel> joinedOrgs = new ArrayList<>();
+            for(Integer i: user.getJoinedOrgs()){
+                OrganizationModel org = LambencyServer.dbc.searchForOrg(i);
+                if(org != null){
+                    joinedOrgs.add(org);
+                }
+            }
+
+            //create arraylist of events that user is attending
+            ArrayList<EventModel> eventsAttending = new ArrayList<>();
+            for(Integer i: user.getEventsAttending()){
+                EventModel event = LambencyServer.dbc.searchEvents(i);
+                if(event != null){
+                    eventsAttending.add(event);
+                }
+            }
+            return new MyLambencyModel(user,myOrgs,joinedOrgs,eventsAttending,eventsOrganizing);
         }
         catch (SQLException e){
             Printing.println("SQLException");
