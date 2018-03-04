@@ -1205,6 +1205,87 @@ public class DatabaseConnection {
     }
 
     /**
+     *  Checks if the org has endorsed the event
+     * @param orgID the id of the organization
+     * @param eventID the event that is being endorsed
+     *
+     * @return  true on endorsed, false on not endorsed
+     */
+    public boolean isEndorsed(int orgID, int eventID) throws SQLException{
+        //create string for query
+        String fields = "org_id";
+        String query = "SELECT " + fields + " FROM endorse WHERE org_id = ? and endorsed_id = ? and endorse_type = ? ";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, orgID);
+        ps.setInt(2, eventID);
+        ps.setBoolean(3, true);
+        ResultSet rs = ps.executeQuery();
+
+        //check for results and return object
+        if(rs.next()){
+            return true;
+        }
+        return false;
+    }
+    /**
+     *  Finds all of the events endorsed by a given org
+     * @param orgID the id of the organization
+     *
+     * @return  List of all endorsed events for that org
+     */
+    public ArrayList<Integer> getEndorsedEvents(int orgID) throws SQLException{
+
+        //create string for query
+        String fields = "endorsed_id";
+        String query = "SELECT " + fields + " FROM endorse WHERE org_id = ? and endorse_type = ? ";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, orgID);
+        ps.setBoolean(2, true);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> array = new ArrayList<>();
+
+        //check for results and return object
+        while(rs.next()){
+            int event_id = rs.getInt(1);
+            array.add(event_id);
+        }
+        return array;
+    }
+
+    /**
+     *  Finds all of the orgs that endorsed a given event
+     * @param eventID the id of the event
+     *
+     * @return  List of all orgs that endorsed the event
+     */
+    public ArrayList<Integer> getEndorsedOrgs(int eventID) throws SQLException{
+
+        //create string for query
+        String fields = "org_id";
+        String query = "SELECT " + fields + " FROM endorse WHERE endorsed_id = ? and endorse_type = ? ";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ps.setBoolean(2, true);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> array = new ArrayList<>();
+
+        //check for results and return object
+        while(rs.next()){
+            int org_id = rs.getInt(1);
+            array.add(org_id);
+        }
+        return array;
+    }
+
+    /**
      * END ORGANIZATION METHODS
      */
 
