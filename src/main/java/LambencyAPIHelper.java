@@ -549,6 +549,33 @@ public void createOrganizationRetrofit(OrganizationModel org){
         });
     }
 
+    public void numAttendingEventRetrofit(String oAuthCode, String eventId)
+    {
+        this.getInstance().getEventNumAttending(oAuthCode, eventId).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == null || ret == -1){
+                    System.out.println("Error has occurred");
+                }
+                else{
+                    System.out.println("the number of users attending this event is" + ret);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
         //OrganizationModel org = new OrganizationModel(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");

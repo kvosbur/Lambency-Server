@@ -48,6 +48,9 @@ public interface LambencyAPI {
     @POST("Event/update")
     Call<Integer> postUpdateEvent(@Body EventModel event);
 
+    @GET("Event/numAttending")
+    Call<Integer> getEventNumAttending(@Query("oAuthCode") String oAuthCode, @Query("id") String event_id);
+
     @POST("User/requestJoinOrg")
     Call<Integer> postJoinOrganization(@Query("oAuthCode") String oAuthCode, @Query("orgId") int orgID);
 
