@@ -100,6 +100,11 @@ public class OrganizationHandler {
 
     }
 
+    /**
+     * @param oAuthCode the authorization code of the user
+     * @param orgID the id of the organization
+     * @return a list of the events of that organization
+     */
     public static ArrayList<EventModel> searchEventsByOrg(String oAuthCode, int orgID){
         try {
             if(oAuthCode == null){
@@ -124,6 +129,107 @@ public class OrganizationHandler {
             Printing.println(e.toString());
         }
         return null;
+    }
+    /**
+     * @param oAuthCode the authorization code of the user
+     * @param orgID the id of the organization
+     * @param eventID the id of the event to be endorsed
+     * @return 0 on success, -3 on failure to verify parameters, -1 on database error, -2 on already endorsed
+     */
+    public static Integer endorseEvent(String oAuthCode, int orgID, int eventID){
+        try {
+            if(oAuthCode == null){
+                return new Integer(-3);
+            }
+            if(LambencyServer.dbc.searchForUser(oAuthCode) == null){
+                Printing.println("Unable to verify user");
+                return new Integer(-3);
+            }
+            if(!isAdmin(oAuthCode,orgID)){
+                Printing.println("User is not an admin");
+                return new Integer(-3);
+            }
+            if(searchOrgID(orgID) == null){
+                Printing.println("Error in finding organization");
+                return new Integer(-3);
+            }
+            if(EventHandler.searchEventID(eventID) == null){
+                Printing.println("Error in finding event");
+                return new Integer(-3);
+            }
+            if(LambencyServer.dbc.isEndorsed(orgID, eventID)){
+                Printing.println("Event is already endorsed");
+                return new Integer(-2);
+            }
+            return LambencyServer.dbc.endorseEvent(orgID, eventID);
+        }
+        catch (SQLException e){
+            Printing.println(e.toString());
+        }
+        return new Integer(-1);
+    }
+
+    /**
+     * @param oAuthCode the authorization code of the user
+     * @param orgID the id of the organization
+     * @param eventID the id of the event to be unendorsed
+     * @return 0 on success, -3 on failure to verify parameters, -1 on database error, -2 on already endorsed
+     */
+    public static Integer unendorseEvent(String oAuthCode, int orgID, int eventID){
+        try {
+            if(oAuthCode == null){
+                return new Integer(-3);
+            }
+            if(LambencyServer.dbc.searchForUser(oAuthCode) == null){
+                Printing.println("Unable to verify user");
+                return new Integer(-3);
+            }
+            if(!isAdmin(oAuthCode,orgID)){
+                Printing.println("User is not an admin");
+                return new Integer(-3);
+            }
+            if(searchOrgID(orgID) == null){
+                Printing.println("Error in finding organization");
+                return new Integer(-3);
+            }
+            if(EventHandler.searchEventID(eventID) == null){
+                Printing.println("Error in finding event");
+                return new Integer(-3);
+            }
+            if(!LambencyServer.dbc.isEndorsed(orgID, eventID)){
+                Printing.println("Event is not already endorsed");
+                return new Integer(-2);
+            }
+            return LambencyServer.dbc.unendorseEvent(orgID, eventID);
+        }
+        catch (SQLException e){
+            Printing.println(e.toString());
+        }
+        return new Integer(-1);
+    }
+    /**
+     * @param oAuthCode the authorization code of the user
+     * @param orgID the id of the organization
+     * @return true if the user is an admin of the given org, otherwise false
+     */
+    public static boolean isAdmin(String oAuthCode, int orgID){
+        try {
+            UserModel u = LambencyServer.dbc.searchForUser(oAuthCode);
+            GroupiesModel g = LambencyServer.dbc.searchGroupies(u.getUserId(), orgID);
+            if(g == null){
+                Printing.println("user is not a member of the given org");
+                return false;
+            }
+            if(g.type != DatabaseConnection.ORGANIZER){
+                Printing.println("user is not an organizer of the given org");
+                return false;
+            }
+            return true;
+        }
+        catch (SQLException e){
+            Printing.println(e.toString());
+            return false;
+        }
     }
 
 }
