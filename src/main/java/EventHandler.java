@@ -247,6 +247,42 @@ public class EventHandler {
         return 1;
     }
 
+    /**
+     *
+     * @return boolean of whether clean up was successful
+     */
+
+    public static boolean cleanUpEvents(){
+
+        try {
+            //find all events that have ended
+            ArrayList<Integer> events = LambencyServer.dbc.getEventsThatEnded(null);
+
+            for(Integer eventID: events){
+                //check for users for this event that don't have check out times
+                ArrayList<Integer> users = LambencyServer.dbc.getUsersNoEndTime(eventID);
+                EventModel event = null;
+                if(users.size() != 0){
+                    event = LambencyServer.dbc.searchEvents(eventID);
+                }
+                for(Integer userID: users){
+                    //give them the end time that is stored in the event model
+                    LambencyServer.dbc.eventClockInOutUser(eventID, userID, event.getEnd(), EventAttendanceModel.CLOCKOUTCODE);
+                }
+                //move this event to the historical tables(event entry and all attendence records
+                int result = LambencyServer.dbc.moveEventToHistorical(eventID);
+                if(result == 0){
+                    return true;
+                }
+
+            }
+        }catch(SQLException e){
+            Printing.println(e.toString());
+        }
+
+        return false;
+    }
+
     public static String generateClockInOutCodes(){
         char[] charArray = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
         StringBuilder code = new StringBuilder();
