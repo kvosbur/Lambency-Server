@@ -756,6 +756,15 @@ public class DatabaseConnection {
     }
 
     /**
+     * @TODO
+     * @param eventID event id of the event to move to historical tables
+     * @return
+     */
+    public int moveEventToHistorical(int eventID){
+        return 0;
+    }
+
+    /**
      * END EVENT METHODS
      */
 

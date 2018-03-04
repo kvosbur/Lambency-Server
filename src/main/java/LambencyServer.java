@@ -1,21 +1,47 @@
-
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static spark.Spark.*;
 
 public class LambencyServer{
 
 
+    static DatabaseConnection dbc = null;
+
+    public class ServerTaskThread extends Thread{
+
+
+        public void run(){
+            //code to run task
+            Printing.println("Starting Midnight server task");
+            boolean status = EventHandler.cleanUpEvents();
+            if(status){
+                Printing.println("The server successfully cleaned up events and moved all to historical tables.");
+            }else{
+                Printing.println("The server had issues cleaning up events.Some might have still been moved but not all of them.");
+            }
+        }
+    }
+
+    public class ServerTaskTimer extends TimerTask {
+
+        Thread serverTaskThread;
+
+        ServerTaskTimer(Thread serverTaskThread){
+            this.serverTaskThread = serverTaskThread;
+        }
+
+        public void run(){
+            serverTaskThread.start();
+        }
+    }
+
     /*
     spark documentation
     http://sparkjava.com/documentation
     localhost:4567/hello
      */
-
-    static DatabaseConnection dbc = null;
 
     LambencyServer(){
 
@@ -29,6 +55,18 @@ public class LambencyServer{
         port(20000);
 
         addroutes();
+
+        //Setup and start timer for midnight server task
+        Calendar date = Calendar.getInstance();
+        date.set(Calendar.HOUR, 0);
+        date.set(Calendar.MINUTE, 0);
+        date.set(Calendar.SECOND, 0);
+        date.set(Calendar.MILLISECOND, 0);
+
+        Thread serverTaskThread = new ServerTaskThread();
+        Timer timer = new Timer();
+
+        timer.schedule(new ServerTaskTimer(serverTaskThread),date.getTime(),1000 * 60 * 60 * 24);
     }
 
     public void addroutes(){
