@@ -127,7 +127,7 @@ public class LambencyServer{
             return organization;
         }, new JsonTransformer());
         get("/Organization/events", "application/json", (request, response) -> {
-            Printing.println("/User/requestJoinOrg");
+            Printing.println("/Organization/events");
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("id");
             if(oAuthCode == null || orgID == null){
@@ -178,7 +178,16 @@ public class LambencyServer{
             int event_id = Integer.parseInt(request.queryParams("event_id"));
             return EventHandler.getUsersAttending(oauthcode,event_id);
         }, new JsonTransformer());
-
+        get("/Event/numAttending", "application/json", (request, response) -> {
+            Printing.println("/Event/numAttending");
+            String oAuthCode = request.queryParams("oAuthCode");
+            String eventID = request.queryParams("id");
+            if(oAuthCode == null || eventID == null){
+                return new Integer(-1);
+            }
+            Integer ret = EventHandler.numAttending(oAuthCode, Integer.parseInt(eventID));
+            return ret;
+        }, new JsonTransformer());
         get("/User/login/facebook", "application/json", (request, response) -> {
             Printing.println("/User/login/facebook");
             UserAuthenticator ua = FacebookLogin.facebookLogin(request.queryParams("id"), request.queryParams("first"), request.queryParams("last"), request.queryParams("email"));

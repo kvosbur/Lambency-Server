@@ -293,4 +293,28 @@ public class EventHandler {
         return code.toString();
     }
 
+    /**
+     * @param oAuthCode the authentication code of the user
+     * @param eventID the id of the event
+     * @return the number of users attending an event, on fail -1
+     */
+    public static Integer numAttending(String oAuthCode, int eventID) {
+
+        try {
+            if(oAuthCode == null){
+                return new Integer(-1);
+            }
+            if(LambencyServer.dbc.searchForUser(oAuthCode) == null){
+                Printing.println("Unable to verify user");
+                return new Integer(-1);
+            }
+            return LambencyServer.dbc.numUsersAttending(eventID);
+        }
+        catch (SQLException e){
+            Printing.println(e.toString());
+        }
+        return new Integer(-1);
+
+    }
+
 }

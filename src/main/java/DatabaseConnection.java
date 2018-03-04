@@ -607,6 +607,36 @@ public class DatabaseConnection {
     }
 
     /**
+     * Returns the number of users registered for an event
+     * @param eventID the id of the event to search for
+     * @return Integer representing the number of users attending the event
+     */
+    public Integer numUsersAttending(int eventID) throws SQLException{
+
+        //create string for query
+        String fields = "user_id";
+        String query = "SELECT " + fields + " FROM event_attendence WHERE event_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ResultSet rs = ps.executeQuery();
+
+        int counter = 0;
+
+        //check for results and return object
+        while(rs.next()){
+            int userID = rs.getInt(1);
+            UserModel user = searchForUser("" + userID, LAMBNECYUSERID);
+            if(user != null){
+                counter++;
+            }
+        }
+
+        return new Integer(counter);
+    }
+
+    /**
      * Given an event check if right code is given to clock in or clock out
      * @param eventID the id of the event to search for
      * @param clockInOutCode code to check against
