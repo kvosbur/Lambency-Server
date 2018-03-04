@@ -241,14 +241,14 @@ public class DatabaseConnectionTest {
     public void listUsersRegistered() throws Exception{
         registerForEvent();
         UserModel u = dbc.searchForUser("facebookUser", 2);
-        List<UserModel> userList = EventHandler.getUsersAttending(u.getOauthToken(), event_id);
+        List<Object> userList = EventHandler.getUsersAttending(u.getOauthToken(), event_id);
         if(userList == null){
             throw new Exception("making user list failed: returned null");
         }
         if(userList.size() > 1){
             throw new Exception("making user list failed: returned list of incorrect length");
         }
-        u = userList.get(0);
+        u = (UserModel)userList.get(0);
         if(!(u.getEmail().equals("newemail@gmail.com") && u.getFirstName().equals("George") && u.getLastName().equals("Adams"))){
             throw new Exception("making user list failed: returned incorrect user object");
         }

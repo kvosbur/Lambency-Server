@@ -261,7 +261,7 @@ public class Testing {
     private static boolean testUsersAttending(){
         try {
             UserModel u = dbc.searchForUser("facebookUser", 2);
-            List<UserModel> userList = EventHandler.getUsersAttending(u.getOauthToken(), event_id);
+            List<Object> userList = EventHandler.getUsersAttending(u.getOauthToken(), event_id);
             if(userList == null){
                 System.out.println("making user list failed: returned null");
                 return false;
@@ -270,7 +270,7 @@ public class Testing {
                 System.out.println("making user list failed: returned list of incorrect length");
                 return false;
             }
-            u = userList.get(0);
+            u = (UserModel) userList.get(0);
             if(!(u.getEmail().equals("newemail@gmail.com") && u.getFirstName().equals("George") && u.getLastName().equals("Adams"))){
                 System.out.println("making user list failed: returned incorrect user object");
                 return false;

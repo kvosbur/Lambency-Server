@@ -504,7 +504,7 @@ public class DatabaseConnection {
     public EventAttendanceModel searchEventAttendance(int userID, int eventID) throws SQLException{
 
         //create string for query
-        String fields = "event_id, user_id";
+        String fields = "event_id, user_id, check_in_time, check_out_time";
         String query = "SELECT " + fields + " FROM event_attendence WHERE event_id = ? and user_id = ?";
 
         //run query
@@ -515,7 +515,7 @@ public class DatabaseConnection {
 
         //check for results and return object
         if(rs.next()){
-            return new EventAttendanceModel(rs.getInt(2), rs.getInt(1));
+            return new EventAttendanceModel(rs.getInt(2), rs.getInt(1),rs.getTimestamp(3), rs.getTimestamp(4));
         }
 
         return null;
@@ -575,9 +575,10 @@ public class DatabaseConnection {
     /**
      * Searches for all users who are attending the specified event
      * @param eventID the id of the event to search for
+     * @param object whether to return UserModels or Integers
      * @return Arraylist of UserModel objects, null if no users found
      */
-    public ArrayList<UserModel> searchEventAttendanceUsers(int eventID) throws SQLException{
+    public ArrayList<Object> searchEventAttendanceUsers(int eventID, boolean object) throws SQLException{
 
         //create string for query
         String fields = "user_id";
@@ -588,15 +589,20 @@ public class DatabaseConnection {
         ps.setInt(1, eventID);
         ResultSet rs = ps.executeQuery();
 
-        ArrayList<UserModel> users = new ArrayList<>();
+        ArrayList<Object> users = new ArrayList<>();
 
         //check for results and return object
         while(rs.next()){
             int userID = rs.getInt(1);
-            UserModel user = searchForUser("" + userID, LAMBNECYUSERID);
-            if(user != null){
-                users.add(user);
+            if(object){
+                UserModel user = searchForUser("" + userID, LAMBNECYUSERID);
+                if(user != null){
+                    users.add(user);
+                }
+            }else{
+                users.add(userID);
             }
+
         }
 
         if(users.size() == 0){
@@ -756,13 +762,118 @@ public class DatabaseConnection {
     }
 
     /**
-     * @TODO
+     * Given an event id move all information for it from current to historical tables
      * @param eventID event id of the event to move to historical tables
      * @return
      */
-    public int moveEventToHistorical(int eventID){
+    public int moveEventToHistorical(int eventID) throws SQLException{
+
+        int result = 0;
+        result += eventEntryToHistorical(eventID);
+        ArrayList<Object> users = searchEventAttendanceUsers(eventID,false);
+        if(users == null){
+            return 0;
+        }
+
+        for(Object user_id: users){
+            Integer id = (Integer)user_id;
+            result += eventAttendanceEntryToHistorical(eventID,id);
+        }
+        return result;
+    }
+
+    /**
+     * Move the given event from events table to events_historical table
+     * @param eventID event id of the event to move to historical tables
+     * @return 0 on success, 1 on failure
+     */
+    public int eventEntryToHistorical(int eventID) throws SQLException{
+
+        //get info from current table
+        EventModel event = searchEvents(eventID);
+        if(event == null){
+            return 1;
+        }
+
+        //insert into historical table
+        PreparedStatement ps;
+        ps = connect.prepareStatement("INSERT INTO events_historical (name, org_id, start_time, end_time, description, location, " +
+                "event_img, latitude, longitude, attended, event_id, clock_in_code, clock_out_code) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+
+        ps.setString(1,event.getName());
+        ps.setInt(2, event.getOrg_id());
+        ps.setObject(3,event.getStart());
+        ps.setObject(4,event.getEnd());
+        ps.setString(5,event.getDescription());
+        ps.setString(6, event.getLocation());
+        ps.setString(7, event.getImage_path());
+        ps.setDouble(8, event.getLattitude());
+        ps.setDouble(9, event.getLongitude());
+        ps.setInt(10,numUsersAttending(eventID));
+        ps.setInt(11,eventID);
+        ps.setString(12, event.getClockInCode());
+        ps.setString(13, event.getClockOutCode());
+        int result = ps.executeUpdate();
+
+        if(result != 1){
+            //an error occurred in inserting so return now so that the record doesn't get deleted if not transferred
+            return 1;
+        }
+
+        //delete from main table
+        ps = connect.prepareStatement("DELETE FROM events WHERE event_id = ?");
+        ps.setInt(1, eventID);
+
+        result = ps.executeUpdate();
+        if(result != 1){
+            //wasn't deleted correctly
+            return 1;
+        }
         return 0;
     }
+
+    /**
+     * Move given event attendence row from main table to historical table
+     * @param eventID event id of the event to move to historical tables
+     * @return 0 on success, 1 on failure
+     */
+    public int eventAttendanceEntryToHistorical(int eventID, int userID) throws SQLException{
+
+        //get current attendence object
+        EventAttendanceModel attendanceModel = searchEventAttendance(userID, eventID);
+        if(attendanceModel == null){
+            return 1;
+        }
+
+        //insert into historical table
+        PreparedStatement ps;
+        ps = connect.prepareStatement("INSERT INTO event_attendence_historical (event_id, user_id, check_in_time, check_out_time)" +
+                " VALUES (?,?,?,?)");
+        ps.setInt(1,eventID);
+        ps.setInt(2,userID);
+        ps.setTimestamp(3,attendanceModel.getStartTime());
+        ps.setTimestamp(4, attendanceModel.getEndTime());
+        int result = ps.executeUpdate();
+
+        if(result != 1){
+            return 1;
+        }
+
+        //delete from current table
+        ps = connect.prepareStatement("DELETE FROM event_attendence WHERE event_id = ? and user_id = ?");
+        ps.setInt(1,eventID);
+        ps.setInt(2,userID);
+        result = ps.executeUpdate();
+        if(result != 1){
+            return 1;
+        }
+
+        return 0;
+    }
+
+
+
+
 
     /**
      * END EVENT METHODS
