@@ -115,7 +115,7 @@ public class EventHandler {
      * @return List of users if it succeeds. Null if database error, no user, no event, or wrong permission
      */
 
-    public static List<UserModel> getUsersAttending(String oauthcode, int event_id){
+    public static List<Object> getUsersAttending(String oauthcode, int event_id){
         // verify oauthcode is a user
         try {
             UserModel us = LambencyServer.dbc.searchForUser(oauthcode);
@@ -137,7 +137,7 @@ public class EventHandler {
 
                     else if(gp.getType() == DatabaseConnection.ORGANIZER){ // if you want members too, add || gp.getType() == DatabaseConnection.MEMBER
                         // yayy they have permission!!!!! Get the users
-                        return LambencyServer.dbc.searchEventAttendanceUsers(event_id);
+                        return LambencyServer.dbc.searchEventAttendanceUsers(event_id, true);
                     }
                     else {
                         return null;
@@ -258,7 +258,9 @@ public class EventHandler {
             //find all events that have ended
             ArrayList<Integer> events = LambencyServer.dbc.getEventsThatEnded(null);
 
+            int result = 0;
             for(Integer eventID: events){
+                Printing.println("eventid: " + eventID);
                 //check for users for this event that don't have check out times
                 ArrayList<Integer> users = LambencyServer.dbc.getUsersNoEndTime(eventID);
                 EventModel event = null;
@@ -270,12 +272,13 @@ public class EventHandler {
                     LambencyServer.dbc.eventClockInOutUser(eventID, userID, event.getEnd(), EventAttendanceModel.CLOCKOUTCODE);
                 }
                 //move this event to the historical tables(event entry and all attendence records
-                int result = LambencyServer.dbc.moveEventToHistorical(eventID);
-                if(result == 0){
-                    return true;
-                }
-
+                result += LambencyServer.dbc.moveEventToHistorical(eventID);
             }
+
+            if(result == 0){
+                return true;
+            }
+            return false;
         }catch(SQLException e){
             Printing.println(e.toString());
         }
