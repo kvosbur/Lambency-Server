@@ -260,7 +260,6 @@ public class EventHandler {
 
             int result = 0;
             for(Integer eventID: events){
-                Printing.println("eventid: " + eventID);
                 //check for users for this event that don't have check out times
                 ArrayList<Integer> users = LambencyServer.dbc.getUsersNoEndTime(eventID);
                 EventModel event = null;

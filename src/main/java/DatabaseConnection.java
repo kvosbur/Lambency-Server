@@ -1185,7 +1185,6 @@ public class DatabaseConnection {
             DatabaseConnection db = new DatabaseConnection();
             Printing.println("connected successfully");
 
-
             /*
             Test for searching for orgnizations by name
             ArrayList<OrganizationModel> organizations = db.searchForOrgArray("my");
@@ -1260,7 +1259,6 @@ public class DatabaseConnection {
 
         }catch(Exception e){
             Printing.println(e.toString());
-            e.printStackTrace();
         }
     }
 
