@@ -31,6 +31,7 @@ public class ImageWR {
         Printing.println("Write");
 
         String path = "~/Lambency/files/images/";
+        //String path = "../../Lambency/files/images";
         Date date = new Date();
         String fileName = date.toString() + ".txt";
 

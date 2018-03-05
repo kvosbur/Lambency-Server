@@ -92,7 +92,7 @@ public class Testing {
             UserModel u = dbc.searchForUser("facebookUser", 2);
             OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
             int eventID = dbc.createEvent(org.getOrgID(),"Event 1", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 500),
-                    "This is a test event", "Location", "imgg", 5 , 5);
+                    "This is a test event", "Location", "imgg", 5 , 5, "ClockIn", "ClockOut");
             event_id = eventID;
             if (eventID <= 0){
                 System.out.println("Event creation failed");
@@ -100,7 +100,8 @@ public class Testing {
             }
             EventModel e = dbc.searchEvents(eventID);
             if(!(e.getName().equals("Event 1") && e.getOrg_id() == org.getOrgID() && e.getDescription().equals("This is a test event") && e.getLocation().equals("Location")
-                    && e.getImage_path().equals("imgg") && Math.abs(e.getLattitude()-5) < 0.01 && Math.abs(e.getLongitude() -5) < 0.01)){
+                    && e.getImage_path().equals("imgg") && Math.abs(e.getLattitude()-5) < 0.01 && Math.abs(e.getLongitude() -5) < 0.01 &&
+                    e.getClockInCode().equals("ClockIn") && e.getClockOutCode().equals("ClockOut"))){
                 System.out.println("search for event by name failed: incorrect fields");
                 return false;
             }
@@ -261,7 +262,7 @@ public class Testing {
     private static boolean testUsersAttending(){
         try {
             UserModel u = dbc.searchForUser("facebookUser", 2);
-            List<UserModel> userList = EventHandler.getUsersAttending(u.getOauthToken(), event_id);
+            List<Object> userList = EventHandler.getUsersAttending(u.getOauthToken(), event_id);
             if(userList == null){
                 System.out.println("making user list failed: returned null");
                 return false;
@@ -270,7 +271,7 @@ public class Testing {
                 System.out.println("making user list failed: returned list of incorrect length");
                 return false;
             }
-            u = userList.get(0);
+            u = (UserModel) userList.get(0);
             if(!(u.getEmail().equals("newemail@gmail.com") && u.getFirstName().equals("George") && u.getLastName().equals("Adams"))){
                 System.out.println("making user list failed: returned incorrect user object");
                 return false;
@@ -356,6 +357,29 @@ public class Testing {
             }
 
             return true;
+        }
+        catch (Exception e){
+            System.out.println("database error");
+        }
+        return false;
+    }
+
+    public static boolean testSearchEventsByOrg(){
+        try{
+            UserModel u = dbc.searchForUser("User2", 2);
+            OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+            ArrayList<EventModel> list = OrganizationHandler.searchEventsByOrg(u.getOauthToken(), org.getOrgID());
+            if(list == null){
+                System.out.println("search failed: returned null");
+                return false;
+            }
+            if(!list.get(0).getName().equals("Updated Name")){
+                System.out.println("search failed: returned incorrect event");
+                return false;
+            }
+            return true;
+
+
         }
         catch (Exception e){
             System.out.println("database error");
@@ -492,6 +516,16 @@ public class Testing {
             System.out.print("Test Search Org: ");
             count++;
             if (testSearchOrg()) {
+                passed++;
+                System.out.println("PASSED");
+            } else {
+                System.out.println("FAILED");
+                passedAll = false;
+            }
+
+            System.out.print("Test Search Events By Org: ");
+            count++;
+            if (testSearchEventsByOrg()) {
                 passed++;
                 System.out.println("PASSED");
             } else {

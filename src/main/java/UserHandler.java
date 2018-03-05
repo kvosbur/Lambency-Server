@@ -1,4 +1,5 @@
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class UserHandler {
     /**
@@ -132,6 +133,56 @@ public class UserHandler {
         }
     }
 
+
+    /**
+     *
+     * @param oAuthCode String oAuthCode from user
+     * @param orgID     Int orgID of the organization you want to leave.
+     * @return      -1 if exception is caught, 1 if user not found, 2 if org does not exist, 3 if not a member of organization,
+     *              0 if confirmed and deleted, 100 if not confirmed and not deleted;
+     */
+    public static Integer leaveOrganization(String oAuthCode, int orgID){
+        try {
+            UserModel usr = LambencyServer.dbc.searchForUser(oAuthCode);
+            if(usr != null){
+                OrganizationModel org = LambencyServer.dbc.searchForOrg(orgID);
+                if(org != null){
+                    GroupiesModel gp = LambencyServer.dbc.searchGroupies(usr.getUserId(),orgID);
+                    if(gp != null){
+                        int toReturn = LambencyServer.dbc.deleteGroupies(usr.getUserId(),orgID, DatabaseConnection.MEMBER);
+                        if(toReturn == -1){
+                            Printing.println("dbc.deleteGroupies returned -1;");
+                            return -1;
+                        }
+                        else if(gp.confirmed){
+                            return 0;
+                        }
+                        else{
+                            return 100;
+                        }
+                    }
+                    else{
+                        Printing.println("There is no membership with org, so you can not leave the organizaiton.");
+                        return 3;
+                    }
+                }
+                else{
+                    Printing.println("No organization found.");
+                    return 2;
+                }
+            }
+            else{
+                Printing.println("No user found.");
+                return 1;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Printing.println("SQL EXCEPTION in Leave Organization");
+            return -1;
+        }
+    }
+
+
     /**
      *
      * @param oAuthCode the oAuthCode of the given user
@@ -234,6 +285,62 @@ public class UserHandler {
         }
     }
 
+    /**
+     * Changes the account information to the information in the user object
+     * @param oAuthCode oauthcode of user requesting mylambency info
+     * @return updated user object from the database
+     */
+    public static MyLambencyModel getMyLambency(String oAuthCode){
+        try {
+            UserModel user = LambencyServer.dbc.searchForUser(oAuthCode);
+            if(user == null){
+                Printing.println("User Model not found");
+                return null;
+            }
+            user = updateOrgLists(user);
+            //create arraylist of organization models from myOrgs also create arraylist of events that user is organizer for
+            ArrayList<OrganizationModel> myOrgs = new ArrayList<>();
+            ArrayList<EventModel> eventsOrganizing = new ArrayList<>();
+            for(Integer i: user.getMyOrgs()){
+                OrganizationModel org = LambencyServer.dbc.searchForOrg(i);
+                if(org != null){
+                    myOrgs.add(org);
+                    ArrayList<Integer> events = LambencyServer.dbc.getOrgEvents(i);
+                    for(Integer j: events){
+                        EventModel event = LambencyServer.dbc.searchEvents(j);
+                        if(event != null){
+                            eventsOrganizing.add(event);
+                        }
+                    }
+                }
+            }
+
+            //create arraylist of organization models from joinedOrgs
+            ArrayList<OrganizationModel> joinedOrgs = new ArrayList<>();
+            for(Integer i: user.getJoinedOrgs()){
+                OrganizationModel org = LambencyServer.dbc.searchForOrg(i);
+                if(org != null){
+                    joinedOrgs.add(org);
+                }
+            }
+
+            //create arraylist of events that user is attending
+            ArrayList<EventModel> eventsAttending = new ArrayList<>();
+            for(Integer i: user.getEventsAttending()){
+                EventModel event = LambencyServer.dbc.searchEvents(i);
+                if(event != null){
+                    eventsAttending.add(event);
+                }
+            }
+            return new MyLambencyModel(user,myOrgs,joinedOrgs,eventsAttending,eventsOrganizing);
+        }
+        catch (SQLException e){
+            Printing.println("SQLException");
+            Printing.println(e.toString());
+            return null;
+        }
+    }
+
 
     /**
      * Changes the account information to the information in the user object
@@ -247,6 +354,7 @@ public class UserHandler {
         u.setJoinedOrgs(LambencyServer.dbc.getUserList(u.getUserId(),DatabaseConnection.MEMBER, true));
         u.setFollowingOrgs(LambencyServer.dbc.getUserList(u.getUserId(),DatabaseConnection.FOLLOW, true));
         u.setEventsAttending(LambencyServer.dbc.searchUserEventAttendance(u.getUserId()));
+        u.setRequestedJoinOrgIds(LambencyServer.dbc.getUserList(u.getUserId(),DatabaseConnection.MEMBER, false));
         return u;
     }
 }

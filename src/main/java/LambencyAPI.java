@@ -33,6 +33,9 @@ public interface LambencyAPI {
     @GET("Organization/searchByID")
     Call<OrganizationModel> getOrgSearchByID(@Query("id") String org_id);
 
+    @GET("Organization/events")
+    Call<List<EventModel>> getEventsByOrg(@Query("oAuthCode") String oAuthCode, @Query("id") String org_id);
+
     @GET("Event/search")
     Call<List<EventModel>> getEventsWithParams(@Query("lat") double lat, @Query("long") double longitude,
                                                @Query("name") String name, @Query("org_idStr") String org_idStr);
@@ -45,8 +48,14 @@ public interface LambencyAPI {
     @POST("Event/update")
     Call<Integer> postUpdateEvent(@Body EventModel event);
 
+    @GET("Event/numAttending")
+    Call<Integer> getEventNumAttending(@Query("oAuthCode") String oAuthCode, @Query("id") String event_id);
+
     @POST("User/requestJoinOrg")
     Call<Integer> postJoinOrganization(@Query("oAuthCode") String oAuthCode, @Query("orgId") int orgID);
+
+    @POST("User/leaveOrg")
+    Call<Integer> postLeaveOrganization(@Query("oAuthCode") String oAuthCode, @Query("orgID") int orgID);
 
     @GET("User/changeInfo")
     Call<UserModel> getChangeAccountInfo(@Query("user") UserModel u);

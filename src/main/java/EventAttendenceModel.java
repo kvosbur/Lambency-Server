@@ -1,6 +1,6 @@
 import java.sql.Timestamp;
 
-public class EventAttendanceModel {
+public class EventAttendenceModel {
 
     private int eventID;
     private int userID;
@@ -10,36 +10,33 @@ public class EventAttendanceModel {
     //data member for temporary storage of code user is trying to clock in/out with
     private String clockInOutCode;
 
-    public final static int CLOCKINCODE = 0;
-    public final static int CLOCKOUTCODE = 1;
-
-    EventAttendanceModel(int eventID, int userID){
+    EventAttendenceModel(int eventID, int userID){
         this.eventID = eventID;
         this.userID = userID;
     }
 
-    EventAttendanceModel(int eventID, int userID, Timestamp startTime){
+    EventAttendenceModel(int eventID, int userID, Timestamp startTime){
         this(eventID,userID);
         this.startTime = startTime;
     }
 
-    EventAttendanceModel(int eventID, int userID, Timestamp startTime, String clockInOutCode){
+    EventAttendenceModel(int eventID, int userID, Timestamp startTime, String clockInOutCode){
         this(eventID,userID, startTime);
         this.clockInOutCode = clockInOutCode;
     }
 
-    EventAttendanceModel(int eventID, int userID, Timestamp startTime, Timestamp endTime){
+    EventAttendenceModel(int eventID, int userID, Timestamp startTime, Timestamp endTime){
         this(eventID, userID, startTime);
         this.endTime = endTime;
     }
 
-    EventAttendanceModel(int eventID, int userID, Timestamp startTime, Timestamp endTime, String clockInOutCode){
+    EventAttendenceModel(int eventID, int userID, Timestamp startTime, Timestamp endTime, String clockInOutCode){
         this(eventID, userID, startTime, endTime);
         this.clockInOutCode = clockInOutCode;
     }
 
     //helpful for
-    EventAttendanceModel(int eventID, UserModel user, Timestamp startTime, Timestamp endTime){
+    EventAttendenceModel(int eventID, UserModel user, Timestamp startTime, Timestamp endTime){
         this(eventID, user.getUserId(), startTime, endTime);
         this.userModel = userModel;
     }

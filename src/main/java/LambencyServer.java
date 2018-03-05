@@ -1,21 +1,48 @@
-
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static spark.Spark.*;
 
 public class LambencyServer{
 
 
+    static DatabaseConnection dbc = null;
+
+    public class ServerTaskThread extends Thread{
+
+
+        public void run(){
+            //code to run task
+            Printing.println("Starting Midnight server task");
+            boolean status = EventHandler.cleanUpEvents();
+            if(status){
+                Printing.println("The server successfully cleaned up events and moved all to historical tables.");
+            }else{
+                Printing.println("The server had issues cleaning up events.Some might have still been moved but not all of them.");
+            }
+        }
+    }
+
+    public class ServerTaskTimer extends TimerTask {
+
+        Thread serverTaskThread;
+
+        ServerTaskTimer(Thread serverTaskThread){
+            this.serverTaskThread = serverTaskThread;
+        }
+
+        public void run(){
+            serverTaskThread.start();
+        }
+    }
+
     /*
     spark documentation
     http://sparkjava.com/documentation
     localhost:4567/hello
      */
-
-    static DatabaseConnection dbc = null;
 
     LambencyServer(){
 
@@ -29,6 +56,18 @@ public class LambencyServer{
         port(20000);
 
         addroutes();
+
+        //Setup and start timer for midnight server task
+        Calendar date = Calendar.getInstance();
+        date.set(Calendar.HOUR_OF_DAY, 0);
+        date.set(Calendar.MINUTE, 0);
+        date.set(Calendar.SECOND, 0);
+        date.set(Calendar.MILLISECOND, 0);
+
+        Thread serverTaskThread = new ServerTaskThread();
+        Timer timer = new Timer();
+
+        timer.schedule(new ServerTaskTimer(serverTaskThread),date.getTime(),TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS));
     }
 
     public void addroutes(){
@@ -88,6 +127,38 @@ public class LambencyServer{
             OrganizationModel organization = OrganizationHandler.searchOrgID(Integer.parseInt(request.queryParams("id")));
             return organization;
         }, new JsonTransformer());
+        get("/Organization/events", "application/json", (request, response) -> {
+            Printing.println("/Organization/events");
+            String oAuthCode = request.queryParams("oAuthCode");
+            String orgID = request.queryParams("id");
+            if(oAuthCode == null || orgID == null){
+                return null;
+            }
+            List<EventModel> list = OrganizationHandler.searchEventsByOrg(oAuthCode, Integer.parseInt(orgID));
+            return list;
+        }, new JsonTransformer());
+        get("/Organization/endorse", "application/json", (request, response) -> {
+            Printing.println("/Organization/endorse");
+            String oAuthCode = request.queryParams("oAuthCode");
+            String orgID = request.queryParams("orgID");
+            String eventID = request.queryParams("eventID");
+            if(oAuthCode == null || orgID == null || eventID == null){
+                return new Integer(-3);
+            }
+            return OrganizationHandler.endorseEvent(oAuthCode, Integer.parseInt(orgID), Integer.parseInt(eventID));
+        }, new JsonTransformer());
+
+        get("/Organization/unendorse", "application/json", (request, response) -> {
+            Printing.println("/Organization/unendorse");
+            String oAuthCode = request.queryParams("oAuthCode");
+            String orgID = request.queryParams("orgID");
+            String eventID = request.queryParams("eventID");
+            if(oAuthCode == null || orgID == null || eventID == null){
+                return new Integer(-3);
+            }
+            return OrganizationHandler.unendorseEvent(oAuthCode, Integer.parseInt(orgID), Integer.parseInt(eventID));
+        }, new JsonTransformer());
+
         post("/Event/update", "application/json",
                 (request, response) ->{
                     Printing.println("/Event/update");
@@ -129,7 +200,16 @@ public class LambencyServer{
             int event_id = Integer.parseInt(request.queryParams("event_id"));
             return EventHandler.getUsersAttending(oauthcode,event_id);
         }, new JsonTransformer());
-
+        get("/Event/numAttending", "application/json", (request, response) -> {
+            Printing.println("/Event/numAttending");
+            String oAuthCode = request.queryParams("oAuthCode");
+            String eventID = request.queryParams("id");
+            if(oAuthCode == null || eventID == null){
+                return new Integer(-1);
+            }
+            Integer ret = EventHandler.numAttending(oAuthCode, Integer.parseInt(eventID));
+            return ret;
+        }, new JsonTransformer());
         get("/User/login/facebook", "application/json", (request, response) -> {
             Printing.println("/User/login/facebook");
             UserAuthenticator ua = FacebookLogin.facebookLogin(request.queryParams("id"), request.queryParams("first"), request.queryParams("last"), request.queryParams("email"));
@@ -139,6 +219,51 @@ public class LambencyServer{
             Printing.println("/User/unfollowOrg");
             return UserHandler.unfollowOrg(request.queryParams("oAuthCode"), Integer.parseInt(request.queryParams("org_id")));
         }, new JsonTransformer());
+
+        post("/User/leaveOrg","application/json",(request, response) -> {
+
+            Printing.println("/User/leaveOrg");
+            String oAuthCode = request.queryParams("oAuthCode");
+            String orgID = request.queryParams("orgID");
+            if(oAuthCode == null || orgID == null){
+                Printing.println("oAuthCode is null or orgID is null. (Note: those are the correct spellings for params)");
+                return -1;
+            }
+            return UserHandler.leaveOrganization(oAuthCode,Integer.parseInt(orgID));
+        },new JsonTransformer());
+
+        post("/User/ClockIn","application/json",(request, response) -> {
+
+            Printing.println("/Event/ClockIn");
+            String oAuthCode = request.queryParams("oAuthCode");
+            EventAttendanceModel eventAttendanceModel = new Gson().fromJson(request.body(), EventAttendanceModel.class);
+            if(oAuthCode == null || eventAttendanceModel == null){
+                Printing.println("oAuthCode is null or eventAttendanceModel is null. (Note: those are the correct spellings for params)");
+                return -1;
+            }
+            return EventHandler.clockInEvent(eventAttendanceModel,oAuthCode,EventAttendanceModel.CLOCKINCODE);
+        },new JsonTransformer());
+        post("/User/ClockOut","application/json",(request, response) -> {
+
+            Printing.println("/User/ClockOut");
+            String oAuthCode = request.queryParams("oAuthCode");
+            EventAttendanceModel eventAttendanceModel = new Gson().fromJson(request.body(), EventAttendanceModel.class);
+            if(oAuthCode == null || eventAttendanceModel == null){
+                Printing.println("oAuthCode is null or eventAttendanceModel is null. (Note: those are the correct spellings for params)");
+                return -1;
+            }
+            return EventHandler.clockInEvent(eventAttendanceModel,oAuthCode,EventAttendanceModel.CLOCKOUTCODE);
+        },new JsonTransformer());
+        get("/User/MyLambency","application/json",(request, response) -> {
+
+            Printing.println("/User/MyLambency");
+            String oAuthCode = request.queryParams("oAuthCode");
+            if(oAuthCode == null){
+                Printing.println("oAuthCode is null. (Note: those are the correct spellings for params)");
+                return -1;
+            }
+            return UserHandler.getMyLambency(oAuthCode);
+        },new JsonTransformer());
 
 
     }

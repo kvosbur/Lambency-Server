@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class EventHandler {
 
@@ -22,12 +23,18 @@ public class EventHandler {
             if(latlng == null){
                 latlng = new LatLng(180,180);
             }
+            //write event image
             Printing.println("file_path is null: "+event.getImage_path() == null);
             if(event.getImage_path() == null && event.getImageFile() != null){
                 event.setImage_path(ImageWR.writeImageToFile(event.getImageFile()));
             }
+            //create clock in and clock out code
+            event.setClockInCode(EventHandler.generateClockInOutCodes());
+            event.setClockOutCode(EventHandler.generateClockInOutCodes());
+            //create event
             int event_id = LambencyServer.dbc.createEvent(event.getOrg_id(),event.getName(),event.getStart(),
-                    event.getEnd(),event.getDescription(),event.getLocation(),event.getImage_path(), latlng.lat, latlng.lng);
+                    event.getEnd(),event.getDescription(),event.getLocation(),event.getImage_path(), latlng.lat, latlng.lng,
+                    event.getClockInCode(), event.getClockOutCode());
             Printing.println((latlng == null));
             return LambencyServer.dbc.searchEvents(event_id);
         } catch (SQLException e) {
@@ -56,6 +63,11 @@ public class EventHandler {
             Printing.println("Error in updating Event: "+event.getName());
             return 1;
         }
+    }
+
+
+    public static List<EventModel> getEventsWithFilter(EventFilterModel efm){
+        return null;
     }
 
     /** Call from the API to gather the events that are searched by location
@@ -115,7 +127,8 @@ public class EventHandler {
             Printing.println("Error in get events by location: "+e);
             return null;
         } catch (Exception e){
-            System.out.println("Error in get events by location");
+            Printing.println(e.toString());
+            Printing.println("Error in get events by location" + e);
             return null;
         }
 
@@ -133,7 +146,7 @@ public class EventHandler {
      * @return List of users if it succeeds. Null if database error, no user, no event, or wrong permission
      */
 
-    public static List<UserModel> getUsersAttending(String oauthcode, int event_id){
+    public static List<Object> getUsersAttending(String oauthcode, int event_id){
         // verify oauthcode is a user
         try {
             UserModel us = LambencyServer.dbc.searchForUser(oauthcode);
@@ -155,7 +168,7 @@ public class EventHandler {
 
                     else if(gp.getType() == DatabaseConnection.ORGANIZER){ // if you want members too, add || gp.getType() == DatabaseConnection.MEMBER
                         // yayy they have permission!!!!! Get the users
-                        return LambencyServer.dbc.searchEventAttendanceUsers(event_id);
+                        return LambencyServer.dbc.searchEventAttendanceUsers(event_id, true);
                     }
                     else {
                         return null;
@@ -184,6 +197,7 @@ public class EventHandler {
             Printing.println("Error in finding event");
             return null;
         }catch(Exception e){
+            Printing.println(e.toString());
             System.out.println("error in getting event image");
             return null;
         }
@@ -215,6 +229,125 @@ public class EventHandler {
             Printing.println("Failed to find user event attendance");
             return new ArrayList<EventModel>();
         }
+    }
+
+    /**
+     *
+     * @param eventAttendanceModel the model of the info to use to clock in with
+     * @param oAuthCode the oAuthCode of the user
+     * @return an integer telling success of request, 0 = success / 1 = failure
+     */
+
+    public static int clockInEvent(EventAttendanceModel eventAttendanceModel, String oAuthCode, int clockType){
+        // verify oauthcode is a user
+        try {
+            UserModel us = LambencyServer.dbc.searchForUser(oAuthCode);
+            if(us == null || us.getUserId() != eventAttendanceModel.getUserID()){
+                Printing.println("oauth token is not valid or does not match userid in eventAttendanceModel");
+                return 1;
+            }
+            else{
+                //verify that event exists
+                EventAttendanceModel basicModel = LambencyServer.dbc.searchEventAttendance(us.getUserId(), eventAttendanceModel.getEventID());
+                if(basicModel != null){
+                    //they have already signed up for event(required in order to clock in)
+                    //get clock in code for this event and check against one give to see if successful start
+                    if(LambencyServer.dbc.verifyEventClockInOutCode(eventAttendanceModel.getEventID(),
+                            eventAttendanceModel.getClockInOutCode(), clockType)){
+                        //clock in user with given start time
+                        int result = LambencyServer.dbc.eventClockInOutUser(eventAttendanceModel.getEventID(), eventAttendanceModel.getUserID(),
+                                eventAttendanceModel.getStartTime(), clockType);
+                        if(result == 0){
+                            return 0;
+                        }
+                        return 4;
+
+                    }else{
+                        //return error to client if codes don't match
+                        return 3;
+                    }
+
+                }else{
+                    return 2;
+                }
+
+            }
+        } catch (SQLException e) {
+            Printing.println(e.toString());
+        }
+        return 1;
+    }
+
+    /**
+     *
+     * @return boolean of whether clean up was successful
+     */
+
+    public static boolean cleanUpEvents(){
+
+        try {
+            //find all events that have ended
+            ArrayList<Integer> events = LambencyServer.dbc.getEventsThatEnded(null);
+
+            int result = 0;
+            for(Integer eventID: events){
+                //check for users for this event that don't have check out times
+                ArrayList<Integer> users = LambencyServer.dbc.getUsersNoEndTime(eventID);
+                EventModel event = null;
+                if(users.size() != 0){
+                    event = LambencyServer.dbc.searchEvents(eventID);
+                }
+                for(Integer userID: users){
+                    //give them the end time that is stored in the event model
+                    LambencyServer.dbc.eventClockInOutUser(eventID, userID, event.getEnd(), EventAttendanceModel.CLOCKOUTCODE);
+                }
+                //move this event to the historical tables(event entry and all attendence records
+                result += LambencyServer.dbc.moveEventToHistorical(eventID);
+            }
+
+            if(result == 0){
+                return true;
+            }
+            return false;
+        }catch(SQLException e){
+            Printing.println(e.toString());
+        }
+
+        return false;
+    }
+
+    public static String generateClockInOutCodes(){
+        char[] charArray = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
+        StringBuilder code = new StringBuilder();
+        Random r = new Random();
+        for(int i = 0; i < 8; i++){
+            code.append(charArray[r.nextInt(charArray.length)]);
+        }
+        return code.toString();
+    }
+
+    /**
+     * @param oAuthCode the authentication code of the user
+     * @param eventID the id of the event
+     * @return the number of users attending an event, on fail -1
+     */
+    public static Integer numAttending(String oAuthCode, int eventID) {
+
+        try {
+            if(oAuthCode == null){
+                return new Integer(-1);
+            }
+            if(LambencyServer.dbc.searchForUser(oAuthCode) == null){
+                Printing.println("Unable to verify user");
+                return new Integer(-1);
+            }
+            return LambencyServer.dbc.numUsersAttending(eventID);
+        }
+        catch (SQLException e){
+            Printing.println(e.toString());
+        }
+        return new Integer(-1);
+
     }
 
 }

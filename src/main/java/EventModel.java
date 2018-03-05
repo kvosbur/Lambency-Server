@@ -14,6 +14,8 @@ public class EventModel {
     private int event_id;
     private double latitude;
     private double longitude;
+    private String clockInCode;
+    private String clockOutCode;
 
 
     public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location) {
@@ -51,10 +53,13 @@ public class EventModel {
 
 
     public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
-                      String image_path, int event_id, double latitude, double longitude) {
+                      String image_path, int event_id, double latitude, double longitude, String clockInCode,
+                      String clockOutCode) {
         this(name, org_id, start, end, description, location, latitude, longitude);
         this.image_path = image_path;
         this.event_id = event_id;
+        this.clockInCode = clockInCode;
+        this.clockOutCode = clockOutCode;
     }
 
     /**
@@ -166,5 +171,29 @@ public class EventModel {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getClockInCode() {
+        return clockInCode;
+    }
+
+    public void setClockInCode(String clockInCode) {
+        this.clockInCode = clockInCode;
+    }
+
+    public String getClockOutCode() {
+        return clockOutCode;
+    }
+
+    public void setClockOutCode(String clockOutCode) {
+        this.clockOutCode = clockOutCode;
     }
 }

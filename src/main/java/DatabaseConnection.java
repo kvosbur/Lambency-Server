@@ -89,7 +89,7 @@ public class DatabaseConnection {
         //check if entry in results and if so create new user object with information
         if(rs.next()){
             return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
-                    null, null,rs.getInt(1), 0, rs.getString(5));
+                    null, null,null,rs.getInt(1), 0, rs.getString(5));
         }
 
         return null;
@@ -124,7 +124,7 @@ public class DatabaseConnection {
             rs.getString(4);
             rs.getString(5);
             return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
-                    null, null,rs.getInt(1), 0, rs.getString(5));
+                    null, null,null,rs.getInt(1), 0, rs.getString(5));
         }
         return null;
     }
@@ -385,12 +385,14 @@ public class DatabaseConnection {
      * @throws SQLException Throws the exception if there is an issue in the database.
      */
 
-    public int createEvent(int org_id, String name , Timestamp start, Timestamp end, String description, String location, String imgPath, double latitude, double longitude) throws SQLException{
+    public int createEvent(int org_id, String name , Timestamp start, Timestamp end, String description, String location,
+                           String imgPath, double latitude, double longitude, String clockInCode, String clockOutCode) throws SQLException{
 
 
         //insert event into table
         PreparedStatement ps;
-        ps = connect.prepareStatement("INSERT INTO events (name, org_id, start_time, end_time, description, location, event_img, latitude, longitude) VALUES ('TEMP',?,?,?,?,?,?,?,?)");
+        ps = connect.prepareStatement("INSERT INTO events (name, org_id, start_time, end_time, description, location, " +
+                "event_img, latitude, longitude, clock_in_code, clock_out_code) VALUES ('TEMP',?,?,?,?,?,?,?,?,?,?)");
 
 
         if(ps != null) {
@@ -403,6 +405,8 @@ public class DatabaseConnection {
             ps.setString(6, imgPath);
             ps.setDouble(7,latitude);
             ps.setDouble(8, longitude);
+            ps.setString(9, clockInCode);
+            ps.setString(10, clockOutCode);
             ps.execute();
 
         }else{
@@ -501,7 +505,7 @@ public class DatabaseConnection {
 
         //create string for query
         String fields = "event_id, org_id, name, start_time, end_time, description," +
-                "location, event_img, latitude, longitude";
+                "location, event_img, latitude, longitude, clock_in_code, clock_out_code";
         String query = "SELECT " + fields + " FROM events WHERE event_id = ?";
 
         //run query
@@ -513,7 +517,7 @@ public class DatabaseConnection {
         if(rs.next()){
             return new EventModel(rs.getString(3),rs.getInt(2), rs.getTimestamp(4), rs.getTimestamp(5),
                     rs.getString(6), rs.getString(7), rs.getString(8), rs.getInt(1),
-                    rs.getDouble(9), rs.getDouble(10));
+                    rs.getDouble(9), rs.getDouble(10), rs.getString(11), rs.getString(12));
         }
 
         return null;
@@ -528,7 +532,7 @@ public class DatabaseConnection {
     public EventAttendanceModel searchEventAttendance(int userID, int eventID) throws SQLException{
 
         //create string for query
-        String fields = "event_id, user_id";
+        String fields = "event_id, user_id, check_in_time, check_out_time";
         String query = "SELECT " + fields + " FROM event_attendence WHERE event_id = ? and user_id = ?";
 
         //run query
@@ -539,7 +543,7 @@ public class DatabaseConnection {
 
         //check for results and return object
         if(rs.next()){
-            return new EventAttendanceModel(rs.getInt(2), rs.getInt(1));
+            return new EventAttendanceModel(rs.getInt(2), rs.getInt(1),rs.getTimestamp(3), rs.getTimestamp(4));
         }
 
         return null;
@@ -599,9 +603,10 @@ public class DatabaseConnection {
     /**
      * Searches for all users who are attending the specified event
      * @param eventID the id of the event to search for
+     * @param object whether to return UserModels or Integers
      * @return Arraylist of UserModel objects, null if no users found
      */
-    public ArrayList<UserModel> searchEventAttendanceUsers(int eventID) throws SQLException{
+    public ArrayList<Object> searchEventAttendanceUsers(int eventID, boolean object) throws SQLException{
 
         //create string for query
         String fields = "user_id";
@@ -612,15 +617,20 @@ public class DatabaseConnection {
         ps.setInt(1, eventID);
         ResultSet rs = ps.executeQuery();
 
-        ArrayList<UserModel> users = new ArrayList<>();
+        ArrayList<Object> users = new ArrayList<>();
 
         //check for results and return object
         while(rs.next()){
             int userID = rs.getInt(1);
-            UserModel user = searchForUser("" + userID, LAMBNECYUSERID);
-            if(user != null){
-                users.add(user);
+            if(object){
+                UserModel user = searchForUser("" + userID, LAMBNECYUSERID);
+                if(user != null){
+                    users.add(user);
+                }
+            }else{
+                users.add(userID);
             }
+
         }
 
         if(users.size() == 0){
@@ -629,6 +639,269 @@ public class DatabaseConnection {
 
         return users;
     }
+
+    /**
+     * Returns the number of users registered for an event
+     * @param eventID the id of the event to search for
+     * @return Integer representing the number of users attending the event
+     */
+    public Integer numUsersAttending(int eventID) throws SQLException{
+
+        //create string for query
+        String fields = "user_id";
+        String query = "SELECT " + fields + " FROM event_attendence WHERE event_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ResultSet rs = ps.executeQuery();
+
+        int counter = 0;
+
+        //check for results and return object
+        while(rs.next()){
+            int userID = rs.getInt(1);
+            UserModel user = searchForUser("" + userID, LAMBNECYUSERID);
+            if(user != null){
+                counter++;
+            }
+        }
+
+        return new Integer(counter);
+    }
+
+    /**
+     * Given an event check if right code is given to clock in or clock out
+     * @param eventID the id of the event to search for
+     * @param clockInOutCode code to check against
+     * @param type whether it is clock in or clock out
+     * @return boolean of whether given code is correct or not
+     */
+    public boolean verifyEventClockInOutCode(int eventID, String clockInOutCode, int type) throws SQLException{
+        //create string for query
+        String fields;
+        if(type == EventAttendanceModel.CLOCKINCODE) {
+            fields = "clock_in_code";
+        }else if(type == EventAttendanceModel.CLOCKOUTCODE){
+            fields = "clock_out_code";
+        }else{
+            throw new SQLException("please give a valid code type from EventAttendanceModel.");
+        }
+        String query = "SELECT " + fields + " FROM events WHERE event_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ResultSet rs = ps.executeQuery();
+
+        String expected;
+        if(rs.next()){
+            expected = rs.getString(1);
+        }else{
+            throw new SQLException("no event found for given eventid " + eventID);
+        }
+
+        if(expected.equals(clockInOutCode)){
+            return true;
+        }
+        return true;
+    }
+
+    /**
+     * Clocks a user to an event for either the start or end of the event
+     * @param eventID the id of the event
+     * @param userID id of the user to change event attendance for
+     * @param startEndTime time to enter
+     * @param type whether to enter clock in or clock out
+     * @return code of successfulness, 0 = success, 1 = failure
+     */
+    public int eventClockInOutUser(int eventID, int userID, Timestamp startEndTime, int type) throws SQLException{
+
+        //create string for query
+        String field;
+        if(type == EventAttendanceModel.CLOCKINCODE) {
+            field = "check_in_time";
+        }else if(type == EventAttendanceModel.CLOCKOUTCODE){
+            field = "check_out_time";
+        }else{
+            throw new SQLException("please give a valid code type from EventAttendanceModel.");
+        }
+
+        String query = "UPDATE event_attendence SET " + field + " = ? WHERE event_id = ? and user_id = ?";
+
+        //run update
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setTimestamp(1,startEndTime);
+        ps.setInt(2, eventID);
+        ps.setInt(3, userID);
+        int result = ps.executeUpdate();
+        if(result == 1){
+            return 0;
+        }
+        return 1;
+    }
+
+    /**
+     * Searches database for events that have ended
+     * @param endTime optional argument of end time used (defaults to now)
+     * @return list of event_ids of events that have ended
+     */
+    public ArrayList<Integer> getEventsThatEnded(Timestamp endTime) throws SQLException{
+
+        String query;
+        if(endTime != null){
+            query = "SELECT event_id FROM events WHERE end_time < ?";
+        }else {
+            query = "SELECT event_id FROM events WHERE end_time < now()";
+        }
+
+        PreparedStatement ps = connect.prepareStatement(query);
+        if(endTime != null){
+            ps.setTimestamp(1,endTime);
+        }
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> events = new ArrayList<>();
+
+        while(rs.next()){
+            events.add(rs.getInt(1));
+        }
+        return events;
+    }
+
+    /**
+     * Searches database for users that don't have end times for specific events
+     * @return list of userIDs that fit criteria
+     */
+    public ArrayList<Integer> getUsersNoEndTime(int eventID) throws SQLException{
+
+        String query = "SELECT user_id FROM event_attendence WHERE check_in_time IS NOT NULL and check_out_time IS NULL and event_id = ?";
+
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> users = new ArrayList<>();
+
+        while(rs.next()){
+            users.add(rs.getInt(1));
+        }
+        return users;
+    }
+
+    /**
+     * Given an event id move all information for it from current to historical tables
+     * @param eventID event id of the event to move to historical tables
+     * @return
+     */
+    public int moveEventToHistorical(int eventID) throws SQLException{
+
+        int result = 0;
+        result += eventEntryToHistorical(eventID);
+        ArrayList<Object> users = searchEventAttendanceUsers(eventID,false);
+        if(users == null){
+            return 0;
+        }
+
+        for(Object user_id: users){
+            Integer id = (Integer)user_id;
+            result += eventAttendanceEntryToHistorical(eventID,id);
+        }
+        return result;
+    }
+
+    /**
+     * Move the given event from events table to events_historical table
+     * @param eventID event id of the event to move to historical tables
+     * @return 0 on success, 1 on failure
+     */
+    public int eventEntryToHistorical(int eventID) throws SQLException{
+
+        //get info from current table
+        EventModel event = searchEvents(eventID);
+        if(event == null){
+            return 1;
+        }
+
+        //insert into historical table
+        PreparedStatement ps;
+        ps = connect.prepareStatement("INSERT INTO events_historical (name, org_id, start_time, end_time, description, location, " +
+                "event_img, latitude, longitude, attended, event_id, clock_in_code, clock_out_code) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+
+        ps.setString(1,event.getName());
+        ps.setInt(2, event.getOrg_id());
+        ps.setObject(3,event.getStart());
+        ps.setObject(4,event.getEnd());
+        ps.setString(5,event.getDescription());
+        ps.setString(6, event.getLocation());
+        ps.setString(7, event.getImage_path());
+        ps.setDouble(8, event.getLattitude());
+        ps.setDouble(9, event.getLongitude());
+        ps.setInt(10,numUsersAttending(eventID));
+        ps.setInt(11,eventID);
+        ps.setString(12, event.getClockInCode());
+        ps.setString(13, event.getClockOutCode());
+        int result = ps.executeUpdate();
+
+        if(result != 1){
+            //an error occurred in inserting so return now so that the record doesn't get deleted if not transferred
+            return 1;
+        }
+
+        //delete from main table
+        ps = connect.prepareStatement("DELETE FROM events WHERE event_id = ?");
+        ps.setInt(1, eventID);
+
+        result = ps.executeUpdate();
+        if(result != 1){
+            //wasn't deleted correctly
+            return 1;
+        }
+        return 0;
+    }
+
+    /**
+     * Move given event attendence row from main table to historical table
+     * @param eventID event id of the event to move to historical tables
+     * @return 0 on success, 1 on failure
+     */
+    public int eventAttendanceEntryToHistorical(int eventID, int userID) throws SQLException{
+
+        //get current attendence object
+        EventAttendanceModel attendanceModel = searchEventAttendance(userID, eventID);
+        if(attendanceModel == null){
+            return 1;
+        }
+
+        //insert into historical table
+        PreparedStatement ps;
+        ps = connect.prepareStatement("INSERT INTO event_attendence_historical (event_id, user_id, check_in_time, check_out_time)" +
+                " VALUES (?,?,?,?)");
+        ps.setInt(1,eventID);
+        ps.setInt(2,userID);
+        ps.setTimestamp(3,attendanceModel.getStartTime());
+        ps.setTimestamp(4, attendanceModel.getEndTime());
+        int result = ps.executeUpdate();
+
+        if(result != 1){
+            return 1;
+        }
+
+        //delete from current table
+        ps = connect.prepareStatement("DELETE FROM event_attendence WHERE event_id = ? and user_id = ?");
+        ps.setInt(1,eventID);
+        ps.setInt(2,userID);
+        result = ps.executeUpdate();
+        if(result != 1){
+            return 1;
+        }
+
+        return 0;
+    }
+
+
+
+
 
     /**
      * END EVENT METHODS
@@ -869,7 +1142,176 @@ public class DatabaseConnection {
         return null;
     }
 
+    /**
+     * Description: given unique string identifier return matching user object
+     @param orgID id of the organization in question
 
+     @return returns array of event ids that match orgID
+     */
+
+    public ArrayList<Integer> getOrgEvents(int orgID) throws SQLException{
+
+        //create string for query
+        String fields = "event_id";
+        String query = "SELECT " + fields + " FROM events WHERE org_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, orgID);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> array = new ArrayList<>();
+
+        //check for results and return object
+        while(rs.next()){
+            int event_id = rs.getInt(1);
+            array.add(event_id);
+        }
+        return array;
+    }
+
+
+    /**
+     * Endorses the given event id for the organization
+     * @param orgID the id of the organization
+     * @param eventID the event that is being endorsed
+     *
+     * @return  0 on success, -1 on failure
+     */
+
+    public int endorseEvent(int orgID, int eventID) throws SQLException{
+        if(orgID < 1 || eventID < 1){
+            return -1;
+        }
+        PreparedStatement ps = null;
+        ps = connect.prepareStatement("INSERT INTO endorse (org_id, endorsed_id, endorse_type) VALUES (?, ?, ?)");
+
+
+        if(ps != null) {
+            //insert values into prepare statement
+            ps.setInt(1, orgID);
+            ps.setInt(2, eventID);
+            ps.setBoolean(3, true);
+            ps.execute();
+
+        }else{
+            throw new SQLException("Improper use. There was an error in creating the SQL statement");
+        }
+
+        return 0;
+    }
+
+    /**
+     *  Unendorses the event for the given org
+     * @param orgID the id of the organization
+     * @param eventID the event that is being endorsed
+     *
+     * @return  0 on success, -1 on failure
+     */
+
+    public int unendorseEvent(int orgID, int eventID) throws SQLException{
+        if(orgID < 1 || eventID < 1){
+            return -1;
+        }
+        PreparedStatement ps = null;
+        ps = connect.prepareStatement("Delete FROM endorse WHERE org_id = ? and endorsed_id = ? and" +
+                " endorse_type = ?");
+
+
+        if(ps != null) {
+            //insert values into prepare statement
+            ps.setInt(1, orgID);
+            ps.setInt(2, eventID);
+            ps.setBoolean(3, true);
+            ps.execute();
+
+        }else{
+            throw new SQLException("Improper use. There was an error in creating the SQL statement");
+        }
+
+        return 0;
+    }
+
+    /**
+     *  Checks if the org has endorsed the event
+     * @param orgID the id of the organization
+     * @param eventID the event that is being endorsed
+     *
+     * @return  true on endorsed, false on not endorsed
+     */
+    public boolean isEndorsed(int orgID, int eventID) throws SQLException{
+        //create string for query
+        String fields = "org_id";
+        String query = "SELECT " + fields + " FROM endorse WHERE org_id = ? and endorsed_id = ? and endorse_type = ? ";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, orgID);
+        ps.setInt(2, eventID);
+        ps.setBoolean(3, true);
+        ResultSet rs = ps.executeQuery();
+
+        //check for results and return object
+        if(rs.next()){
+            return true;
+        }
+        return false;
+    }
+    /**
+     *  Finds all of the events endorsed by a given org
+     * @param orgID the id of the organization
+     *
+     * @return  List of all endorsed events for that org
+     */
+    public ArrayList<Integer> getEndorsedEvents(int orgID) throws SQLException{
+
+        //create string for query
+        String fields = "endorsed_id";
+        String query = "SELECT " + fields + " FROM endorse WHERE org_id = ? and endorse_type = ? ";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, orgID);
+        ps.setBoolean(2, true);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> array = new ArrayList<>();
+
+        //check for results and return object
+        while(rs.next()){
+            int event_id = rs.getInt(1);
+            array.add(event_id);
+        }
+        return array;
+    }
+
+    /**
+     *  Finds all of the orgs that endorsed a given event
+     * @param eventID the id of the event
+     *
+     * @return  List of all orgs that endorsed the event
+     */
+    public ArrayList<Integer> getEndorsedOrgs(int eventID) throws SQLException{
+
+        //create string for query
+        String fields = "org_id";
+        String query = "SELECT " + fields + " FROM endorse WHERE endorsed_id = ? and endorse_type = ? ";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ps.setBoolean(2, true);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> array = new ArrayList<>();
+
+        //check for results and return object
+        while(rs.next()){
+            int org_id = rs.getInt(1);
+            array.add(org_id);
+        }
+        return array;
+    }
 
     /**
      * END ORGANIZATION METHODS
@@ -989,4 +1431,6 @@ public class DatabaseConnection {
             Printing.println(e.toString());
         }
     }
+
+
 }

@@ -39,25 +39,50 @@ CREATE TABLE `groupies` (
 );
 
 CREATE TABLE `events` (
-	`event_id` int NOT NULL AUTO_INCREMENT,
-	`org_id` int NOT NULL,
-	`name` TEXT NOT NULL,
-	`start_time` DATETIME NOT NULL,
-	`end_time` DATETIME NOT NULL,
-	`description` TEXT NOT NULL,
-	`location` TEXT NOT NULL,
-	`event_img` TEXT NOT NULL,
-	`latitude` DOUBLE,
-	`longitude` DOUBLE,
-	PRIMARY KEY (`event_id`)
-);
+  	`event_id` int NOT NULL AUTO_INCREMENT,
+  	`org_id` int NOT NULL,
+  	`name` TEXT NOT NULL,
+  	`start_time` DATETIME NOT NULL,
+  	`end_time` DATETIME NOT NULL,
+  	`description` TEXT NOT NULL,
+  	`location` TEXT NOT NULL,
+  	`event_img` TEXT NOT NULL,
+  	`latitude` DOUBLE,
+  	`longitude` DOUBLE,
+  	`clock_out_code` text NOT NULL,
+  	`clock_in_code` text NOT NULL
+  	PRIMARY KEY (`event_id`)
+  );
 
-CREATE TABLE `event_attendence` (
-	`event_id` int NOT NULL,
-	`user_id` int NOT NULL,
-	`check_in_time` DATETIME,
-	`check_out_time` DATETIME
-);
+  CREATE TABLE `event_attendence` (
+  	`event_id` int NOT NULL,
+  	`user_id` int NOT NULL,
+  	`check_in_time` DATETIME,
+  	`check_out_time` DATETIME
+  );
+
+  CREATE TABLE `events_historical` (
+  	`event_id` int NOT NULL,
+  	`org_id` int NOT NULL,
+  	`name` TEXT NOT NULL,
+  	`start_time` DATETIME NOT NULL,
+  	`end_time` DATETIME NOT NULL,
+  	`description` TEXT NOT NULL,
+  	`location` TEXT NOT NULL,
+  	`event_img` TEXT NOT NULL,
+  	`latitude` DOUBLE,
+  	`longitude` DOUBLE,
+  	`clock_out_code` text NOT NULL,
+  	`clock_in_code` text NOT NULL,
+  	`attended` int NOT NULL
+  );
+
+  CREATE TABLE `event_attendence_historical` (
+  	`event_id` int NOT NULL,
+  	`user_id` int NOT NULL,
+  	`check_in_time` DATETIME,
+  	`check_out_time` DATETIME
+  );
 
 CREATE TABLE `endorse` (
 	`org_id` int NOT NULL,

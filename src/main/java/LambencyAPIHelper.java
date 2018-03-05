@@ -229,6 +229,33 @@ public void joinOrganizationRetrofit(String oAuthCode, int orgId)
     });
 }
 
+    public void eventsByOrgRetrofit(String oAuthCode, String orgId)
+    {
+        this.getInstance().getEventsByOrg(oAuthCode, orgId).enqueue(new Callback<List<EventModel>>() {
+            @Override
+            public void onResponse(Call<List<EventModel>> call, Response<List<EventModel>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                List<EventModel> list = response.body();
+                if(list == null){
+                    //System.out.println("Org has no events or error has occurred");
+                }
+                else{
+                    //System.out.println("list is a list of events for that org");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<EventModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
 public void createOrganizationRetrofit(OrganizationModel org){
 
         this.getInstance().postCreateOrganization(org).enqueue(new Callback<Integer>() {
@@ -473,6 +500,71 @@ public void createOrganizationRetrofit(OrganizationModel org){
                 }
                 else if (ret == 2){
                     System.out.println("undetermined error");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+
+    public void leaveOrganization(String oAuthCode, int orgID){
+        this.getInstance().postLeaveOrganization(oAuthCode,orgID).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == 0){
+                    System.out.println("successfully left organization");
+                }
+                else if(ret == 100){
+                    System.out.println("Join request canceled");
+                }
+                else if (ret == -1){
+                    System.out.println("Database error caught.");
+                }
+                else if (ret == 1){
+                    System.out.println("User not found");
+                }
+                else if (ret == 2){
+                    System.out.println("Org does not exist");
+                }
+                else if(ret == 3){
+                    System.out.println("Not a member of the organization, so can not leave.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+    public void numAttendingEventRetrofit(String oAuthCode, String eventId)
+    {
+        this.getInstance().getEventNumAttending(oAuthCode, eventId).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == null || ret == -1){
+                    System.out.println("Error has occurred");
+                }
+                else{
+                    System.out.println("the number of users attending this event is" + ret);
                 }
             }
 
