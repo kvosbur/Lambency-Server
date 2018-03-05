@@ -29,10 +29,10 @@ public class EventFilterModel {
         fields = "event_id, sqrt(pow(latitude - " + latitude + ",2) + " +
                 "pow(longitude - " + longitude + ",2)) as distance";
         if(startStamp != null){
-            ands.add("start_time >= "+startStamp.toString());
+            ands.add("start_time >= '"+startStamp.toString()+"'");
         }
         if(endStamp != null){
-            ands.add("end_time <= "+endStamp.toString());
+            ands.add("end_time <= '"+endStamp.toString()+"'");
         }
 
 
@@ -40,16 +40,16 @@ public class EventFilterModel {
             where = "WHERE ";
             for(int i = 0; i < ands.size(); i++) {
                 if(i == 0){
-                    where = ands.get(i)+" ";
+                    where += ands.get(i)+" ";
                 }
                 else{
                     where += "AND " + ands.get(i) + " ";
                 }
             }
         }
-
-        String query = "SELECT " + fields + " FROM events "+where+" ORDER BY distance asc ;" ;
-
+        //SELECT +"+fields+" FROM Events WHERE start_time > ?
+        //SELECT "+fields+ " FROM events "+where+"
+        String query = "SELECT event_id "+ " FROM ( SELECT "+fields+ " FROM Events "+where+") AS T ORDER BY distance asc ;" ;
         return query;
     }
 

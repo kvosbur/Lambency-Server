@@ -89,9 +89,11 @@ public class Testing {
 
     private static boolean testCreateEvent(){
         try{
+            long start = 15164244;
+            start *= 100000;
             UserModel u = dbc.searchForUser("facebookUser", 2);
             OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
-            int eventID = dbc.createEvent(org.getOrgID(),"Event 1", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 500),
+            int eventID = dbc.createEvent(org.getOrgID(),"Event 1", new Timestamp(start + 24*3600*1000), new Timestamp(System.currentTimeMillis() + 500),
                     "This is a test event", "Location", "imgg", 5 , 5, "ClockIn", "ClockOut");
             event_id = eventID;
             if (eventID <= 0){
@@ -108,6 +110,7 @@ public class Testing {
             return true;
         }
         catch (Exception e){
+            e.printStackTrace();
             System.out.println("database exception");
         }
         return false;
@@ -388,11 +391,22 @@ public class Testing {
     }
 
     private static boolean testSearchEvents(){
-        long start = 15164244 * 100000;
-        long end = 15199408 * 100000;
+
+        long start = 15164244;
+        start *= 100000;
+        long end = 15199408 ;
+        end *= 100000;
         EventFilterModel efm = new EventFilterModel(70,-90, new Timestamp(start),new Timestamp(end));
         List<Integer> events = null;
         try {
+
+            UserModel u = dbc.searchForUser("facebookUser", 2);
+            OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+            int eventID = dbc.createEvent(org.getOrgID(),"Event 12", new Timestamp(start+1000), new Timestamp(end-1000),
+                    "This is a test event", "Location", "imgg", 5 , 5, "ClockIn", "ClockOut");
+            event_id = eventID;
+
+
             events = dbc.searchEventsWithFilterModel(efm);
         } catch (SQLException e) {
             e.printStackTrace();

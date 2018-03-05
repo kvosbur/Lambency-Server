@@ -66,10 +66,6 @@ public class EventHandler {
     }
 
 
-    public static List<EventModel> getEventsWithFilter(EventFilterModel efm){
-        return null;
-    }
-
     /** Call from the API to gather the events that are searched by location
      *
      * @param efm EventFilterModel that contains all constraints for the search
