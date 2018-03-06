@@ -304,11 +304,15 @@ public class UserHandler {
             for(Integer i: user.getMyOrgs()){
                 OrganizationModel org = LambencyServer.dbc.searchForOrg(i);
                 if(org != null){
+                    if(org.getImage() != null) {
+                        org.setImage(ImageWR.getEncodedImageFromFile(org.getImage()));
+                    }
                     myOrgs.add(org);
                     ArrayList<Integer> events = LambencyServer.dbc.getOrgEvents(i);
                     for(Integer j: events){
                         EventModel event = LambencyServer.dbc.searchEvents(j);
                         if(event != null){
+                            event.setImageFile(ImageWR.getEncodedImageFromFile(event.getImage_path()));
                             eventsOrganizing.add(event);
                         }
                     }
@@ -320,6 +324,9 @@ public class UserHandler {
             for(Integer i: user.getJoinedOrgs()){
                 OrganizationModel org = LambencyServer.dbc.searchForOrg(i);
                 if(org != null){
+                    if(org.getImage() != null) {
+                        org.setImage(ImageWR.getEncodedImageFromFile(org.getImage()));
+                    }
                     joinedOrgs.add(org);
                 }
             }
@@ -329,6 +336,7 @@ public class UserHandler {
             for(Integer i: user.getEventsAttending()){
                 EventModel event = LambencyServer.dbc.searchEvents(i);
                 if(event != null){
+                    event.setImageFile(ImageWR.getEncodedImageFromFile(event.getImage_path()));
                     eventsAttending.add(event);
                 }
             }
@@ -336,6 +344,10 @@ public class UserHandler {
         }
         catch (SQLException e){
             Printing.println("SQLException");
+            Printing.println(e.toString());
+            return null;
+        }catch(Exception e){
+            Printing.println("General Exception");
             Printing.println(e.toString());
             return null;
         }
