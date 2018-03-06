@@ -1,7 +1,5 @@
 
-import java.awt.*;
 import java.io.IOException;
-import java.lang.invoke.LambdaConversionException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -68,7 +66,9 @@ public class OrganizationHandler {
 
             //for each organization in the array
             for(OrganizationModel org: array){
-                org.setImage(ImageWR.getEncodedImageFromFile(org.getImage()));
+                if(org.getImage() != null) {
+                    org.setImage(ImageWR.getEncodedImageFromFile(org.getImage()));
+                }
             }
         }
         catch (SQLException e){
@@ -88,7 +88,9 @@ public class OrganizationHandler {
 
         try {
             OrganizationModel organization = LambencyServer.dbc.searchForOrg(orgID);
-            organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
+            if(organization.getImage() != null) {
+                organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
+            }
             return organization;
         } catch (SQLException e) {
             Printing.println("Error in finding organization");
