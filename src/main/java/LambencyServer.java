@@ -137,6 +137,27 @@ public class LambencyServer{
             List<EventModel> list = OrganizationHandler.searchEventsByOrg(oAuthCode, Integer.parseInt(orgID));
             return list;
         }, new JsonTransformer());
+        get("/Organization/endorse", "application/json", (request, response) -> {
+            Printing.println("/Organization/endorse");
+            String oAuthCode = request.queryParams("oAuthCode");
+            String orgID = request.queryParams("orgID");
+            String eventID = request.queryParams("eventID");
+            if(oAuthCode == null || orgID == null || eventID == null){
+                return new Integer(-3);
+            }
+            return OrganizationHandler.endorseEvent(oAuthCode, Integer.parseInt(orgID), Integer.parseInt(eventID));
+        }, new JsonTransformer());
+
+        get("/Organization/unendorse", "application/json", (request, response) -> {
+            Printing.println("/Organization/unendorse");
+            String oAuthCode = request.queryParams("oAuthCode");
+            String orgID = request.queryParams("orgID");
+            String eventID = request.queryParams("eventID");
+            if(oAuthCode == null || orgID == null || eventID == null){
+                return new Integer(-3);
+            }
+            return OrganizationHandler.unendorseEvent(oAuthCode, Integer.parseInt(orgID), Integer.parseInt(eventID));
+        }, new JsonTransformer());
 
         post("/Event/update", "application/json",
                 (request, response) ->{

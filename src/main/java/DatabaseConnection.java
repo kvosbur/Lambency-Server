@@ -466,6 +466,34 @@ public class DatabaseConnection {
     }
 
     /**
+     *
+     * @param efm   EventFilterModel Object that contains all of the constraints for searching for events
+     *
+     * @return  List<Integers> of event ids on success and null on failure.
+     *
+     * @throws SQLException
+     */
+
+    public List<Integer> searchEventsWithFilterModel(EventFilterModel efm) throws SQLException{
+        PreparedStatement ps = connect.prepareStatement(efm.createStringQuery());
+        ResultSet rs = ps.executeQuery();
+
+        //create resulting list
+        List<Integer> results = new ArrayList<>();
+
+        //check for results and if any then return user
+        while(rs.next()){
+            results.add(rs.getInt(1));
+        }
+
+        if(results.size() != 0){
+            return results;
+        }
+
+        return null;
+    }
+
+    /**
      * Description : Search events by latitude and longitude locations
      *
      * @param eventId Id of event to search for
@@ -1142,6 +1170,148 @@ public class DatabaseConnection {
         return array;
     }
 
+
+    /**
+     * Endorses the given event id for the organization
+     * @param orgID the id of the organization
+     * @param eventID the event that is being endorsed
+     *
+     * @return  0 on success, -1 on failure
+     */
+
+    public int endorseEvent(int orgID, int eventID) throws SQLException{
+        if(orgID < 1 || eventID < 1){
+            return -1;
+        }
+        PreparedStatement ps = null;
+        ps = connect.prepareStatement("INSERT INTO endorse (org_id, endorsed_id, endorse_type) VALUES (?, ?, ?)");
+
+
+        if(ps != null) {
+            //insert values into prepare statement
+            ps.setInt(1, orgID);
+            ps.setInt(2, eventID);
+            ps.setBoolean(3, true);
+            ps.execute();
+
+        }else{
+            throw new SQLException("Improper use. There was an error in creating the SQL statement");
+        }
+
+        return 0;
+    }
+
+    /**
+     *  Unendorses the event for the given org
+     * @param orgID the id of the organization
+     * @param eventID the event that is being endorsed
+     *
+     * @return  0 on success, -1 on failure
+     */
+
+    public int unendorseEvent(int orgID, int eventID) throws SQLException{
+        if(orgID < 1 || eventID < 1){
+            return -1;
+        }
+        PreparedStatement ps = null;
+        ps = connect.prepareStatement("Delete FROM endorse WHERE org_id = ? and endorsed_id = ? and" +
+                " endorse_type = ?");
+
+
+        if(ps != null) {
+            //insert values into prepare statement
+            ps.setInt(1, orgID);
+            ps.setInt(2, eventID);
+            ps.setBoolean(3, true);
+            ps.execute();
+
+        }else{
+            throw new SQLException("Improper use. There was an error in creating the SQL statement");
+        }
+
+        return 0;
+    }
+
+    /**
+     *  Checks if the org has endorsed the event
+     * @param orgID the id of the organization
+     * @param eventID the event that is being endorsed
+     *
+     * @return  true on endorsed, false on not endorsed
+     */
+    public boolean isEndorsed(int orgID, int eventID) throws SQLException{
+        //create string for query
+        String fields = "org_id";
+        String query = "SELECT " + fields + " FROM endorse WHERE org_id = ? and endorsed_id = ? and endorse_type = ? ";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, orgID);
+        ps.setInt(2, eventID);
+        ps.setBoolean(3, true);
+        ResultSet rs = ps.executeQuery();
+
+        //check for results and return object
+        if(rs.next()){
+            return true;
+        }
+        return false;
+    }
+    /**
+     *  Finds all of the events endorsed by a given org
+     * @param orgID the id of the organization
+     *
+     * @return  List of all endorsed events for that org
+     */
+    public ArrayList<Integer> getEndorsedEvents(int orgID) throws SQLException{
+
+        //create string for query
+        String fields = "endorsed_id";
+        String query = "SELECT " + fields + " FROM endorse WHERE org_id = ? and endorse_type = ? ";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, orgID);
+        ps.setBoolean(2, true);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> array = new ArrayList<>();
+
+        //check for results and return object
+        while(rs.next()){
+            int event_id = rs.getInt(1);
+            array.add(event_id);
+        }
+        return array;
+    }
+
+    /**
+     *  Finds all of the orgs that endorsed a given event
+     * @param eventID the id of the event
+     *
+     * @return  List of all orgs that endorsed the event
+     */
+    public ArrayList<Integer> getEndorsedOrgs(int eventID) throws SQLException{
+
+        //create string for query
+        String fields = "org_id";
+        String query = "SELECT " + fields + " FROM endorse WHERE endorsed_id = ? and endorse_type = ? ";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ps.setBoolean(2, true);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> array = new ArrayList<>();
+
+        //check for results and return object
+        while(rs.next()){
+            int org_id = rs.getInt(1);
+            array.add(org_id);
+        }
+        return array;
+    }
 
     /**
      * END ORGANIZATION METHODS
