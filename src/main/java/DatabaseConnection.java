@@ -1343,7 +1343,7 @@ public class DatabaseConnection {
         PreparedStatement ps = connect.prepareStatement(query);
         ps.setInt(1,orgID);
         ps.setInt(2,DatabaseConnection.MEMBER);
-        ps.setBoolean(4,false);
+        ps.setBoolean(3,false);
         ResultSet rs = ps.executeQuery();
 
         ArrayList<Integer> userIDs = new ArrayList<>();
