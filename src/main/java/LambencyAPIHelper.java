@@ -576,6 +576,37 @@ public void createOrganizationRetrofit(OrganizationModel org){
         });
     }
 
+
+    public void getRequestsToJoin(String oAuthCode, int orgID){
+        this.getInstance().getRequestsToJoin(oAuthCode,orgID).enqueue(new Callback<ArrayList<UserModel>>() {
+            @Override
+            public void onResponse(Call<ArrayList<UserModel>> call, Response<ArrayList<UserModel>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                ArrayList<UserModel> users = response.body();
+                if(users == null ){
+                    System.out.println("Error has occurred");
+                }
+                else{
+                    System.out.println("the number of member join requests is" + users.size());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<UserModel>> call, Throwable throwable) {
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+
+
+
+
+
     public void endorseRetrofit(String oAuthCode, String orgId, String eventId)
     {
         this.getInstance().getEndorse(oAuthCode, orgId, eventId).enqueue(new Callback<Integer>() {

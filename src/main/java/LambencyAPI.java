@@ -36,6 +36,9 @@ public interface LambencyAPI {
     @GET("Organization/events")
     Call<List<EventModel>> getEventsByOrg(@Query("oAuthCode") String oAuthCode, @Query("id") String org_id);
 
+    @GET("Organization/joinRequests")
+    Call<ArrayList<UserModel>> getRequestsToJoin(@Query("oAuthCode") String oAuthCode, @Query("orgID") int org_id);
+
     @GET("Organization/endorse")
     Call<Integer> getEndorse(@Query("oAuthCode") String oAuthCode, @Query("orgID") String org_id, @Query("eventID") String event_id);
 
@@ -71,4 +74,6 @@ public interface LambencyAPI {
 
     @POST("Event/create")
     Call<Integer> createEvent(@Body EventModel eventModel);
+
+
 }
