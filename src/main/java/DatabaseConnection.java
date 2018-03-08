@@ -1111,6 +1111,33 @@ public class DatabaseConnection {
         return 0;
     }
 
+    /**
+     * Change groupies type to a new type
+     * @param user_id the id of the user to be changed
+     * @param org_id the id of the organization
+     * @param type type to be changed to: FOLLOW, MEMBER, or ORGANIZER
+     * @return -1 on failure, else 0
+     */
+    public int modifyGroupies(int user_id, int org_id, int type) throws SQLException{
+        //create prepare statement for sql query
+        PreparedStatement ps = connect.prepareStatement("UPDATE groupies SET groupies_type = ? WHERE user_id = ? and org_id = ?");
+
+        //set parameters for prepared statement
+        if(ps != null) {
+            ps.setInt(1, type);
+            ps.setInt(2, user_id);
+            ps.setInt(3, org_id);
+        }
+        else{
+            return -1;
+        }
+
+        //execute query
+        ps.executeUpdate();
+
+        return 0;
+    }
+
 
     /**
      * DESCRIPTION - search for groupie status for a user and a given organization

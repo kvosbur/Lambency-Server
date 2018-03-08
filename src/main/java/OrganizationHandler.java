@@ -151,12 +151,12 @@ public class OrganizationHandler {
                 Printing.println("Unable to verify user");
                 return new Integer(-3);
             }
-            if(!isAdmin(oAuthCode,orgID)){
-                Printing.println("User is not an admin");
-                return new Integer(-3);
-            }
             if(searchOrgID(orgID) == null){
                 Printing.println("Error in finding organization");
+                return new Integer(-3);
+            }
+            if(!isAdmin(oAuthCode,orgID)){
+                Printing.println("User is not an admin");
                 return new Integer(-3);
             }
             if(EventHandler.searchEventID(eventID) == null){
@@ -190,12 +190,12 @@ public class OrganizationHandler {
                 Printing.println("Unable to verify user");
                 return new Integer(-3);
             }
-            if(!isAdmin(oAuthCode,orgID)){
-                Printing.println("User is not an admin");
-                return new Integer(-3);
-            }
             if(searchOrgID(orgID) == null){
                 Printing.println("Error in finding organization");
+                return new Integer(-3);
+            }
+            if(!isAdmin(oAuthCode,orgID)){
+                Printing.println("User is not an admin");
                 return new Integer(-3);
             }
             if(EventHandler.searchEventID(eventID) == null){
@@ -260,6 +260,61 @@ public class OrganizationHandler {
             return null;
         }
 
+    }
+
+    /**
+     *
+     * @param oAuthCode authorization code for the user making the changes
+     * @param orgID id of the org
+     * @param userChangedID id of the user being changed
+     * @param type 0 is kick from org, 1 set to member, 2 set to organizer
+     * @return 0 on success, -1 db error, -2 on insufficient permission, -3 on failure to verify parameters
+     */
+    public static Integer manageUserPermissions(String oAuthCode, int orgID, int userChangedID, int type){
+        try{
+            if(oAuthCode == null){
+                return new Integer(-3);
+            }
+            if(LambencyServer.dbc.searchForUser(oAuthCode) == null){
+                Printing.println("Unable to find user");
+                return new Integer(-3);
+            }
+            if(searchOrgID(orgID) == null){
+                Printing.println("Error in finding organization");
+                return new Integer(-3);
+            }
+            if(!isAdmin(oAuthCode,orgID)){
+                Printing.println("User is not an admin");
+                return new Integer(-2);
+            }
+            if(LambencyServer.dbc.searchForUser("" + userChangedID, DatabaseConnection.LAMBNECYUSERID) == null){
+                Printing.println("Unable to find User to be changed");
+                return new Integer(-3);
+            }
+            if(type > 2 || type < 0) {
+                Printing.println("invalid type");
+                return new Integer(-3);
+            }
+            GroupiesModel g = LambencyServer.dbc.searchGroupies(userChangedID, orgID);
+            if(g == null){
+                Printing.println("User to be changed is not a member of org");
+                return new Integer(-3);
+            }
+            if(type == 0){
+                return LambencyServer.dbc.deleteGroupies(userChangedID, orgID, g.getType());
+            }
+            else if(type == 1){
+                return LambencyServer.dbc.modifyGroupies(userChangedID, orgID, DatabaseConnection.MEMBER);
+            }
+            else if(type == 2){
+                return LambencyServer.dbc.modifyGroupies(userChangedID, orgID, DatabaseConnection.ORGANIZER);
+            }
+            return new Integer(-1);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            return new Integer(-1);
+        }
     }
 
 }
