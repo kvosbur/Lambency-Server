@@ -149,7 +149,7 @@ public class UserHandler {
                 if(org != null){
                     GroupiesModel gp = LambencyServer.dbc.searchGroupies(usr.getUserId(),orgID);
                     if(gp != null){
-                        int toReturn = LambencyServer.dbc.deleteGroupies(usr.getUserId(),orgID, DatabaseConnection.MEMBER);
+                        int toReturn = LambencyServer.dbc.deleteGroupies(usr.getUserId(),orgID, gp.getType());
                         if(toReturn == -1){
                             Printing.println("dbc.deleteGroupies returned -1;");
                             return -1;
