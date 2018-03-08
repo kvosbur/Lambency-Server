@@ -158,6 +158,17 @@ public class LambencyServer{
             }
             return OrganizationHandler.unendorseEvent(oAuthCode, Integer.parseInt(orgID), Integer.parseInt(eventID));
         }, new JsonTransformer());
+        get("/Organization/members", "application.json", (request, response) -> {
+            Printing.println("Organization/members");
+            String oAuthCode = request.queryParams("oAuthCode");
+            String orgID = request.queryParams("orgID");
+            if(oAuthCode == null || orgID == null){
+                return null;
+            }
+            return OrganizationHandler.getMembersAndOrganizers(oAuthCode,Integer.parseInt(orgID));
+        }, new JsonTransformer());
+
+
 
         post("/Event/update", "application/json",
                 (request, response) ->{
