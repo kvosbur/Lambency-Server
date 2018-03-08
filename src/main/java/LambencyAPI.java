@@ -39,6 +39,12 @@ public interface LambencyAPI {
     @GET("Organization/joinRequests")
     Call<ArrayList<UserModel>> getRequestsToJoin(@Query("oAuthCode") String oAuthCode, @Query("orgID") int org_id);
 
+    @GET("Organization/endorse")
+    Call<Integer> getEndorse(@Query("oAuthCode") String oAuthCode, @Query("orgID") String org_id, @Query("eventID") String event_id);
+
+    @GET("Organization/unendorse")
+    Call<Integer> getUnendorse(@Query("oAuthCode") String oAuthCode, @Query("orgID") String org_id, @Query("eventID") String event_id);
+
     @GET("Event/search")
     Call<List<EventModel>> getEventsWithParams(@Query("lat") double lat, @Query("long") double longitude,
                                                @Query("name") String name, @Query("org_idStr") String org_idStr);
