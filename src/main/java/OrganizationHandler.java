@@ -1,5 +1,5 @@
 
-import sun.jvm.hotspot.debugger.linux.amd64.LinuxAMD64CFrame;
+//import sun.jvm.hotspot.debugger.linux.amd64.LinuxAMD64CFrame;
 
 import javax.xml.crypto.Data;
 import java.awt.image.DataBuffer;
@@ -179,7 +179,7 @@ public class OrganizationHandler {
      * @param oAuthCode the authorization code of the user
      * @param orgID the id of the organization
      * @param eventID the id of the event to be unendorsed
-     * @return 0 on success, -3 on failure to verify parameters, -1 on database error, -2 on already endorsed
+     * @return 0 on success, -3 on failure to verify parameters, -1 on database error, -2 on not endorsed
      */
     public static Integer unendorseEvent(String oAuthCode, int orgID, int eventID){
         try {
