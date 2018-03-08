@@ -1,4 +1,8 @@
 
+//import sun.jvm.hotspot.debugger.linux.amd64.LinuxAMD64CFrame;
+
+import javax.xml.crypto.Data;
+import java.awt.image.DataBuffer;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -175,7 +179,7 @@ public class OrganizationHandler {
      * @param oAuthCode the authorization code of the user
      * @param orgID the id of the organization
      * @param eventID the id of the event to be unendorsed
-     * @return 0 on success, -3 on failure to verify parameters, -1 on database error, -2 on already endorsed
+     * @return 0 on success, -3 on failure to verify parameters, -1 on database error, -2 on not endorsed
      */
     public static Integer unendorseEvent(String oAuthCode, int orgID, int eventID){
         try {
@@ -232,6 +236,30 @@ public class OrganizationHandler {
             Printing.println(e.toString());
             return false;
         }
+    }
+
+
+    public static ArrayList<Integer> getMembersAndOrganizers(String oAuthcode, int orgID){
+        try {
+            UserModel u = LambencyServer.dbc.searchForUser(oAuthcode);
+            OrganizationModel org = LambencyServer.dbc.searchForOrg(orgID);
+            if(u == null || org == null){
+                return null;
+            }
+            else{
+                GroupiesModel g = LambencyServer.dbc.searchGroupies(u.getUserId(),orgID);
+                if(g.getType() < DatabaseConnection.MEMBER){
+                    return null;
+                }
+                else{
+                    return LambencyServer.dbc.getMembersAndOrganizers(orgID);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
 }
