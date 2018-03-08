@@ -1335,6 +1335,26 @@ public class DatabaseConnection {
 
     }
 
+    public ArrayList<Integer> getRequestedToJoinUsers(int orgID) throws SQLException{
+
+        String fields = "user_id";
+        String query = "SELECT "+ fields +" FROM groupies WHERE org_id = ? AND groupies_type = ? AND confirmed = ?";
+
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1,orgID);
+        ps.setInt(2,DatabaseConnection.MEMBER);
+        ps.setBoolean(4,false);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> userIDs = new ArrayList<>();
+
+        while(rs.next()){
+            userIDs.add(rs.getInt(1));
+        }
+        return userIDs;
+
+    }
+
 
     /**
      * END ORGANIZATION METHODS

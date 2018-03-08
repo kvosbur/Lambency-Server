@@ -1,8 +1,4 @@
 
-import sun.jvm.hotspot.debugger.linux.amd64.LinuxAMD64CFrame;
-
-import javax.xml.crypto.Data;
-import java.awt.image.DataBuffer;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -248,7 +244,7 @@ public class OrganizationHandler {
             }
             else{
                 GroupiesModel g = LambencyServer.dbc.searchGroupies(u.getUserId(),orgID);
-                if(g.getType() < DatabaseConnection.MEMBER){
+                if(g == null || g.getType() < DatabaseConnection.MEMBER){
                     return null;
                 }
                 else{
@@ -260,6 +256,34 @@ public class OrganizationHandler {
             return null;
         }
 
+    }
+
+    public static ArrayList<UserModel> getRequestedToJoinMembers(String oAuthcode, int orgID){
+        try {
+            ArrayList<UserModel> users = new ArrayList<>();
+            UserModel u = LambencyServer.dbc.searchForUser(oAuthcode);
+            OrganizationModel org = LambencyServer.dbc.searchForOrg(orgID);
+            if(u == null || org == null){
+                return null;
+            }
+            else{
+                GroupiesModel g = LambencyServer.dbc.searchGroupies(u.getUserId(),orgID);
+                if(g == null || g.getType() <= DatabaseConnection.MEMBER){
+                    return null;
+                }
+                else{
+                    ArrayList<Integer> user_ids = LambencyServer.dbc.getRequestedToJoinUsers(orgID);
+                    for(Integer i: user_ids){
+                        UserModel user = LambencyServer.dbc.searchForUser(""+i, DatabaseConnection.LAMBNECYUSERID);
+                        users.add(user);
+                    }
+                }
+                return users;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }
