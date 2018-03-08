@@ -1314,9 +1314,9 @@ public class DatabaseConnection {
     }
 
 
-    public ArrayList<Integer> getMembersAndOrganizers( int orgID) throws SQLException{
+    public ArrayList<Integer[]> getMembersAndOrganizers( int orgID) throws SQLException{
 
-        String fields = "user_id";
+        String fields = "user_id, groupies_type";
         String query = "SELECT "+ fields +" FROM groupies WHERE org_id = ? AND ( groupies_type = ? OR groupies_type = ?) AND confirmed = ? ORDER BY confirmed asc";
 
         PreparedStatement ps = connect.prepareStatement(query);
@@ -1326,10 +1326,13 @@ public class DatabaseConnection {
         ps.setBoolean(4,true);
         ResultSet rs = ps.executeQuery();
 
-        ArrayList<Integer> userIDs = new ArrayList<>();
+        ArrayList<Integer[]> userIDs = new ArrayList<>();
 
         while(rs.next()){
-            userIDs.add(rs.getInt(1));
+            Integer[] i = new Integer[2];
+            i[0] = rs.getInt(1);
+            i[1] = rs.getInt(2);
+            userIDs.add(i);
         }
         return userIDs;
 
