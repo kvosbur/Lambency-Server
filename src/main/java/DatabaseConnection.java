@@ -1313,6 +1313,28 @@ public class DatabaseConnection {
         return array;
     }
 
+
+    public List<Integer> getMembers( int orgID) throws SQLException{
+
+        String fields = "user_id";
+        String query = "SELECT "+ fields +" FROM groupies WHERE org_id = ? and groupies_type = ? and confirmed = ?";
+
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1,orgID);
+        ps.setInt(2,DatabaseConnection.MEMBER);
+        ps.setBoolean(3,true);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> userIDs = new ArrayList<>();
+
+        while(rs.next()){
+            userIDs.add(rs.getInt(1));
+        }
+        return userIDs;
+
+    }
+
+
     /**
      * END ORGANIZATION METHODS
      */
@@ -1345,6 +1367,7 @@ public class DatabaseConnection {
 
         return error;
     }
+
 
     /**
      * END UTIL METHODS
@@ -1399,17 +1422,17 @@ public class DatabaseConnection {
             db.createEvent(1,"Another Event", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description", "location", "path", 100, 120);
             */
             /*
-            test of creation of org
+            //test of creation of org
             int result = db.createOrganization("org","this is an org","org@gmail.com", 123, "Purdue", "img", 123);
             db.createOrganization("org2","this is an org","org@gmail.com", 123, "Purdue", "img", 123);
             Printing.println(result);
-            /*
+            */
 
             /*
-            test insertion of user
-            int result = db.createUser("myggoogleidentity", "mock", "user", "dummy@dummy.com", GOOGLE);
-            Printing.println(result);
-            */
+            //test insertion of user
+            int rs = db.createUser("myggoogleidentity", "mock", "user", "dummy@dummy.com", GOOGLE);
+            Printing.println(rs);
+            db.addGroupies(rs,5,1,true);
 
             /*
             test oauth methods and searching for user
@@ -1426,6 +1449,8 @@ public class DatabaseConnection {
             UserModel user = db.modifyUserInfo(4, "changedFirst", "changedLast", "changedemail@changed.com");
             Printing.println(user.toString());
             */
+
+            //Printing.println(db.getMembers(5));
 
         }catch(Exception e){
             Printing.println(e.toString());
