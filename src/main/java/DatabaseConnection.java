@@ -1314,7 +1314,7 @@ public class DatabaseConnection {
     }
 
 
-    public List<Integer> getMembersAndOrganizers( int orgID) throws SQLException{
+    public ArrayList<Integer> getMembersAndOrganizers( int orgID) throws SQLException{
 
         String fields = "user_id";
         String query = "SELECT "+ fields +" FROM groupies WHERE org_id = ? AND ( groupies_type = ? OR groupies_type = ?) AND confirmed = ? ORDER BY confirmed asc";
