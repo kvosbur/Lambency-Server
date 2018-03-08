@@ -251,8 +251,14 @@ public class EventHandler {
                     if(LambencyServer.dbc.verifyEventClockInOutCode(eventAttendanceModel.getEventID(),
                             eventAttendanceModel.getClockInOutCode(), clockType)){
                         //clock in user with given start time
-                        int result = LambencyServer.dbc.eventClockInOutUser(eventAttendanceModel.getEventID(), eventAttendanceModel.getUserID(),
-                                eventAttendanceModel.getStartTime(), clockType);
+                        int result;
+                        if(clockType == EventAttendanceModel.CLOCKOUTCODE){
+                            result = LambencyServer.dbc.eventClockInOutUser(eventAttendanceModel.getEventID(), eventAttendanceModel.getUserID(),
+                                    eventAttendanceModel.getEndTime(), clockType);
+                        }else {
+                            result = LambencyServer.dbc.eventClockInOutUser(eventAttendanceModel.getEventID(), eventAttendanceModel.getUserID(),
+                                    eventAttendanceModel.getStartTime(), clockType);
+                        }
                         if(result == 0){
                             return 0;
                         }
