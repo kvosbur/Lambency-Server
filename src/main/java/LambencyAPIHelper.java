@@ -576,6 +576,72 @@ public void createOrganizationRetrofit(OrganizationModel org){
         });
     }
 
+    public void endorseRetrofit(String oAuthCode, String orgId, String eventId)
+    {
+        this.getInstance().getEndorse(oAuthCode, orgId, eventId).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == 0){
+                    System.out.println("Success");
+                }
+                else if(ret == -1){
+                    System.out.println("an error has occurred");
+                }
+                else if(ret == -2){
+                    System.out.println("already endorsed");
+                }
+                else if(ret == -3){
+                    System.out.println("invalid arguments");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+    public void unendorseRetrofit(String oAuthCode, String orgId, String eventId)
+    {
+        this.getInstance().getUnendorse(oAuthCode, orgId, eventId).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == 0){
+                    System.out.println("Success");
+                }
+                else if(ret == -1){
+                    System.out.println("an error has occurred");
+                }
+                else if(ret == -2){
+                    System.out.println("not endorsed");
+                }
+                else if(ret == -3){
+                    System.out.println("invalid arguments");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
         //OrganizationModel org = new OrganizationModel(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");
