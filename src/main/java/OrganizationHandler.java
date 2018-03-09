@@ -235,8 +235,11 @@ public class OrganizationHandler {
     }
 
 
-    public static ArrayList<Integer> getMembersAndOrganizers(String oAuthcode, int orgID){
+    public static ArrayList<UserModel>[] getMembersAndOrganizers(String oAuthcode, int orgID){
         try {
+            ArrayList<UserModel>[] memsandorgs = new ArrayList[2];
+            memsandorgs[0] = new ArrayList<>();
+            memsandorgs[1] = new ArrayList<>();
             UserModel u = LambencyServer.dbc.searchForUser(oAuthcode);
             OrganizationModel org = LambencyServer.dbc.searchForOrg(orgID);
             if(u == null || org == null){
@@ -248,9 +251,19 @@ public class OrganizationHandler {
                     return null;
                 }
                 else{
-                    return LambencyServer.dbc.getMembersAndOrganizers(orgID);
+                    ArrayList<Integer[]> user_ids = LambencyServer.dbc.getMembersAndOrganizers(orgID);
+                    for(Integer[] i: user_ids){
+                        UserModel user = LambencyServer.dbc.searchForUser(""+i[0], DatabaseConnection.LAMBNECYUSERID);
+                        if(i[1]==DatabaseConnection.MEMBER){
+                            memsandorgs[0].add(user);
+                        }
+                        else if(i[1]==DatabaseConnection.ORGANIZER){
+                            memsandorgs[0].add(user);
+                        }
+                    }
                 }
             }
+            return memsandorgs;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;

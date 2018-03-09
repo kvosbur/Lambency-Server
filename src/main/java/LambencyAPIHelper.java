@@ -576,6 +576,35 @@ public void createOrganizationRetrofit(OrganizationModel org){
         });
     }
 
+    public void getMembersAndOrganizersFromOrg(String oAuthCode, int orgID){
+        this.getInstance().getMembersAndOrganizers(oAuthCode,orgID).enqueue(new Callback<ArrayList<UserModel>[]>() {
+            @Override
+            public void onResponse(Call<ArrayList<UserModel>[]> call, Response<ArrayList<UserModel>[]> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                ArrayList<UserModel>[] users = response.body();
+                if(users == null ){
+                    System.out.println("Server returned null to getting members and organizers");
+                }
+                else{
+                    ArrayList<UserModel> members = users[0];
+                    ArrayList<UserModel> organizers = users[1];
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<UserModel>[]> call, Throwable throwable) {
+                System.out.println("FAILED CALL in MEMBERS AND ORGANIZERS GETTING");
+            }
+        });
+
+
+
+    }
+
 
     public void getRequestsToJoin(String oAuthCode, int orgID){
         this.getInstance().getRequestsToJoin(oAuthCode,orgID).enqueue(new Callback<ArrayList<UserModel>>() {
