@@ -45,6 +45,10 @@ public interface LambencyAPI {
     @GET("Organization/unendorse")
     Call<Integer> getUnendorse(@Query("oAuthCode") String oAuthCode, @Query("orgID") String org_id, @Query("eventID") String event_id);
 
+    @GET("Organization/getMembersAndOrganizers")
+    Call<ArrayList<UserModel>[]> getMembersAndOrganizers(@Query("oAuthCode") String oAuthCode, @Query("orgID") int orgID);
+
+
     @GET("Event/search")
     Call<List<EventModel>> getEventsWithParams(@Query("lat") double lat, @Query("long") double longitude,
                                                @Query("name") String name, @Query("org_idStr") String org_idStr);
