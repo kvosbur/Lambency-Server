@@ -190,8 +190,8 @@ public class LambencyServer{
             return OrganizationHandler.getRequestedToJoinMembers(oAuthCode,Integer.parseInt(orgID));
         }, new JsonTransformer());
 
-        get("/Organization/members", "application.json", (request, response) -> {
-            Printing.println("Organization/members");
+        get("/Organization/getMembersAndOrganizers", "application.json", (request, response) -> {
+            Printing.println("Organization/getMembersAndOrganizers");
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgID");
             if(oAuthCode == null || orgID == null){
