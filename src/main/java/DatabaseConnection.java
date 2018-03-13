@@ -671,40 +671,35 @@ public class DatabaseConnection {
     }
 
     /**
-     * Given an event check if right code is given to clock in or clock out
-     * @param eventID the id of the event to search for
-     * @param clockInOutCode code to check against
-     * @param type whether it is clock in or clock out
+     * Given a code figure out what event it is for and whether it is a clock in or clock out code
+     * @param code string of code to look for matching event
      * @return boolean of whether given code is correct or not
      */
-    public boolean verifyEventClockInOutCode(int eventID, String clockInOutCode, int type) throws SQLException{
-        //create string for query
-        String fields;
-        if(type == EventAttendanceModel.CLOCKINCODE) {
-            fields = "clock_in_code";
-        }else if(type == EventAttendanceModel.CLOCKOUTCODE){
-            fields = "clock_out_code";
-        }else{
-            throw new SQLException("please give a valid code type from EventAttendanceModel.");
-        }
-        String query = "SELECT " + fields + " FROM events WHERE event_id = ?";
+    public List<int[]> findClockInOutCode(String code) throws SQLException{
+
+        String query = "SELECT event_id, clock_in_code, clock_out_code FROM events WHERE clock_in_code = ? or clock_out_code = ?";
 
         //run query
         PreparedStatement ps = connect.prepareStatement(query);
-        ps.setInt(1, eventID);
+        ps.setString(1, code);
+        ps.setString(1, code);
         ResultSet rs = ps.executeQuery();
 
-        String expected;
-        if(rs.next()){
-            expected = rs.getString(1);
-        }else{
-            throw new SQLException("no event found for given eventid " + eventID);
-        }
 
-        if(expected.equals(clockInOutCode)){
-            return true;
+        List<int[]> response = new ArrayList<>();
+        while(rs.next()){
+            int[] result = new int[2];
+            if(rs.getString(2).equals(code)){
+                result[1] = EventAttendanceModel.CLOCKINCODE;
+            }else if(rs.getString(3).equals(code)){
+                result[1] = EventAttendanceModel.CLOCKOUTCODE;
+            }else{
+                result[1] = -1;
+            }
+            result[0] = rs.getInt(1);
+            response.add(result);
         }
-        return true;
+        return null;
     }
 
     /**

@@ -234,41 +234,40 @@ public class EventHandler {
      * @return an integer telling success of request, 0 = success / 1 = failure
      */
 
-    public static int clockInEvent(EventAttendanceModel eventAttendanceModel, String oAuthCode, int clockType){
+    public static int clockInEvent(String oAuthCode, EventAttendanceModel eventAttendanceModel){
         // verify oauthcode is a user
         try {
             UserModel us = LambencyServer.dbc.searchForUser(oAuthCode);
-            if(us == null || us.getUserId() != eventAttendanceModel.getUserID()){
-                Printing.println("oauth token is not valid or does not match userid in eventAttendanceModel");
+            if(us == null){
+                Printing.println("oauth token is not valid");
                 return 1;
             }
             else{
                 //verify that event exists
-                EventAttendanceModel basicModel = LambencyServer.dbc.searchEventAttendance(us.getUserId(), eventAttendanceModel.getEventID());
-                if(basicModel != null){
+                String clockInOutCode = eventAttendanceModel.getClockInOutCode();
+                List<int[]> response = LambencyServer.dbc.findClockInOutCode(clockInOutCode);
+                if(response != null) {
                     //they have already signed up for event(required in order to clock in)
-                    //get clock in code for this event and check against one give to see if successful start
-                    if(LambencyServer.dbc.verifyEventClockInOutCode(eventAttendanceModel.getEventID(),
-                            eventAttendanceModel.getClockInOutCode(), clockType)){
-                        //clock in user with given start time
-                        int result;
-                        if(clockType == EventAttendanceModel.CLOCKOUTCODE){
-                            result = LambencyServer.dbc.eventClockInOutUser(eventAttendanceModel.getEventID(), eventAttendanceModel.getUserID(),
-                                    eventAttendanceModel.getEndTime(), clockType);
-                        }else {
-                            result = LambencyServer.dbc.eventClockInOutUser(eventAttendanceModel.getEventID(), eventAttendanceModel.getUserID(),
-                                    eventAttendanceModel.getStartTime(), clockType);
+                    int eventid = 0, clockType = 0;
+                    List<Integer> attending = LambencyServer.dbc.searchUserEventAttendance(us.getUserId());
+                    for(int[] a: response){
+                        if(attending.contains(a[0])){
+                            eventid = a[0];
+                            clockType = a[1];
                         }
-                        if(result == 0){
-                            return 0;
-                        }
-                        return 4;
+                    }
 
-                    }else{
-                        //return error to client if codes don't match
+                    //no event found for user that match code inputted
+                    if(eventid == 0){
                         return 3;
                     }
 
+                    //clock in user
+                    if (clockType == EventAttendanceModel.CLOCKOUTCODE){
+                        LambencyServer.dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getEndTime(), EventAttendanceModel.CLOCKOUTCODE);
+                    }else if(clockType == EventAttendanceModel.CLOCKINCODE){
+                        LambencyServer.dbc.eventClockInOutUser(eventid,us.getUserId(),eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKINCODE);
+                    }
                 }else{
                     return 2;
                 }
