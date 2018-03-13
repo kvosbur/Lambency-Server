@@ -157,10 +157,10 @@ public class DatabaseConnectionTest {
     @org.junit.Test
     public void followOrg() throws Exception{
         modifyEventInfo();
-        UserAuthenticator ua = FacebookLogin.facebookLogin("User2", "Jeff", "Turkstra", "jeff@purdue.edu");
+        UserAuthenticator ua = FacebookLogin.facebookLogin("User2", "Jeff", "Turkstra", "jeff@purdue.edu", dbc);
         UserModel u = dbc.searchForUser("User2", 2);
         OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
-        int ret = UserHandler.followOrg(u.getOauthToken(), org.getOrgID());
+        int ret = UserHandler.followOrg(u.getOauthToken(), org.getOrgID(), dbc);
         if(ret == 1){
             throw new Exception("Unable to find user or organization");
         }
@@ -181,7 +181,7 @@ public class DatabaseConnectionTest {
         followOrg();
         UserModel u = dbc.searchForUser("User2", 2);
         OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
-        int ret = UserHandler.unfollowOrg(u.getOauthToken(), org.getOrgID());
+        int ret = UserHandler.unfollowOrg(u.getOauthToken(), org.getOrgID(),dbc);
         if(ret == 1){
             throw new Exception("Unable to find user or organization");
         }
@@ -201,7 +201,7 @@ public class DatabaseConnectionTest {
         u.setEmail("newemail@gmail.com");
         u.setFirstName("George");
         u.setLastName("Adams");
-        u = UserHandler.changeInfo(u);
+        u = UserHandler.changeInfo(u, dbc);
         if(u == null){
             throw new Exception("change user info failed: returned null");
         }
@@ -218,7 +218,7 @@ public class DatabaseConnectionTest {
     public void registerForEvent() throws Exception {
         modifyUserInfo();
         UserModel u = dbc.searchForUser("facebookUser", 2);
-        int ret = UserHandler.registerEvent(u.getOauthToken(), event_id);
+        int ret = UserHandler.registerEvent(u.getOauthToken(), event_id, dbc);
         if(ret == 1){
             throw new Exception("event registration failed: failed to find user or org");
         }
@@ -241,7 +241,7 @@ public class DatabaseConnectionTest {
     public void listUsersRegistered() throws Exception{
         registerForEvent();
         UserModel u = dbc.searchForUser("facebookUser", 2);
-        List<Object> userList = EventHandler.getUsersAttending(u.getOauthToken(), event_id);
+        List<Object> userList = EventHandler.getUsersAttending(u.getOauthToken(), event_id, dbc);
         if(userList == null){
             throw new Exception("making user list failed: returned null");
         }
@@ -259,7 +259,7 @@ public class DatabaseConnectionTest {
         listUsersRegistered();
         UserModel u = dbc.searchForUser("User2", 2);
         OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
-        int ret = UserHandler.requestJoinOrg(u.getOauthToken(), org.getOrgID());
+        int ret = UserHandler.requestJoinOrg(u.getOauthToken(), org.getOrgID(), dbc);
         if(ret == 1){
             throw new Exception("request to join org failed: unable to find user or org or is already registered");
         }
@@ -371,7 +371,6 @@ public class DatabaseConnectionTest {
         catch (Exception e){
             return;
         }
-        LambencyServer.dbc = dbc;
     }
 
 }

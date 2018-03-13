@@ -145,10 +145,10 @@ public class Testing {
 
     private static boolean testFollowOrg(){
         try{
-            UserAuthenticator ua = FacebookLogin.facebookLogin("User2", "Jeff", "Turkstra", "jeff@purdue.edu");
+            UserAuthenticator ua = FacebookLogin.facebookLogin("User2", "Jeff", "Turkstra", "jeff@purdue.edu", dbc);
             UserModel u = dbc.searchForUser("User2", 2);
             OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
-            int ret = UserHandler.followOrg(u.getOauthToken(), org.getOrgID());
+            int ret = UserHandler.followOrg(u.getOauthToken(), org.getOrgID(), dbc);
             if(ret == 1){
                 System.out.println("Unable to find user or organization");
                 return false;
@@ -178,7 +178,7 @@ public class Testing {
         try{
             UserModel u = dbc.searchForUser("User2", 2);
             OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
-            int ret = UserHandler.unfollowOrg(u.getOauthToken(), org.getOrgID());
+            int ret = UserHandler.unfollowOrg(u.getOauthToken(), org.getOrgID(), dbc);
             if(ret == 1){
                 System.out.println("Unable to find user or organization");
                 return false;
@@ -206,7 +206,7 @@ public class Testing {
             u.setEmail("newemail@gmail.com");
             u.setFirstName("George");
             u.setLastName("Adams");
-            u = UserHandler.changeInfo(u);
+            u = UserHandler.changeInfo(u, dbc);
             if(u == null){
                 System.out.println("change user info failed: returned null");
                 return false;
@@ -231,7 +231,7 @@ public class Testing {
     private static boolean testRegisterEvent(){
         try{
             UserModel u = dbc.searchForUser("facebookUser", 2);
-            int ret = UserHandler.registerEvent(u.getOauthToken(), event_id);
+            int ret = UserHandler.registerEvent(u.getOauthToken(), event_id, dbc);
             if(ret == 1){
                 System.out.println("event registration failed: failed to find user or org");
                 return false;
@@ -265,7 +265,7 @@ public class Testing {
     private static boolean testUsersAttending(){
         try {
             UserModel u = dbc.searchForUser("facebookUser", 2);
-            List<Object> userList = EventHandler.getUsersAttending(u.getOauthToken(), event_id);
+            List<Object> userList = EventHandler.getUsersAttending(u.getOauthToken(), event_id, dbc);
             if(userList == null){
                 System.out.println("making user list failed: returned null");
                 return false;
@@ -291,7 +291,7 @@ public class Testing {
         try{
             UserModel u = dbc.searchForUser("User2", 2);
             OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
-            int ret = UserHandler.requestJoinOrg(u.getOauthToken(), org.getOrgID());
+            int ret = UserHandler.requestJoinOrg(u.getOauthToken(), org.getOrgID(), dbc);
             if(ret == 1){
                 System.out.println("request to join org failed: unable to find user or org or is already registered");
                 return false;
@@ -371,7 +371,7 @@ public class Testing {
         try{
             UserModel u = dbc.searchForUser("User2", 2);
             OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
-            ArrayList<EventModel> list = OrganizationHandler.searchEventsByOrg(u.getOauthToken(), org.getOrgID());
+            ArrayList<EventModel> list = OrganizationHandler.searchEventsByOrg(u.getOauthToken(), org.getOrgID(), dbc);
             if(list == null){
                 System.out.println("search failed: returned null");
                 return false;
@@ -425,7 +425,6 @@ public class Testing {
             clearDatabase();
             int passed = 0;
             int count = 0;
-            LambencyServer.dbc = dbc;
 
             System.out.print("Test Create UserModel: ");
             count++;

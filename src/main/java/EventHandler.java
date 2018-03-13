@@ -15,8 +15,8 @@ public class EventHandler {
      */
 
 
-    public static EventModel createEvent(EventModel event) {
-        Printing.println("Updated");
+    public static EventModel createEvent(EventModel event, DatabaseConnection dbc) {
+        
         try {
             //get latitude and longitude for database
             LatLng latlng = GoogleGeoCodeUtil.getGeoData(event.getLocation());
@@ -32,11 +32,11 @@ public class EventHandler {
             event.setClockInCode(EventHandler.generateClockInOutCodes());
             event.setClockOutCode(EventHandler.generateClockInOutCodes());
             //create event
-            int event_id = LambencyServer.dbc.createEvent(event.getOrg_id(),event.getName(),event.getStart(),
+            int event_id = dbc.createEvent(event.getOrg_id(),event.getName(),event.getStart(),
                     event.getEnd(),event.getDescription(),event.getLocation(),event.getImage_path(), latlng.lat, latlng.lng,
                     event.getClockInCode(), event.getClockOutCode());
             Printing.println((latlng == null));
-            return LambencyServer.dbc.searchEvents(event_id);
+            return dbc.searchEvents(event_id);
         } catch (SQLException e) {
             Printing.println("SQL exception: ");
             Printing.println(e.toString());
@@ -53,9 +53,10 @@ public class EventHandler {
     }
 
 
-    public static int updateEvent(EventModel event) {
+    public static int updateEvent(EventModel event, DatabaseConnection dbc) {
+
         try{
-            LambencyServer.dbc.modifyEventInfo(event.getEvent_id(),event.getName(),event.getStart(),event.getEnd(),
+            dbc.modifyEventInfo(event.getEvent_id(),event.getName(),event.getStart(),event.getEnd(),
                     event.getDescription(),event.getLocation(),event.getImage_path(),event.getLattitude(),event.getLongitude());
             return 0;
         }
@@ -72,16 +73,16 @@ public class EventHandler {
      * @return     List of events if successful, null otherwise
      */
 
-    public static List<EventModel> getEventsWithFilter(EventFilterModel efm){
+    public static List<EventModel> getEventsWithFilter(EventFilterModel efm, DatabaseConnection dbc){
         if(efm == null){
             return null;
         }
         List<Integer> eventIDs;
         List<EventModel> events = new ArrayList<>();
         try{
-            eventIDs = LambencyServer.dbc.searchEventsWithFilterModel(efm);
+            eventIDs = dbc.searchEventsWithFilterModel(efm);
             for(Integer i: eventIDs){
-                EventModel eventModel = LambencyServer.dbc.searchEvents(i);
+                EventModel eventModel = dbc.searchEvents(i);
                 eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                 events.add(eventModel);
             }
@@ -104,17 +105,17 @@ public class EventHandler {
      * @return     List of events if successful, null otherwise
      */
 
-    public static List<EventModel> getEventsByLocation(double lattitude, double longitude){
+    public static List<EventModel> getEventsByLocation(double lattitude, double longitude, DatabaseConnection dbc){
         // I am assuming that the odds of them being at exactly 0,0 (lat,long) is so microscopic that the only case that it would be 0 is if Double.parse(null) == 0
-        if(lattitude == 0 || longitude == 0){
+        if(lattitude == 0 || longitude == 0) {
             return null;
         }
         List<Integer> eventIDs;
         List<EventModel> events = new ArrayList<>();
         try{
-            eventIDs = LambencyServer.dbc.searchEventsByLocation(lattitude,longitude);
+            eventIDs = dbc.searchEventsByLocation(lattitude,longitude);
             for(Integer i: eventIDs){
-                EventModel eventModel = LambencyServer.dbc.searchEvents(i);
+                EventModel eventModel = dbc.searchEvents(i);
                 eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                 events.add(eventModel);
             }
@@ -142,29 +143,31 @@ public class EventHandler {
      * @return List of users if it succeeds. Null if database error, no user, no event, or wrong permission
      */
 
-    public static List<Object> getUsersAttending(String oauthcode, int event_id){
+    public static List<Object> getUsersAttending(String oauthcode, int event_id, DatabaseConnection dbc){
+
+
         // verify oauthcode is a user
         try {
-            UserModel us = LambencyServer.dbc.searchForUser(oauthcode);
+            UserModel us = dbc.searchForUser(oauthcode);
             if(us == null){
                 return null;
             }
             else{
                 //verify that event exists
-                EventModel eventModel = LambencyServer.dbc.searchEvents(event_id);
+                EventModel eventModel = dbc.searchEvents(event_id);
                 if(eventModel == null){
                     return null;
                 }
                 else{
                     // check if they have organizer permission
-                    GroupiesModel gp = LambencyServer.dbc.searchGroupies(us.getUserId(),eventModel.getOrg_id());
+                    GroupiesModel gp = dbc.searchGroupies(us.getUserId(),eventModel.getOrg_id());
                     if(gp == null || gp.getType() != DatabaseConnection.ORGANIZER){
                         return null;
                     }
 
                     else if(gp.getType() == DatabaseConnection.ORGANIZER){ // if you want members too, add || gp.getType() == DatabaseConnection.MEMBER
                         // yayy they have permission!!!!! Get the users
-                        return LambencyServer.dbc.searchEventAttendanceUsers(event_id, true);
+                        return dbc.searchEventAttendanceUsers(event_id, true);
                     }
                     else {
                         return null;
@@ -183,10 +186,10 @@ public class EventHandler {
      * @param eventID the id of the event
      * @return the event object for the id, otherwise null
      */
-    public static EventModel searchEventID(int eventID) {
+    public static EventModel searchEventID(int eventID, DatabaseConnection dbc) {
 
         try {
-            EventModel eventModel = LambencyServer.dbc.searchEvents(eventID);
+            EventModel eventModel = dbc.searchEvents(eventID);
             eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
             return eventModel;
         } catch (SQLException e) {
@@ -206,12 +209,13 @@ public class EventHandler {
      * @param oAuthCode the oAuthCode of the user
      * @return a list of all the events the user is attending, if size =0, the user is attending no events
      */
-    public static List<EventModel> searchEventIDS(int userID, String oAuthCode){
+    public static List<EventModel> searchEventIDS(int userID, String oAuthCode, DatabaseConnection dbc){
+
         try {
-            List<Integer> list = LambencyServer.dbc.searchUserEventAttendance(userID);
+            List<Integer> list = dbc.searchUserEventAttendance(userID);
             List<EventModel> ret = new ArrayList<EventModel>();
             for (int id : list) {
-                EventModel eventModel = searchEventID(id);
+                EventModel eventModel = searchEventID(id, dbc);
                 if(eventModel == null){
                     //dont add to list
                 }
@@ -234,10 +238,11 @@ public class EventHandler {
      * @return an integer telling success of request, 0 = success / 1 = failure
      */
 
-    public static int clockInEvent(String oAuthCode, EventAttendanceModel eventAttendanceModel){
+    public static int clockInEvent(String oAuthCode, EventAttendanceModel eventAttendanceModel, DatabaseConnection dbc){
+
         // verify oauthcode is a user
         try {
-            UserModel us = LambencyServer.dbc.searchForUser(oAuthCode);
+            UserModel us = dbc.searchForUser(oAuthCode);
             if(us == null){
                 Printing.println("oauth token is not valid");
                 return 1;
@@ -245,11 +250,11 @@ public class EventHandler {
             else{
                 //verify that event exists
                 String clockInOutCode = eventAttendanceModel.getClockInOutCode();
-                List<int[]> response = LambencyServer.dbc.findClockInOutCode(clockInOutCode);
+                List<int[]> response = dbc.findClockInOutCode(clockInOutCode);
                 if(response != null) {
                     //they have already signed up for event(required in order to clock in)
                     int eventid = 0, clockType = 0;
-                    List<Integer> attending = LambencyServer.dbc.searchUserEventAttendance(us.getUserId());
+                    List<Integer> attending = dbc.searchUserEventAttendance(us.getUserId());
                     for(int[] a: response){
                         if(attending.contains(a[0])){
                             eventid = a[0];
@@ -264,9 +269,9 @@ public class EventHandler {
 
                     //clock in user
                     if (clockType == EventAttendanceModel.CLOCKOUTCODE){
-                        LambencyServer.dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getEndTime(), EventAttendanceModel.CLOCKOUTCODE);
+                        dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getEndTime(), EventAttendanceModel.CLOCKOUTCODE);
                     }else if(clockType == EventAttendanceModel.CLOCKINCODE){
-                        LambencyServer.dbc.eventClockInOutUser(eventid,us.getUserId(),eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKINCODE);
+                        dbc.eventClockInOutUser(eventid,us.getUserId(),eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKINCODE);
                     }
                 }else{
                     return 2;
@@ -284,26 +289,27 @@ public class EventHandler {
      * @return boolean of whether clean up was successful
      */
 
-    public static boolean cleanUpEvents(){
+    public static boolean cleanUpEvents(DatabaseConnection dbc){
+
 
         try {
             //find all events that have ended
-            ArrayList<Integer> events = LambencyServer.dbc.getEventsThatEnded(null);
+            ArrayList<Integer> events = dbc.getEventsThatEnded(null);
 
             int result = 0;
             for(Integer eventID: events){
                 //check for users for this event that don't have check out times
-                ArrayList<Integer> users = LambencyServer.dbc.getUsersNoEndTime(eventID);
+                ArrayList<Integer> users = dbc.getUsersNoEndTime(eventID);
                 EventModel event = null;
                 if(users.size() != 0){
-                    event = LambencyServer.dbc.searchEvents(eventID);
+                    event = dbc.searchEvents(eventID);
                 }
                 for(Integer userID: users){
                     //give them the end time that is stored in the event model
-                    LambencyServer.dbc.eventClockInOutUser(eventID, userID, event.getEnd(), EventAttendanceModel.CLOCKOUTCODE);
+                    dbc.eventClockInOutUser(eventID, userID, event.getEnd(), EventAttendanceModel.CLOCKOUTCODE);
                 }
                 //move this event to the historical tables(event entry and all attendence records
-                result += LambencyServer.dbc.moveEventToHistorical(eventID);
+                result += dbc.moveEventToHistorical(eventID);
             }
 
             if(result == 0){
@@ -332,17 +338,17 @@ public class EventHandler {
      * @param eventID the id of the event
      * @return the number of users attending an event, on fail -1
      */
-    public static Integer numAttending(String oAuthCode, int eventID) {
+    public static Integer numAttending(String oAuthCode, int eventID, DatabaseConnection dbc) {
 
         try {
             if(oAuthCode == null){
                 return new Integer(-1);
             }
-            if(LambencyServer.dbc.searchForUser(oAuthCode) == null){
+            if(dbc.searchForUser(oAuthCode) == null){
                 Printing.println("Unable to verify user");
                 return new Integer(-1);
             }
-            return LambencyServer.dbc.numUsersAttending(eventID);
+            return dbc.numUsersAttending(eventID);
         }
         catch (SQLException e){
             Printing.println(e.toString());

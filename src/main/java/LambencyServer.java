@@ -8,15 +8,18 @@ import static spark.Spark.*;
 public class LambencyServer{
 
 
-    static DatabaseConnection dbc = null;
-
     public class ServerTaskThread extends Thread{
 
 
         public void run(){
             //code to run task
             Printing.println("Starting Midnight server task");
-            boolean status = EventHandler.cleanUpEvents();
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return;
+            }
+            boolean status = EventHandler.cleanUpEvents(databaseConnection);
+            databaseConnection.close();
             if(status){
                 Printing.println("The server successfully cleaned up events and moved all to historical tables.");
             }else{
@@ -46,13 +49,6 @@ public class LambencyServer{
 
     LambencyServer(){
 
-        try {
-            LambencyServer.dbc = new DatabaseConnection();
-        }catch(Exception e){
-            //error happened in connecting to database
-            Printing.println("TEst");
-        }
-
         port(20000);
 
         addroutes();
@@ -76,55 +72,105 @@ public class LambencyServer{
             Printing.println("/User/login/google");
             String token = request.queryParams("idToken");
             GoogleLoginHandler glh = new GoogleLoginHandler();
-            return glh.getAuthenticator(token);
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            UserAuthenticator authenticator = glh.getAuthenticator(token, databaseConnection);
+            databaseConnection.close();
+            return authenticator;
         }, new JsonTransformer());
         get("/User/search", "application/json", (request, response) -> {
             Printing.println("/User/search");
             String oAuthCode = request.queryParams("oAuthToken");
             String id = request.queryParams("id");
-            UserModel u = UserHandler.searchForUser(oAuthCode,id);
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            UserModel u = UserHandler.searchForUser(oAuthCode,id, databaseConnection);
             Printing.println(u.toString());
+            databaseConnection.close();
             return u;
         }, new JsonTransformer());
         post("/User/changeInfo", "application/json", (request, response) -> {
             Printing.println("/User/changeInfo");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
             UserModel u = new Gson().fromJson(request.body(), UserModel.class);
-            return UserHandler.changeInfo(u);
+            UserModel changed = UserHandler.changeInfo(u, databaseConnection);
+            databaseConnection.close();
+            return changed;
         }, new JsonTransformer());
         get("/User/followOrg", "application/json", (request, response) -> {
             Printing.println("/User/followOrg");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgID");
-            Integer ret = UserHandler.followOrg(oAuthCode, Integer.parseInt(orgID));
+            Integer ret = UserHandler.followOrg(oAuthCode, Integer.parseInt(orgID), databaseConnection);
+            databaseConnection.close();
             return ret;
         }, new JsonTransformer());
         post("/User/requestJoinOrg", "application/json", (request, response) -> {
             Printing.println("/User/requestJoinOrg");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgId");
-            int ret = UserHandler.requestJoinOrg(oAuthCode, Integer.parseInt(orgID));
+            int ret = UserHandler.requestJoinOrg(oAuthCode, Integer.parseInt(orgID), databaseConnection);
+            databaseConnection.close();
             return ret;
         }, new JsonTransformer());
         get("/User/registerForEvent", "application/json", (request, response) -> {
             Printing.println("/User/registerForEvent");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
             String oAuthCode = request.queryParams("oAuthCode");
             String eventID = request.queryParams("eventID");
-            Integer ret = UserHandler.registerEvent(oAuthCode, Integer.parseInt(eventID));
+            Integer ret = UserHandler.registerEvent(oAuthCode, Integer.parseInt(eventID), databaseConnection);
+            databaseConnection.close();
             return ret;
         }, new JsonTransformer());
         post("/Organization/create", "application/json",
                 (request, response) -> {
                     Printing.println("/Organization/create");
-                       return OrganizationHandler.createOrganization( new Gson().fromJson(request.body(), OrganizationModel.class));
+                    DatabaseConnection databaseConnection = new DatabaseConnection();
+                    if(databaseConnection.connect == null){
+                        return null;
+                    }
+                    OrganizationModel ret = OrganizationHandler.createOrganization( new Gson().fromJson(request.body(), OrganizationModel.class),
+                            databaseConnection);
+                    databaseConnection.close();
+                    return ret;
                 }, new JsonTransformer());
         get("/Organization/search", "application/json", (request, response) -> {
             Printing.println("/Organization/search");
-            ArrayList<OrganizationModel> orgList = OrganizationHandler.searchOrgName(request.queryParams("name"));
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            ArrayList<OrganizationModel> orgList = OrganizationHandler.searchOrgName(request.queryParams("name"), databaseConnection);
+            databaseConnection.close();
             return orgList;
         }, new JsonTransformer());
         get("/Organization/searchByID", "application/json", (request, response) -> {
             Printing.println("/Organization/searchByID");
-            OrganizationModel organization = OrganizationHandler.searchOrgID(Integer.parseInt(request.queryParams("id")));
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            OrganizationModel organization = OrganizationHandler.searchOrgID(Integer.parseInt(request.queryParams("id")),
+                    databaseConnection);
+            databaseConnection.close();
             return organization;
         }, new JsonTransformer());
         get("/Organization/events", "application/json", (request, response) -> {
@@ -134,7 +180,12 @@ public class LambencyServer{
             if(oAuthCode == null || orgID == null){
                 return null;
             }
-            List<EventModel> list = OrganizationHandler.searchEventsByOrg(oAuthCode, Integer.parseInt(orgID));
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            List<EventModel> list = OrganizationHandler.searchEventsByOrg(oAuthCode, Integer.parseInt(orgID), databaseConnection);
+            databaseConnection.close();
             return list;
         }, new JsonTransformer());
         get("/Organization/endorse", "application/json", (request, response) -> {
@@ -145,7 +196,13 @@ public class LambencyServer{
             if(oAuthCode == null || orgID == null || eventID == null){
                 return new Integer(-3);
             }
-            return OrganizationHandler.endorseEvent(oAuthCode, Integer.parseInt(orgID), Integer.parseInt(eventID));
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            int ret = OrganizationHandler.endorseEvent(oAuthCode, Integer.parseInt(orgID), Integer.parseInt(eventID), databaseConnection);
+            databaseConnection.close();
+            return ret;
         }, new JsonTransformer());
 
         get("/Organization/unendorse", "application/json", (request, response) -> {
@@ -156,10 +213,17 @@ public class LambencyServer{
             if(oAuthCode == null || orgID == null || eventID == null){
                 return new Integer(-3);
             }
-            return OrganizationHandler.unendorseEvent(oAuthCode, Integer.parseInt(orgID), Integer.parseInt(eventID));
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            int ret = OrganizationHandler.unendorseEvent(oAuthCode, Integer.parseInt(orgID), Integer.parseInt(eventID), databaseConnection);
+            databaseConnection.close();
+            return ret;
         }, new JsonTransformer());
         get("/Organization/changeUserPermissions", "application/json", (request, response) -> {
             Printing.println("/Organization/changeUserPermissions");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgID");
             String userChanged = request.queryParams("userChanged");
@@ -168,7 +232,13 @@ public class LambencyServer{
                 Printing.println("Null queries");
                 return new Integer(-3);
             }
-            return OrganizationHandler.manageUserPermissions(oAuthCode, Integer.parseInt(orgID), Integer.parseInt(userChanged), Integer.parseInt(type));
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            int ret = OrganizationHandler.manageUserPermissions(oAuthCode, Integer.parseInt(orgID), Integer.parseInt(userChanged), Integer.parseInt(type),
+                    databaseConnection);
+            databaseConnection.close();
+            return ret;
         }, new JsonTransformer());
         get("/Organization/members", "application.json", (request, response) -> {
             Printing.println("Organization/members");
@@ -177,7 +247,13 @@ public class LambencyServer{
             if(oAuthCode == null || orgID == null){
                 return null;
             }
-            return OrganizationHandler.getMembersAndOrganizers(oAuthCode,Integer.parseInt(orgID));
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            ArrayList<UserModel>[] ret = OrganizationHandler.getMembersAndOrganizers(oAuthCode,Integer.parseInt(orgID), databaseConnection);
+            databaseConnection.close();
+            return ret;
         }, new JsonTransformer());
 
         get("/Organization/joinRequests","application.json", (request, response) -> {
@@ -187,7 +263,14 @@ public class LambencyServer{
             if(oAuthCode == null || orgID == null){
                 return null;
             }
-            return OrganizationHandler.getRequestedToJoinMembers(oAuthCode,Integer.parseInt(orgID));
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            ArrayList<UserModel> ret = OrganizationHandler.getRequestedToJoinMembers(oAuthCode,Integer.parseInt(orgID),
+                    databaseConnection);
+            databaseConnection.close();
+            return ret;
         }, new JsonTransformer());
 
         get("/Organization/getMembersAndOrganizers", "application.json", (request, response) -> {
@@ -197,51 +280,95 @@ public class LambencyServer{
             if(oAuthCode == null || orgID == null){
                 return null;
             }
-            return OrganizationHandler.getMembersAndOrganizers(oAuthCode,Integer.parseInt(orgID));
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            ArrayList<UserModel>[] ret = OrganizationHandler.getMembersAndOrganizers(oAuthCode,Integer.parseInt(orgID), databaseConnection);
+            databaseConnection.close();
+            return ret;
         }, new JsonTransformer());
-
-
 
         post("/Event/update", "application/json",
                 (request, response) ->{
                     Printing.println("/Event/update");
-                    return EventHandler.updateEvent( new Gson().fromJson(request.body(), EventModel.class));
+                    DatabaseConnection databaseConnection = new DatabaseConnection();
+                    if(databaseConnection.connect == null){
+                        return null;
+                    }
+                    int ret =  EventHandler.updateEvent( new Gson().fromJson(request.body(), EventModel.class), databaseConnection);
+                    databaseConnection.close();
+                    return ret;
                 }
                 , new JsonTransformer());
         post("/Event/create", "application/json", (request, response) -> {
                     Printing.println("/Event/create");
-                    return EventHandler.createEvent(new Gson().fromJson(request.body(), EventModel.class));
+                    DatabaseConnection databaseConnection = new DatabaseConnection();
+                    if(databaseConnection.connect == null){
+                        return null;
+                    }
+                    EventModel ret = EventHandler.createEvent(new Gson().fromJson(request.body(), EventModel.class), databaseConnection);
+                    databaseConnection.close();
+                    return ret;
                 }
                 , new JsonTransformer());
         get("/Event/search","application/json", (request,response)->{
             Printing.println("/Event/search");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
             String latStr = request.queryParams("lat");
             String longStr = request.queryParams("long");
             String name = request.queryParams("name");
             String org_idStr = request.queryParams("org_id");
-            return EventHandler.getEventsByLocation(Double.parseDouble(latStr), Double.parseDouble(longStr));
+            List<EventModel> ret =  EventHandler.getEventsByLocation(Double.parseDouble(latStr), Double.parseDouble(longStr), databaseConnection);
+            databaseConnection.close();
+            return ret;
         }, new JsonTransformer());
         get("/Event/searchWithFilter","application/json",(request, response) -> {
             EventFilterModel efm = new Gson().fromJson(request.body(), EventFilterModel.class);
-            return EventHandler.getEventsWithFilter(efm);
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            List<EventModel> ret = EventHandler.getEventsWithFilter(efm, databaseConnection);
+            databaseConnection.close();
+            return ret;
         }, new JsonTransformer());
         get("/Event/searchByID", "application/json", (request, response) -> {
             Printing.println("/Event/searchByID");
-            EventModel eventModel = EventHandler.searchEventID(Integer.parseInt(request.queryParams("id")));
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            EventModel eventModel = EventHandler.searchEventID(Integer.parseInt(request.queryParams("id")), databaseConnection);
+            databaseConnection.close();
             return eventModel;
         }, new JsonTransformer());
         get("/Event/searchByIDs", "application/json", (request, response) -> {
             Printing.println("/Event/searchByIDs");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
             String userID = request.queryParams("userID");
             String oAuthCode = request.queryParams("oAuthCode");
-            List<EventModel> eventModels = EventHandler.searchEventIDS(Integer.parseInt(userID), oAuthCode);
+            List<EventModel> eventModels = EventHandler.searchEventIDS(Integer.parseInt(userID), oAuthCode, databaseConnection);
+            databaseConnection.close();
             return eventModels;
         }, new JsonTransformer());
         get("/Event/users","application/json",(request,response)->{
             Printing.println("/Event/users");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
             String oauthcode = request.queryParams("oauthcode");
             int event_id = Integer.parseInt(request.queryParams("event_id"));
-            return EventHandler.getUsersAttending(oauthcode,event_id);
+            List<Object> ret = EventHandler.getUsersAttending(oauthcode,event_id, databaseConnection);
+            databaseConnection.close();
+            return ret;
         }, new JsonTransformer());
         get("/Event/numAttending", "application/json", (request, response) -> {
             Printing.println("/Event/numAttending");
@@ -250,29 +377,52 @@ public class LambencyServer{
             if(oAuthCode == null || eventID == null){
                 return new Integer(-1);
             }
-            Integer ret = EventHandler.numAttending(oAuthCode, Integer.parseInt(eventID));
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            Integer ret = EventHandler.numAttending(oAuthCode, Integer.parseInt(eventID), databaseConnection);
+            databaseConnection.close();
             return ret;
         }, new JsonTransformer());
         get("/User/login/facebook", "application/json", (request, response) -> {
             Printing.println("/User/login/facebook");
-            UserAuthenticator ua = FacebookLogin.facebookLogin(request.queryParams("id"), request.queryParams("first"), request.queryParams("last"), request.queryParams("email"));
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            UserAuthenticator ua = FacebookLogin.facebookLogin(request.queryParams("id"), request.queryParams("first"), request.queryParams("last"),
+                    request.queryParams("email"), databaseConnection);
+            databaseConnection.close();
             return ua;
         }, new JsonTransformer());
         get("/User/unfollowOrg","application/json",(request, response) -> {
             Printing.println("/User/unfollowOrg");
-            return UserHandler.unfollowOrg(request.queryParams("oAuthCode"), Integer.parseInt(request.queryParams("org_id")));
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            int ret = UserHandler.unfollowOrg(request.queryParams("oAuthCode"), Integer.parseInt(request.queryParams("org_id")), databaseConnection);
+            databaseConnection.close();
+            return ret;
         }, new JsonTransformer());
 
         post("/User/leaveOrg","application/json",(request, response) -> {
 
             Printing.println("/User/leaveOrg");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgID");
             if(oAuthCode == null || orgID == null){
                 Printing.println("oAuthCode is null or orgID is null. (Note: those are the correct spellings for params)");
                 return -1;
             }
-            return UserHandler.leaveOrganization(oAuthCode,Integer.parseInt(orgID));
+            int ret = UserHandler.leaveOrganization(oAuthCode,Integer.parseInt(orgID), databaseConnection);
+            databaseConnection.close();
+            return ret;
         },new JsonTransformer());
 
         post("/User/ClockInOut","application/json",(request, response) -> {
@@ -284,7 +434,13 @@ public class LambencyServer{
                 Printing.println("oAuthCode is null or eventAttendanceModel is null. (Note: those are the correct spellings for params)");
                 return -1;
             }
-            return EventHandler.clockInEvent(oAuthCode, eventAttendanceModel);
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            int ret = EventHandler.clockInEvent(oAuthCode, eventAttendanceModel, databaseConnection);
+            databaseConnection.close();
+            return ret;
         },new JsonTransformer());
 
         get("/User/MyLambency","application/json",(request, response) -> {
@@ -295,7 +451,13 @@ public class LambencyServer{
                 Printing.println("oAuthCode is null. (Note: those are the correct spellings for params)");
                 return -1;
             }
-            return UserHandler.getMyLambency(oAuthCode);
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            MyLambencyModel ret = UserHandler.getMyLambency(oAuthCode, databaseConnection);
+            databaseConnection.close();
+            return ret;
         },new JsonTransformer());
 
 

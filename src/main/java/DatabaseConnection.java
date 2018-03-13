@@ -4,21 +4,36 @@ import java.util.List;
 
 
 public class DatabaseConnection {
-    private Connection connect = null;
+    public Connection connect = null;
     public final static int GOOGLE = 1;
     public final static int FACEBOOK = 2;
     public final static int LAMBNECYUSERID = 3;
     public final static int FOLLOW = 0;
     public final static int MEMBER = 1;
     public final static int ORGANIZER = 2;
-    DatabaseConnection() throws Exception{
+    DatabaseConnection(){
         // This will load the MySQL driver, each DB has its own driver
 
-        Class.forName("com.mysql.jdbc.Driver").newInstance();
-        // Setup the connection with the DB
-        connect = DriverManager
-                .getConnection("jdbc:mysql://localhost:3306/lambencydb", "lambencyuser", "jCAbyTP<?VQ3)dv");
+        try {
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            // Setup the connection with the DB
+            connect = DriverManager
+                    .getConnection("jdbc:mysql://localhost:3306/lambencydb", "lambencyuser", "jCAbyTP<?VQ3)dv");
+        }catch(Exception e){
+            connect = null;
+            Printing.println("Error opening database connection");
+            Printing.println(e.toString());
+        }
 
+    }
+
+    public void close(){
+        try {
+            connect.close();
+        }catch(SQLException e){
+            Printing.println("Error closing database connection");
+            Printing.println(e.toString());
+        }
     }
 
 
