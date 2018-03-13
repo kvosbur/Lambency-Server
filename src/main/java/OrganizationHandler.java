@@ -13,11 +13,11 @@ public class OrganizationHandler {
      * @return an integer representing the org_id on success and an error code on failure.
      *           -1 Database Error | -2 Non Determinant Error
      */
-    public static OrganizationModel createOrganization(OrganizationModel org){
+    public static OrganizationModel createOrganization(OrganizationModel org, DatabaseConnection dbc){
 
         //check if organization with same name already exists
         try {
-            OrganizationModel organization = LambencyServer.dbc.searchForOrg(org.name);
+            OrganizationModel organization = dbc.searchForOrg(org.name);
             if (organization != null) {
                 organization.name = null;
                 return organization;
@@ -38,9 +38,9 @@ public class OrganizationHandler {
         }
         try {
             Printing.println(org.toString());
-            status = LambencyServer.dbc.createOrganization(org.getName(), org.getDescription(), org.getEmail(), org.getContact()
+            status = dbc.createOrganization(org.getName(), org.getDescription(), org.getEmail(), org.getContact()
                     .getUserId(), org.getLocation(), path, org.getOrganizers().get(0).getUserId());
-            OrganizationModel organization = LambencyServer.dbc.searchForOrg(status);
+            OrganizationModel organization = dbc.searchForOrg(status);
             //image is currently storing path so change it to store
             organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
             return organization;
@@ -59,10 +59,10 @@ public class OrganizationHandler {
      * @param name name of the organization to be searched for
      * @return an ArrayList of organizations
      */
-    public static ArrayList<OrganizationModel> searchOrgName(String name){
+    public static ArrayList<OrganizationModel> searchOrgName(String name, DatabaseConnection dbc){
         ArrayList<OrganizationModel> array;
         try {
-            array = LambencyServer.dbc.searchForOrgArray(name);
+            array = dbc.searchForOrgArray(name);
 
             //for each organization in the array
             for(OrganizationModel org: array){
@@ -84,10 +84,10 @@ public class OrganizationHandler {
      * @param orgID the id of the organization
      * @return the organization object for the id, otherwise null
      */
-    public static OrganizationModel searchOrgID(int orgID) {
+    public static OrganizationModel searchOrgID(int orgID, DatabaseConnection dbc) {
 
         try {
-            OrganizationModel organization = LambencyServer.dbc.searchForOrg(orgID);
+            OrganizationModel organization = dbc.searchForOrg(orgID);
             if(organization.getImage() != null) {
                 organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
             }
@@ -107,23 +107,23 @@ public class OrganizationHandler {
      * @param orgID the id of the organization
      * @return a list of the events of that organization
      */
-    public static ArrayList<EventModel> searchEventsByOrg(String oAuthCode, int orgID){
+    public static ArrayList<EventModel> searchEventsByOrg(String oAuthCode, int orgID, DatabaseConnection dbc){
         try {
             if(oAuthCode == null){
                 return null;
             }
-            if(LambencyServer.dbc.searchForUser(oAuthCode) == null){
+            if(dbc.searchForUser(oAuthCode) == null){
                 Printing.println("Unable to verify user");
                 return null;
             }
-            ArrayList<Integer> ids = LambencyServer.dbc.getOrgEvents(orgID);
+            ArrayList<Integer> ids = dbc.getOrgEvents(orgID);
             if(ids == null || ids.size() == 0){
                 Printing.println("Organization has no events");
                 return null;
             }
             ArrayList<EventModel> list = new ArrayList<EventModel>();
             for(int i: ids){
-                list.add(EventHandler.searchEventID(i));
+                list.add(EventHandler.searchEventID(i, dbc));
             }
             return list;
         }
@@ -138,32 +138,32 @@ public class OrganizationHandler {
      * @param eventID the id of the event to be endorsed
      * @return 0 on success, -3 on failure to verify parameters, -1 on database error, -2 on already endorsed
      */
-    public static Integer endorseEvent(String oAuthCode, int orgID, int eventID){
+    public static Integer endorseEvent(String oAuthCode, int orgID, int eventID, DatabaseConnection dbc){
         try {
             if(oAuthCode == null){
                 return new Integer(-3);
             }
-            if(LambencyServer.dbc.searchForUser(oAuthCode) == null){
+            if(dbc.searchForUser(oAuthCode) == null){
                 Printing.println("Unable to verify user");
                 return new Integer(-3);
             }
-            if(searchOrgID(orgID) == null){
+            if(searchOrgID(orgID, dbc) == null){
                 Printing.println("Error in finding organization");
                 return new Integer(-3);
             }
-            if(!isAdmin(oAuthCode,orgID)){
+            if(!isAdmin(oAuthCode,orgID, dbc)){
                 Printing.println("User is not an admin");
                 return new Integer(-3);
             }
-            if(EventHandler.searchEventID(eventID) == null){
+            if(EventHandler.searchEventID(eventID, dbc) == null){
                 Printing.println("Error in finding event");
                 return new Integer(-3);
             }
-            if(LambencyServer.dbc.isEndorsed(orgID, eventID)){
+            if(dbc.isEndorsed(orgID, eventID)){
                 Printing.println("Event is already endorsed");
                 return new Integer(-2);
             }
-            return LambencyServer.dbc.endorseEvent(orgID, eventID);
+            return dbc.endorseEvent(orgID, eventID);
         }
         catch (SQLException e){
             Printing.println(e.toString());
@@ -177,32 +177,32 @@ public class OrganizationHandler {
      * @param eventID the id of the event to be unendorsed
      * @return 0 on success, -3 on failure to verify parameters, -1 on database error, -2 on not endorsed
      */
-    public static Integer unendorseEvent(String oAuthCode, int orgID, int eventID){
+    public static Integer unendorseEvent(String oAuthCode, int orgID, int eventID, DatabaseConnection dbc){
         try {
             if(oAuthCode == null){
                 return new Integer(-3);
             }
-            if(LambencyServer.dbc.searchForUser(oAuthCode) == null){
+            if(dbc.searchForUser(oAuthCode) == null){
                 Printing.println("Unable to verify user");
                 return new Integer(-3);
             }
-            if(searchOrgID(orgID) == null){
+            if(searchOrgID(orgID, dbc) == null){
                 Printing.println("Error in finding organization");
                 return new Integer(-3);
             }
-            if(!isAdmin(oAuthCode,orgID)){
+            if(!isAdmin(oAuthCode,orgID, dbc)){
                 Printing.println("User is not an admin");
                 return new Integer(-3);
             }
-            if(EventHandler.searchEventID(eventID) == null){
+            if(EventHandler.searchEventID(eventID, dbc) == null){
                 Printing.println("Error in finding event");
                 return new Integer(-3);
             }
-            if(!LambencyServer.dbc.isEndorsed(orgID, eventID)){
+            if(!dbc.isEndorsed(orgID, eventID)){
                 Printing.println("Event is not already endorsed");
                 return new Integer(-2);
             }
-            return LambencyServer.dbc.unendorseEvent(orgID, eventID);
+            return dbc.unendorseEvent(orgID, eventID);
         }
         catch (SQLException e){
             Printing.println(e.toString());
@@ -214,10 +214,10 @@ public class OrganizationHandler {
      * @param orgID the id of the organization
      * @return true if the user is an admin of the given org, otherwise false
      */
-    public static boolean isAdmin(String oAuthCode, int orgID){
+    public static boolean isAdmin(String oAuthCode, int orgID, DatabaseConnection dbc){
         try {
-            UserModel u = LambencyServer.dbc.searchForUser(oAuthCode);
-            GroupiesModel g = LambencyServer.dbc.searchGroupies(u.getUserId(), orgID);
+            UserModel u = dbc.searchForUser(oAuthCode);
+            GroupiesModel g = dbc.searchGroupies(u.getUserId(), orgID);
             if(g == null){
                 Printing.println("user is not a member of the given org");
                 return false;
@@ -235,25 +235,25 @@ public class OrganizationHandler {
     }
 
 
-    public static ArrayList<UserModel>[] getMembersAndOrganizers(String oAuthcode, int orgID){
+    public static ArrayList<UserModel>[] getMembersAndOrganizers(String oAuthcode, int orgID, DatabaseConnection dbc){
         try {
             ArrayList<UserModel>[] memsandorgs = new ArrayList[2];
             memsandorgs[0] = new ArrayList<>();
             memsandorgs[1] = new ArrayList<>();
-            UserModel u = LambencyServer.dbc.searchForUser(oAuthcode);
-            OrganizationModel org = LambencyServer.dbc.searchForOrg(orgID);
+            UserModel u = dbc.searchForUser(oAuthcode);
+            OrganizationModel org = dbc.searchForOrg(orgID);
             if(u == null || org == null){
                 return null;
             }
             else{
-                GroupiesModel g = LambencyServer.dbc.searchGroupies(u.getUserId(),orgID);
+                GroupiesModel g = dbc.searchGroupies(u.getUserId(),orgID);
                 if(g == null || g.getType() < DatabaseConnection.MEMBER){
                     return null;
                 }
                 else{
-                    ArrayList<Integer[]> user_ids = LambencyServer.dbc.getMembersAndOrganizers(orgID);
+                    ArrayList<Integer[]> user_ids = dbc.getMembersAndOrganizers(orgID);
                     for(Integer[] i: user_ids){
-                        UserModel user = LambencyServer.dbc.searchForUser(""+i[0], DatabaseConnection.LAMBNECYUSERID);
+                        UserModel user = dbc.searchForUser(""+i[0], DatabaseConnection.LAMBNECYUSERID);
                         if(i[1]==DatabaseConnection.MEMBER){
                             memsandorgs[0].add(user);
                         }
@@ -271,23 +271,23 @@ public class OrganizationHandler {
 
     }
 
-    public static ArrayList<UserModel> getRequestedToJoinMembers(String oAuthcode, int orgID){
+    public static ArrayList<UserModel> getRequestedToJoinMembers(String oAuthcode, int orgID, DatabaseConnection dbc){
         try {
             ArrayList<UserModel> users = new ArrayList<>();
-            UserModel u = LambencyServer.dbc.searchForUser(oAuthcode);
-            OrganizationModel org = LambencyServer.dbc.searchForOrg(orgID);
+            UserModel u = dbc.searchForUser(oAuthcode);
+            OrganizationModel org = dbc.searchForOrg(orgID);
             if(u == null || org == null){
                 return null;
             }
             else{
-                GroupiesModel g = LambencyServer.dbc.searchGroupies(u.getUserId(),orgID);
+                GroupiesModel g = dbc.searchGroupies(u.getUserId(),orgID);
                 if(g == null || g.getType() <= DatabaseConnection.MEMBER){
                     return null;
                 }
                 else{
-                    ArrayList<Integer> user_ids = LambencyServer.dbc.getRequestedToJoinUsers(orgID);
+                    ArrayList<Integer> user_ids = dbc.getRequestedToJoinUsers(orgID);
                     for(Integer i: user_ids){
-                        UserModel user = LambencyServer.dbc.searchForUser(""+i, DatabaseConnection.LAMBNECYUSERID);
+                        UserModel user = dbc.searchForUser(""+i, DatabaseConnection.LAMBNECYUSERID);
                         users.add(user);
                     }
                 }
@@ -307,24 +307,24 @@ public class OrganizationHandler {
      * @param type 0 is kick from org, 1 set to member, 2 set to organizer
      * @return 0 on success, -1 db error, -2 on insufficient permission, -3 on failure to verify parameters
      */
-    public static Integer manageUserPermissions(String oAuthCode, int orgID, int userChangedID, int type){
+    public static Integer manageUserPermissions(String oAuthCode, int orgID, int userChangedID, int type, DatabaseConnection dbc){
         try{
             if(oAuthCode == null){
                 return new Integer(-3);
             }
-            if(LambencyServer.dbc.searchForUser(oAuthCode) == null){
+            if(dbc.searchForUser(oAuthCode) == null){
                 Printing.println("Unable to find user");
                 return new Integer(-3);
             }
-            if(searchOrgID(orgID) == null){
+            if(searchOrgID(orgID, dbc) == null){
                 Printing.println("Error in finding organization");
                 return new Integer(-3);
             }
-            if(!isAdmin(oAuthCode,orgID)){
+            if(!isAdmin(oAuthCode,orgID, dbc)){
                 Printing.println("User is not an admin");
                 return new Integer(-2);
             }
-            if(LambencyServer.dbc.searchForUser("" + userChangedID, DatabaseConnection.LAMBNECYUSERID) == null){
+            if(dbc.searchForUser("" + userChangedID, DatabaseConnection.LAMBNECYUSERID) == null){
                 Printing.println("Unable to find User to be changed");
                 return new Integer(-3);
             }
@@ -332,19 +332,19 @@ public class OrganizationHandler {
                 Printing.println("invalid type");
                 return new Integer(-3);
             }
-            GroupiesModel g = LambencyServer.dbc.searchGroupies(userChangedID, orgID);
+            GroupiesModel g = dbc.searchGroupies(userChangedID, orgID);
             if(g == null){
                 Printing.println("User to be changed is not a member of org");
                 return new Integer(-3);
             }
             if(type == 0){
-                return LambencyServer.dbc.deleteGroupies(userChangedID, orgID, g.getType());
+                return dbc.deleteGroupies(userChangedID, orgID, g.getType());
             }
             else if(type == 1){
-                return LambencyServer.dbc.modifyGroupies(userChangedID, orgID, DatabaseConnection.MEMBER);
+                return dbc.modifyGroupies(userChangedID, orgID, DatabaseConnection.MEMBER);
             }
             else if(type == 2){
-                return LambencyServer.dbc.modifyGroupies(userChangedID, orgID, DatabaseConnection.ORGANIZER);
+                return dbc.modifyGroupies(userChangedID, orgID, DatabaseConnection.ORGANIZER);
             }
             return new Integer(-1);
         }
