@@ -35,7 +35,7 @@ public class GoogleLoginHandler {
 
     }
 
-    public UserAuthenticator getAuthenticator(String idTokenString) {
+    public UserAuthenticator getAuthenticator(String idTokenString, DatabaseConnection dbc) {
 
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
                 // Specify the CLIENT_ID of the app that accesses the backend:
@@ -48,7 +48,6 @@ public class GoogleLoginHandler {
 // (Receive idTokenString by HTTPS POST)
         GoogleIdToken idToken ;
 
-        DatabaseConnection dbc = LambencyServer.dbc;
         UserAuthenticator.Status status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
         UserAuthenticator ua = null;
         try {
