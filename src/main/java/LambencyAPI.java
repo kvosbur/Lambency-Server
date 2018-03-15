@@ -42,6 +42,9 @@ public interface LambencyAPI {
     @GET("Organization/endorse")
     Call<Integer> getEndorse(@Query("oAuthCode") String oAuthCode, @Query("orgID") String org_id, @Query("eventID") String event_id);
 
+    @GET("/Organization/changeUserPermissions")
+    Call<Integer> getChangeUserPermissions(@Query("oAuthCode") String oAuthCode, @Query("orgID") String org_id, @Query("userChanged") String changedID, @Query("type") String type);
+
     @GET("Organization/unendorse")
     Call<Integer> getUnendorse(@Query("oAuthCode") String oAuthCode, @Query("orgID") String org_id, @Query("eventID") String event_id);
 
