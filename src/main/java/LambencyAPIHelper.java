@@ -702,6 +702,42 @@ public void createOrganizationRetrofit(OrganizationModel org){
         });
     }
 
+    public void changeUserPermissionsRetrofit(String oAuthCode, String orgId, String userChangedID, String type)
+    {
+        //type  0 is remove from group
+        //      1 is set to member
+        //      2 is set to organizer
+        this.getInstance().getChangeUserPermissions(oAuthCode, orgId, userChangedID, type).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == 0){
+                    System.out.println("Success");
+                }
+                else if(ret == -1){
+                    System.out.println("an error has occurred");
+                }
+                else if(ret == -2){
+                    System.out.println("insufficient permissions");
+                }
+                else if(ret == -3){
+                    System.out.println("invalid arguments");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
         //OrganizationModel org = new OrganizationModel(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");
