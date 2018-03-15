@@ -140,6 +140,24 @@ public class LambencyServer{
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());
+        get("/User/eventsFeed", "application/json", (request, response) -> {
+            Printing.println("/User/eventsFeed");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String oAuthCode = request.queryParams("oAuthCode");
+            String latitude  = request.queryParams("latitude");
+            String longitude = request.queryParams("longitude");
+            if(oAuthCode == null || latitude == null || longitude == null){
+                Printing.println("null params");
+                databaseConnection.close();
+                return null;
+            }
+            List<EventModel> events = UserHandler.eventsFeed(oAuthCode, Double.parseDouble(latitude), Double.parseDouble(longitude), databaseConnection);
+            databaseConnection.close();
+            return events;
+        }, new JsonTransformer());
         post("/Organization/create", "application/json",
                 (request, response) -> {
                     Printing.println("/Organization/create");
