@@ -1,5 +1,7 @@
+import java.lang.reflect.Executable;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class UserHandler {
     /**
@@ -351,6 +353,93 @@ public class UserHandler {
             Printing.println(e.toString());
             return null;
         }
+    }
+
+    /**
+     *
+     * @param oAuthCode the code of the user
+     * @param dbc database connection to the server
+     * @param latitude latitude of the user
+     * @param longitude longitude of the user
+     * @return list of events to appear in events feed, on error null
+     */
+    public static List<EventModel> eventsFeed(String oAuthCode, double latitude, double longitude, DatabaseConnection dbc){
+        try {
+            UserModel u = dbc.searchForUser(oAuthCode);
+            List<EventModel> eventsFeed = new ArrayList<EventModel>();
+            u = updateOrgLists(u, dbc);
+            List<Integer> list = u.getMyOrgs();
+            for(int org: list){
+                ArrayList<Integer> events = dbc.getOrgEvents(org);
+                for(int event: events){
+                    if(!u.getEventsAttending().contains(event)){
+                        EventModel eventModel = dbc.searchEvents(event);
+                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                        eventsFeed.add(eventModel);
+                    }
+                }
+            }
+            //sort by date
+
+            for(int org: list){
+                ArrayList<Integer> events = dbc.getEndorsedEvents(org);
+                for(int event: events){
+                    if(!u.getEventsAttending().contains(event)){
+                        EventModel eventModel = dbc.searchEvents(event);
+                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                        eventsFeed.add(eventModel);
+                    }
+                }
+            }
+            //sort by date
+
+            list = u.getFollowingOrgs();
+            for(int org: list){
+                ArrayList<Integer> events = dbc.getOrgEvents(org);
+                for(int event: events){
+                    if(!u.getEventsAttending().contains(event)){
+                        EventModel eventModel = dbc.searchEvents(event);
+                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                        eventsFeed.add(eventModel);
+                    }
+                }
+            }
+            //sort by date
+
+            for(int org: list){
+                ArrayList<Integer> events = dbc.getEndorsedEvents(org);
+                for(int event: events){
+                    if(!u.getEventsAttending().contains(event)){
+                        EventModel eventModel = dbc.searchEvents(event);
+                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                        eventsFeed.add(eventModel);
+                    }
+                }
+            }
+            //sort by date
+
+            if (eventsFeed.size() < 20){
+                List<EventModel> nearby = EventHandler.getEventsByLocation(latitude, longitude, dbc);
+                int i = 0;
+                while(eventsFeed.size() < 20 && i < nearby.size()){
+                    eventsFeed.add(nearby.get(i));
+                    i++;
+                }
+            }
+            else{
+                eventsFeed = eventsFeed.subList(0 , 20);
+            }
+            return eventsFeed;
+        }
+        catch (SQLException e){
+            Printing.println("SQLException");
+            Printing.println(e.toString());
+        }
+        catch (Exception e){
+            Printing.println("General Exception");
+            Printing.println(e.toString());
+        }
+        return null;
     }
 
 
