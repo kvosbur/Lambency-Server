@@ -2,9 +2,7 @@ import com.google.maps.model.LatLng;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class EventHandler {
 
@@ -355,6 +353,16 @@ public class EventHandler {
         }
         return new Integer(-1);
 
+    }
+
+    /**
+     * Sorts a list of EventModel by their start time
+     * @param events
+     * @return the sorted list of EventModel
+     */
+    public static List<EventModel> sortEventListByDate(List<EventModel> events){
+        Collections.sort(events, Comparator.comparing(EventModel::getStart));
+        return events;
     }
 
 
