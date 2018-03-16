@@ -367,62 +367,81 @@ public class UserHandler {
         try {
             UserModel u = dbc.searchForUser(oAuthCode);
             List<EventModel> eventsFeed = new ArrayList<EventModel>();
+            List<EventModel> subList = new ArrayList<EventModel>();
             u = updateOrgLists(u, dbc);
             List<Integer> list = u.getMyOrgs();
             for(int org: list){
                 ArrayList<Integer> events = dbc.getOrgEvents(org);
                 for(int event: events){
+                    EventModel eventModel = dbc.searchEvents(event);
+                    eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                     if(!u.getEventsAttending().contains(event)){
-                        EventModel eventModel = dbc.searchEvents(event);
-                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                        eventsFeed.add(eventModel);
+                        subList.add(eventModel);
                     }
                 }
             }
             //sort by date
+            subList = EventHandler.sortEventListByDate(subList);
+            //add to eventsFeed
+            eventsFeed.addAll(subList);
+            subList = new ArrayList<EventModel>();
 
             for(int org: list){
                 ArrayList<Integer> events = dbc.getEndorsedEvents(org);
                 for(int event: events){
-                    if(!u.getEventsAttending().contains(event)){
-                        EventModel eventModel = dbc.searchEvents(event);
-                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                        eventsFeed.add(eventModel);
+                    EventModel eventModel = dbc.searchEvents(event);
+                    eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                    if(!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)){
+                        subList.add(eventModel);
                     }
                 }
             }
             //sort by date
+            subList = EventHandler.sortEventListByDate(subList);
+            //add to eventsFeed
+            eventsFeed.addAll(subList);
+            subList = new ArrayList<EventModel>();
 
             list = u.getFollowingOrgs();
             for(int org: list){
                 ArrayList<Integer> events = dbc.getOrgEvents(org);
                 for(int event: events){
-                    if(!u.getEventsAttending().contains(event)){
-                        EventModel eventModel = dbc.searchEvents(event);
-                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                        eventsFeed.add(eventModel);
+                    EventModel eventModel = dbc.searchEvents(event);
+                    eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                    if(!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)){
+                        subList.add(eventModel);
                     }
                 }
             }
             //sort by date
+            subList = EventHandler.sortEventListByDate(subList);
+            //add to eventsFeed
+            eventsFeed.addAll(subList);
+            subList = new ArrayList<EventModel>();
 
             for(int org: list){
                 ArrayList<Integer> events = dbc.getEndorsedEvents(org);
                 for(int event: events){
-                    if(!u.getEventsAttending().contains(event)){
-                        EventModel eventModel = dbc.searchEvents(event);
-                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                        eventsFeed.add(eventModel);
+                    EventModel eventModel = dbc.searchEvents(event);
+                    eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                    if(!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)){
+                        subList.add(eventModel);
                     }
                 }
             }
             //sort by date
+            subList = EventHandler.sortEventListByDate(subList);
+            //add to eventsFeed
+            eventsFeed.addAll(subList);
 
             if (eventsFeed.size() < 20){
                 List<EventModel> nearby = EventHandler.getEventsByLocation(latitude, longitude, dbc);
+                nearby = EventHandler.sortEventListByDate(nearby);
                 int i = 0;
                 while(eventsFeed.size() < 20 && i < nearby.size()){
-                    eventsFeed.add(nearby.get(i));
+                    if(!u.getEventsAttending().contains(nearby.get(i).getEvent_id()) && !eventsFeed.contains(nearby.get(i))) {
+                        eventsFeed.add(nearby.get(i));
+                    }
                     i++;
                 }
             }
