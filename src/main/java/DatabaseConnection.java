@@ -685,6 +685,8 @@ public class DatabaseConnection {
         return new Integer(counter);
     }
 
+
+
     /**
      * Given a code figure out what event it is for and whether it is a clock in or clock out code
      * @param code string of code to look for matching event
@@ -1395,6 +1397,32 @@ public class DatabaseConnection {
 
     }
 
+    /**
+     * Returns the emails of all the users that are following or are members/organizers for the organization given
+     * @param ordID the id of the organization to search for
+     * @return String array of user Emails
+     */
+    public ArrayList<String> getUserEmailsToNotify(int orgID) throws SQLException{
+
+        //create string for query
+        String query = "SELECT user.user_email FROM groupies INNER JOIN (user) ON (groupies.org_id = ? AND groupies.user_id = user.user_id" +
+                " AND groupies.confirmed = TRUE)";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, orgID);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<String> userEmails = new ArrayList<>();
+
+        //check for results and return object
+        while(rs.next()){
+            String userEmail = rs.getString(1);
+            userEmails.add(userEmail);
+        }
+
+        return userEmails;
+    }
 
     /**
      * END ORGANIZATION METHODS
