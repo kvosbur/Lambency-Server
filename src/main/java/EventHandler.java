@@ -2,6 +2,7 @@ import com.google.maps.model.LatLng;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class EventHandler {
@@ -33,8 +34,13 @@ public class EventHandler {
             int event_id = dbc.createEvent(event.getOrg_id(),event.getName(),event.getStart(),
                     event.getEnd(),event.getDescription(),event.getLocation(),event.getImage_path(), latlng.lat, latlng.lng,
                     event.getClockInCode(), event.getClockOutCode());
-            Printing.println((latlng == null));
-            return dbc.searchEvents(event_id);
+
+            //notify users of event creation
+            ArrayList<String> userEmails = dbc.getUserEmailsToNotify(event.getOrg_id());
+            EventModel eventRet = dbc.searchEvents(event_id);
+            sendEmailsOfEventCreation(userEmails,eventRet,dbc);
+
+            return eventRet;
         } catch (SQLException e) {
             Printing.println("SQL exception: ");
             Printing.println(e.toString());
@@ -365,7 +371,44 @@ public class EventHandler {
         return events;
     }
 
+    public static void sendEmailsOfEventCreation(ArrayList<String> userEmails, EventModel event, DatabaseConnection dbc){
 
+        try{
+            //create email
+            OrganizationModel org = dbc.searchForOrg(event.getOrg_id());
+            if(org == null){
+                Printing.println("Issue finding Organization to go with event created");
+                return;
+            }
+            String subject = "New Event From " + org.getName();
+            StringBuilder sb = new StringBuilder();
+            sb.append("<strong>" + event.getName() + "</strong><br>");
+
+            String starting = new SimpleDateFormat("MMMM dd, YYYY hh:mm a").format(event.getStart());
+            String ending = new SimpleDateFormat("MMMM dd, YYYY hh:mm a").format(event.getEnd());
+
+            sb.append("<u>Starts</u> : " + starting + "<br><u>Ends</u> : " + ending + "<br>");
+
+            sb.append("<u>Location</u> : " + event.getLocation());
+            sb.append("<br><u>Description</u><br>" + event.getDescription());
+            sb.append("<br><br><div style=\"opacity:0.2;\">*Please do not reply to this email as this is an automated message.*</div>");
+
+            //create GMailHelper object
+            GMailHelper gMailHelper= new GMailHelper();
+
+            //send emails to all users
+            for(String userEmail: userEmails){
+                int ret = gMailHelper.sendEmail(userEmail,subject,sb.toString());
+                if(ret == GMailHelper.FAILURE){
+                    Printing.println("Issue sending email to " + userEmail + " for event creation");
+                }
+            }
+
+        }catch(Exception e){
+            Printing.println("Issue trying to send emails to users for event creation.");
+            Printing.println(e.toString());
+        }
+    }
 
 
 }
