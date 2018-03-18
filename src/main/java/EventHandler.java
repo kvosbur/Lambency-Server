@@ -60,8 +60,17 @@ public class EventHandler {
     public static int updateEvent(EventModel event, DatabaseConnection dbc) {
 
         try{
+            EventModel prev = dbc.searchEvents(event.getEvent_id());
             dbc.modifyEventInfo(event.getEvent_id(),event.getName(),event.getStart(),event.getEnd(),
                     event.getDescription(),event.getLocation(),event.getImage_path(),event.getLattitude(),event.getLongitude());
+            EventModel now = dbc.searchEvents(event.getEvent_id());
+
+            //send emails to attending users of info change
+            ArrayList<Object> users = dbc.searchEventAttendanceUsers(prev.getEvent_id(),true);
+            if(users != null) {
+                EventHandler.sendEmailsOfEventModification(users, prev, now, dbc);
+            }
+
             return 0;
         }
         catch (SQLException e){
@@ -371,6 +380,11 @@ public class EventHandler {
         return events;
     }
 
+    /**
+     * Sends emails to users listed of the new event
+     * @param userEmails list of user emails
+     * @param event The event info to be displayed in email
+     */
     public static void sendEmailsOfEventCreation(ArrayList<String> userEmails, EventModel event, DatabaseConnection dbc){
 
         try{
@@ -410,5 +424,91 @@ public class EventHandler {
         }
     }
 
+    /**
+     * Sends emails to users listed of the modified event
+     * @param users list of users
+     * @param prev The event info as it previous was
+     * @param now The event info as it now is
+     */
+    public static void sendEmailsOfEventModification(ArrayList<Object> users, EventModel prev, EventModel now, DatabaseConnection dbc){
 
+        try{
+
+            boolean changed = false;
+            //create email
+            String subject = "Event Info changed for " + now.getName();
+
+            //for each info item of event bold title of it if the info has changed
+            StringBuilder sb = new StringBuilder();
+            String name;
+            if(prev.getName().equals(now.getName())){
+                name = now.getName() + "<br>";
+            }else{
+                name = "<strong>" + now.getName() + "</strong><br>";
+                changed = true;
+            }
+            sb.append(name);
+
+            String startingPrev = new SimpleDateFormat("MMMM dd, YYYY hh:mm a").format(prev.getStart());
+            String startingNow = new SimpleDateFormat("MMMM dd, YYYY hh:mm a").format(now.getStart());
+            String endingPrev = new SimpleDateFormat("MMMM dd, YYYY hh:mm a").format(prev.getEnd());
+            String endingNow = new SimpleDateFormat("MMMM dd, YYYY hh:mm a").format(now.getEnd());
+
+            String starting;
+            String ending;
+            if(startingNow.equals(startingPrev)){
+                starting = "<u>Starts</u> : " + startingNow + "<br>";
+            }else{
+                starting = "<strong><u>Starts</u> : " + startingNow + "</strong><br>";
+                changed = true;
+            }
+
+            if(endingNow.equals(endingPrev)){
+                ending = "<u>Starts</u> : " + endingNow + "<br>";
+            }else{
+                ending = "<strong><u>Ends</u> : " + endingNow + "</strong><br>";
+                changed = true;
+            }
+
+            sb.append(starting + ending);
+
+            String location;
+            if(prev.getLocation().equals(now.getLocation())){
+                location = "<u>Location</u> : " + prev.getLocation();
+            }else{
+                location = "<strong><u>Location</u> : " + prev.getLocation() + "</strong>";
+                changed = true;
+            }
+            sb.append(location + "<br>");
+
+            String description;
+            if(prev.getDescription().equals(now.getDescription())){
+                description = "<u>Description</u><br>" + now.getDescription();
+            }else{
+                description = "<strong><u>Description</u><br>" + now.getDescription() + "</strong>";
+                changed = true;
+            }
+
+            sb.append("<br><br>*Please do not reply to this email as this is an automated message.*");
+
+            //don't send emails if nothing really changed
+            if(changed) {
+                //create GMailHelper object
+                GMailHelper gMailHelper = new GMailHelper();
+
+                //send emails to all users
+                for (Object userObject : users) {
+                    UserModel user =  (UserModel) userObject;
+                    int ret = gMailHelper.sendEmail(user.getEmail(), subject, sb.toString());
+                    if (ret == GMailHelper.FAILURE) {
+                        Printing.println("Issue sending email to " + user.getEmail() + " for event creation");
+                    }
+                }
+            }
+
+        }catch(Exception e){
+            Printing.println("Issue trying to send emails to users for event modification.");
+            e.printStackTrace();
+        }
+    }
 }

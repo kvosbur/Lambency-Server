@@ -21,7 +21,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -210,24 +209,9 @@ public class GMailHelper {
 
     public static void main(String[] args) throws IOException {
         //send email using gmail
-        /*
+
         GMailHelper gmh = new GMailHelper();
         gmh.sendEmail("kvosbur@purdue.edu", "subject", "this is the body in the text");
-        */
-        try {
-            DatabaseConnection dbc = new DatabaseConnection();
-            /*
-            UserModel u = dbc.searchForUser("1", DatabaseConnection.LAMBNECYUSERID);
-            int orgID = dbc.createOrganization("My OrganizationModel", "This is a description", "Org@gmail.com", u.getUserId(), "West Lafayette",
-                    "img", u.getUserId());
 
-            OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
-            */
-            EventModel event = new EventModel("Event 1", 1, new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 500),
-                    "This is a test event", "Location", "imgg",1, 5, 5, "ClockIn", "ClockOut");
-            EventHandler.createEvent(event,dbc);
-        }catch(Exception e){
-            Printing.println("error");
-        }
     }
 }
