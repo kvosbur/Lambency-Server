@@ -79,6 +79,9 @@ public interface LambencyAPI {
     @GET("User/registerForEvent")
     Call<Integer> getRegisterEvent(@Query("oAuthCode") String oAuthCode, @Query("eventID") int eventID);
 
+    @GET("User/eventsFeed")
+    Call<List<EventModel>> getEventsFeed(@Query("oAuthCode") String oAuthCode, @Query("latitude") String latitude, @Query("longitude") String longitude);
+
     @POST("Event/create")
     Call<Integer> createEvent(@Body EventModel eventModel);
 
