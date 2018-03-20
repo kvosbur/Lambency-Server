@@ -1352,8 +1352,7 @@ public class DatabaseConnection {
         return array;
     }
 
-
-    public ArrayList<Integer[]> getMembersAndOrganizers( int orgID) throws SQLException{
+    public ArrayList<Integer>[] getMembersAndOrganizers( int orgID) throws SQLException{
 
         String fields = "user_id, groupies_type";
         String query = "SELECT "+ fields +" FROM groupies WHERE org_id = ? AND ( groupies_type = ? OR groupies_type = ?) AND confirmed = ? ORDER BY confirmed asc";
@@ -1365,14 +1364,28 @@ public class DatabaseConnection {
         ps.setBoolean(4,true);
         ResultSet rs = ps.executeQuery();
 
-        ArrayList<Integer[]> userIDs = new ArrayList<>();
+        ArrayList<Integer>[] userIDs = new ArrayList[2];
+
+        ArrayList<Integer> members = new ArrayList<>();
+        ArrayList<Integer> organizers = new ArrayList<>();
 
         while(rs.next()){
             Integer[] i = new Integer[2];
-            i[0] = rs.getInt(1);
-            i[1] = rs.getInt(2);
-            userIDs.add(i);
+            int id  = rs.getInt(1);
+            int type = rs.getInt(2);
+
+            if(type == MEMBER){
+                members.add(id);
+            }
+            else if(type == ORGANIZER){
+                organizers.add(id);
+            }
         }
+        userIDs[0] = members;
+        userIDs[1] = organizers;
+
+        // In userIDs the Integer[] at location 0 should be an array with all of the ids for members
+        //                          at location 1 should be an array with all ids for organizers
         return userIDs;
 
     }
