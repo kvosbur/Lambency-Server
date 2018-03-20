@@ -234,7 +234,13 @@ public class OrganizationHandler {
         }
     }
 
-
+    /**
+     *
+     * @param oAuthcode         OAuth code for user
+     * @param orgID             Organization id to get members for
+     * @param dbc               database to check
+     * @return        ArrayList<UserModel>[] where at position 0 is all the members and position 1 is all the organizers
+     */
     public static ArrayList<UserModel>[] getMembersAndOrganizers(String oAuthcode, int orgID, DatabaseConnection dbc){
         try {
             ArrayList<UserModel>[] memsandorgs = new ArrayList[2];
@@ -251,15 +257,14 @@ public class OrganizationHandler {
                     return null;
                 }
                 else{
-                    ArrayList<Integer[]> user_ids = dbc.getMembersAndOrganizers(orgID);
-                    for(Integer[] i: user_ids){
-                        UserModel user = dbc.searchForUser(""+i[0], DatabaseConnection.LAMBNECYUSERID);
-                        if(i[1]==DatabaseConnection.MEMBER){
+                    ArrayList<Integer>[] user_ids = dbc.getMembersAndOrganizers(orgID);
+                    for(Integer i: user_ids[0]){
+                        UserModel user = dbc.searchForUser(""+i, DatabaseConnection.LAMBNECYUSERID);
                             memsandorgs[0].add(user);
-                        }
-                        else if(i[1]==DatabaseConnection.ORGANIZER){
-                            memsandorgs[0].add(user);
-                        }
+                    }
+                    for(Integer i: user_ids[1]){
+                        UserModel user = dbc.searchForUser(""+i, DatabaseConnection.LAMBNECYUSERID);
+                        memsandorgs[1].add(user);
                     }
                 }
             }
