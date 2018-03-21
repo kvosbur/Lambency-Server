@@ -445,22 +445,25 @@ public class OrganizationHandler {
             //check if any of those organizations match given orgid given
             if((membersOf != null && membersOf.contains(orgID)) || (organizersOf != null && organizersOf.contains(orgID))){
                 //find user by email
-                UserModel inviting = null; //implement database method
-                inviting = dbc.searchForUser("2",DatabaseConnection.LAMBNECYUSERID);
-
-                if(inviting == null){
+                int invitedID= dbc.getUserByEmail(emailString);
+                if(invitedID == -1){
+                    //no match found
                     return 5;
+                }else if(invitedID == -2){
+                    //multiple matches found
+                    return 6;
                 }
+                UserModel invited = dbc.searchForUser("" + invitedID,DatabaseConnection.LAMBNECYUSERID);
 
                 //send invite to user in database
-                dbc.addGroupies(inviting.getUserId(),orgID,DatabaseConnection.MEMBER,2);
+                dbc.addGroupies(invited.getUserId(),orgID,DatabaseConnection.MEMBER,2);
 
                 //send email to user
                 OrganizationModel org = dbc.searchForOrg(orgID);
-                int ret = sendInviteEmail(inviting,org);
+                int ret = sendInviteEmail(invited,org);
                 if(ret == 1){
                     //issue sending email to user
-                    return 6;
+                    return 7;
                 }
                 return 0;
             }else{
