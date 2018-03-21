@@ -1,6 +1,5 @@
 import com.google.gson.Gson;
 
-import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -495,6 +494,25 @@ public class LambencyServer{
                 return null;
             }
             MyLambencyModel ret = UserHandler.getMyLambency(oAuthCode, databaseConnection);
+            databaseConnection.close();
+            return ret;
+        },new JsonTransformer());
+
+        post("/Organization/InviteUser","application/json",(request, response) -> {
+
+            Printing.println("/Organization/InviteUser");
+            String oAuthCode = request.queryParams("oAuthCode");
+            int orgID = Integer.parseInt(request.queryParams("orgID"));
+            String userEmail = request.queryParams("emailString");
+            if(oAuthCode == null || userEmail == null){
+                Printing.println("oAuthCode is null or emailString is null. (Note: those are the correct spellings for params)");
+                return -1;
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return -2;
+            }
+            int ret = OrganizationHandler.sendOrganizationInvite(oAuthCode,orgID,userEmail,databaseConnection);
             databaseConnection.close();
             return ret;
         },new JsonTransformer());
