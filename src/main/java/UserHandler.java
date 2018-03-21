@@ -1,4 +1,3 @@
-import java.lang.reflect.Executable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,7 @@ public class UserHandler {
                 GroupiesModel g = dbc.searchGroupies(u.getUserId(), orgID);
                 if (g == null) {
                     //if org is found and no groupies already exist, set to follow in database
-                    dbc.addGroupies(u.getUserId(), orgID, DatabaseConnection.FOLLOW, true);
+                    dbc.addGroupies(u.getUserId(), orgID, DatabaseConnection.FOLLOW, 1);
                     return 0;
                 } else {
                     //GroupiesModel already exist for this user
@@ -110,14 +109,14 @@ public class UserHandler {
                 GroupiesModel g = dbc.searchGroupies(u.getUserId(), orgID);
                 if (g == null) {
                     //if org is found and no groupies already exist, set to follow in database
-                    dbc.addGroupies(u.getUserId(), orgID, DatabaseConnection.MEMBER, false);
+                    dbc.addGroupies(u.getUserId(), orgID, DatabaseConnection.MEMBER, 0);
                     return 0;
                 } else {
                     //GroupiesModel already exist for this user
                     if(g.getType() == DatabaseConnection.FOLLOW){
                         //upgrade to a member
                         dbc.deleteGroupies(u.getUserId(), orgID, DatabaseConnection.FOLLOW);
-                        dbc.addGroupies(u.getUserId(), orgID, DatabaseConnection.MEMBER, false);
+                        dbc.addGroupies(u.getUserId(), orgID, DatabaseConnection.MEMBER, 0);
                         return 0;
                     }
                     //user already has higher or equal permissions
