@@ -212,6 +212,5 @@ public class GMailHelper {
 
         GMailHelper gmh = new GMailHelper();
         gmh.sendEmail("kvosbur@purdue.edu", "subject", "this is the body in the text");
-
     }
 }

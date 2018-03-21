@@ -421,4 +421,92 @@ public class OrganizationHandler {
         }
     }
 
+
+    /**
+     *  This method will give a request for a user to join an organization by getting the user email and orgid
+     * @param oAuthCode     String oAuthCode for Organizer who is responding to the join request
+     * @param orgID         Int orgID for org that the request is for
+     * @param emailString   String email of user to send invite to
+     * @param dbc           Database connection to use
+     * @return              return -1 if failure, 0 if success join and 1 if success reject
+     */
+    public static Integer sendOrganizationInvite(String oAuthCode, int orgID, String emailString, DatabaseConnection dbc){
+        try{
+            //first check if person with oAuthCode is in designated org
+            //get user model of user sending invite
+            UserModel user = dbc.searchForUser(oAuthCode);
+            if(user == null){
+                return 3;
+            }
+            //get organizations this user is a member/organizer of
+            ArrayList<Integer> membersOf = dbc.getUserList(user.getUserId(),DatabaseConnection.MEMBER,true);
+            ArrayList<Integer> organizersOf = dbc.getUserList(user.getUserId(),DatabaseConnection.ORGANIZER,true);
+
+            //check if any of those organizations match given orgid given
+            if((membersOf != null && membersOf.contains(orgID)) || (organizersOf != null && organizersOf.contains(orgID))){
+                //find user by email
+                UserModel inviting = null; //implement database method
+                inviting = dbc.searchForUser("2",DatabaseConnection.LAMBNECYUSERID);
+
+                if(inviting == null){
+                    return 5;
+                }
+
+                //send invite to user in database
+                dbc.addGroupies(inviting.getUserId(),orgID,DatabaseConnection.MEMBER,false);
+
+                //send email to user
+                OrganizationModel org = dbc.searchForOrg(orgID);
+                int ret = sendInviteEmail(inviting,org);
+                if(ret == 1){
+                    //issue sending email to user
+                    return 6;
+                }
+                return 0;
+            }else{
+                //they do not have the permissions to invite to this organization
+                return 4;
+            }
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            return 1;
+        }catch(Exception e){
+            Printing.println(e.toString());
+            return 2;
+        }
+    }
+
+    /**
+     *  This method will send an invite email to the given user from given organization
+     * @param org the oranization that is inviting the user
+     * @param invited the user that is being invited
+     * @return return 1 if failure, 0 if successfully sent email
+     */
+    public static int sendInviteEmail(UserModel invited, OrganizationModel org){
+
+        //create email content
+        String subject;
+        StringBuilder sb = new StringBuilder();
+        //set subject
+        subject = "You Have Been Invited To Join " + org.getName();
+
+        //set message body
+        sb.append(subject + "!<br>");
+        sb.append("Please go into your requests in order to accept invitation.<br><br>*This is an automated message. Please do" +
+                "not respond to this email.*");
+
+        //create GMailHelper object
+        GMailHelper gMailHelper = new GMailHelper();
+
+        //send emails to all users
+        Printing.println("email is : " + invited.getEmail());
+        int ret = gMailHelper.sendEmail(invited.getEmail(), subject, sb.toString());
+        if (ret == GMailHelper.FAILURE) {
+            return 1;
+        }
+        return 0;
+
+    }
+
 }
