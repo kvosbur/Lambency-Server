@@ -453,7 +453,7 @@ public class OrganizationHandler {
                 }
 
                 //send invite to user in database
-                dbc.addGroupies(inviting.getUserId(),orgID,DatabaseConnection.MEMBER,false);
+                dbc.addGroupies(inviting.getUserId(),orgID,DatabaseConnection.MEMBER,2);
 
                 //send email to user
                 OrganizationModel org = dbc.searchForOrg(orgID);
