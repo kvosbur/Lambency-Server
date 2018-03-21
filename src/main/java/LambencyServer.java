@@ -1,5 +1,6 @@
 import com.google.gson.Gson;
 
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -291,6 +292,26 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
 
+        get("/Organization/respondToJoinRequest","application/json", (request, response) -> {
+            Printing.println("Organization/respondToJoinRequest");
+            String oAuthCode = request.queryParams("oAuthCode");
+            String orgID = request.queryParams("orgID");
+            String userID = request.queryParams("userID");
+            String accepted = request.queryParams("approved");
+            if(oAuthCode == null || orgID == null || userID == null || accepted == null){
+                Printing.println("Null object recieved from retrofit");
+                return null;
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                Printing.println("Failed to create database connection");
+                return null;
+            }
+            Integer ret = OrganizationHandler.respondToRequest(oAuthCode,Integer.parseInt(orgID), Integer.parseInt(userID), Boolean.parseBoolean(accepted), databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
+
         get("/Organization/getMembersAndOrganizers", "application.json", (request, response) -> {
             Printing.println("Organization/getMembersAndOrganizers");
             String oAuthCode = request.queryParams("oAuthCode");
@@ -483,13 +504,35 @@ public class LambencyServer{
 
     public static void main(String[]args){
 
-        LambencyServer lb = new LambencyServer();
+//        //LambencyServer lb = new LambencyServer();
+//
+//        DatabaseConnection dbc = new DatabaseConnection();
+//        if(dbc == null){
+//            System.out.println("FAILURE NO DBC");
+//            return;
+//        }
+//        UserAuthenticator ua = FacebookLogin.facebookLogin("id","first", "last", "email@mail.com",dbc );
+//        //EventModel e = new EventModel("Event", 8 , new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description","location", "path", 10,   100, 1200);
+//        //int eventID = EventHandler.createEvent(e);
+//        //UserHandler.registerEvent(ua.getoAuthCode(), eventID);
+//        try {
+//            UserModel organizer = dbc.searchForUser("1", DatabaseConnection.LAMBNECYUSERID);
+//
+//            OrganizationModel org = dbc.searchForOrg(1);
+//
+//            System.out.println(dbc.addGroupies(organizer.getUserId(),org.getOrgID(),DatabaseConnection.ORGANIZER,true));
+//            UserModel usr = dbc.searchForUser(""+2,DatabaseConnection.LAMBNECYUSERID);
+//
+//            System.out.println(dbc.addGroupies(usr.getUserId(),org.getOrgID(),DatabaseConnection.MEMBER,false));
+//
+//            System.out.println(OrganizationHandler.getRequestedToJoinMembers(organizer.getOauthToken(),org.getOrgID(),dbc));
+//            System.out.println(OrganizationHandler.respondToRequest(organizer.getOauthToken(),org.getOrgID(),usr.getUserId(),true,dbc));
+//
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        dbc.close();
 
-        /*
-        UserAuthenticator ua = FacebookLogin.facebookLogin("id","first", "last", "email@mail.com" );
-        EventModel e = new EventModel("Event", 8 , new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description","location", "path", 10,   100, 1200);
-        int eventID = EventHandler.createEvent(e);
-        UserHandler.registerEvent(ua.getoAuthCode(), eventID);
-        */
     }
 }

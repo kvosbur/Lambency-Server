@@ -234,7 +234,13 @@ public class OrganizationHandler {
         }
     }
 
-
+    /**
+     *
+     * @param oAuthcode         OAuth code for user
+     * @param orgID             Organization id to get members for
+     * @param dbc               database to check
+     * @return        ArrayList<UserModel>[] where at position 0 is all the members and position 1 is all the organizers
+     */
     public static ArrayList<UserModel>[] getMembersAndOrganizers(String oAuthcode, int orgID, DatabaseConnection dbc){
         try {
             ArrayList<UserModel>[] memsandorgs = new ArrayList[2];
@@ -251,15 +257,14 @@ public class OrganizationHandler {
                     return null;
                 }
                 else{
-                    ArrayList<Integer[]> user_ids = dbc.getMembersAndOrganizers(orgID);
-                    for(Integer[] i: user_ids){
-                        UserModel user = dbc.searchForUser(""+i[0], DatabaseConnection.LAMBNECYUSERID);
-                        if(i[1]==DatabaseConnection.MEMBER){
+                    ArrayList<Integer>[] user_ids = dbc.getMembersAndOrganizers(orgID);
+                    for(Integer i: user_ids[0]){
+                        UserModel user = dbc.searchForUser(""+i, DatabaseConnection.LAMBNECYUSERID);
                             memsandorgs[0].add(user);
-                        }
-                        else if(i[1]==DatabaseConnection.ORGANIZER){
-                            memsandorgs[0].add(user);
-                        }
+                    }
+                    for(Integer i: user_ids[1]){
+                        UserModel user = dbc.searchForUser(""+i, DatabaseConnection.LAMBNECYUSERID);
+                        memsandorgs[1].add(user);
                     }
                 }
             }
@@ -347,6 +352,68 @@ public class OrganizationHandler {
                 return dbc.modifyGroupies(userChangedID, orgID, DatabaseConnection.ORGANIZER);
             }
             return new Integer(-1);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            return new Integer(-1);
+        }
+    }
+
+
+    /**
+     *
+     * @param oAuthCode     String oAuthCode for Organizer who is responding to the join request
+     * @param orgID         Int orgID for org that the request is for
+     * @param userID        int USER id for the user whose request is being responded to
+     * @param approved      boolean for whether they are approved or not
+     * @param dbc           Database connection to use
+     * @return              return -1 if failure, 0 if success join and 1 if success reject
+     */
+    public static Integer respondToRequest(String oAuthCode, int orgID, int userID, boolean approved, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null){
+                return -1;
+            }
+            UserModel organizer = dbc.searchForUser(oAuthCode);
+            if(organizer == null){
+                Printing.println("organizer does not exist");
+                return -1;
+            }
+            OrganizationModel org = dbc.searchForOrg(orgID);
+            if(org == null){
+                Printing.println("Organization does not exist. Try again next time");
+                return -1;
+            }
+            GroupiesModel g = dbc.searchGroupies(organizer.getUserId(), orgID);
+            if(g == null || g.type != DatabaseConnection.ORGANIZER){
+                Printing.println("user is not an organizer of the given org");
+                return -1;
+            }
+
+            UserModel requester = dbc.searchForUser(Integer.toString(userID),DatabaseConnection.LAMBNECYUSERID);
+            if(requester == null){
+                Printing.println("Requester does not actually exist.... sad");
+                return -1;
+            }
+
+            GroupiesModel request = dbc.searchGroupies(userID,orgID);
+            if(request == null){
+                Printing.println("Request does not actually exist... You failed your Highness. I am a Jedi, like my father before me.");
+                return -1;
+            }
+
+            // at this point everything exists
+
+            if(approved){
+                dbc.approveMemberGroupie(userID,orgID);
+                return 0;
+            }
+            else{
+                dbc.deleteGroupies(userID,orgID,DatabaseConnection.MEMBER);
+                return 1;
+            }
+
+
         }
         catch (SQLException e){
             e.printStackTrace();

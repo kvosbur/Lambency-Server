@@ -51,6 +51,9 @@ public interface LambencyAPI {
     @GET("Organization/getMembersAndOrganizers")
     Call<ArrayList<UserModel>[]> getMembersAndOrganizers(@Query("oAuthCode") String oAuthCode, @Query("orgID") int orgID);
 
+    @GET("Organization/respondToJoinRequest")
+    Call<Integer> respondToJoinRequest(@Query("oAuthCode") String oAuthCode, @Query("orgID") int orgID, @Query("userID") int userID, @Query("approved") boolean
+                                        approved);
 
     @GET("Event/search")
     Call<List<EventModel>> getEventsWithParams(@Query("lat") double lat, @Query("long") double longitude,
@@ -78,6 +81,9 @@ public interface LambencyAPI {
 
     @GET("User/registerForEvent")
     Call<Integer> getRegisterEvent(@Query("oAuthCode") String oAuthCode, @Query("eventID") int eventID);
+
+    @GET("User/eventsFeed")
+    Call<List<EventModel>> getEventsFeed(@Query("oAuthCode") String oAuthCode, @Query("latitude") String latitude, @Query("longitude") String longitude);
 
     @POST("Event/create")
     Call<Integer> createEvent(@Body EventModel eventModel);

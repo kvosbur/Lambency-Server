@@ -685,6 +685,8 @@ public class DatabaseConnection {
         return new Integer(counter);
     }
 
+
+
     /**
      * Given a code figure out what event it is for and whether it is a clock in or clock out code
      * @param code string of code to look for matching event
@@ -1150,6 +1152,33 @@ public class DatabaseConnection {
 
 
     /**
+     * Update Groupie for a member request to an officially joined Member Groupie
+     *
+     * @param user_id       User id for groupie that needs to be official
+     * @param org_id        Org id for Groupie that needs to be official
+     * @return              -1 on failure, 0 on success
+     * @throws SQLException
+     */
+    public int approveMemberGroupie(int user_id, int org_id) throws SQLException{
+        PreparedStatement ps = connect.prepareStatement("UPDATE groupies SET confirmed = ? WHERE user_id = ? AND org_id = ? AND groupies_type = ?");
+
+        if(ps != null){
+            ps.setBoolean(1,true);
+            ps.setInt(2,user_id);
+            ps.setInt(3,org_id);
+            ps.setInt(4, MEMBER);
+        }
+        else {
+            return -1;
+        }
+        ps.executeUpdate();
+
+        return 0;
+    }
+
+
+
+    /**
      * DESCRIPTION - search for groupie status for a user and a given organization
      * @param user_id the id of the user to be search for
      * @param org_id the id of the organization
@@ -1350,8 +1379,7 @@ public class DatabaseConnection {
         return array;
     }
 
-
-    public ArrayList<Integer[]> getMembersAndOrganizers( int orgID) throws SQLException{
+    public ArrayList<Integer>[] getMembersAndOrganizers( int orgID) throws SQLException{
 
         String fields = "user_id, groupies_type";
         String query = "SELECT "+ fields +" FROM groupies WHERE org_id = ? AND ( groupies_type = ? OR groupies_type = ?) AND confirmed = ? ORDER BY confirmed asc";
@@ -1363,14 +1391,28 @@ public class DatabaseConnection {
         ps.setBoolean(4,true);
         ResultSet rs = ps.executeQuery();
 
-        ArrayList<Integer[]> userIDs = new ArrayList<>();
+        ArrayList<Integer>[] userIDs = new ArrayList[2];
+
+        ArrayList<Integer> members = new ArrayList<>();
+        ArrayList<Integer> organizers = new ArrayList<>();
 
         while(rs.next()){
             Integer[] i = new Integer[2];
-            i[0] = rs.getInt(1);
-            i[1] = rs.getInt(2);
-            userIDs.add(i);
+            int id  = rs.getInt(1);
+            int type = rs.getInt(2);
+
+            if(type == MEMBER){
+                members.add(id);
+            }
+            else if(type == ORGANIZER){
+                organizers.add(id);
+            }
         }
+        userIDs[0] = members;
+        userIDs[1] = organizers;
+
+        // In userIDs the Integer[] at location 0 should be an array with all of the ids for members
+        //                          at location 1 should be an array with all ids for organizers
         return userIDs;
 
     }
@@ -1395,6 +1437,32 @@ public class DatabaseConnection {
 
     }
 
+    /**
+     * Returns the emails of all the users that are following or are members/organizers for the organization given
+     * @param ordID the id of the organization to search for
+     * @return String array of user Emails
+     */
+    public ArrayList<String> getUserEmailsToNotify(int orgID) throws SQLException{
+
+        //create string for query
+        String query = "SELECT user.user_email FROM groupies INNER JOIN (user) ON (groupies.org_id = ? AND groupies.user_id = user.user_id" +
+                " AND groupies.confirmed = TRUE)";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, orgID);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<String> userEmails = new ArrayList<>();
+
+        //check for results and return object
+        while(rs.next()){
+            String userEmail = rs.getString(1);
+            userEmails.add(userEmail);
+        }
+
+        return userEmails;
+    }
 
     /**
      * END ORGANIZATION METHODS
@@ -1511,6 +1579,35 @@ public class DatabaseConnection {
             Printing.println(user.toString());
             */
 
+            /*
+            DatabaseConnection dbc = new DatabaseConnection();
+            if(dbc == null){
+                System.out.println("FAILURE NO DBC");
+                return;
+            }
+            UserAuthenticator ua = FacebookLogin.facebookLogin("id","first", "last", "email@mail.com",dbc );
+            //EventModel e = new EventModel("Event", 8 , new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description","location", "path", 10,   100, 1200);
+            //int eventID = EventHandler.createEvent(e);
+            //UserHandler.registerEvent(ua.getoAuthCode(), eventID);
+            try {
+                UserModel organizer = dbc.searchForUser("1", DatabaseConnection.LAMBNECYUSERID);
+
+                OrganizationModel org = dbc.searchForOrg(1);
+
+                System.out.println(dbc.addGroupies(organizer.getUserId(),org.getOrgID(),DatabaseConnection.ORGANIZER,true));
+                UserModel usr = dbc.searchForUser(""+2,DatabaseConnection.LAMBNECYUSERID);
+
+                System.out.println(dbc.addGroupies(usr.getUserId(),org.getOrgID(),DatabaseConnection.MEMBER,false));
+
+                System.out.println(OrganizationHandler.getRequestedToJoinMembers(organizer.getOauthToken(),org.getOrgID(),dbc));
+                System.out.println(dbc.approveMemberGroupie(usr.getUserId(),org.getOrgID()));
+
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            dbc.close();
+            */
             Printing.println(db.getMembersAndOrganizers(5));
 
         }catch(Exception e){

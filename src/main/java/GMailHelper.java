@@ -149,7 +149,7 @@ public class GMailHelper {
         email.addRecipient(javax.mail.Message.RecipientType.TO,
                 new InternetAddress(to));
         email.setSubject(subject);
-        email.setText(bodyText);
+        email.setContent(bodyText, "text/html");
         return email;
     }
 
@@ -209,6 +209,7 @@ public class GMailHelper {
 
     public static void main(String[] args) throws IOException {
         //send email using gmail
+
         GMailHelper gmh = new GMailHelper();
         gmh.sendEmail("kvosbur@purdue.edu", "subject", "this is the body in the text");
 
