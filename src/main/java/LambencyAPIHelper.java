@@ -738,6 +738,64 @@ public void createOrganizationRetrofit(OrganizationModel org){
         });
     }
 
+    public void eventsFeedRetrofit(String oAuthCode, String latitude, String longitude)
+    {
+        this.getInstance().getEventsFeed(oAuthCode, latitude, longitude).enqueue(new Callback<List<EventModel>>() {
+            @Override
+            public void onResponse(Call<List<EventModel>> call, Response<List<EventModel>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                List<EventModel> eventList = response.body();
+                if(eventList == null){
+                    System.out.println("An error has occurred");
+                }
+                else if(eventList.size() == 0){
+                    System.out.println("No events founud");
+                }
+                else{
+                    System.out.println("success");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<EventModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+    public void respondToJoinRequest(String oAuthCode, int user_id, int org_id, boolean approved){
+        this.getInstance().respondToJoinRequest(oAuthCode,org_id,user_id,approved).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("Shit. It messed up.");
+                    return;
+                }
+
+                Integer returned = response.body();
+                if(returned == 0){
+                    System.out.println("Yay it worked!!! We have a new member!");
+                }
+                else if(returned == 1){
+                    System.out.println("Yay!! We protected our organization from some crazy person!");
+                }
+                else{
+                    System.out.println("Hmmm... something went wrong... oops");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                System.out.println("We are sorry, we can't handle your response to a join request. Please try turning it off then back on again.");
+            }
+        });
+    }
+
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
         //OrganizationModel org = new OrganizationModel(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");
