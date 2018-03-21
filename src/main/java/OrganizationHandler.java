@@ -447,8 +447,10 @@ public class OrganizationHandler {
                 //find user by email
                 int invitedID= dbc.getUserByEmail(emailString);
                 if(invitedID == -1){
+                    //no match found
                     return 5;
                 }else if(invitedID == -2){
+                    //multiple matches found
                     return 6;
                 }
                 UserModel invited = dbc.searchForUser("" + invitedID,DatabaseConnection.LAMBNECYUSERID);
