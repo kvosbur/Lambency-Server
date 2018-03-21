@@ -967,7 +967,7 @@ public class DatabaseConnection {
         ps.setString(1, name);
         ps.executeUpdate();
 
-        addGroupies(organizer_id, orgID, ORGANIZER, true);
+        addGroupies(organizer_id, orgID, ORGANIZER, 1);
         return orgID;
     }
 
@@ -1073,7 +1073,7 @@ public class DatabaseConnection {
      * @return -1 on failure, else 0
      */
 
-    public int addGroupies(int user_id, int org_id, int type, boolean confirmed) throws SQLException{
+    public int addGroupies(int user_id, int org_id, int type, int confirmed) throws SQLException{
 
         PreparedStatement ps = null;
         ps = connect.prepareStatement("INSERT INTO groupies (org_id, user_id, groupies_type, confirmed)" +
@@ -1085,7 +1085,7 @@ public class DatabaseConnection {
             ps.setInt(1, org_id);
             ps.setInt(2, user_id);
             ps.setInt(3, type);
-            ps.setBoolean(4, confirmed);
+            ps.setInt(4, confirmed);
             ps.execute();
 
         }else{
