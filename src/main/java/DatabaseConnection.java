@@ -1152,6 +1152,33 @@ public class DatabaseConnection {
 
 
     /**
+     * Update Groupie for a member request to an officially joined Member Groupie
+     *
+     * @param user_id       User id for groupie that needs to be official
+     * @param org_id        Org id for Groupie that needs to be official
+     * @return              -1 on failure, 0 on success
+     * @throws SQLException
+     */
+    public int approveMemberGroupie(int user_id, int org_id) throws SQLException{
+        PreparedStatement ps = connect.prepareStatement("UPDATE groupies SET confirmed = ? WHERE user_id = ? AND org_id = ? AND groupies_type = ?");
+
+        if(ps != null){
+            ps.setBoolean(1,true);
+            ps.setInt(2,user_id);
+            ps.setInt(3,org_id);
+            ps.setInt(4, MEMBER);
+        }
+        else {
+            return -1;
+        }
+        ps.executeUpdate();
+
+        return 0;
+    }
+
+
+
+    /**
      * DESCRIPTION - search for groupie status for a user and a given organization
      * @param user_id the id of the user to be search for
      * @param org_id the id of the organization
@@ -1552,6 +1579,35 @@ public class DatabaseConnection {
             Printing.println(user.toString());
             */
 
+            /*
+            DatabaseConnection dbc = new DatabaseConnection();
+            if(dbc == null){
+                System.out.println("FAILURE NO DBC");
+                return;
+            }
+            UserAuthenticator ua = FacebookLogin.facebookLogin("id","first", "last", "email@mail.com",dbc );
+            //EventModel e = new EventModel("Event", 8 , new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 3), "description","location", "path", 10,   100, 1200);
+            //int eventID = EventHandler.createEvent(e);
+            //UserHandler.registerEvent(ua.getoAuthCode(), eventID);
+            try {
+                UserModel organizer = dbc.searchForUser("1", DatabaseConnection.LAMBNECYUSERID);
+
+                OrganizationModel org = dbc.searchForOrg(1);
+
+                System.out.println(dbc.addGroupies(organizer.getUserId(),org.getOrgID(),DatabaseConnection.ORGANIZER,true));
+                UserModel usr = dbc.searchForUser(""+2,DatabaseConnection.LAMBNECYUSERID);
+
+                System.out.println(dbc.addGroupies(usr.getUserId(),org.getOrgID(),DatabaseConnection.MEMBER,false));
+
+                System.out.println(OrganizationHandler.getRequestedToJoinMembers(organizer.getOauthToken(),org.getOrgID(),dbc));
+                System.out.println(dbc.approveMemberGroupie(usr.getUserId(),org.getOrgID()));
+
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            dbc.close();
+            */
             Printing.println(db.getMembersAndOrganizers(5));
 
         }catch(Exception e){
