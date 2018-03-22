@@ -1,4 +1,5 @@
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -448,7 +449,14 @@ public class UserHandler {
                     }
                 }
                 else{
-
+                    List<Integer> events = dbc.searchEventsByDateTime(new Timestamp(System.currentTimeMillis()));
+                    for(int event: events){
+                        EventModel eventModel = dbc.searchEvents(event);
+                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                        if(!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)){
+                            subList.add(eventModel);
+                        }
+                    }
                 }
             }
             else{
