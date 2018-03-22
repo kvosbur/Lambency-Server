@@ -536,6 +536,26 @@ public class DatabaseConnection {
         return null;
     }
 
+    public List<Integer> searchEventsByDateTime(Timestamp start) throws SQLException{
+        PreparedStatement ps = connect.prepareStatement("SELECT * FROM events WHERE start_time >= ? ORDER BY start_time");
+        ps.setObject(1,start);
+
+        ResultSet rs = ps.executeQuery();
+
+        //create resulting list
+        List<Integer> results = new ArrayList<>();
+
+        //check for results and if any then return user
+        while(rs.next()){
+            results.add(rs.getInt(1));
+        }
+
+        if(results.size() != 0){
+            return results;
+        }
+        return null;
+    }
+
     /**
      * Description : Search events by latitude and longitude locations
      *
@@ -1467,7 +1487,7 @@ public class DatabaseConnection {
 
     /**
      * Returns the emails of all the users that are following or are members/organizers for the organization given
-     * @param ordID the id of the organization to search for
+     * @param orgID the id of the organization to search for
      * @return String array of user Emails
      */
     public ArrayList<String> getUserEmailsToNotify(int orgID) throws SQLException{
