@@ -555,12 +555,18 @@ public void createOrganizationRetrofit(OrganizationModel org){
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.body() == null || response.code() != 200) {
+                    /**
+                     * set number to 0 !!!!!!!!!!
+                     */
                     System.out.println("ERROR!!!!!");
                     return;
                 }
                 //when response is back
                 Integer ret = response.body();
-                if(ret == null || ret == -1){
+                if(ret == -1){
+                    /**
+                     * set number to 0 !!!!!!!!!!
+                     */
                     System.out.println("Error has occurred");
                 }
                 else{

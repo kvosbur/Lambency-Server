@@ -363,6 +363,32 @@ public class DatabaseConnectionTest {
             throw new Exception("failed to search events by org: list contained incorrect entries");
         }
     }
+    @org.junit.Test
+    public void testNumAttending() throws Exception{
+        getOrgEvents();
+        int num = dbc.numUsersAttending(1);
+        if(num != 1){
+            throw new Exception("failed to get num attending event: incorrect number");
+        }
+        UserModel u = dbc.searchForUser("User2", 2);
+        UserHandler.registerEvent(u.getOauthToken(), event_id, dbc);
+        num = dbc.numUsersAttending(1);
+        if(num != 2){
+            throw new Exception("failed to get num attending event: incorrect number");
+        }
+
+        Integer number = EventHandler.numAttending(u.getOauthToken(), 1, dbc);
+        if(number != 2){
+            throw new Exception("failed to get num attending event: incorrect number");
+        }
+
+        u = dbc.searchForUser("googleUser", 1);
+        UserHandler.registerEvent(u.getOauthToken(), event_id, dbc);
+        number = EventHandler.numAttending(u.getOauthToken(), 1, dbc);
+        if(number != 3){
+            throw new Exception("failed to get num attending event: incorrect number");
+        }
+    }
     public void setUpTests(){
         try {
             dbc = new DatabaseConnection();
