@@ -11,7 +11,7 @@
         <configuration>
             <archive>
                 <manifest>
-                    <mainClass>Lambency-Server.LambencyServer</mainClass>
+                    <mainClass>LambencyServer</mainClass>
                 </manifest>
             </archive>
         </configuration>
