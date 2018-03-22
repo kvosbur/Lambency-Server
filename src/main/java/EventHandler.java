@@ -94,6 +94,10 @@ public class EventHandler {
         List<EventModel> events = new ArrayList<>();
         try{
             eventIDs = dbc.searchEventsWithFilterModel(efm);
+            if(eventIDs == null){
+                //there were no search results found
+                return null;
+            }
             for(Integer i: eventIDs){
                 EventModel eventModel = dbc.searchEvents(i);
                 eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
