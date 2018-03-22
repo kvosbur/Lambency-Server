@@ -8,6 +8,7 @@ public class EventFilterModel {
     private double longitude;
     private Timestamp startStamp;
     private Timestamp endStamp;
+    private int distanceMiles = -1;
 
     public EventFilterModel(double latitude, double longitude){
         this.latitude = latitude;
@@ -18,6 +19,11 @@ public class EventFilterModel {
         this(latitude,longitude);
         this.startStamp = startStamp;
         this.endStamp = endStamp;
+    }
+
+    public EventFilterModel(double latitude, double longitude, Timestamp startStamp, Timestamp endStamp, int distanceMiles){
+        this(latitude,longitude, startStamp, endStamp);
+        this.distanceMiles = distanceMiles;
     }
 
 
@@ -33,6 +39,10 @@ public class EventFilterModel {
         }
         if(endStamp != null){
             ands.add("end_time <= '"+endStamp.toString()+"'");
+        }
+        if(distanceMiles != -1){
+            ands.add("(sqrt(pow(latitude - " + latitude + ",2) + " +
+                    "pow(longitude - " + longitude + ",2)) * 69)  <= "+ distanceMiles +"");
         }
 
 
@@ -84,5 +94,13 @@ public class EventFilterModel {
 
     public void setEndStamp(Timestamp endStamp) {
         this.endStamp = endStamp;
+    }
+
+    public int getDistanceMiles() {
+        return distanceMiles;
+    }
+
+    public void setDistanceMiles(int distanceMiles) {
+        this.distanceMiles = distanceMiles;
     }
 }
