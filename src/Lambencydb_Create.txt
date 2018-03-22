@@ -35,7 +35,7 @@ CREATE TABLE `groupies` (
 	`org_id` int NOT NULL,
 	`user_id` int NOT NULL,
 	`groupies_type` int NOT NULL,
-	`confirmed` bit NOT NULL
+	`confirmed` int NOT NULL
 );
 
 CREATE TABLE `events` (
