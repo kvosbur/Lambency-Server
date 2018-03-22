@@ -149,12 +149,12 @@ public class LambencyServer{
             String oAuthCode = request.queryParams("oAuthCode");
             String latitude  = request.queryParams("latitude");
             String longitude = request.queryParams("longitude");
-            if(oAuthCode == null || latitude == null || longitude == null){
+            if(oAuthCode == null){
                 Printing.println("null params");
                 databaseConnection.close();
                 return null;
             }
-            List<EventModel> events = UserHandler.eventsFeed(oAuthCode, Double.parseDouble(latitude), Double.parseDouble(longitude), databaseConnection);
+            List<EventModel> events = UserHandler.eventsFeed(oAuthCode, latitude, longitude, databaseConnection);
             databaseConnection.close();
             return events;
         }, new JsonTransformer());
