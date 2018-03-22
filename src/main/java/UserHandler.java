@@ -1,4 +1,5 @@
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -362,7 +363,7 @@ public class UserHandler {
      * @param longitude longitude of the user
      * @return list of events to appear in events feed, on error null
      */
-    public static List<EventModel> eventsFeed(String oAuthCode, double latitude, double longitude, DatabaseConnection dbc){
+    public static List<EventModel> eventsFeed(String oAuthCode, String latitude, String longitude, DatabaseConnection dbc){
         try {
             UserModel u = dbc.searchForUser(oAuthCode);
             List<EventModel> eventsFeed = new ArrayList<EventModel>();
@@ -434,14 +435,28 @@ public class UserHandler {
             eventsFeed.addAll(subList);
 
             if (eventsFeed.size() < 20){
-                List<EventModel> nearby = EventHandler.getEventsByLocation(latitude, longitude, dbc);
-                nearby = EventHandler.sortEventListByDate(nearby);
-                int i = 0;
-                while(eventsFeed.size() < 20 && i < nearby.size()){
-                    if(!u.getEventsAttending().contains(nearby.get(i).getEvent_id()) && !eventsFeed.contains(nearby.get(i))) {
-                        eventsFeed.add(nearby.get(i));
+                if(latitude!= null && longitude != null) {
+                    double lat = Double.parseDouble(latitude);
+                    double longit = Double.parseDouble(longitude);
+                    List<EventModel> nearby = EventHandler.getEventsByLocation(lat, longit, dbc);
+                    nearby = EventHandler.sortEventListByDate(nearby);
+                    int i = 0;
+                    while (eventsFeed.size() < 20 && i < nearby.size()) {
+                        if (!u.getEventsAttending().contains(nearby.get(i).getEvent_id()) && !eventsFeed.contains(nearby.get(i))) {
+                            eventsFeed.add(nearby.get(i));
+                        }
+                        i++;
                     }
-                    i++;
+                }
+                else{
+                    List<Integer> events = dbc.searchEventsByDateTime(new Timestamp(System.currentTimeMillis()));
+                    for(int event: events){
+                        EventModel eventModel = dbc.searchEvents(event);
+                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                        if(!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)){
+                            subList.add(eventModel);
+                        }
+                    }
                 }
             }
             else{
