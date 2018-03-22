@@ -416,6 +416,20 @@ public class Testing {
         return true;
     }
 
+    private static boolean testNumAttending(){
+        try{
+            int num = dbc.numUsersAttending(1);
+
+            return true;
+
+
+        }
+        catch (Exception e){
+            System.out.println("database error");
+        }
+        return false;
+    }
+
 
 
     public static void main(String[] args){
@@ -549,6 +563,17 @@ public class Testing {
             System.out.println("Test Filter Dates");
             count++;
             if(testSearchEvents()){
+                passed++;
+                System.out.println("PASSED");
+            }
+            else{
+                System.out.println("FAILED");
+                passedAll = false;
+            }
+
+            System.out.println("Test Num Attending");
+            count++;
+            if(testNumAttending()){
                 passed++;
                 System.out.println("PASSED");
             }
