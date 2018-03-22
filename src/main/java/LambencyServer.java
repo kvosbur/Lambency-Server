@@ -413,6 +413,7 @@ public class LambencyServer{
             String oAuthCode = request.queryParams("oAuthCode");
             String eventID = request.queryParams("id");
             if(oAuthCode == null || eventID == null){
+                Printing.print("null params");
                 return new Integer(-1);
             }
             DatabaseConnection databaseConnection = new DatabaseConnection();
