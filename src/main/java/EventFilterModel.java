@@ -32,6 +32,8 @@ public class EventFilterModel {
         ArrayList<String> ands = new ArrayList<>();
         String where = "";
 
+
+
         fields = "event_id, sqrt(pow(latitude - " + latitude + ",2) + " +
                 "pow(longitude - " + longitude + ",2)) as distance";
         if(startStamp != null){
