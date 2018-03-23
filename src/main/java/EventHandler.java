@@ -359,6 +359,7 @@ public class EventHandler {
 
         try {
             if(oAuthCode == null){
+                Printing.println("invalid oAuthCode");
                 return new Integer(-1);
             }
             if(dbc.searchForUser(oAuthCode) == null){
