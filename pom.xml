@@ -24,7 +24,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>Lambency-Server:LambencyServer</mainClass>
+                            <mainClass>Lambency-Server.LambencyServer</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
