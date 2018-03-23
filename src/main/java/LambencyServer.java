@@ -523,7 +523,7 @@ public class LambencyServer{
 
     public static void main(String[]args){
 
-//        //LambencyServer lb = new LambencyServer();
+        LambencyServer lb = new LambencyServer();
 //
 //        DatabaseConnection dbc = new DatabaseConnection();
 //        if(dbc == null){
