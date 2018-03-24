@@ -61,7 +61,7 @@ public class EventFilterModel {
         }
         //SELECT +"+fields+" FROM Events WHERE start_time > ?
         //SELECT "+fields+ " FROM events "+where+"
-        String query = "SELECT event_id "+ " FROM ( SELECT "+fields+ " FROM Events "+where+") AS T ORDER BY distance asc ;" ;
+        String query = "SELECT event_id "+ " FROM ( SELECT "+fields+ " FROM events "+where+") AS T ORDER BY distance asc ;" ;
         return query;
     }
 
