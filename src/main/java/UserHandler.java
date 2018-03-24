@@ -497,7 +497,7 @@ public class UserHandler {
             subList = EventHandler.sortEventListByDate(subList);
             //add to eventsFeed
             eventsFeed.addAll(subList);
-
+            boolean doDate = false;
             if (eventsFeed.size() < 20){
                 if(latitude!= null && longitude != null) {
                     double lat = Double.parseDouble(latitude);
@@ -515,8 +515,14 @@ public class UserHandler {
                             i++;
                         }
                     }
+                    else{
+                        doDate = true;
+                    }
                 }
                 else{
+                    doDate = true;
+                }
+                if(doDate || eventsFeed.size() < 20){
                     List<Integer> events = dbc.searchEventsByDateTime(new Timestamp(System.currentTimeMillis()));
                     if(events != null) {
                         for (int event : events) {
