@@ -365,6 +365,26 @@ public class DatabaseConnectionTest {
             throw new Exception("failed to search events by org: list contained incorrect entries");
         }
     }
+
+    @org.junit.Test
+    public void testEventsByOrgInvalid() throws Exception{
+        insertData();
+        List<Integer> list = dbc.getOrgEvents(27);
+        if(list == null){
+            throw new Exception("failed to search events by org: returned null");
+        }
+        if(list.size() != 0){
+            throw new Exception("failed to search events by org: list contained incorrect entries");
+        }
+
+        list = dbc.getOrgEvents(-1);
+        if(list == null){
+            throw new Exception("failed to search events by org: returned null");
+        }
+        if(list.size() != 0){
+            throw new Exception("failed to search events by org: list contained incorrect entries");
+        }
+    }
     @org.junit.Test
     public void testNumAttending() throws Exception{
         insertData();
