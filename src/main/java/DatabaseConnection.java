@@ -582,9 +582,11 @@ public class DatabaseConnection {
 
         //check for results and if any then return user
         if(rs.next()){
-            return new EventModel(rs.getString(3),rs.getInt(2), rs.getTimestamp(4), rs.getTimestamp(5),
+            EventModel em =  new EventModel(rs.getString(3),rs.getInt(2), rs.getTimestamp(4), rs.getTimestamp(5),
                     rs.getString(6), rs.getString(7), rs.getString(8), rs.getInt(1),
                     rs.getDouble(9), rs.getDouble(10), rs.getString(11), rs.getString(12));
+            //em.setOrgName(getNameOfOrgForEvent(em.getOrg_id()));
+            return em;
         }
 
         return null;
@@ -1313,6 +1315,15 @@ public class DatabaseConnection {
             array.add(event_id);
         }
         return array;
+    }
+
+    public String getNameOfOrgForEvent(int orgID) throws SQLException{
+        String query = "SELECT name FROM Organization WHERE org_id = ?";
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, orgID);
+        ResultSet rs = ps.executeQuery();
+
+        return rs.getString(1);
     }
 
 
