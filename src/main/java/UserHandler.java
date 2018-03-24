@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -547,7 +548,17 @@ public class UserHandler {
             user.setMyOrgs(dbc.getUserList(user.getUserId(),DatabaseConnection.ORGANIZER, true));
             ArrayList<OrganizationModel> orgs = new ArrayList<>();
             for(Integer org_id:user.getMyOrgs()){
-                orgs.add(dbc.searchForOrg(org_id));
+                OrganizationModel organization = dbc.searchForOrg(org_id);
+                if(organization.getImage() != null) {
+                    try {
+                        organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
+                    }
+                    catch (IOException e){
+                        Printing.println("Error getting image for organization. Setting image to null");
+                        organization.setImage(null);
+                    }
+                }
+                orgs.add(organization);
             }
             return orgs;
 

@@ -127,11 +127,15 @@ public class LambencyServer{
             }
             String oAuthCode = request.queryParams("oAuthCode");
             if(oAuthCode == null){
+                Printing.println("Bad spelling");
                 return null;
             }
             else{
                 ArrayList<OrganizationModel> myOrgs = UserHandler.getMyOrganizations(oAuthCode,databaseConnection);
                 databaseConnection.close();
+                if(myOrgs == null){
+                    Printing.println("It returned null;");
+                }
                 return myOrgs;
             }
         }, new JsonTransformer());
