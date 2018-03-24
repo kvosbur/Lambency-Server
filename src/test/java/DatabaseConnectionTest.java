@@ -336,9 +336,11 @@ public class DatabaseConnectionTest {
 
     }
 
+
+    //Spint 2 Testing
     @org.junit.Test
     public void getOrgEvents() throws Exception{
-        searchEventsByLocation();
+        insertData();
         OrganizationModel org = dbc.searchForOrg("My Second OrganizationModel");
         List<Integer> list = dbc.getOrgEvents(org.getOrgID());
         if(list == null){
@@ -365,7 +367,7 @@ public class DatabaseConnectionTest {
     }
     @org.junit.Test
     public void testNumAttending() throws Exception{
-        getOrgEvents();
+        insertData();
         int num = dbc.numUsersAttending(1);
         if(num != 1){
             throw new Exception("failed to get num attending event: incorrect number");
@@ -390,10 +392,9 @@ public class DatabaseConnectionTest {
         }
     }
 
-    //test for event feed, hopefully this will stop merge issue
     @org.junit.Test
     public void eventsFeedTest() throws Exception{
-        getOrgEvents();
+        insertData();
         UserModel u = dbc.searchForUser("User2", 2);
         List<EventModel> eventsFeed = UserHandler.eventsFeed(u.getOauthToken(), null, null, dbc);
         if(eventsFeed == null){
@@ -411,6 +412,63 @@ public class DatabaseConnectionTest {
         }
         catch (Exception e){
             return;
+        }
+    }
+
+    public void insertData(){
+        setUpTests();
+        try{
+            int userID = dbc.createUser("facebookUser", "First", "Last", "email@gmail.com", 2);
+            UserModel u = dbc.searchForUser("facebookUser", 2);
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            dbc.setOauthCode(userID, ua.getoAuthCode());
+
+            userID = dbc.createUser("googleUser", "GoogleFirst", "GoogleLast", "Googleemail@gmail.com", 1);
+            u = dbc.searchForUser("googleUser", 1);
+            ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            dbc.setOauthCode(userID, ua.getoAuthCode());
+
+            u = dbc.searchForUser("facebookUser", 2);
+            dbc.createOrganization("My OrganizationModel", "This is a description", "Org@gmail.com", u.getUserId(), "West Lafayette",
+                    "img", u.getUserId());
+
+            OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+            int eventID = dbc.createEvent(org.getOrgID(),"Event 1", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 500),
+                    "This is a test event", "Location", "imgg", 5 , 5, "ClockIn", "ClockOut");
+            event_id = eventID;
+
+            EventModel e = dbc.searchEvents(event_id);
+            dbc.modifyEventInfo(event_id, "Updated Name", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 10), "Updated description",
+                    "Location 2", "img2", 20, 20);
+
+            ua = FacebookLogin.facebookLogin("User2", "Jeff", "Turkstra", "jeff@purdue.edu", dbc);
+            u = dbc.searchForUser("User2", 2);
+            org = dbc.searchForOrg("My OrganizationModel");
+            UserHandler.followOrg(u.getOauthToken(), org.getOrgID(), dbc);
+
+            u = dbc.searchForUser("facebookUser", 2);
+            u.setEmail("newemail@gmail.com");
+            u.setFirstName("George");
+            u.setLastName("Adams");
+            UserHandler.changeInfo(u, dbc);
+
+            u = dbc.searchForUser("facebookUser", 2);
+            int ret = UserHandler.registerEvent(u.getOauthToken(), event_id, dbc);
+
+            u = dbc.searchForUser("User2", 2);
+            org = dbc.searchForOrg("My OrganizationModel");
+            UserHandler.requestJoinOrg(u.getOauthToken(), org.getOrgID(), dbc);
+
+            dbc.createEvent(org.getOrgID(),"Event 2", new Timestamp(2020, 1, 1, 1, 1, 1, 1), new Timestamp(System.currentTimeMillis() + 500),
+                    "This is my second event", "Location 2", "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", 5 , 5, "ClockIn", "ClockOut");
+
+            u = dbc.searchForUser("User2", 2);
+            int orgID = dbc.createOrganization("My Second OrganizationModel", "Second", "Org2@gmail.com", u.getUserId(), "Purdue",
+                    "img2", u.getUserId());
+
+        }
+        catch (Exception e){
+            Printing.println(e.toString());
         }
     }
 
