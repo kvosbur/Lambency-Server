@@ -5,7 +5,6 @@ public class EventModel {
 
     private String name;
     private int org_id;
-    private String nameOfOrg;
     private Timestamp start;
     private Timestamp end;
     private String description;
@@ -26,7 +25,6 @@ public class EventModel {
         this.end = end;
         this.description = description;
         this.location = location;
-        this.nameOfOrg = null;
     }
 
     public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location, double latitude, double longitude) {
@@ -199,10 +197,4 @@ public class EventModel {
         this.clockOutCode = clockOutCode;
     }
 
-    public void setOrgName(String orgName){
-        this.nameOfOrg = orgName;
-    }
-    public String getOrgName(){
-        return this.nameOfOrg;
-    }
 }
