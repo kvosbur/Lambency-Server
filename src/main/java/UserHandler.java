@@ -508,7 +508,9 @@ public class UserHandler {
                         int i = 0;
                         while (eventsFeed.size() < 20 && i < nearby.size()) {
                             if (!u.getEventsAttending().contains(nearby.get(i).getEvent_id()) && !eventsFeed.contains(nearby.get(i))) {
-                                eventsFeed.add(nearby.get(i));
+                                if(nearby.get(i) != null) {
+                                    eventsFeed.add(nearby.get(i));
+                                }
                             }
                             i++;
                         }
