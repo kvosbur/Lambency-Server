@@ -403,7 +403,7 @@ public class LambencyServer{
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());
-        get("/Event/searchWithFilter","application/json",(request, response) -> {
+        post("/Event/searchWithFilter","application/json",(request, response) -> {
             Printing.printlnEndpoint("/Event/searchWithFilter");
             EventFilterModel efm = new Gson().fromJson(request.body(), EventFilterModel.class);
             DatabaseConnection databaseConnection = new DatabaseConnection();
