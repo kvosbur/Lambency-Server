@@ -802,6 +802,36 @@ public void createOrganizationRetrofit(OrganizationModel org){
         });
     }
 
+
+    public void getMyOrganizedOrgs(String oAuthCode)
+    {
+        this.getInstance().getMyOrganizedOrgs(oAuthCode).enqueue(new Callback<ArrayList<OrganizationModel>>() {
+            @Override
+            public void onResponse(Call<ArrayList<OrganizationModel>> call,
+                                   Response<ArrayList<OrganizationModel>> response) {
+
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                ArrayList<OrganizationModel> ret = response.body();
+                if(ret == null){
+                    System.out.println("Error");
+                }
+                else{
+                    //use ret here
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<OrganizationModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
     public void endorsedOrgsRetrofit(String oAuthCode, String eventID)
     {
         this.getInstance().getEndorsedOrgs(oAuthCode, eventID).enqueue(new Callback<List<OrganizationModel>>() {
