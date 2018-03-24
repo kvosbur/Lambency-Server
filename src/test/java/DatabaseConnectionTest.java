@@ -321,8 +321,8 @@ public class DatabaseConnectionTest {
             throw new Exception("failed to search events by location: returned incorrect list");
         }
         OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
-        int eventID = dbc.createEvent(org.getOrgID(),"Event 2", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 500),
-                "This is my second event", "Location 2", "event2img", 5 , 5, "ClockIn", "ClockOut");
+        int eventID = dbc.createEvent(org.getOrgID(),"Event 2", new Timestamp(2020, 1, 1, 1, 1, 1, 1), new Timestamp(System.currentTimeMillis() + 500),
+                "This is my second event", "Location 2", "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", 5 , 5, "ClockIn", "ClockOut");
         list = dbc.searchEventsByLocation(0,0);
         if(list == null){
             throw new Exception("failed to search events by location: returned null");
@@ -362,6 +362,47 @@ public class DatabaseConnectionTest {
         if(list.size() != 0){
             throw new Exception("failed to search events by org: list contained incorrect entries");
         }
+    }
+    @org.junit.Test
+    public void testNumAttending() throws Exception{
+        getOrgEvents();
+        int num = dbc.numUsersAttending(1);
+        if(num != 1){
+            throw new Exception("failed to get num attending event: incorrect number");
+        }
+        UserModel u = dbc.searchForUser("User2", 2);
+        UserHandler.registerEvent(u.getOauthToken(), event_id, dbc);
+        num = dbc.numUsersAttending(1);
+        if(num != 2){
+            throw new Exception("failed to get num attending event: incorrect number");
+        }
+
+        Integer number = EventHandler.numAttending(u.getOauthToken(), 1, dbc);
+        if(number != 2){
+            throw new Exception("failed to get num attending event: incorrect number");
+        }
+
+        u = dbc.searchForUser("googleUser", 1);
+        UserHandler.registerEvent(u.getOauthToken(), event_id, dbc);
+        number = EventHandler.numAttending(u.getOauthToken(), 1, dbc);
+        if(number != 3){
+            throw new Exception("failed to get num attending event: incorrect number");
+        }
+    }
+
+    //test for event feed, hopefully this will stop merge issue
+    @org.junit.Test
+    public void eventsFeedTest() throws Exception{
+        getOrgEvents();
+        UserModel u = dbc.searchForUser("User2", 2);
+        List<EventModel> eventsFeed = UserHandler.eventsFeed(u.getOauthToken(), null, null, dbc);
+        if(eventsFeed == null){
+            throw new Exception("failed to get events feed: returned null");
+        }
+        for(EventModel eventModel: eventsFeed){
+            System.out.println(eventModel.getEvent_id());
+        }
+
     }
     public void setUpTests(){
         try {

@@ -540,6 +540,26 @@ public class DatabaseConnection {
         return null;
     }
 
+    public List<Integer> searchEventsByDateTime(Timestamp start) throws SQLException{
+        PreparedStatement ps = connect.prepareStatement("SELECT * FROM events WHERE start_time >= ? ORDER BY start_time");
+        ps.setObject(1,start);
+
+        ResultSet rs = ps.executeQuery();
+
+        //create resulting list
+        List<Integer> results = new ArrayList<>();
+
+        //check for results and if any then return user
+        while(rs.next()){
+            results.add(rs.getInt(1));
+        }
+
+        if(results.size() != 0){
+            return results;
+        }
+        return null;
+    }
+
     /**
      * Description : Search events by latitude and longitude locations
      *
