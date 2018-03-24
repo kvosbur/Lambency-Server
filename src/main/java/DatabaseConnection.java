@@ -782,7 +782,7 @@ public class DatabaseConnection {
         //run query
         PreparedStatement ps = connect.prepareStatement(query);
         ps.setString(1, code);
-        ps.setString(1, code);
+        ps.setString(2, code);
         ResultSet rs = ps.executeQuery();
 
 
