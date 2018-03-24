@@ -513,11 +513,15 @@ public class UserHandler {
             Printing.println("SQLException");
             Printing.println(e.toString());
         }
-        catch (Exception e){
-            Printing.println("General Exception");
+         catch (IOException e){
+            Printing.println("IO Exception");
             Printing.println(e.toString());
-            e.printStackTrace();
-        }
+         }
+//        catch (Exception e){
+//            Printing.println("General Exception");
+//            e.printStackTrace();
+//            Printing.println(e.toString());
+//        }
         return null;
     }
 
