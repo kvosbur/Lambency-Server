@@ -71,7 +71,7 @@ public class LambencyServer{
     public void addroutes(){
         // example of responding with a json object made from a java object
         get("/User/login/google", "application/json", (request, response) -> {
-            Printing.println("/User/login/google");
+            Printing.printlnEndpoint("/User/login/google");
             String token = request.queryParams("idToken");
             GoogleLoginHandler glh = new GoogleLoginHandler();
             DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -83,7 +83,7 @@ public class LambencyServer{
             return authenticator;
         }, new JsonTransformer());
         get("/User/search", "application/json", (request, response) -> {
-            Printing.println("/User/search");
+            Printing.printlnEndpoint("/User/search");
             String oAuthCode = request.queryParams("oAuthToken");
             String id = request.queryParams("id");
             DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -96,7 +96,7 @@ public class LambencyServer{
             return u;
         }, new JsonTransformer());
         post("/User/changeInfo", "application/json", (request, response) -> {
-            Printing.println("/User/changeInfo");
+            Printing.printlnEndpoint("/User/changeInfo");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
@@ -107,7 +107,7 @@ public class LambencyServer{
             return changed;
         }, new JsonTransformer());
         get("/User/followOrg", "application/json", (request, response) -> {
-            Printing.println("/User/followOrg");
+            Printing.printlnEndpoint("/User/followOrg");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
@@ -120,7 +120,7 @@ public class LambencyServer{
         }, new JsonTransformer());
 
         get("/User/getOrgs","application/json",(request, response) -> {
-            Printing.println("/User/getOrgs");
+            Printing.printlnEndpoint("/User/getOrgs");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
@@ -142,7 +142,7 @@ public class LambencyServer{
 
 
         post("/User/requestJoinOrg", "application/json", (request, response) -> {
-            Printing.println("/User/requestJoinOrg");
+            Printing.printlnEndpoint("/User/requestJoinOrg");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
@@ -154,7 +154,7 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
         get("/User/registerForEvent", "application/json", (request, response) -> {
-            Printing.println("/User/registerForEvent");
+            Printing.printlnEndpoint("/User/registerForEvent");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
@@ -167,7 +167,7 @@ public class LambencyServer{
         }, new JsonTransformer());
 
         get("/User/unregisterForEvent", "application/json",(request, response) -> {
-            Printing.println("/User/unregisterForEvent");
+            Printing.printlnEndpoint("/User/unregisterForEvent");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
@@ -180,7 +180,7 @@ public class LambencyServer{
         }, new JsonTransformer());
 
         get("/User/eventsFeed", "application/json", (request, response) -> {
-            Printing.println("/User/eventsFeed");
+            Printing.printlnEndpoint("/User/eventsFeed");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
@@ -199,7 +199,7 @@ public class LambencyServer{
         }, new JsonTransformer());
         post("/Organization/create", "application/json",
                 (request, response) -> {
-                    Printing.println("/Organization/create");
+                    Printing.printlnEndpoint("/Organization/create");
                     DatabaseConnection databaseConnection = new DatabaseConnection();
                     if(databaseConnection.connect == null){
                         return null;
@@ -210,7 +210,7 @@ public class LambencyServer{
                     return ret;
                 }, new JsonTransformer());
         get("/Organization/search", "application/json", (request, response) -> {
-            Printing.println("/Organization/search");
+            Printing.printlnEndpoint("/Organization/search");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
@@ -220,7 +220,7 @@ public class LambencyServer{
             return orgList;
         }, new JsonTransformer());
         get("/Organization/searchByID", "application/json", (request, response) -> {
-            Printing.println("/Organization/searchByID");
+            Printing.printlnEndpoint("/Organization/searchByID");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
@@ -231,7 +231,7 @@ public class LambencyServer{
             return organization;
         }, new JsonTransformer());
         get("/Organization/events", "application/json", (request, response) -> {
-            Printing.println("/Organization/events");
+            Printing.printlnEndpoint("/Organization/events");
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("id");
             if(oAuthCode == null || orgID == null){
@@ -246,7 +246,7 @@ public class LambencyServer{
             return list;
         }, new JsonTransformer());
         get("/Organization/endorse", "application/json", (request, response) -> {
-            Printing.println("/Organization/endorse");
+            Printing.printlnEndpoint("/Organization/endorse");
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgID");
             String eventID = request.queryParams("eventID");
@@ -263,7 +263,7 @@ public class LambencyServer{
         }, new JsonTransformer());
 
         get("/Organization/unendorse", "application/json", (request, response) -> {
-            Printing.println("/Organization/unendorse");
+            Printing.printlnEndpoint("/Organization/unendorse");
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgID");
             String eventID = request.queryParams("eventID");
@@ -279,7 +279,7 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
         get("/Organization/changeUserPermissions", "application/json", (request, response) -> {
-            Printing.println("/Organization/changeUserPermissions");
+            Printing.printlnEndpoint("/Organization/changeUserPermissions");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgID");
@@ -298,7 +298,7 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
         get("/Organization/members", "application.json", (request, response) -> {
-            Printing.println("Organization/members");
+            Printing.printlnEndpoint("Organization/members");
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgID");
             if(oAuthCode == null || orgID == null){
@@ -314,7 +314,7 @@ public class LambencyServer{
         }, new JsonTransformer());
 
         get("/Organization/joinRequests","application.json", (request, response) -> {
-            Printing.println("Organization/joinRequests");
+            Printing.printlnEndpoint("Organization/joinRequests");
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgID");
             if(oAuthCode == null || orgID == null){
@@ -331,7 +331,7 @@ public class LambencyServer{
         }, new JsonTransformer());
 
         get("/Organization/respondToJoinRequest","application/json", (request, response) -> {
-            Printing.println("Organization/respondToJoinRequest");
+            Printing.printlnEndpoint("Organization/respondToJoinRequest");
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgID");
             String userID = request.queryParams("userID");
@@ -351,7 +351,7 @@ public class LambencyServer{
         }, new JsonTransformer());
 
         get("/Organization/getMembersAndOrganizers", "application.json", (request, response) -> {
-            Printing.println("Organization/getMembersAndOrganizers");
+            Printing.printlnEndpoint("Organization/getMembersAndOrganizers");
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgID");
             if(oAuthCode == null || orgID == null){
@@ -368,7 +368,7 @@ public class LambencyServer{
 
         post("/Event/update", "application/json",
                 (request, response) ->{
-                    Printing.println("/Event/update");
+                    Printing.printlnEndpoint("/Event/update");
                     DatabaseConnection databaseConnection = new DatabaseConnection();
                     if(databaseConnection.connect == null){
                         return null;
@@ -379,7 +379,7 @@ public class LambencyServer{
                 }
                 , new JsonTransformer());
         post("/Event/create", "application/json", (request, response) -> {
-                    Printing.println("/Event/create");
+                    Printing.printlnEndpoint("/Event/create");
                     DatabaseConnection databaseConnection = new DatabaseConnection();
                     if(databaseConnection.connect == null){
                         return null;
@@ -390,7 +390,7 @@ public class LambencyServer{
                 }
                 , new JsonTransformer());
         get("/Event/search","application/json", (request,response)->{
-            Printing.println("/Event/search");
+            Printing.printlnEndpoint("/Event/search");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
@@ -404,6 +404,7 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
         post("/Event/searchWithFilter","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/Event/searchWithFilter");
             EventFilterModel efm = new Gson().fromJson(request.body(), EventFilterModel.class);
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
@@ -414,7 +415,7 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
         get("/Event/searchByID", "application/json", (request, response) -> {
-            Printing.println("/Event/searchByID");
+            Printing.printlnEndpoint("/Event/searchByID");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
@@ -424,7 +425,7 @@ public class LambencyServer{
             return eventModel;
         }, new JsonTransformer());
         get("/Event/searchByIDs", "application/json", (request, response) -> {
-            Printing.println("/Event/searchByIDs");
+            Printing.printlnEndpoint("/Event/searchByIDs");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
@@ -436,7 +437,7 @@ public class LambencyServer{
             return eventModels;
         }, new JsonTransformer());
         get("/Event/users","application/json",(request,response)->{
-            Printing.println("/Event/users");
+            Printing.printlnEndpoint("/Event/users");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
@@ -448,7 +449,7 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
         get("/Event/numAttending", "application/json", (request, response) -> {
-            Printing.println("/Event/numAttending");
+            Printing.printlnEndpoint("/Event/numAttending");
             String oAuthCode = request.queryParams("oAuthCode");
             String eventID = request.queryParams("id");
             if(oAuthCode == null || eventID == null){
@@ -464,7 +465,7 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
         get("/Event/endorsedOrgs","application/json",(request,response)->{
-            Printing.println("/Event/endorsedOrgs");
+            Printing.printlnEndpoint("/Event/endorsedOrgs");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
@@ -476,7 +477,7 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
         get("/User/login/facebook", "application/json", (request, response) -> {
-            Printing.println("/User/login/facebook");
+            Printing.printlnEndpoint("/User/login/facebook");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
@@ -487,7 +488,7 @@ public class LambencyServer{
             return ua;
         }, new JsonTransformer());
         get("/User/unfollowOrg","application/json",(request, response) -> {
-            Printing.println("/User/unfollowOrg");
+            Printing.printlnEndpoint("/User/unfollowOrg");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
@@ -499,7 +500,7 @@ public class LambencyServer{
 
         post("/User/leaveOrg","application/json",(request, response) -> {
 
-            Printing.println("/User/leaveOrg");
+            Printing.printlnEndpoint("/User/leaveOrg");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
@@ -517,7 +518,7 @@ public class LambencyServer{
 
         post("/User/ClockInOut","application/json",(request, response) -> {
 
-            Printing.println("/Event/ClockIn");
+            Printing.printlnEndpoint("/Event/ClockIn");
             String oAuthCode = request.queryParams("oAuthCode");
             EventAttendanceModel eventAttendanceModel = new Gson().fromJson(request.body(), EventAttendanceModel.class);
             if(oAuthCode == null || eventAttendanceModel == null){
@@ -530,13 +531,12 @@ public class LambencyServer{
             }
             int ret = EventHandler.clockInEvent(oAuthCode, eventAttendanceModel, databaseConnection);
             databaseConnection.close();
-            Printing.println("CLOCK IN RETURNING" + ret);
             return ret;
         },new JsonTransformer());
 
         get("/User/MyLambency","application/json",(request, response) -> {
 
-            Printing.println("/User/MyLambency");
+            Printing.printlnEndpoint("/User/MyLambency");
             String oAuthCode = request.queryParams("oAuthCode");
             if(oAuthCode == null){
                 Printing.println("oAuthCode is null. (Note: those are the correct spellings for params)");
@@ -553,7 +553,7 @@ public class LambencyServer{
 
         post("/Organization/InviteUser","application/json",(request, response) -> {
 
-            Printing.println("/Organization/InviteUser");
+            Printing.printlnEndpoint("/Organization/InviteUser");
             String oAuthCode = request.queryParams("oAuthCode");
             int orgID = Integer.parseInt(request.queryParams("orgID"));
             String userEmail = request.queryParams("emailString");
@@ -569,8 +569,7 @@ public class LambencyServer{
             databaseConnection.close();
             return ret;
         },new JsonTransformer());
-
-
+        
     }
 
     public static void main(String[]args){

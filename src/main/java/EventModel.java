@@ -1,3 +1,5 @@
+import com.sun.corba.se.spi.ior.ObjectKey;
+
 import java.io.IOException;
 import java.sql.Timestamp;
 
@@ -206,5 +208,20 @@ public class EventModel {
 
     public void setOrgName(String orgName) {
         this.orgName = orgName;
+    }
+
+    @Override
+    public boolean equals(Object obj){
+        if (obj == null) {
+            return false;
+        }
+        if (!EventModel.class.isAssignableFrom(obj.getClass())) {
+            return false;
+        }
+        final EventModel other = (EventModel) obj;
+        if(other.getEvent_id() != event_id){
+            return false;
+        }
+        return true;
     }
 }

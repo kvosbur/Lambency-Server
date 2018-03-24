@@ -339,7 +339,7 @@ public class DatabaseConnectionTest {
 
     //Spint 2 Testing
     @org.junit.Test
-    public void getOrgEvents() throws Exception{
+    public void testEventsByOrg() throws Exception{
         insertData();
         OrganizationModel org = dbc.searchForOrg("My Second OrganizationModel");
         List<Integer> list = dbc.getOrgEvents(org.getOrgID());
@@ -393,15 +393,15 @@ public class DatabaseConnectionTest {
     }
 
     @org.junit.Test
-    public void eventsFeedTest() throws Exception{
+    public void testEventsFeed() throws Exception{
         insertData();
         UserModel u = dbc.searchForUser("User2", 2);
         List<EventModel> eventsFeed = UserHandler.eventsFeed(u.getOauthToken(), null, null, dbc);
         if(eventsFeed == null){
             throw new Exception("failed to get events feed: returned null");
         }
-        for(EventModel eventModel: eventsFeed){
-            System.out.println(eventModel.getEvent_id());
+        if(eventsFeed.get(0).getEvent_id() != 2){
+            throw new Exception("failed to get events feed: incorrect event");
         }
 
     }
@@ -439,7 +439,7 @@ public class DatabaseConnectionTest {
 
             EventModel e = dbc.searchEvents(event_id);
             dbc.modifyEventInfo(event_id, "Updated Name", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 10), "Updated description",
-                    "Location 2", "img2", 20, 20);
+                    "Location 2", "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", 20, 20);
 
             ua = FacebookLogin.facebookLogin("User2", "Jeff", "Turkstra", "jeff@purdue.edu", dbc);
             u = dbc.searchForUser("User2", 2);
