@@ -1,4 +1,6 @@
 
+import com.google.maps.model.LatLng;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
@@ -9,25 +11,34 @@ public class EventFilterModel {
     private Timestamp startStamp;
     private Timestamp endStamp;
     private int distanceMiles = -1;
+    private String title;
+    private String location;
 
-    public EventFilterModel(double latitude, double longitude){
+    public EventFilterModel(double latitude, double longitude, String title){
         this.latitude = latitude;
         this.longitude = longitude;
+        this.title = title;
     }
 
-    public EventFilterModel(double latitude, double longitude, Timestamp startStamp, Timestamp endStamp){
-        this(latitude,longitude);
+    public EventFilterModel(double latitude, double longitude, Timestamp startStamp, Timestamp endStamp, String title){
+        this(latitude,longitude, title);
         this.startStamp = startStamp;
         this.endStamp = endStamp;
     }
 
-    public EventFilterModel(double latitude, double longitude, Timestamp startStamp, Timestamp endStamp, int distanceMiles){
-        this(latitude,longitude, startStamp, endStamp);
+    public EventFilterModel(double latitude, double longitude, Timestamp startStamp, Timestamp endStamp, int distanceMiles, String title){
+        this(latitude,longitude, startStamp, endStamp, title);
         this.distanceMiles = distanceMiles;
     }
 
 
     public String createStringQuery(){
+        if(location != null){
+            Printing.println("Filter events from other location");
+            LatLng loc = GoogleGeoCodeUtil.getGeoData(location);
+            latitude = loc.lat;
+            longitude = loc.lng;
+        }
         String fields;
         ArrayList<String> ands = new ArrayList<>();
         String where = "";
@@ -45,6 +56,9 @@ public class EventFilterModel {
         if(distanceMiles != -1){
             ands.add("(sqrt(pow(latitude - " + latitude + ",2) + " +
                     "pow(longitude - " + longitude + ",2)) * 69)  <= "+ distanceMiles +"");
+        }
+        if(title != null && ! title.equals("")){
+            ands.add("name LIKE "+title);
         }
 
 
