@@ -466,9 +466,15 @@ public class UserHandler {
                 ArrayList<Integer> events = dbc.getEndorsedEvents(org);
                 for(int event: events){
                     EventModel eventModel = dbc.searchEvents(event);
-                    eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                    if(!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)){
-                        subList.add(eventModel);
+                    if(eventModel == null){
+                        Printing.println("null event");
+                    }
+                    else {
+                        Printing.println(eventModel.getName());
+                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                        if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)) {
+                            subList.add(eventModel);
+                        }
                     }
                 }
             }
