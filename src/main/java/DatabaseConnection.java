@@ -402,6 +402,10 @@ public class DatabaseConnection {
         return -1;
     }
 
+
+
+
+
     /**
      * END USER METHODS
      */
@@ -642,6 +646,33 @@ public class DatabaseConnection {
             return -1;
         }
     }
+
+    /**
+     * Unregisters a user to an event
+     * @param userID the id of the user registering for an event
+     * @param eventID the id of the event
+     * @return 0 on success, -1 on failure
+     */
+    public int unRegisterForEvent(int userID, int eventID) throws SQLException{
+
+        //create string for query
+        String query = "Delete from event_attendence WHERE event_id = ? AND user_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ps.setInt(2, userID);
+        int result = ps.executeUpdate();
+
+        if(result > 0){
+            return 0;
+        }else{
+            return -1;
+        }
+    }
+
+
+
 
     /**
      * Searches for all users who are attending the specified event
@@ -1467,7 +1498,7 @@ public class DatabaseConnection {
 
     /**
      * Returns the emails of all the users that are following or are members/organizers for the organization given
-     * @param ordID the id of the organization to search for
+     * @param orgID the id of the organization to search for
      * @return String array of user Emails
      */
     public ArrayList<String> getUserEmailsToNotify(int orgID) throws SQLException{

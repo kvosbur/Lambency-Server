@@ -28,6 +28,8 @@ public class LambencyServer{
         }
     }
 
+
+
     public class ServerTaskTimer extends TimerTask {
 
         Thread serverTaskThread;
@@ -116,6 +118,25 @@ public class LambencyServer{
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());
+
+        get("/User/getOrgs","application/json",(request, response) -> {
+            Printing.println("/User/getOrgs");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String oAuthCode = request.queryParams("oAuthCode");
+            if(oAuthCode == null){
+                return null;
+            }
+            else{
+                ArrayList<OrganizationModel> myOrgs = UserHandler.getMyOrganizations(oAuthCode,databaseConnection);
+                databaseConnection.close();
+                return myOrgs;
+            }
+        }, new JsonTransformer());
+
+
         post("/User/requestJoinOrg", "application/json", (request, response) -> {
             Printing.println("/User/requestJoinOrg");
             DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -140,6 +161,20 @@ public class LambencyServer{
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());
+
+        get("/User/unregisterForEvent", "application/json",(request, response) -> {
+            Printing.println("/User/unregisterForEvent");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String oAuthCode = request.queryParams("oAuthCode");
+            String eventID = request.queryParams("eventID");
+            Integer ret = UserHandler.unRegisterEvent(oAuthCode,Integer.parseInt(eventID),databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
+
         get("/User/eventsFeed", "application/json", (request, response) -> {
             Printing.println("/User/eventsFeed");
             DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -522,7 +557,7 @@ public class LambencyServer{
 
     public static void main(String[]args){
 
-//        //LambencyServer lb = new LambencyServer();
+        LambencyServer lb = new LambencyServer();
 //
 //        DatabaseConnection dbc = new DatabaseConnection();
 //        if(dbc == null){
