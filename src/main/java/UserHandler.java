@@ -409,6 +409,9 @@ public class UserHandler {
     public static List<EventModel> eventsFeed(String oAuthCode, String latitude, String longitude, DatabaseConnection dbc){
         try {
             UserModel u = dbc.searchForUser(oAuthCode);
+            if(u == null){
+                return null;
+            }
             List<EventModel> eventsFeed = new ArrayList<EventModel>();
             List<EventModel> subList = new ArrayList<EventModel>();
             u = updateOrgLists(u, dbc);
