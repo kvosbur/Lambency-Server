@@ -354,9 +354,29 @@ public class DatabaseConnectionTest {
         if(list == null){
             throw new Exception("failed to search events by org: returned null");
         }
-        if(list.size() != 2 || list.get(0) != 1 || list.get(1) != 2){
+        if(list.size() != 3 || list.get(0) != 1 || list.get(1) != 2 || list.get(2) != 3){
             throw new Exception("failed to search events by org: list contained incorrect entries");
         }
+        list = dbc.getOrgEvents(-1);
+        if(list == null){
+            throw new Exception("failed to search events by org: returned null");
+        }
+        if(list.size() != 0){
+            throw new Exception("failed to search events by org: list contained incorrect entries");
+        }
+    }
+
+    @org.junit.Test
+    public void testEventsByOrgInvalid() throws Exception{
+        insertData();
+        List<Integer> list = dbc.getOrgEvents(27);
+        if(list == null){
+            throw new Exception("failed to search events by org: returned null");
+        }
+        if(list.size() != 0){
+            throw new Exception("failed to search events by org: list contained incorrect entries");
+        }
+
         list = dbc.getOrgEvents(-1);
         if(list == null){
             throw new Exception("failed to search events by org: returned null");
@@ -393,6 +413,20 @@ public class DatabaseConnectionTest {
     }
 
     @org.junit.Test
+    public void testNumAttendingInvalid() throws Exception{
+        insertData();
+        int num = dbc.numUsersAttending(-5);
+        if(num != 0){
+            throw new Exception("failed to get num attending event: incorrect number");
+        }
+
+        num = dbc.numUsersAttending(32000);
+        if(num != 0){
+            throw new Exception("failed to get num attending event: incorrect number");
+        }
+    }
+
+    @org.junit.Test
     public void testEventsFeed() throws Exception{
         insertData();
         UserModel u = dbc.searchForUser("User2", 2);
@@ -400,11 +434,25 @@ public class DatabaseConnectionTest {
         if(eventsFeed == null){
             throw new Exception("failed to get events feed: returned null");
         }
-        if(eventsFeed.get(0).getEvent_id() != 2){
+        if(eventsFeed.get(0).getEvent_id() != 3 && eventsFeed.get(1).getEvent_id() != 2){
             throw new Exception("failed to get events feed: incorrect event");
         }
-
     }
+
+    @org.junit.Test
+    public void testEventsFeedInvalid() throws Exception{
+        insertData();
+        List<EventModel> eventsFeed = UserHandler.eventsFeed("invalid authorization token", null, null, dbc);
+        if(eventsFeed != null){
+            throw new Exception("failed to get events feed: returned a non-null list");
+        }
+
+        eventsFeed = UserHandler.eventsFeed(null, null, null, dbc);
+        if(eventsFeed != null){
+            throw new Exception("failed to get events feed: returned a non-null list");
+        }
+    }
+
     public void setUpTests(){
         try {
             dbc = new DatabaseConnection();
@@ -465,6 +513,9 @@ public class DatabaseConnectionTest {
             u = dbc.searchForUser("User2", 2);
             int orgID = dbc.createOrganization("My Second OrganizationModel", "Second", "Org2@gmail.com", u.getUserId(), "Purdue",
                     "img2", u.getUserId());
+
+            dbc.createEvent(org.getOrgID(),"Event 3", new Timestamp(2019, 1, 1, 1, 1, 1, 1), new Timestamp(System.currentTimeMillis() + 500),
+                    "This is my third event", "348 Cottonwood Lane", "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", 5 , 5, "ClockIn", "ClockOut");
 
         }
         catch (Exception e){
