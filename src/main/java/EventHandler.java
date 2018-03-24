@@ -290,6 +290,7 @@ public class EventHandler {
                     }else if(clockType == EventAttendanceModel.CLOCKINCODE){
                         dbc.eventClockInOutUser(eventid,us.getUserId(),eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKINCODE);
                     }
+                    return 0;
                 }else{
                     return 2;
                 }
@@ -298,7 +299,7 @@ public class EventHandler {
         } catch (SQLException e) {
             Printing.println(e.toString());
         }
-        return 1;
+        return 4;
     }
 
     /**
