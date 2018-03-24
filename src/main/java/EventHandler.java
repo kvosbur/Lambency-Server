@@ -341,7 +341,7 @@ public class EventHandler {
     }
 
     public static String generateClockInOutCodes(){
-        char[] charArray = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
+        char[] charArray = "abcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
         StringBuilder code = new StringBuilder();
         Random r = new Random();
         for(int i = 0; i < 8; i++){

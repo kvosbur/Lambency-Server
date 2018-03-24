@@ -799,6 +799,9 @@ public class DatabaseConnection {
             result[0] = rs.getInt(1);
             response.add(result);
         }
+        if(response.size() != 0){
+            return response;
+        }
         return null;
     }
 
