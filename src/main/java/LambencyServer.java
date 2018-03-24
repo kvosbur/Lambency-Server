@@ -569,8 +569,7 @@ public class LambencyServer{
             databaseConnection.close();
             return ret;
         },new JsonTransformer());
-
-
+        
     }
 
     public static void main(String[]args){
