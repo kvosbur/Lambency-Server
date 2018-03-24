@@ -530,6 +530,7 @@ public class LambencyServer{
             }
             int ret = EventHandler.clockInEvent(oAuthCode, eventAttendanceModel, databaseConnection);
             databaseConnection.close();
+            Printing.println("CLOCK IN RETURNING" + ret);
             return ret;
         },new JsonTransformer());
 
