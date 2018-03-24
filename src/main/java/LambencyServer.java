@@ -424,6 +424,18 @@ public class LambencyServer{
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());
+        get("/Event/endorsedOrgs","application/json",(request,response)->{
+            Printing.println("/Event/endorsedOrgs");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String oAuthCode = request.queryParams("oAuthCode");
+            int event_id = Integer.parseInt(request.queryParams("eventId"));
+            List<OrganizationModel> ret = EventHandler.getEndorsedOrgs(oAuthCode,event_id, databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
         get("/User/login/facebook", "application/json", (request, response) -> {
             Printing.println("/User/login/facebook");
             DatabaseConnection databaseConnection = new DatabaseConnection();

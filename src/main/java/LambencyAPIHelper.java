@@ -802,6 +802,36 @@ public void createOrganizationRetrofit(OrganizationModel org){
         });
     }
 
+    public void endorsedOrgsRetrofit(String oAuthCode, String eventID)
+    {
+        this.getInstance().getEndorsedOrgs(oAuthCode, eventID).enqueue(new Callback<List<OrganizationModel>>() {
+            @Override
+            public void onResponse(Call<List<OrganizationModel>> call, Response<List<OrganizationModel>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("An error has occurred or no organizations were found");
+                    return;
+                }
+                //when response is back
+                List<OrganizationModel> orgList = response.body();
+                if(orgList == null){
+                    System.out.println("An error has occurred");
+                }
+                else if(orgList.size() == 0){
+                    System.out.println("No events founud");
+                }
+                else{
+                    System.out.println("success");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<OrganizationModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
         //OrganizationModel org = new OrganizationModel(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");
