@@ -1,4 +1,6 @@
+import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -225,6 +227,48 @@ public class UserHandler {
 
     /**
      *
+     * @param oAuthCode the oAuthCode of the given user
+     * @param eventID the id of the event
+     * @return 0 on success, 1 on failing to find user or organization, 2 on SQL exception, 3 on not registered
+     */
+    public static Integer unRegisterEvent(String oAuthCode, int eventID, DatabaseConnection dbc){
+        try {
+            //search for user
+            if (dbc.searchForUser(oAuthCode) == null) {
+                Printing.println("UserModel not found");
+                return 1;
+            }
+            //search for organization by ID
+            EventModel event = dbc.searchEvents(eventID);
+            if (event != null) {
+                UserModel u = dbc.searchForUser(oAuthCode);
+                //check if user is already registered for an event
+                EventAttendanceModel ea = dbc.searchEventAttendance(u.getUserId(), eventID);
+                if (ea == null) {
+                    //if event is found and no event attended already exist, register user for event
+                    //dbc.registerForEvent(u.getUserId(), eventID);
+                    Printing.println("UserModel is not registered for the event, so it can not unregister.");
+                    return 3;
+                } else {
+                    //UserModel is already registered
+                    dbc.unRegisterForEvent(u.getUserId(),eventID);
+                    return 0;
+                }
+            } else {
+                //org is not found, return error
+                Printing.println("OrganizationModel not found");
+                return 1;
+            }
+        } catch (SQLException e) {
+            Printing.println("SQLExcpetion");
+            return 2;
+        }
+    }
+
+
+
+    /**
+     *
      * @param oAuthCode oAuthCode for the user
      * @param userID id of user to search for
      * @return returns UserModel object on success or null if failure
@@ -362,7 +406,7 @@ public class UserHandler {
      * @param longitude longitude of the user
      * @return list of events to appear in events feed, on error null
      */
-    public static List<EventModel> eventsFeed(String oAuthCode, double latitude, double longitude, DatabaseConnection dbc){
+    public static List<EventModel> eventsFeed(String oAuthCode, String latitude, String longitude, DatabaseConnection dbc){
         try {
             UserModel u = dbc.searchForUser(oAuthCode);
             List<EventModel> eventsFeed = new ArrayList<EventModel>();
@@ -434,14 +478,30 @@ public class UserHandler {
             eventsFeed.addAll(subList);
 
             if (eventsFeed.size() < 20){
-                List<EventModel> nearby = EventHandler.getEventsByLocation(latitude, longitude, dbc);
-                nearby = EventHandler.sortEventListByDate(nearby);
-                int i = 0;
-                while(eventsFeed.size() < 20 && i < nearby.size()){
-                    if(!u.getEventsAttending().contains(nearby.get(i).getEvent_id()) && !eventsFeed.contains(nearby.get(i))) {
-                        eventsFeed.add(nearby.get(i));
+                if(latitude!= null && longitude != null) {
+                    double lat = Double.parseDouble(latitude);
+                    double longit = Double.parseDouble(longitude);
+                    List<EventModel> nearby = EventHandler.getEventsByLocation(lat, longit, dbc);
+                    nearby = EventHandler.sortEventListByDate(nearby);
+                    int i = 0;
+                    while (eventsFeed.size() < 20 && i < nearby.size()) {
+                        if (!u.getEventsAttending().contains(nearby.get(i).getEvent_id()) && !eventsFeed.contains(nearby.get(i))) {
+                            eventsFeed.add(nearby.get(i));
+                        }
+                        i++;
                     }
-                    i++;
+                }
+                else{
+                    List<Integer> events = dbc.searchEventsByDateTime(new Timestamp(System.currentTimeMillis()));
+                    if(events != null) {
+                        for (int event : events) {
+                            EventModel eventModel = dbc.searchEvents(event);
+                            eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                            if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)) {
+                                subList.add(eventModel);
+                            }
+                        }
+                    }
                 }
             }
             else{
@@ -453,10 +513,15 @@ public class UserHandler {
             Printing.println("SQLException");
             Printing.println(e.toString());
         }
-        catch (Exception e){
-            Printing.println("General Exception");
+         catch (IOException e){
+            Printing.println("IO Exception");
             Printing.println(e.toString());
-        }
+         }
+//        catch (Exception e){
+//            Printing.println("General Exception");
+//            e.printStackTrace();
+//            Printing.println(e.toString());
+//        }
         return null;
     }
 
@@ -467,6 +532,50 @@ public class UserHandler {
      * @return updated user object
      */
 
+    /**
+     * Returns all the organizationModels for organizations where the user is an ORGANIZER
+     *
+     * @param oAuthCode         oAuthCode for user who is trying to get ORGS
+     * @return      ArrayList of Organziation models that they are organizers for
+     * @throws SQLException         Problem
+     */
+    public static ArrayList<OrganizationModel> getMyOrganizations(String oAuthCode, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null){
+                return null;
+            }
+            UserModel user = dbc.searchForUser(oAuthCode);
+            if (user == null) {
+                Printing.println("UserModel not found");
+                return null;
+            }
+            //search for organization by ID
+            user.setMyOrgs(dbc.getUserList(user.getUserId(),DatabaseConnection.ORGANIZER, true));
+            ArrayList<OrganizationModel> orgs = new ArrayList<>();
+            for(Integer org_id:user.getMyOrgs()){
+                OrganizationModel organization = dbc.searchForOrg(org_id);
+                if(organization.getImage() != null) {
+                    try {
+                        organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
+                    }
+                    catch (IOException e){
+                        Printing.println("Error getting image for organization. Setting image to null");
+                        organization.setImage(null);
+                    }
+                }
+                orgs.add(organization);
+            }
+            return orgs;
+
+        } catch (SQLException e) {
+            Printing.println("SQLExcpetion");
+            Printing.println(e.toString());
+            return null;
+        }
+    }
+
+
+
     private static UserModel updateOrgLists(UserModel u, DatabaseConnection dbc) throws SQLException{
 
         u.setMyOrgs(dbc.getUserList(u.getUserId(),DatabaseConnection.ORGANIZER, true));
@@ -476,4 +585,7 @@ public class UserHandler {
         u.setRequestedJoinOrgIds(dbc.getUserList(u.getUserId(),DatabaseConnection.MEMBER, false));
         return u;
     }
+
+
+
 }
