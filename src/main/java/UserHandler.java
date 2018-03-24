@@ -516,6 +516,7 @@ public class UserHandler {
         catch (Exception e){
             Printing.println("General Exception");
             Printing.println(e.toString());
+            e.printStackTrace();
         }
         return null;
     }
