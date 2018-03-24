@@ -402,6 +402,10 @@ public class DatabaseConnection {
         return -1;
     }
 
+
+
+
+
     /**
      * END USER METHODS
      */
@@ -536,6 +540,26 @@ public class DatabaseConnection {
         return null;
     }
 
+    public List<Integer> searchEventsByDateTime(Timestamp start) throws SQLException{
+        PreparedStatement ps = connect.prepareStatement("SELECT * FROM events WHERE start_time >= ? ORDER BY start_time");
+        ps.setObject(1,start);
+
+        ResultSet rs = ps.executeQuery();
+
+        //create resulting list
+        List<Integer> results = new ArrayList<>();
+
+        //check for results and if any then return user
+        while(rs.next()){
+            results.add(rs.getInt(1));
+        }
+
+        if(results.size() != 0){
+            return results;
+        }
+        return null;
+    }
+
     /**
      * Description : Search events by latitude and longitude locations
      *
@@ -558,9 +582,11 @@ public class DatabaseConnection {
 
         //check for results and if any then return user
         if(rs.next()){
-            return new EventModel(rs.getString(3),rs.getInt(2), rs.getTimestamp(4), rs.getTimestamp(5),
+            EventModel em =  new EventModel(rs.getString(3),rs.getInt(2), rs.getTimestamp(4), rs.getTimestamp(5),
                     rs.getString(6), rs.getString(7), rs.getString(8), rs.getInt(1),
                     rs.getDouble(9), rs.getDouble(10), rs.getString(11), rs.getString(12));
+            //em.setOrgName(getNameOfOrgForEvent(em.getOrg_id()));
+            return em;
         }
 
         return null;
@@ -642,6 +668,33 @@ public class DatabaseConnection {
             return -1;
         }
     }
+
+    /**
+     * Unregisters a user to an event
+     * @param userID the id of the user registering for an event
+     * @param eventID the id of the event
+     * @return 0 on success, -1 on failure
+     */
+    public int unRegisterForEvent(int userID, int eventID) throws SQLException{
+
+        //create string for query
+        String query = "Delete from event_attendence WHERE event_id = ? AND user_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ps.setInt(2, userID);
+        int result = ps.executeUpdate();
+
+        if(result > 0){
+            return 0;
+        }else{
+            return -1;
+        }
+    }
+
+
+
 
     /**
      * Searches for all users who are attending the specified event
@@ -1264,6 +1317,15 @@ public class DatabaseConnection {
         return array;
     }
 
+    public String getNameOfOrgForEvent(int orgID) throws SQLException{
+        String query = "SELECT name FROM Organization WHERE org_id = ?";
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, orgID);
+        ResultSet rs = ps.executeQuery();
+
+        return rs.getString(1);
+    }
+
 
     /**
      * Endorses the given event id for the organization
@@ -1467,7 +1529,7 @@ public class DatabaseConnection {
 
     /**
      * Returns the emails of all the users that are following or are members/organizers for the organization given
-     * @param ordID the id of the organization to search for
+     * @param orgID the id of the organization to search for
      * @return String array of user Emails
      */
     public ArrayList<String> getUserEmailsToNotify(int orgID) throws SQLException{

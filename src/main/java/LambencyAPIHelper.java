@@ -555,12 +555,18 @@ public void createOrganizationRetrofit(OrganizationModel org){
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.body() == null || response.code() != 200) {
+                    /**
+                     * set number to 0 !!!!!!!!!!
+                     */
                     System.out.println("ERROR!!!!!");
                     return;
                 }
                 //when response is back
                 Integer ret = response.body();
-                if(ret == null || ret == -1){
+                if(ret == -1){
+                    /**
+                     * set number to 0 !!!!!!!!!!
+                     */
                     System.out.println("Error has occurred");
                 }
                 else{
@@ -792,6 +798,66 @@ public void createOrganizationRetrofit(OrganizationModel org){
             @Override
             public void onFailure(Call<Integer> call, Throwable throwable) {
                 System.out.println("We are sorry, we can't handle your response to a join request. Please try turning it off then back on again.");
+            }
+        });
+    }
+
+
+    public void getMyOrganizedOrgs(String oAuthCode)
+    {
+        this.getInstance().getMyOrganizedOrgs(oAuthCode).enqueue(new Callback<ArrayList<OrganizationModel>>() {
+            @Override
+            public void onResponse(Call<ArrayList<OrganizationModel>> call,
+                                   Response<ArrayList<OrganizationModel>> response) {
+
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                ArrayList<OrganizationModel> ret = response.body();
+                if(ret == null){
+                    System.out.println("Error");
+                }
+                else{
+                    //use ret here
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<OrganizationModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+    public void endorsedOrgsRetrofit(String oAuthCode, String eventID)
+    {
+        this.getInstance().getEndorsedOrgs(oAuthCode, eventID).enqueue(new Callback<List<OrganizationModel>>() {
+            @Override
+            public void onResponse(Call<List<OrganizationModel>> call, Response<List<OrganizationModel>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("An error has occurred or no organizations were found");
+                    return;
+                }
+                //when response is back
+                List<OrganizationModel> orgList = response.body();
+                if(orgList == null){
+                    System.out.println("An error has occurred");
+                }
+                else if(orgList.size() == 0){
+                    System.out.println("No events founud");
+                }
+                else{
+                    System.out.println("success");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<OrganizationModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
             }
         });
     }

@@ -196,4 +196,5 @@ public class EventModel {
     public void setClockOutCode(String clockOutCode) {
         this.clockOutCode = clockOutCode;
     }
+
 }

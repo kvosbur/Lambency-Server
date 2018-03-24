@@ -28,6 +28,8 @@ public class LambencyServer{
         }
     }
 
+
+
     public class ServerTaskTimer extends TimerTask {
 
         Thread serverTaskThread;
@@ -116,6 +118,29 @@ public class LambencyServer{
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());
+
+        get("/User/getOrgs","application/json",(request, response) -> {
+            Printing.println("/User/getOrgs");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String oAuthCode = request.queryParams("oAuthCode");
+            if(oAuthCode == null){
+                Printing.println("Bad spelling");
+                return null;
+            }
+            else{
+                ArrayList<OrganizationModel> myOrgs = UserHandler.getMyOrganizations(oAuthCode,databaseConnection);
+                databaseConnection.close();
+                if(myOrgs == null){
+                    Printing.println("It returned null;");
+                }
+                return myOrgs;
+            }
+        }, new JsonTransformer());
+
+
         post("/User/requestJoinOrg", "application/json", (request, response) -> {
             Printing.println("/User/requestJoinOrg");
             DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -140,6 +165,20 @@ public class LambencyServer{
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());
+
+        get("/User/unregisterForEvent", "application/json",(request, response) -> {
+            Printing.println("/User/unregisterForEvent");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String oAuthCode = request.queryParams("oAuthCode");
+            String eventID = request.queryParams("eventID");
+            Integer ret = UserHandler.unRegisterEvent(oAuthCode,Integer.parseInt(eventID),databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
+
         get("/User/eventsFeed", "application/json", (request, response) -> {
             Printing.println("/User/eventsFeed");
             DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -149,12 +188,12 @@ public class LambencyServer{
             String oAuthCode = request.queryParams("oAuthCode");
             String latitude  = request.queryParams("latitude");
             String longitude = request.queryParams("longitude");
-            if(oAuthCode == null || latitude == null || longitude == null){
+            if(oAuthCode == null){
                 Printing.println("null params");
                 databaseConnection.close();
                 return null;
             }
-            List<EventModel> events = UserHandler.eventsFeed(oAuthCode, Double.parseDouble(latitude), Double.parseDouble(longitude), databaseConnection);
+            List<EventModel> events = UserHandler.eventsFeed(oAuthCode, latitude, longitude, databaseConnection);
             databaseConnection.close();
             return events;
         }, new JsonTransformer());
@@ -413,6 +452,7 @@ public class LambencyServer{
             String oAuthCode = request.queryParams("oAuthCode");
             String eventID = request.queryParams("id");
             if(oAuthCode == null || eventID == null){
+                Printing.print("null params");
                 return new Integer(-1);
             }
             DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -420,6 +460,18 @@ public class LambencyServer{
                 return null;
             }
             Integer ret = EventHandler.numAttending(oAuthCode, Integer.parseInt(eventID), databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
+        get("/Event/endorsedOrgs","application/json",(request,response)->{
+            Printing.println("/Event/endorsedOrgs");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String oAuthCode = request.queryParams("oAuthCode");
+            int event_id = Integer.parseInt(request.queryParams("eventId"));
+            List<OrganizationModel> ret = EventHandler.getEndorsedOrgs(oAuthCode,event_id, databaseConnection);
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());
@@ -522,7 +574,7 @@ public class LambencyServer{
 
     public static void main(String[]args){
 
-//        //LambencyServer lb = new LambencyServer();
+        LambencyServer lb = new LambencyServer();
 //
 //        DatabaseConnection dbc = new DatabaseConnection();
 //        if(dbc == null){
