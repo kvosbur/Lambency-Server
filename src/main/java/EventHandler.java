@@ -485,15 +485,6 @@ public class EventHandler {
                 location = "<strong><u>Location</u> : " + prev.getLocation() + "</strong>";
                 changed = true;
             }
-            sb.append(location + "<br>");
-
-            String description;
-            if(prev.getDescription().equals(now.getDescription())){
-                description = "<u>Description</u><br>" + now.getDescription();
-            }else{
-                description = "<strong><u>Description</u><br>" + now.getDescription() + "</strong>";
-                changed = true;
-            }
 
             sb.append("<br><br>*Please do not reply to this email as this is an automated message.*");
 
