@@ -417,9 +417,14 @@ public class UserHandler {
                 ArrayList<Integer> events = dbc.getOrgEvents(org);
                 for(int event: events){
                     EventModel eventModel = dbc.searchEvents(event);
-                    eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                    if(!u.getEventsAttending().contains(event)){
-                        subList.add(eventModel);
+                    if(eventModel == null){
+                        Printing.println("null event");
+                    }
+                    else {
+                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                        if (!u.getEventsAttending().contains(event)) {
+                            subList.add(eventModel);
+                        }
                     }
                 }
             }
@@ -433,9 +438,14 @@ public class UserHandler {
                 ArrayList<Integer> events = dbc.getEndorsedEvents(org);
                 for(int event: events){
                     EventModel eventModel = dbc.searchEvents(event);
-                    eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                    if(!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)){
-                        subList.add(eventModel);
+                    if(eventModel == null){
+                        Printing.println("null event");
+                    }
+                    else {
+                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                        if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)) {
+                            subList.add(eventModel);
+                        }
                     }
                 }
             }
@@ -450,9 +460,14 @@ public class UserHandler {
                 ArrayList<Integer> events = dbc.getOrgEvents(org);
                 for(int event: events){
                     EventModel eventModel = dbc.searchEvents(event);
-                    eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                    if(!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)){
-                        subList.add(eventModel);
+                    if(eventModel == null){
+                        Printing.println("null event");
+                    }
+                    else {
+                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                        if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)) {
+                            subList.add(eventModel);
+                        }
                     }
                 }
             }
@@ -466,9 +481,15 @@ public class UserHandler {
                 ArrayList<Integer> events = dbc.getEndorsedEvents(org);
                 for(int event: events){
                     EventModel eventModel = dbc.searchEvents(event);
-                    eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                    if(!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)){
-                        subList.add(eventModel);
+                    if(eventModel == null){
+                        Printing.println("null event");
+                    }
+                    else {
+                        Printing.println(eventModel.getName());
+                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                        if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)) {
+                            subList.add(eventModel);
+                        }
                     }
                 }
             }
@@ -482,13 +503,17 @@ public class UserHandler {
                     double lat = Double.parseDouble(latitude);
                     double longit = Double.parseDouble(longitude);
                     List<EventModel> nearby = EventHandler.getEventsByLocation(lat, longit, dbc);
-                    nearby = EventHandler.sortEventListByDate(nearby);
-                    int i = 0;
-                    while (eventsFeed.size() < 20 && i < nearby.size()) {
-                        if (!u.getEventsAttending().contains(nearby.get(i).getEvent_id()) && !eventsFeed.contains(nearby.get(i))) {
-                            eventsFeed.add(nearby.get(i));
+                    if(nearby != null) {
+                        nearby = EventHandler.sortEventListByDate(nearby);
+                        int i = 0;
+                        while (eventsFeed.size() < 20 && i < nearby.size()) {
+                            if (!u.getEventsAttending().contains(nearby.get(i).getEvent_id()) && !eventsFeed.contains(nearby.get(i))) {
+                                if(nearby.get(i) != null) {
+                                    eventsFeed.add(nearby.get(i));
+                                }
+                            }
+                            i++;
                         }
-                        i++;
                     }
                 }
                 else{
@@ -496,9 +521,14 @@ public class UserHandler {
                     if(events != null) {
                         for (int event : events) {
                             EventModel eventModel = dbc.searchEvents(event);
-                            eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                            if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)) {
-                                subList.add(eventModel);
+                            if(eventModel == null){
+                                Printing.println("null event");
+                            }
+                            else {
+                                eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                                if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)) {
+                                    subList.add(eventModel);
+                                }
                             }
                         }
                     }
