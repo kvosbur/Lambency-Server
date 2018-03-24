@@ -14,20 +14,19 @@ public class EventFilterModel {
     private String title;
     private String location;
 
-    public EventFilterModel(double latitude, double longitude, String title){
+    public EventFilterModel(double latitude, double longitude){
         this.latitude = latitude;
         this.longitude = longitude;
-        this.title = title;
     }
 
-    public EventFilterModel(double latitude, double longitude, Timestamp startStamp, Timestamp endStamp, String title){
-        this(latitude,longitude, title);
+    public EventFilterModel(double latitude, double longitude, Timestamp startStamp, Timestamp endStamp){
+        this(latitude,longitude);
         this.startStamp = startStamp;
         this.endStamp = endStamp;
     }
 
-    public EventFilterModel(double latitude, double longitude, Timestamp startStamp, Timestamp endStamp, int distanceMiles, String title){
-        this(latitude,longitude, startStamp, endStamp, title);
+    public EventFilterModel(double latitude, double longitude, Timestamp startStamp, Timestamp endStamp, int distanceMiles){
+        this(latitude,longitude, startStamp, endStamp);
         this.distanceMiles = distanceMiles;
     }
 
