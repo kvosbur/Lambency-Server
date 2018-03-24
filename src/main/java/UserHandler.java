@@ -485,7 +485,6 @@ public class UserHandler {
                         Printing.println("null event");
                     }
                     else {
-                        Printing.println(eventModel.getName());
                         eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                         if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)) {
                             subList.add(eventModel);
@@ -537,6 +536,10 @@ public class UserHandler {
                                 }
                             }
                         }
+                    }
+                    eventsFeed.addAll(subList);
+                    if(eventsFeed.size()> 20){
+                        eventsFeed = eventsFeed.subList(0, 20);
                     }
                 }
             }

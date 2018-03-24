@@ -290,6 +290,7 @@ public class EventHandler {
                     }else if(clockType == EventAttendanceModel.CLOCKINCODE){
                         dbc.eventClockInOutUser(eventid,us.getUserId(),eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKINCODE);
                     }
+                    return 0;
                 }else{
                     return 2;
                 }
@@ -298,7 +299,7 @@ public class EventHandler {
         } catch (SQLException e) {
             Printing.println(e.toString());
         }
-        return 1;
+        return 4;
     }
 
     /**
@@ -482,15 +483,6 @@ public class EventHandler {
                 location = "<u>Location</u> : " + prev.getLocation();
             }else{
                 location = "<strong><u>Location</u> : " + prev.getLocation() + "</strong>";
-                changed = true;
-            }
-            sb.append(location + "<br>");
-
-            String description;
-            if(prev.getDescription().equals(now.getDescription())){
-                description = "<u>Description</u><br>" + now.getDescription();
-            }else{
-                description = "<strong><u>Description</u><br>" + now.getDescription() + "</strong>";
                 changed = true;
             }
 
