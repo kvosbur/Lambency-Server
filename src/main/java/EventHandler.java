@@ -516,4 +516,41 @@ public class EventHandler {
             e.printStackTrace();
         }
     }
+
+    /**
+     *
+     * @param oAuthCode oAuthCode of the user
+     * @param eventID id of the event
+     * @param dbc database connection
+     * @return list of the orgs that have endorsed the events
+     */
+    public static List<OrganizationModel> getEndorsedOrgs(String oAuthCode, int eventID, DatabaseConnection dbc){
+        try {
+            if(oAuthCode == null){
+                Printing.println("invalid oAuthCode");
+                return null;
+            }
+            if(dbc.searchForUser(oAuthCode) == null){
+                Printing.println("Unable to verify user");
+                return null;
+            }
+            if(dbc.searchEvents(eventID) == null){
+                Printing.println("Event not found");
+                return null;
+            }
+            List<Integer> orgs = dbc.getEndorsedOrgs(eventID);
+            if(orgs == null){
+                Printing.println("list of orgs was null");
+            }
+            List<OrganizationModel> orgList = new ArrayList<OrganizationModel>();
+            for(int i: orgs){
+                orgList.add(OrganizationHandler.searchOrgID(i, dbc));
+            }
+            return orgList;
+        }
+        catch (SQLException e){
+            Printing.println(e.toString());
+        }
+        return null;
+    }
 }
