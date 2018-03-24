@@ -321,8 +321,8 @@ public class DatabaseConnectionTest {
             throw new Exception("failed to search events by location: returned incorrect list");
         }
         OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
-        int eventID = dbc.createEvent(org.getOrgID(),"Event 2", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 500),
-                "This is my second event", "Location 2", "event2img", 5 , 5, "ClockIn", "ClockOut");
+        int eventID = dbc.createEvent(org.getOrgID(),"Event 2", new Timestamp(2020, 1, 1, 1, 1, 1, 1), new Timestamp(System.currentTimeMillis() + 500),
+                "This is my second event", "Location 2", "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", 5 , 5, "ClockIn", "ClockOut");
         list = dbc.searchEventsByLocation(0,0);
         if(list == null){
             throw new Exception("failed to search events by location: returned null");
@@ -388,6 +388,21 @@ public class DatabaseConnectionTest {
         if(number != 3){
             throw new Exception("failed to get num attending event: incorrect number");
         }
+    }
+
+    //test for event feed, hopefully this will stop merge issue
+    @org.junit.Test
+    public void eventsFeedTest() throws Exception{
+        getOrgEvents();
+        UserModel u = dbc.searchForUser("User2", 2);
+        List<EventModel> eventsFeed = UserHandler.eventsFeed(u.getOauthToken(), null, null, dbc);
+        if(eventsFeed == null){
+            throw new Exception("failed to get events feed: returned null");
+        }
+        for(EventModel eventModel: eventsFeed){
+            System.out.println(eventModel.getEvent_id());
+        }
+
     }
     public void setUpTests(){
         try {
