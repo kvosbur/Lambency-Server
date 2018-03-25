@@ -785,6 +785,114 @@ public class DatabaseConnectionTest {
 
     }
 
+    @org.junit.Test
+    public void testJoinRequestsView() throws Exception {
+        insertData();
+        UserModel u = dbc.searchForUser("facebookUser", 2);
+        UserModel u2 = dbc.searchForUser("User2", 2);
+        OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+        List<UserModel> userModels = OrganizationHandler.getRequestedToJoinMembers(u.getOauthToken(), org.getOrgID(), dbc);
+        if (userModels == null || userModels.size() != 1) {
+            throw new Exception("failed to create requests to join: returned an incorrect list of users");
+        }
+    }
+    @org.junit.Test
+    public void testJoinRequestsViewInvalid() throws Exception {
+        insertData();
+        UserModel u = dbc.searchForUser("facebookUser", 2);
+        UserModel u2 = dbc.searchForUser("User2", 2);
+        OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+        List<UserModel> userModels = OrganizationHandler.getRequestedToJoinMembers(null, org.getOrgID(), dbc);
+        if (userModels != null) {
+            throw new Exception("failed to create requests to join: returned a non-null object when expecting null");
+        }
+        userModels = OrganizationHandler.getRequestedToJoinMembers("", org.getOrgID(), dbc);
+        if (userModels != null) {
+            throw new Exception("failed to create requests to join: returned a non-null object when expecting null");
+        }
+        userModels = OrganizationHandler.getRequestedToJoinMembers(u2.getOauthToken(), org.getOrgID(), dbc);
+        if (userModels != null) {
+            throw new Exception("failed to create requests to join: returned a non-null object when expecting null");
+        }
+        userModels = OrganizationHandler.getRequestedToJoinMembers(null, -1, dbc);
+        if (userModels != null) {
+            throw new Exception("failed to create requests to join: returned a non-null object when expecting null");
+        }
+    }
+
+
+    @org.junit.Test
+    public void testJoinRequestsApprove() throws Exception{
+        insertData();
+        UserModel u = dbc.searchForUser("facebookUser", 2);
+        UserModel u2 = dbc.searchForUser("User2", 2);
+        OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+        List<UserModel> userModels = OrganizationHandler.getRequestedToJoinMembers(u.getOauthToken(), org.getOrgID(), dbc);
+        if(userModels == null || userModels.size() != 1){
+            throw new Exception("failed to create requests to join: returned an incorrect list of users");
+        }
+
+        int ret = OrganizationHandler.respondToRequest(u.getOauthToken(), org.getOrgID(), u2.getUserId(), true, dbc);
+        if(ret != 0){
+            throw new Exception("failed to create response: returned incorrect code");
+        }
+        userModels = OrganizationHandler.getRequestedToJoinMembers(u.getOauthToken(), org.getOrgID(), dbc);
+        if(userModels == null || userModels.size() != 0){
+            throw new Exception("failed to create requests to join: failed to remove from requests to join");
+        }
+        if(!dbc.searchGroupies(u2.getUserId(), org.getOrgID()).isConfirmed()){
+            throw new Exception("failed to approve: failed to set approved to true");
+        }
+    }
+
+    @org.junit.Test
+    public void testJoinRequestsNotApprove() throws Exception{
+        insertData();
+        UserModel u = dbc.searchForUser("facebookUser", 2);
+        UserModel u2 = dbc.searchForUser("User2", 2);
+        OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+
+        int ret = OrganizationHandler.respondToRequest(u.getOauthToken(), org.getOrgID(), u2.getUserId(), false, dbc);
+        if(ret != 1){
+            throw new Exception("failed to not approve request: returned incorrect code");
+        }
+        List<UserModel> userModels = OrganizationHandler.getRequestedToJoinMembers(u.getOauthToken(), org.getOrgID(), dbc);
+        if(userModels == null || userModels.size() != 0){
+            throw new Exception("failed to create requests to join: failed to remove from requests to join");
+        }
+        if(dbc.searchGroupies(u2.getUserId(), org.getOrgID()) != null){
+            throw new Exception("failed to not approve request: failed to remove groupies");
+        }
+    }
+
+    @org.junit.Test
+    public void testJoinRequestsResponseInvalid() throws Exception{
+        insertData();
+        UserModel u = dbc.searchForUser("facebookUser", 2);
+        UserModel u2 = dbc.searchForUser("User2", 2);
+        OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+        int ret = OrganizationHandler.respondToRequest(u2.getOauthToken(), org.getOrgID(), u.getUserId(), true, dbc);
+        if(ret != -1){
+            throw new Exception("failed to create response: returned incorrect code when user is not an organizer");
+        }
+        ret = OrganizationHandler.respondToRequest(null, org.getOrgID(), u2.getUserId(), false, dbc);
+        if(ret != -1){
+            throw new Exception("failed to not approve request: returned incorrect code when user is null");
+        }
+        ret = OrganizationHandler.respondToRequest(u.getOauthToken(), -1, u2.getUserId(), false, dbc);
+        if(ret != -1){
+            throw new Exception("failed to not approve request: returned incorrect code when org is invalid");
+        }
+        ret = OrganizationHandler.respondToRequest(u.getOauthToken(), org.getOrgID(), -1, false, dbc);
+        if(ret != -1){
+            throw new Exception("failed to not approve request: returned incorrect code when second user invalid");
+        }
+        ret = OrganizationHandler.respondToRequest(u.getOauthToken(), org.getOrgID(), 2, false, dbc);
+        if(ret != -1){
+            throw new Exception("failed to not approve request: returned incorrect code when user does not have a request");
+        }
+    }
+
 
     public void setUpTests(){
         try {
