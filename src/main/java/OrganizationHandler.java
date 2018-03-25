@@ -112,6 +112,7 @@ public class OrganizationHandler {
             return null;
         } catch (Exception e) {
             System.out.println("General Error SearchOrgID");
+            e.printStackTrace();
             return null;
         }
 
