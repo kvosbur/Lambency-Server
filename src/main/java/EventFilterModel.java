@@ -19,6 +19,15 @@ public class EventFilterModel {
         this.longitude = longitude;
     }
 
+    public EventFilterModel(double latitude, double longitude, Timestamp endStamp){
+        this(latitude,longitude);
+        this.endStamp = endStamp;
+    }
+    public EventFilterModel( Timestamp startStamp, double latitude, double longitude){
+        this(latitude,longitude);
+        this.startStamp = startStamp;
+    }
+
     public EventFilterModel(double latitude, double longitude, Timestamp startStamp, Timestamp endStamp){
         this(latitude,longitude);
         this.startStamp = startStamp;
@@ -27,6 +36,11 @@ public class EventFilterModel {
 
     public EventFilterModel(double latitude, double longitude, Timestamp startStamp, Timestamp endStamp, int distanceMiles){
         this(latitude,longitude, startStamp, endStamp);
+        this.distanceMiles = distanceMiles;
+    }
+
+    public EventFilterModel(double latitude, double longitude, int distanceMiles){
+        this(latitude,longitude);
         this.distanceMiles = distanceMiles;
     }
 
@@ -47,9 +61,11 @@ public class EventFilterModel {
         fields = "event_id, sqrt(pow(latitude - " + latitude + ",2) + " +
                 "pow(longitude - " + longitude + ",2)) as distance";
         if(startStamp != null){
+            Printing.println(startStamp);
             ands.add("end_time > '"+startStamp.toString()+"'");
         }
         if(endStamp != null){
+            Printing.println(endStamp);
             ands.add("start_time < '"+endStamp.toString()+"'");
         }
         if(distanceMiles != -1){

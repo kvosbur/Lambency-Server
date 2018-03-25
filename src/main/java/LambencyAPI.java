@@ -51,7 +51,7 @@ public interface LambencyAPI {
     @GET("Organization/unendorse")
     Call<Integer> getUnendorse(@Query("oAuthCode") String oAuthCode, @Query("orgID") String org_id, @Query("eventID") String event_id);
 
-    @GET("Organization/getMembersAndOrganizers")
+    @GET("/Organization/members")
     Call<ArrayList<UserModel>[]> getMembersAndOrganizers(@Query("oAuthCode") String oAuthCode, @Query("orgID") int orgID);
 
     @GET("Organization/respondToJoinRequest")
@@ -93,6 +93,9 @@ public interface LambencyAPI {
 
     @GET("Event/endorsedOrgs")
     Call<List<OrganizationModel>> getEndorsedOrgs(@Query("oAuthCode") String oAuthCode, @Query("eventId") String eventID);
+
+    @POST("/Event/searchWithFilter")
+    Call<ArrayList<EventModel>> getEventsWithFilter(@Body EventFilterModel efm);
 
 
 }

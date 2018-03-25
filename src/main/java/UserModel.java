@@ -16,6 +16,17 @@ public class UserModel {
     private int hoursWorked;
     private String oauthToken;
 
+    public UserModel(String firstName,String lastName, String email){
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        myOrgs = new ArrayList<>();
+        eventsAttending = new ArrayList<>();
+        followingOrgs = new ArrayList<>();
+        joinedOrgs = new ArrayList<>();
+        requestedJoinOrgIds = new ArrayList<>();
+    }
+
 
     public UserModel(String firstName, String lastName, String email, List<Integer> myOrgs, List<Integer> eventsAttending,
                      List<Integer> followingOrgs, List<Integer> joinedOrgs, List<Integer> orgJoinRequests, int userId, int hoursWorked, String oauthToken) {

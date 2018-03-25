@@ -450,7 +450,7 @@ public class DatabaseConnection {
             ps.setObject(3,end);
             ps.setString(4,description);
             ps.setString(5, location);
-            ps.setString(6, imgPath);
+            ps.setString(6, (imgPath == null)?"":imgPath);
             ps.setDouble(7,latitude);
             ps.setDouble(8, longitude);
             ps.setString(9, clockInCode);
