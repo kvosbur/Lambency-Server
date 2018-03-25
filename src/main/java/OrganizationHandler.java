@@ -30,11 +30,13 @@ public class OrganizationHandler {
         // Saves the orgs image to a file
         String path = null;
         int status;
-        try {
-            path = ImageWR.writeImageToFile(org.getImage());
+        if(org.getImage() != null) {
+            try {
+                path = ImageWR.writeImageToFile(org.getImage());
 
-        } catch (IOException e) {
-            Printing.println("Error adding image.");
+            } catch (IOException e) {
+                Printing.println("Error adding image.");
+            }
         }
         try {
             Printing.println(org.toString());
@@ -267,11 +269,13 @@ public class OrganizationHandler {
             UserModel u = dbc.searchForUser(oAuthcode);
             OrganizationModel org = dbc.searchForOrg(orgID);
             if(u == null || org == null){
+                Printing.println("no user:"+u+" or org: "+org);
                 return null;
             }
             else{
                 GroupiesModel g = dbc.searchGroupies(u.getUserId(),orgID);
                 if(g == null || g.getType() < DatabaseConnection.MEMBER){
+                    Printing.println("No gorupie for organizer");
                     return null;
                 }
                 else{
@@ -289,6 +293,7 @@ public class OrganizationHandler {
             return memsandorgs;
         } catch (SQLException e) {
             e.printStackTrace();
+            Printing.println("sql error");
             return null;
         }
 

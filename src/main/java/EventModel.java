@@ -215,13 +215,18 @@ public class EventModel {
         if (obj == null) {
             return false;
         }
-        if (!EventModel.class.isAssignableFrom(obj.getClass())) {
+        if(!( obj instanceof EventModel)){
+            Printing.println("BAD class");
             return false;
         }
-        final EventModel other = (EventModel) obj;
-        if(other.getEvent_id() != event_id){
-            return false;
-        }
-        return true;
+        EventModel em = (EventModel) obj;
+        return em.getEvent_id() == event_id;
     }
+
+    @Override
+    public String toString(){
+        return  "NAME: "+getName() + "\t"+
+                "Addr: "+getLocation() +"\t" + "ID: "+getEvent_id();
+    }
+
 }
