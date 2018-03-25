@@ -287,13 +287,22 @@ public class EventHandler {
                         return 3;
                     }
 
+                    System.out.println("Begin");
+
                     //clock in user
                     if (clockType == EventAttendanceModel.CLOCKOUTCODE){
-                        dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKOUTCODE);
+                        //get current attendance model to check if already clocked in
+                        EventAttendanceModel attendance = dbc.searchEventAttendance(us.getUserId(),eventAttendanceModel.getEventID());
+                        if(attendance.getStartTime() != null) {
+                            dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKINCODE);
+                            return 0;
+                        }
                     }else if(clockType == EventAttendanceModel.CLOCKINCODE){
-                        dbc.eventClockInOutUser(eventid,us.getUserId(),eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKINCODE);
+
+                        dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKOUTCODE);
+                        return 0;
                     }
-                    return 0;
+                    return 4;
                 }else{
                     return 2;
                 }
