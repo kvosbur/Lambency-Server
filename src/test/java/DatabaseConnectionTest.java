@@ -1,3 +1,5 @@
+import org.eclipse.jetty.server.Authentication;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -431,11 +433,15 @@ public class DatabaseConnectionTest {
     public void testEventsFeed() throws Exception{
         insertData();
         UserModel u = dbc.searchForUser("User2", 2);
+        EventModel eventModel = EventHandler.searchEventID(event_id,dbc);
+        eventModel.setEvent_id(3);
+        EventModel eventModel2 = EventHandler.searchEventID(event_id, dbc);
+        eventModel2.setEvent_id(2);
         List<EventModel> eventsFeed = UserHandler.eventsFeed(u.getOauthToken(), null, null, dbc);
         if(eventsFeed == null){
             throw new Exception("failed to get events feed: returned null");
         }
-        if(eventsFeed.get(0).getEvent_id() != 3 && eventsFeed.get(1).getEvent_id() != 2){
+        if(eventsFeed.size() != 2 || !eventsFeed.contains(eventModel) && !eventsFeed.contains(eventModel2)){
             throw new Exception("failed to get events feed: incorrect event");
         }
     }
@@ -950,6 +956,61 @@ public class DatabaseConnectionTest {
         }
     }
 
+    @org.junit.Test
+    public void testViewMembers() throws Exception{
+        insertData();
+        UserModel u = dbc.searchForUser("facebookUser", 2);
+        UserModel u2 = dbc.searchForUser("User2", 2);
+        OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+        ArrayList<UserModel>[] array;
+
+        array = OrganizationHandler.getMembersAndOrganizers(u.getOauthToken(), org.getOrgID(), dbc);
+        if(array[0] == null || array[0].size() != 0){
+            throw new Exception("failed to view members: members list is incorrect");
+        }
+        if(array[1] == null || array[1].size() != 1 || array[1].get(0).getUserId() != u.getUserId()){
+            throw new Exception("failed to view members: organizer list is incorrect");
+        }
+
+        OrganizationHandler.respondToRequest(u.getOauthToken(), org.getOrgID(), u2.getUserId(), true, dbc);
+        array = OrganizationHandler.getMembersAndOrganizers(u.getOauthToken(), org.getOrgID(), dbc);
+        if(array[0] == null || array[0].size() != 1 || array[0].get(0).getUserId() != u2.getUserId()){
+            throw new Exception("failed to view members: members list is incorrect");
+        }
+        if(array[1] == null || array[1].size() != 1 || array[1].get(0).getUserId() != u.getUserId()){
+            throw new Exception("failed to view members: organizer list is incorrect");
+        }
+    }
+
+    @org.junit.Test
+    public void testViewMembersInvalid() throws Exception{
+        insertData();
+        UserModel u = dbc.searchForUser("facebookUser", 2);
+        UserModel u2 = dbc.searchForUser("User2", 2);
+        UserModel u3 = dbc.searchForUser("googleUser", 1);
+        OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+        ArrayList<UserModel>[] array;
+
+        array = OrganizationHandler.getMembersAndOrganizers("", org.getOrgID(), dbc);
+        if(array!= null){
+            throw new Exception("failed to view members: returned non-null when expected null");
+        }
+
+        array = OrganizationHandler.getMembersAndOrganizers(null, org.getOrgID(), dbc);
+        if(array!= null){
+            throw new Exception("failed to view members: returned non-null when expected null");
+        }
+
+        array = OrganizationHandler.getMembersAndOrganizers(u3.getOauthToken(), org.getOrgID(), dbc);
+        if(array!= null){
+            throw new Exception("failed to view members: returned non-null when expected null");
+        }
+
+        array = OrganizationHandler.getMembersAndOrganizers(u.getOauthToken(), -1, dbc);
+        if(array!= null){
+            throw new Exception("failed to view members: returned non-null when expected null");
+        }
+    }
 
     public void setUpTests(){
         try {
