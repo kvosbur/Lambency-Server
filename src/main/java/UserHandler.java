@@ -559,10 +559,6 @@ public class UserHandler {
             Printing.println("SQLException");
             Printing.println(e.toString());
         }
-         catch (IOException e){
-            Printing.println("IO Exception");
-            Printing.println(e.toString());
-         }
 //        catch (Exception e){
 //            Printing.println("General Exception");
 //            e.printStackTrace();
@@ -601,13 +597,8 @@ public class UserHandler {
             for(Integer org_id:user.getMyOrgs()){
                 OrganizationModel organization = dbc.searchForOrg(org_id);
                 if(organization.getImage() != null) {
-                    try {
-                        organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
-                    }
-                    catch (IOException e){
-                        Printing.println("Error getting image for organization. Setting image to null");
-                        organization.setImage(null);
-                    }
+                    organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
+
                 }
                 orgs.add(organization);
             }
