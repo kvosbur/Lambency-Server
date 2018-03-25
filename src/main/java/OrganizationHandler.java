@@ -128,6 +128,7 @@ public class OrganizationHandler {
      * @return a list of the events of that organization
      */
     public static ArrayList<EventModel> searchEventsByOrg(String oAuthCode, int orgID, DatabaseConnection dbc){
+        ArrayList<EventModel> list = new ArrayList<EventModel>();
         try {
             if(oAuthCode == null){
                 return null;
@@ -139,9 +140,9 @@ public class OrganizationHandler {
             ArrayList<Integer> ids = dbc.getOrgEvents(orgID);
             if(ids == null || ids.size() == 0){
                 Printing.println("Organization has no events");
-                return null;
+                return list;
             }
-            ArrayList<EventModel> list = new ArrayList<EventModel>();
+
             for(int i: ids){
                 list.add(EventHandler.searchEventID(i, dbc));
             }
@@ -333,7 +334,7 @@ public class OrganizationHandler {
      * @param orgID id of the org
      * @param userChangedID id of the user being changed
      * @param type 0 is kick from org, 1 set to member, 2 set to organizer
-     * @return 0 on success, -1 db error, -2 on insufficient permission, -3 on failure to verify parameters
+     * @return 0 on success, -1 db error, -2 on insufficient permission, -3 on failure to verify parameters, -4 if illegal removal (last organizer)
      */
     public static Integer manageUserPermissions(String oAuthCode, int orgID, int userChangedID, int type, DatabaseConnection dbc){
         try{
@@ -366,6 +367,10 @@ public class OrganizationHandler {
                 return new Integer(-3);
             }
             if(type == 0){
+                if(g.getType() == DatabaseConnection.ORGANIZER && dbc.getMembersAndOrganizers(orgID)[1].size() == 1){
+                    Printing.println("Dude, you cant leave the organization if you are the last organizer. Please pass the torch first.");
+                    return -4;
+                }
                 return dbc.deleteGroupies(userChangedID, orgID, g.getType());
             }
             else if(type == 1){

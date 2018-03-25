@@ -142,7 +142,7 @@ public class UserHandler {
      * @param oAuthCode String oAuthCode from user
      * @param orgID     Int orgID of the organization you want to leave.
      * @return      -1 if exception is caught, 1 if user not found, 2 if org does not exist, 3 if not a member of organization,
-     *              0 if confirmed and deleted, 100 if not confirmed and not deleted;
+     *              0 if confirmed and deleted, 100 if not confirmed but deleted;
      */
     public static Integer leaveOrganization(String oAuthCode, int orgID, DatabaseConnection dbc){
         try {
