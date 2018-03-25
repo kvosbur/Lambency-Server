@@ -446,13 +446,66 @@ public class DatabaseConnectionTest {
         if(eventsFeed != null){
             throw new Exception("failed to get events feed: returned a non-null list");
         }
-
         eventsFeed = UserHandler.eventsFeed(null, null, null, dbc);
         if(eventsFeed != null){
             throw new Exception("failed to get events feed: returned a non-null list");
         }
     }
 
+    @org.junit.Test
+    public void testEndorseUnendorse() throws Exception{
+        insertData();
+        OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+        int ret = dbc.endorseEvent(org.getOrgID(), event_id);
+        if(ret == -1 || ret != 0){
+            throw new Exception("failed to endorse event: returned error code");
+        }
+        if(!dbc.isEndorsed(org.getOrgID(), event_id)){
+            throw new Exception("failed to endorse event: event is not endorsed in database");
+        }
+        ret = dbc.unendorseEvent(org.getOrgID(), event_id);
+        if(ret == -1 || ret != 0){
+            throw new Exception("failed to unendorse event: returned error code");
+        }
+        if(dbc.isEndorsed(org.getOrgID(), event_id)){
+            throw new Exception("failed to unendorse event: event is still endorsed");
+        }
+    }
+
+    @org.junit.Test
+    public void testEndorseUnendorseInvalid() throws Exception{
+        insertData();
+        OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+        int ret = dbc.endorseEvent(org.getOrgID(), -1);
+        if(ret != -1){
+            throw new Exception("failed to endorse event: returned error code when expecting error code");
+        }
+        ret = dbc.endorseEvent(-1, event_id);
+        if(ret != -1){
+            throw new Exception("failed to endorse event: returned error code when expecting error code");
+        }
+        ret = dbc.endorseEvent(-1, -1);
+        if(ret != -1){
+            throw new Exception("failed to endorse event: returned error code when expecting error code");
+        }
+        if(dbc.isEndorsed(org.getOrgID(), event_id)){
+            throw new Exception("failed to endorse event: event is endorsed in database when it should not be");
+        }
+
+        ret = dbc.unendorseEvent(org.getOrgID(), -1);
+        if(ret != -1){
+            throw new Exception("failed to endorse event: returned error code when expecting error code");
+        }
+        ret = dbc.unendorseEvent(-1, event_id);
+        if(ret != -1){
+            throw new Exception("failed to endorse event: returned error code when expecting error code");
+        }
+        ret = dbc.unendorseEvent(-1, -1);
+        if(ret != -1){
+            throw new Exception("failed to endorse event: returned error code when expecting error code");
+        }
+    }
+    
     public void setUpTests(){
         try {
             dbc = new DatabaseConnection();
