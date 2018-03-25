@@ -510,9 +510,9 @@ public class DatabaseConnectionTest {
     public void testManagePermissions() throws Exception{
         insertData();
         UserModel u = dbc.searchForUser("facebookUser", 2);
-        UserModel u2 = dbc.searchForUser("facebookUser", 2);
+        UserModel u2 = dbc.searchForUser("googleUser", 1);
         OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
-        dbc.modifyGroupies(u2.getUserId(), org.getOrgID(), DatabaseConnection.MEMBER);
+        dbc.addGroupies(u2.getUserId(), org.getOrgID(), DatabaseConnection.MEMBER, 1);
 
         int ret = OrganizationHandler.manageUserPermissions(u.getOauthToken(), org.getOrgID(), u2.getUserId(), DatabaseConnection.ORGANIZER, dbc);
         if(ret != 0){
@@ -552,7 +552,7 @@ public class DatabaseConnectionTest {
     public void testManagePermissionsInvalid() throws Exception{
         insertData();
         UserModel u = dbc.searchForUser("facebookUser", 2);
-        UserModel u2 = dbc.searchForUser("facebookUser", 2);
+        UserModel u2 = dbc.searchForUser("googleUser", 1);
         OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
 
         int ret = OrganizationHandler.manageUserPermissions("", org.getOrgID(), u2.getUserId(), DatabaseConnection.ORGANIZER, dbc);
@@ -599,24 +599,25 @@ public class DatabaseConnectionTest {
 
     @org.junit.Test
     public void testManagePermissionsInsufficient() throws Exception{
+        insertData();
         UserModel u = dbc.searchForUser("facebookUser", 2);
-        UserModel u2 = dbc.searchForUser("facebookUser", 2);
+        UserModel u2 = dbc.searchForUser("googleUser", 1);
         OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
 
         int ret = OrganizationHandler.manageUserPermissions(u2.getOauthToken(), org.getOrgID(), u.getUserId(), DatabaseConnection.MEMBER, dbc);
         if(ret != -2){
             throw new Exception("failed to change user permission: returned incorrect return code when insufficient permissions");
         }
-        if(dbc.searchGroupies(u2.getUserId(), org.getOrgID()).getType() != DatabaseConnection.ORGANIZER){
+        if(dbc.searchGroupies(u.getUserId(), org.getOrgID()).getType() != DatabaseConnection.ORGANIZER){
             throw new Exception("failed to change user permission: created groupies object when shouldn't have");
         }
 
-        dbc.modifyGroupies(u2.getUserId(), org.getOrgID(), DatabaseConnection.MEMBER);
+        dbc.addGroupies(u2.getUserId(), org.getOrgID(), DatabaseConnection.MEMBER, 1);
         ret = OrganizationHandler.manageUserPermissions(u2.getOauthToken(), org.getOrgID(), u.getUserId(), DatabaseConnection.MEMBER, dbc);
         if(ret != -2){
             throw new Exception("failed to change user permission: returned incorrect return code when insufficient permissions");
         }
-        if(dbc.searchGroupies(u2.getUserId(), org.getOrgID()).getType() != DatabaseConnection.ORGANIZER){
+        if(dbc.searchGroupies(u.getUserId(), org.getOrgID()).getType() != DatabaseConnection.ORGANIZER){
             throw new Exception("failed to change user permission: created groupies object when shouldn't have");
         }
     }
