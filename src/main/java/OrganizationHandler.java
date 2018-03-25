@@ -339,7 +339,7 @@ public class OrganizationHandler {
                 Printing.println("Unable to find user");
                 return new Integer(-3);
             }
-            if(searchOrgID(orgID, dbc) == null){
+            if(dbc.searchForOrg(orgID) == null){
                 Printing.println("Error in finding organization");
                 return new Integer(-3);
             }

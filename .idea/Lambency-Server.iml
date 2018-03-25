@@ -27,6 +27,14 @@
     <orderEntry type="library" name="Maven: com.google.apis:google-api-services-gmail:v1-rev82-1.23.0" level="project" />
     <orderEntry type="library" name="Maven: javax.mail:mail:1.4" level="project" />
     <orderEntry type="library" name="Maven: javax.activation:activation:1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.google.oauth-client:google-oauth-client-jetty:1.23.0" level="project" />
+    <orderEntry type="library" name="Maven: com.google.oauth-client:google-oauth-client-java6:1.23.0" level="project" />
+    <orderEntry type="library" name="Maven: org.mortbay.jetty:jetty:6.1.26" level="project" />
+    <orderEntry type="library" name="Maven: org.mortbay.jetty:jetty-util:6.1.26" level="project" />
+    <orderEntry type="library" name="Maven: org.mortbay.jetty:servlet-api:2.5-20081211" level="project" />
+    <orderEntry type="library" name="Maven: com.google.apis:google-api-services-gmail:v1-rev82-1.23.0" level="project" />
+    <orderEntry type="library" name="Maven: javax.mail:mail:1.4" level="project" />
+    <orderEntry type="library" name="Maven: javax.activation:activation:1.1" level="project" />
     <orderEntry type="library" name="Maven: com.google.api-client:google-api-client:1.23.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.oauth-client:google-oauth-client:1.23.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.http-client:google-http-client:1.23.0" level="project" />
