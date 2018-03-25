@@ -97,5 +97,8 @@ public interface LambencyAPI {
     @POST("/Event/searchWithFilter")
     Call<ArrayList<EventModel>> getEventsWithFilter(@Body EventFilterModel efm);
 
+    @POST("Organization/InviteUser")
+    Call<Integer> inviteUser(@Query("oAuthCode") String oAuthCode, @Query("orgID") String orgID, @Query("emailString") String userEmail);
+
 
 }
