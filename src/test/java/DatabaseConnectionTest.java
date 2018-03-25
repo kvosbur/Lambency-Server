@@ -893,6 +893,63 @@ public class DatabaseConnectionTest {
         }
     }
 
+    @org.junit.Test
+    public void testLeaveOrg() throws Exception{
+        insertData();
+        UserModel u = dbc.searchForUser("facebookUser", 2);
+        UserModel u2 = dbc.searchForUser("User2", 2);
+        OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+        int ret;
+
+        ret = UserHandler.leaveOrganization(u2.getOauthToken(), org.getOrgID(), dbc);
+        if(ret != 100){
+            throw new Exception("failed to leave org: returned incorrect code when user is not confirmed");
+        }
+        if(dbc.searchGroupies(u2.getUserId(), org.getOrgID()) != null){
+            throw new Exception("failed to leave org: groupies object still exists");
+        }
+
+        UserHandler.requestJoinOrg(u2.getOauthToken(), org.getOrgID(), dbc);
+        OrganizationHandler.respondToRequest(u.getOauthToken(), org.getOrgID(), u2.getUserId(), true, dbc);
+        ret = UserHandler.leaveOrganization(u2.getOauthToken(), org.getOrgID(), dbc);
+        if(ret != 0){
+            throw new Exception("failed to leave org: returned incorrect code when user is confirmed");
+        }
+        if(dbc.searchGroupies(u2.getUserId(), org.getOrgID()) != null){
+            throw new Exception("failed to leave org: groupies object still exists");
+        }
+    }
+
+    @org.junit.Test
+    public void testLeaveOrgInvalid() throws Exception{
+        insertData();
+        UserModel u = dbc.searchForUser("facebookUser", 2);
+        UserModel u2 = dbc.searchForUser("User2", 2);
+        UserModel u3 = dbc.searchForUser("googleUser", 1);
+        OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+        int ret;
+
+        ret = UserHandler.leaveOrganization(u3.getOauthToken(), org.getOrgID(), dbc);
+        if(ret != 3){
+            throw new Exception("failed to leave org: returned success when user is not member");
+        }
+
+        ret = UserHandler.leaveOrganization(null, org.getOrgID(), dbc);
+        if(ret != 1){
+            throw new Exception("failed to leave org: returned success when user is not member");
+        }
+
+        ret = UserHandler.leaveOrganization("", org.getOrgID(), dbc);
+        if(ret != 1){
+            throw new Exception("failed to leave org: returned success when user is not member");
+        }
+
+        ret = UserHandler.leaveOrganization(u2.getOauthToken(), -1, dbc);
+        if(ret != 2){
+            throw new Exception("failed to leave org: returned success when user is not member");
+        }
+    }
+
 
     public void setUpTests(){
         try {
