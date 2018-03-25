@@ -231,9 +231,9 @@ public void joinOrganizationRetrofit(String oAuthCode, int orgId)
 
     public void eventsByOrgRetrofit(String oAuthCode, String orgId)
     {
-        this.getInstance().getEventsByOrg(oAuthCode, orgId).enqueue(new Callback<List<EventModel>>() {
+        this.getInstance().getEventsByOrg(oAuthCode, orgId).enqueue(new Callback<ArrayList<EventModel>>() {
             @Override
-            public void onResponse(Call<List<EventModel>> call, Response<List<EventModel>> response) {
+            public void onResponse(Call<ArrayList<EventModel>> call, Response<ArrayList<EventModel>> response) {
                 if (response.body() == null || response.code() != 200) {
                     System.out.println("ERROR!!!!!");
                     return;
@@ -249,7 +249,7 @@ public void joinOrganizationRetrofit(String oAuthCode, int orgId)
             }
 
             @Override
-            public void onFailure(Call<List<EventModel>> call, Throwable throwable) {
+            public void onFailure(Call<ArrayList<EventModel>> call, Throwable throwable) {
                 //when failure
                 System.out.println("FAILED CALL");
             }
