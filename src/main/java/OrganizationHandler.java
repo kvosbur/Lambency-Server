@@ -90,6 +90,8 @@ public class OrganizationHandler {
             OrganizationModel organization = dbc.searchForOrg(orgID);
 
             ArrayList<UserModel>[] memsandorgs = new ArrayList[2];
+            memsandorgs[0] = new ArrayList<>();
+            memsandorgs[1] = new ArrayList<>();
             ArrayList<Integer>[] user_ids = dbc.getMembersAndOrganizers(orgID);
             for(Integer i: user_ids[0]){
                 UserModel user = dbc.searchForUser(""+i, DatabaseConnection.LAMBNECYUSERID);
