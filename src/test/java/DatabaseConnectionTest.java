@@ -446,7 +446,6 @@ public class DatabaseConnectionTest {
         if(eventsFeed != null){
             throw new Exception("failed to get events feed: returned a non-null list");
         }
-
         eventsFeed = UserHandler.eventsFeed(null, null, null, dbc);
         if(eventsFeed != null){
             throw new Exception("failed to get events feed: returned a non-null list");
@@ -505,9 +504,8 @@ public class DatabaseConnectionTest {
         if(ret != -1){
             throw new Exception("failed to endorse event: returned error code when expecting error code");
         }
-
     }
-
+    
     public void setUpTests(){
         try {
             dbc = new DatabaseConnection();
