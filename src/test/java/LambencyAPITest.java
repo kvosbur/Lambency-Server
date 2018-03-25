@@ -1105,6 +1105,125 @@ public class LambencyAPITest {
         assertTrue(responseValue != 0);
     }
 
+    @Test
+    public void testClockInNotAttending(){
+
+        UserModel user1 = new UserModel("Organizer", "Lastname", "organizer@gmail.com");
+
+        OrganizationModel organization = new OrganizationModel(user1,"Organization","1101 3rd street",-1,
+                "Test org","organization@noemail.com",user1,null);
+
+        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()),
+                new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
+
+        try {
+            this.getDatabaseInstance().truncateTables();
+
+            //create in database
+            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
+                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
+
+            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
+
+            event.setOrg_id(organization.getOrgID());
+            event = EventHandler.createEvent(event,this.getDatabaseInstance());
+
+            //create oAuthCode for organizer
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            user1.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(user1.getUserId(),ua.getoAuthCode());
+
+
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            assertTrue(false);
+        }
+
+        //model of user attendance
+        EventAttendanceModel attendance = new EventAttendanceModel(event.getEvent_id(),user1.getUserId(),
+                new Timestamp(System.currentTimeMillis()),event.getClockInCode());
+
+
+        //test the API retrofit call for user
+        Response<Integer> response = null;
+        try {
+            response = this.getInstance().sendClockInCode(user1.getOauthToken(),attendance).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response == null || response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        //when response is back
+        int responseValue = response.body();
+
+        assertTrue(responseValue != 0);
+
+    }
+
+    @Test
+    public void testClockOutBeforeClockIn(){
+        //testing if able to clock out before clocking in
+
+        UserModel user1 = new UserModel("Organizer", "Lastname", "organizer@gmail.com");
+
+        OrganizationModel organization = new OrganizationModel(user1,"Organization","1101 3rd street",-1,
+                "Test org","organization@noemail.com",user1,null);
+
+        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()),
+                new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
+
+        try {
+            this.getDatabaseInstance().truncateTables();
+
+            //create in database
+            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
+                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
+
+            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
+
+            event.setOrg_id(organization.getOrgID());
+            event = EventHandler.createEvent(event,this.getDatabaseInstance());
+
+            //create oAuthCode for organizer
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            user1.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(user1.getUserId(),ua.getoAuthCode());
+
+
+            this.getDatabaseInstance().registerForEvent(user1.getUserId(),event.getEvent_id());
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            assertTrue(false);
+        }
+
+        //model of user attendance
+        EventAttendanceModel attendance = new EventAttendanceModel(event.getEvent_id(),user1.getUserId(),
+                new Timestamp(System.currentTimeMillis()),event.getClockOutCode());
+
+
+        //test the API retrofit call for user
+        Response<Integer> response = null;
+        try {
+            response = this.getInstance().sendClockInCode(user1.getOauthToken(),attendance).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response == null || response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        //when response is back
+        int responseValue = response.body();
+
+        assertTrue(responseValue != 0);
+    }
+
 
 
 

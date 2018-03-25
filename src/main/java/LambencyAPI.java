@@ -100,5 +100,8 @@ public interface LambencyAPI {
     @POST("Organization/InviteUser")
     Call<Integer> inviteUser(@Query("oAuthCode") String oAuthCode, @Query("orgID") String orgID, @Query("emailString") String userEmail);
 
+    @POST("/User/ClockInOut")
+    Call<Integer> sendClockInCode(@Query("oAuthCode") String oAuthCode, @Body EventAttendanceModel eventAttendanceModel);
+
 
 }
