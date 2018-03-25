@@ -47,10 +47,10 @@ public class EventFilterModel {
         fields = "event_id, sqrt(pow(latitude - " + latitude + ",2) + " +
                 "pow(longitude - " + longitude + ",2)) as distance";
         if(startStamp != null){
-            ands.add("start_time >= '"+startStamp.toString()+"'");
+            ands.add("end_time > '"+startStamp.toString()+"'");
         }
         if(endStamp != null){
-            ands.add("end_time <= '"+endStamp.toString()+"'");
+            ands.add("start_time < '"+endStamp.toString()+"'");
         }
         if(distanceMiles != -1){
             ands.add("(sqrt(pow(latitude - " + latitude + ",2) + " +
