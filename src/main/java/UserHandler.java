@@ -284,7 +284,11 @@ public class UserHandler {
             //search for organization by ID
             if(userID == null){
                 user =  dbc.searchForUser(oAuthCode);
-                user = UserHandler.updateOrgLists(user, dbc);
+                if(user != null) {
+                    user = UserHandler.updateOrgLists(user, dbc);
+                }else{
+                    Printing.println("Can't found user model!" + oAuthCode);
+                }
                 return user;
             }else{
                 user = dbc.searchForUser(userID, DatabaseConnection.LAMBNECYUSERID);
