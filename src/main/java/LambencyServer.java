@@ -312,7 +312,7 @@ public class LambencyServer{
             }
             ArrayList<UserModel>[] ret = OrganizationHandler.getMembersAndOrganizers(oAuthCode,Integer.parseInt(orgID), databaseConnection);
             databaseConnection.close();
-            Printing.println("return from handler");
+            Printing.println("return from handler "+ret[0]);
             return ret;
 
         }, new JsonTransformer());
