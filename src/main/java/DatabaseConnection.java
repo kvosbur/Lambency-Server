@@ -392,7 +392,7 @@ public class DatabaseConnection {
 
         if(rs.next()){
             //found a user with email
-            int ret = rs.getInt(1);;
+            int ret = rs.getInt(1);
             if(rs.next()){
                 //there are multiple matches for that email
                 return -2;

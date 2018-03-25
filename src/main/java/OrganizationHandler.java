@@ -88,6 +88,21 @@ public class OrganizationHandler {
 
         try {
             OrganizationModel organization = dbc.searchForOrg(orgID);
+
+            ArrayList<UserModel>[] memsandorgs = new ArrayList[2];
+            ArrayList<Integer>[] user_ids = dbc.getMembersAndOrganizers(orgID);
+            for(Integer i: user_ids[0]){
+                UserModel user = dbc.searchForUser(""+i, DatabaseConnection.LAMBNECYUSERID);
+                memsandorgs[0].add(user);
+            }
+            for(Integer i: user_ids[1]){
+                UserModel user = dbc.searchForUser(""+i, DatabaseConnection.LAMBNECYUSERID);
+                memsandorgs[1].add(user);
+            }
+
+            organization.setMembers(memsandorgs[0]);
+            organization.setOrganizers(memsandorgs[1]);
+
             if(organization.getImage() != null) {
                 organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
             }
@@ -496,7 +511,7 @@ public class OrganizationHandler {
 
         //set message body
         sb.append(subject + "!<br>");
-        sb.append("Please go into your requests in order to accept invitation.<br><br>*This is an automated message. Please do" +
+        sb.append("Please go into your requests in order to accept invitation.<br><br>*This is an automated message. Please do " +
                 "not respond to this email.*");
 
         //create GMailHelper object
