@@ -743,7 +743,49 @@ public class DatabaseConnectionTest {
             throw new Exception("failed to search events by date: returned incorrect event");
         }
     }
-    
+    @org.junit.Test
+    public void testMyLambency() throws  Exception{
+        insertData();
+        UserModel u = dbc.searchForUser("facebookUser", 2);
+        List<OrganizationModel> organizationModelList;
+        List<EventModel> eventModelList;
+        MyLambencyModel myLambencyModel = UserHandler.getMyLambency(u.getOauthToken(), dbc);
+        if(myLambencyModel == null){
+            throw new Exception("failed to create my lambency: returned null");
+        }
+        organizationModelList = myLambencyModel.myOrgs;
+        if(organizationModelList == null || organizationModelList.size() != 1 || organizationModelList.get(0).getOrgID() != 1){
+            throw new Exception("failed to create my lambency: incorrect myOrgs list");
+        }
+        organizationModelList = myLambencyModel.joinedOrgs;
+        if(organizationModelList == null || organizationModelList.size() != 0){
+            throw new Exception("failed to create my lambency: incorrect joinedOrgs list");
+        }
+        eventModelList = myLambencyModel.eventsAttending;
+        if(eventModelList == null || eventModelList.size() != 1 || eventModelList.get(0).getEvent_id() != 1){
+            throw new Exception("failed to create my lambency: incorrect eventsAttending list");
+        }
+        eventModelList = myLambencyModel.eventsOrganizing;
+        if(eventModelList == null || eventModelList.size() != 3){
+            throw new Exception("failed to create my lambency: incorrect eventsOrganizing list");
+        }
+    }
+
+    @org.junit.Test
+    public void testMyLambencyInvalid() throws  Exception{
+        insertData();
+        MyLambencyModel myLambencyModel = UserHandler.getMyLambency("", dbc);
+        if(myLambencyModel != null){
+            throw new Exception("failed to create my lambency: returned a non-null object when expecting null");
+        }
+        myLambencyModel = UserHandler.getMyLambency(null, dbc);
+        if(myLambencyModel != null){
+            throw new Exception("failed to create my lambency: returned a non-null object when expecting null");
+        }
+
+    }
+
+
     public void setUpTests(){
         try {
             dbc = new DatabaseConnection();
@@ -769,11 +811,11 @@ public class DatabaseConnectionTest {
 
             u = dbc.searchForUser("facebookUser", 2);
             dbc.createOrganization("My OrganizationModel", "This is a description", "Org@gmail.com", u.getUserId(), "West Lafayette",
-                    "img", u.getUserId());
+                    "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", u.getUserId());
 
             OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
             int eventID = dbc.createEvent(org.getOrgID(),"Event 1", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 500),
-                    "This is a test event", "Location", "imgg", 5 , 5, "ClockIn", "ClockOut");
+                    "This is a test event", "Location", "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", 5 , 5, "ClockIn", "ClockOut");
             event_id = eventID;
 
             EventModel e = dbc.searchEvents(event_id);
@@ -803,7 +845,7 @@ public class DatabaseConnectionTest {
 
             u = dbc.searchForUser("User2", 2);
             int orgID = dbc.createOrganization("My Second OrganizationModel", "Second", "Org2@gmail.com", u.getUserId(), "Purdue",
-                    "img2", u.getUserId());
+                    "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", u.getUserId());
 
             dbc.createEvent(org.getOrgID(),"Event 3", new Timestamp(119, 1, 1, 1, 1, 1, 1), new Timestamp(119, 1, 5, 1, 1, 1, 1),
                     "This is my third event", "348 Cottonwood Lane", "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", 5 , 5, "ClockIn", "ClockOut");
