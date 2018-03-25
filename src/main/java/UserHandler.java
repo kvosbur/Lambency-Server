@@ -429,7 +429,7 @@ public class UserHandler {
                     }
                     else {
                         eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                        if (!u.getEventsAttending().contains(event)) {
+                        if (!u.getEventsAttending().contains(event)  && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
                             subList.add(eventModel);
                         }
                     }
@@ -450,7 +450,7 @@ public class UserHandler {
                     }
                     else {
                         eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                        if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)) {
+                        if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
                             subList.add(eventModel);
                         }
                     }
@@ -472,7 +472,7 @@ public class UserHandler {
                     }
                     else {
                         eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                        if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)) {
+                        if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
                             subList.add(eventModel);
                         }
                     }
@@ -493,7 +493,7 @@ public class UserHandler {
                     }
                     else {
                         eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                        if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)) {
+                        if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
                             subList.add(eventModel);
                         }
                     }
@@ -513,7 +513,7 @@ public class UserHandler {
                         nearby = EventHandler.sortEventListByDate(nearby);
                         int i = 0;
                         while (eventsFeed.size() < 20 && i < nearby.size()) {
-                            if (!u.getEventsAttending().contains(nearby.get(i).getEvent_id()) && !eventsFeed.contains(nearby.get(i))) {
+                            if (!u.getEventsAttending().contains(nearby.get(i).getEvent_id()) && !eventsFeed.contains(nearby.get(i)) && !subList.contains(nearby.get(i))) {
                                 if(nearby.get(i) != null) {
                                     eventsFeed.add(nearby.get(i));
                                 }
@@ -538,7 +538,7 @@ public class UserHandler {
                             }
                             else {
                                 eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                                if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel)) {
+                                if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
                                     subList.add(eventModel);
                                 }
                             }
