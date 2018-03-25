@@ -478,15 +478,15 @@ public class DatabaseConnectionTest {
         OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
         int ret = dbc.endorseEvent(org.getOrgID(), -1);
         if(ret != -1){
-            throw new Exception("failed to endorse event: returned error code when expecting error code");
+            throw new Exception("failed to endorse event: returned success code when expecting error code");
         }
         ret = dbc.endorseEvent(-1, event_id);
         if(ret != -1){
-            throw new Exception("failed to endorse event: returned error code when expecting error code");
+            throw new Exception("failed to endorse event: returned success code when expecting error code");
         }
         ret = dbc.endorseEvent(-1, -1);
         if(ret != -1){
-            throw new Exception("failed to endorse event: returned error code when expecting error code");
+            throw new Exception("failed to endorse event: returned success code when expecting error code");
         }
         if(dbc.isEndorsed(org.getOrgID(), event_id)){
             throw new Exception("failed to endorse event: event is endorsed in database when it should not be");
@@ -494,17 +494,133 @@ public class DatabaseConnectionTest {
 
         ret = dbc.unendorseEvent(org.getOrgID(), -1);
         if(ret != -1){
-            throw new Exception("failed to endorse event: returned error code when expecting error code");
+            throw new Exception("failed to endorse event: returned success code when expecting error code");
         }
         ret = dbc.unendorseEvent(-1, event_id);
         if(ret != -1){
-            throw new Exception("failed to endorse event: returned error code when expecting error code");
+            throw new Exception("failed to endorse event: returned success code when expecting error code");
         }
         ret = dbc.unendorseEvent(-1, -1);
         if(ret != -1){
-            throw new Exception("failed to endorse event: returned error code when expecting error code");
+            throw new Exception("failed to endorse event: returned success code when expecting error code");
         }
     }
+
+    @org.junit.Test
+    public void testManagePermissions() throws Exception{
+        insertData();
+        UserModel u = dbc.searchForUser("facebookUser", 2);
+        UserModel u2 = dbc.searchForUser("facebookUser", 2);
+        OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+        dbc.modifyGroupies(u2.getUserId(), org.getOrgID(), DatabaseConnection.MEMBER);
+
+        int ret = OrganizationHandler.manageUserPermissions(u.getOauthToken(), org.getOrgID(), u2.getUserId(), DatabaseConnection.ORGANIZER, dbc);
+        if(ret != 0){
+            throw new Exception("failed to change user permission: returned error code");
+        }
+        if(dbc.searchGroupies(u2.getUserId(), org.getOrgID()).getType() != DatabaseConnection.ORGANIZER){
+            throw new Exception("failed to change user permission: failed to change database to organizer");
+        }
+
+        ret = OrganizationHandler.manageUserPermissions(u.getOauthToken(), org.getOrgID(), u2.getUserId(), DatabaseConnection.MEMBER, dbc);
+        if(ret != 0){
+            throw new Exception("failed to change user permission: returned error code");
+        }
+        if(dbc.searchGroupies(u2.getUserId(), org.getOrgID()).getType() != DatabaseConnection.MEMBER){
+            throw new Exception("failed to change user permission: failed to change database to member");
+        }
+
+        //test for changing to what the value already is
+        ret = OrganizationHandler.manageUserPermissions(u.getOauthToken(), org.getOrgID(), u2.getUserId(), DatabaseConnection.MEMBER, dbc);
+        if(ret != 0){
+            throw new Exception("failed to change user permission: returned error code");
+        }
+        if(dbc.searchGroupies(u2.getUserId(), org.getOrgID()).getType() != DatabaseConnection.MEMBER){
+            throw new Exception("failed to change user permission: failed to change database to same type it already was");
+        }
+
+        ret = OrganizationHandler.manageUserPermissions(u.getOauthToken(), org.getOrgID(), u2.getUserId(), 0, dbc);
+        if(ret != 0){
+            throw new Exception("failed to change user permission: returned error code");
+        }
+        if(dbc.searchGroupies(u2.getUserId(), org.getOrgID()) != null){
+            throw new Exception("failed to change user permission: failed to delete groupies");
+        }
+    }
+
+    @org.junit.Test
+    public void testManagePermissionsInvalid() throws Exception{
+        insertData();
+        UserModel u = dbc.searchForUser("facebookUser", 2);
+        UserModel u2 = dbc.searchForUser("facebookUser", 2);
+        OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+
+        int ret = OrganizationHandler.manageUserPermissions("", org.getOrgID(), u2.getUserId(), DatabaseConnection.ORGANIZER, dbc);
+        if(ret != -3){
+            throw new Exception("failed to change user permission: returned incorrect return code when oAuthCode is invalid");
+        }
+        if(dbc.searchGroupies(u2.getUserId(), org.getOrgID()) != null){
+            throw new Exception("failed to change user permission: created groupies object when shouldn't have");
+        }
+
+        ret = OrganizationHandler.manageUserPermissions(u.getOauthToken(), -1, u2.getUserId(), DatabaseConnection.ORGANIZER, dbc);
+        if(ret != -3){
+            throw new Exception("failed to change user permission: returned incorrect return code when orgID is invalid");
+        }
+        if(dbc.searchGroupies(u2.getUserId(), org.getOrgID()) != null){
+            throw new Exception("failed to change user permission: created groupies object when shouldn't have");
+        }
+
+        ret = OrganizationHandler.manageUserPermissions(u.getOauthToken(), org.getOrgID(), -1, DatabaseConnection.ORGANIZER, dbc);
+        if(ret != -3){
+            throw new Exception("failed to change user permission: returned incorrect return code when changedID is invalid");
+        }
+        if(dbc.searchGroupies(u2.getUserId(), org.getOrgID()) != null){
+            throw new Exception("failed to change user permission: created groupies object when shouldn't have");
+        }
+
+        ret = OrganizationHandler.manageUserPermissions(u.getOauthToken(), org.getOrgID(), u2.getUserId(), -1, dbc);
+        if(ret != -3){
+            throw new Exception("failed to change user permission: returned incorrect return code when type is invalid");
+        }
+        if(dbc.searchGroupies(u2.getUserId(), org.getOrgID()) != null){
+            throw new Exception("failed to change user permission: created groupies object when shouldn't have");
+        }
+
+        ret = OrganizationHandler.manageUserPermissions(u.getOauthToken(), org.getOrgID(), u2.getUserId(), DatabaseConnection.MEMBER, dbc);
+        if(ret != -3){
+            throw new Exception("failed to change user permission: returned incorrect return code when changedID is not a member of the org");
+        }
+        if(dbc.searchGroupies(u2.getUserId(), org.getOrgID()) != null){
+            throw new Exception("failed to change user permission: created groupies object when shouldn't have");
+        }
+
+    }
+
+    @org.junit.Test
+    public void testManagePermissionsInsufficient() throws Exception{
+        UserModel u = dbc.searchForUser("facebookUser", 2);
+        UserModel u2 = dbc.searchForUser("facebookUser", 2);
+        OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
+
+        int ret = OrganizationHandler.manageUserPermissions(u2.getOauthToken(), org.getOrgID(), u.getUserId(), DatabaseConnection.MEMBER, dbc);
+        if(ret != -2){
+            throw new Exception("failed to change user permission: returned incorrect return code when insufficient permissions");
+        }
+        if(dbc.searchGroupies(u2.getUserId(), org.getOrgID()).getType() != DatabaseConnection.ORGANIZER){
+            throw new Exception("failed to change user permission: created groupies object when shouldn't have");
+        }
+
+        dbc.modifyGroupies(u2.getUserId(), org.getOrgID(), DatabaseConnection.MEMBER);
+        ret = OrganizationHandler.manageUserPermissions(u2.getOauthToken(), org.getOrgID(), u.getUserId(), DatabaseConnection.MEMBER, dbc);
+        if(ret != -2){
+            throw new Exception("failed to change user permission: returned incorrect return code when insufficient permissions");
+        }
+        if(dbc.searchGroupies(u2.getUserId(), org.getOrgID()).getType() != DatabaseConnection.ORGANIZER){
+            throw new Exception("failed to change user permission: created groupies object when shouldn't have");
+        }
+    }
+
     
     public void setUpTests(){
         try {
