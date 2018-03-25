@@ -289,7 +289,7 @@ public class EventHandler {
 
                     //clock in user
                     if (clockType == EventAttendanceModel.CLOCKOUTCODE){
-                        dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getEndTime(), EventAttendanceModel.CLOCKOUTCODE);
+                        dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKOUTCODE);
                     }else if(clockType == EventAttendanceModel.CLOCKINCODE){
                         dbc.eventClockInOutUser(eventid,us.getUserId(),eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKINCODE);
                     }

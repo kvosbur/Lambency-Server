@@ -368,6 +368,7 @@ public class LambencyAPITest {
         }
         if (response.body() == null || response.code() != 200) {
             System.out.println("ERROR!!!!!");
+            System.out.println("reponse code: " + response.code());
             assertTrue(false);
         }
         //when response is back
@@ -898,5 +899,214 @@ public class LambencyAPITest {
 
 
     }
+
+    @Test
+    public void testOrgInviteInvalidPermissions(){
+        //person trying to invite is not in an org / not in org for request
+        //user1 = organizer , user2 = normal user, user3, normal user actual email
+
+        UserModel user1 = new UserModel("Organizer", "Lastname", "organizer@gmail.com");
+        UserModel user2 = new UserModel("user2", "Lastname", "user@nonemail.com");
+        UserModel user3 = new UserModel("user3", "Lastname", "kevinvosburgh4@gmail.com");
+        UserModel user4 = new UserModel("Member", "Lastname", "member@gmail.com");
+        OrganizationModel organization = new OrganizationModel(user1,"Organization","1101 3rd street",-1,
+                "Test org","organization@noemail.com",user1,null);
+
+        try {
+            this.getDatabaseInstance().truncateTables();
+
+            //create in database
+            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
+                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
+            user2.setUserId(this.getDatabaseInstance().createUser("myfacebookidentity", user2.getFirstName(),
+                    user2.getLastName(), user2.getEmail(), DatabaseConnection.FACEBOOK));
+            user3.setUserId(this.getDatabaseInstance().createUser("myfacebookidentity2", user3.getFirstName(),
+                    user3.getLastName(), user3.getEmail(), DatabaseConnection.FACEBOOK));
+            user4.setUserId(this.getDatabaseInstance().createUser("myfacebookidentity3", user4.getFirstName(),
+                    user4.getLastName(), user4.getEmail(), DatabaseConnection.FACEBOOK));
+
+            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
+
+            //create oAuthCode for organizer
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            user1.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(user1.getUserId(),ua.getoAuthCode());
+
+            ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            user2.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(user2.getUserId(),ua.getoAuthCode());
+
+            ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            user3.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(user3.getUserId(),ua.getoAuthCode());
+
+            ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            user4.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(user4.getUserId(),ua.getoAuthCode());
+
+            //make user4 a member of org
+            this.getDatabaseInstance().addGroupies(user4.getUserId(),organization.getOrgID(),DatabaseConnection.MEMBER,1);
+
+
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            assertTrue(false);
+        }
+
+        //test the API retrofit call for user
+        Response<Integer> response = null;
+        try {
+            response = this.getInstance().inviteUser(user2.getOauthToken(),"" + organization.getOrgID(), user3.getEmail()).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response == null || response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        //when response is back
+        int responseValue = response.body();
+
+        assertTrue(responseValue != 0);
+
+        //test the API retrofit call for member of org
+        response = null;
+        try {
+            response = this.getInstance().inviteUser(user4.getOauthToken(),"" + organization.getOrgID(), user3.getEmail()).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response == null || response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        //when response is back
+        responseValue = response.body();
+
+        System.out.println("response code is: " + responseValue);
+
+        assertTrue(responseValue != 0);
+
+    }
+
+    @Test
+    public void testOrgInviteNotValidEmail(){
+        //valid person requesting invalid email
+
+        //person trying to invite is not in an org / member of org
+        //user1 = organizer , user2 = normal user
+
+        UserModel user1 = new UserModel("Organizer", "Lastname", "organizer@gmail.com");
+        UserModel user2 = new UserModel("user2", "Lastname", "user@nonemail.com");
+        OrganizationModel organization = new OrganizationModel(user1,"Organization","1101 3rd street",-1,
+                "Test org","organization@noemail.com",user1,null);
+
+        try {
+            this.getDatabaseInstance().truncateTables();
+
+            //create in database
+            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
+                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
+            user2.setUserId(this.getDatabaseInstance().createUser("myfacebookidentity", user2.getFirstName(),
+                    user2.getLastName(), user2.getEmail(), DatabaseConnection.FACEBOOK));
+
+            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
+
+            //create oAuthCode for organizer
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            user1.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(user1.getUserId(),ua.getoAuthCode());
+
+            ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            user2.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(user2.getUserId(),ua.getoAuthCode());
+
+
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            assertTrue(false);
+        }
+
+        //test the API retrofit call for user
+        Response<Integer> response = null;
+        try {
+            response = this.getInstance().inviteUser(user1.getOauthToken(),"" + organization.getOrgID(), "Invalid@UserEmail").execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response == null || response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        //when response is back
+        int responseValue = response.body();
+
+        assertTrue(responseValue != 0);
+    }
+
+    @Test
+    public void testOrgInviteInvalidOrg(){
+        //valid person requesting invalid email
+
+        //user1 = organizer , user2 = normal user
+
+        UserModel user1 = new UserModel("Organizer", "Lastname", "organizer@gmail.com");
+        UserModel user2 = new UserModel("user2", "Lastname", "user@nonemail.com");
+        OrganizationModel organization = new OrganizationModel(user1,"Organization","1101 3rd street",-1,
+                "Test org","organization@noemail.com",user1,null);
+
+        try {
+            this.getDatabaseInstance().truncateTables();
+
+            //create in database
+            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
+                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
+            user2.setUserId(this.getDatabaseInstance().createUser("myfacebookidentity", user2.getFirstName(),
+                    user2.getLastName(), user2.getEmail(), DatabaseConnection.FACEBOOK));
+
+            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
+
+            //create oAuthCode for organizer
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            user1.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(user1.getUserId(),ua.getoAuthCode());
+
+            ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            user2.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(user2.getUserId(),ua.getoAuthCode());
+
+
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            assertTrue(false);
+        }
+
+        //test the API retrofit call for user
+        Response<Integer> response = null;
+        try {
+            response = this.getInstance().inviteUser(user1.getOauthToken(),"" + (organization.getOrgID() + 2), user2.getEmail()).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response == null || response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        //when response is back
+        int responseValue = response.body();
+
+        assertTrue(responseValue != 0);
+    }
+
+
+
+
 
 }

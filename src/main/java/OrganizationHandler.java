@@ -462,11 +462,10 @@ public class OrganizationHandler {
                 return 3;
             }
             //get organizations this user is a member/organizer of
-            ArrayList<Integer> membersOf = dbc.getUserList(user.getUserId(),DatabaseConnection.MEMBER,true);
             ArrayList<Integer> organizersOf = dbc.getUserList(user.getUserId(),DatabaseConnection.ORGANIZER,true);
 
             //check if any of those organizations match given orgid given
-            if((membersOf != null && membersOf.contains(orgID)) || (organizersOf != null && organizersOf.contains(orgID))){
+            if(organizersOf != null && organizersOf.contains(orgID)){
                 //find user by email
                 int invitedID= dbc.getUserByEmail(emailString);
                 if(invitedID == -1){
