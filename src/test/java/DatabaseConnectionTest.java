@@ -1,5 +1,6 @@
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -622,6 +623,126 @@ public class DatabaseConnectionTest {
         }
     }
 
+    @org.junit.Test
+    public void testEventByDate() throws Exception{
+        insertData();
+        Date date = new Date(118, 1, 1, 1, 1, 1);
+        Timestamp start = new Timestamp(date.getTime());
+        date = new Date(119, 1, 1, 1, 1, 1);
+        Timestamp end = new Timestamp(date.getTime());
+        EventFilterModel efm = new EventFilterModel(0, 0, start, end);
+        List<EventModel> list = EventHandler.getEventsWithFilter(efm, dbc);
+        if(list == null){
+            throw new Exception("failed to search events by date: returned null");
+        }
+        if(list.size() == 0 || list.size() > 1){
+            throw new Exception("failed to search events by date: returned list of wrong size");
+        }
+        if(list.get(0).getEvent_id() != 1){
+            throw new Exception("failed to search events by date: returned incorrect event");
+        }
+
+        start = end;
+        date = new Date(122, 1, 1, 1, 1, 1);
+        end = new Timestamp(date.getTime());
+        efm = new EventFilterModel(0, 0, start, end);
+        list = EventHandler.getEventsWithFilter(efm, dbc);
+        if(list == null){
+            throw new Exception("failed to search events by date: returned null");
+        }
+        if(list.size() == 0 || list.size() > 2){
+            throw new Exception("failed to search events by date: returned list of wrong size");
+        }
+        if(list.get(0).getEvent_id() != 2 || list.get(1).getEvent_id() != 3){
+            throw new Exception("failed to search events by date: returned incorrect event");
+        }
+    }
+
+    @org.junit.Test
+    public void testEventByDateInvalid() throws Exception{
+        insertData();
+        Date date = new Date(118, 1, 1, 1, 1, 1);
+        Timestamp start = new Timestamp(date.getTime());
+        date = new Date(119, 1, 1, 1, 1, 1);
+        Timestamp end = new Timestamp(date.getTime());
+        EventFilterModel efm = new EventFilterModel(0, 0, null, end);
+        List<EventModel> list = EventHandler.getEventsWithFilter(efm, dbc);
+        if(list == null){
+            throw new Exception("failed to search events by date: returned null");
+        }
+        if(list.size() == 0 || list.size() > 1){
+            throw new Exception("failed to search events by date: returned list of wrong size");
+        }
+        if(list.get(0).getEvent_id() != 1){
+            throw new Exception("failed to search events by date: returned incorrect event");
+        }
+
+        start = end;
+        efm = new EventFilterModel(0, 0, start, null);
+        list = EventHandler.getEventsWithFilter(efm, dbc);
+        if(list == null){
+            throw new Exception("failed to search events by date: returned null");
+        }
+        if(list.size() == 0 || list.size() > 2){
+            throw new Exception("failed to search events by date: returned list of wrong size");
+        }
+        if(list.get(0).getEvent_id() != 2 || list.get(1).getEvent_id() != 3){
+            throw new Exception("failed to search events by date: returned incorrect event");
+        }
+
+        efm = new EventFilterModel(0, 0, null, null);
+        list = EventHandler.getEventsWithFilter(efm, dbc);
+        if(list == null){
+            throw new Exception("failed to search events by date: returned null");
+        }
+        if(list.size() == 0 || list.size() > 3){
+            throw new Exception("failed to search events by date: returned list of wrong size");
+        }
+        if(list.get(0).getEvent_id() != 2 || list.get(1).getEvent_id() != 3 || list.get(2).getEvent_id() != 1){
+            throw new Exception("failed to search events by date: returned incorrect event");
+        }
+
+        list = EventHandler.getEventsWithFilter(null, dbc);
+        if(list != null){
+            throw new Exception("failed to search events by date: returned null");
+        }
+    }
+
+    @org.junit.Test
+    public void testEventByEdge() throws Exception{
+        insertData();
+        Date date = new Date(119, 1, 2, 1, 1, 1);
+        Timestamp start = new Timestamp(date.getTime());
+        date = new Date(119, 1, 10, 1, 1, 1);
+        Timestamp end = new Timestamp(date.getTime());
+        EventFilterModel efm = new EventFilterModel(0, 0, start, end);
+        List<EventModel> list = EventHandler.getEventsWithFilter(efm, dbc);
+        if(list == null){
+            throw new Exception("failed to search events by date: returned null");
+        }
+        if(list.size() == 0 || list.size() > 1){
+            throw new Exception("failed to search events by date: returned list of wrong size");
+        }
+        if(list.get(0).getEvent_id() != 3){
+            throw new Exception("failed to search events by date: returned incorrect event");
+        }
+
+        date = new Date(118, 10, 2, 1, 1, 1);
+        start = new Timestamp(date.getTime());
+        date = new Date(119, 1, 3, 1, 1, 1);
+        end = new Timestamp(date.getTime());
+        efm = new EventFilterModel(0, 0, start, end);
+        list = EventHandler.getEventsWithFilter(efm, dbc);
+        if(list == null){
+            throw new Exception("failed to search events by date: returned null");
+        }
+        if(list.size() == 0 || list.size() > 1){
+            throw new Exception("failed to search events by date: returned list of wrong size");
+        }
+        if(list.get(0).getEvent_id() != 3){
+            throw new Exception("failed to search events by date: returned incorrect event");
+        }
+    }
     
     public void setUpTests(){
         try {
@@ -677,14 +798,14 @@ public class DatabaseConnectionTest {
             org = dbc.searchForOrg("My OrganizationModel");
             UserHandler.requestJoinOrg(u.getOauthToken(), org.getOrgID(), dbc);
 
-            dbc.createEvent(org.getOrgID(),"Event 2", new Timestamp(2020, 1, 1, 1, 1, 1, 1), new Timestamp(System.currentTimeMillis() + 500),
+            dbc.createEvent(org.getOrgID(),"Event 2", new Timestamp(120, 1, 1, 1, 1, 1, 1), new Timestamp(120, 1, 1, 2, 1, 1, 1),
                     "This is my second event", "Location 2", "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", 5 , 5, "ClockIn", "ClockOut");
 
             u = dbc.searchForUser("User2", 2);
             int orgID = dbc.createOrganization("My Second OrganizationModel", "Second", "Org2@gmail.com", u.getUserId(), "Purdue",
                     "img2", u.getUserId());
 
-            dbc.createEvent(org.getOrgID(),"Event 3", new Timestamp(2019, 1, 1, 1, 1, 1, 1), new Timestamp(System.currentTimeMillis() + 500),
+            dbc.createEvent(org.getOrgID(),"Event 3", new Timestamp(119, 1, 1, 1, 1, 1, 1), new Timestamp(119, 1, 5, 1, 1, 1, 1),
                     "This is my third event", "348 Cottonwood Lane", "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", 5 , 5, "ClockIn", "ClockOut");
 
         }
