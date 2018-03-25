@@ -57,7 +57,7 @@ public class EventFilterModel {
                     "pow(longitude - " + longitude + ",2)) * 69)  <= "+ distanceMiles +"");
         }
         if(title != null && ! title.equals("")){
-            ands.add("name LIKE \'"+title+"\'%");
+            ands.add("name LIKE \'"+title+"%\'");
         }
 
 
