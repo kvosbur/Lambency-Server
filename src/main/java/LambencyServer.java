@@ -298,19 +298,23 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
         get("/Organization/members", "application.json", (request, response) -> {
-            Printing.printlnEndpoint("Organization/members");
+            Printing.printlnEndpoint("Organization/membersBitch");
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgID");
             if(oAuthCode == null || orgID == null){
+                Printing.println("return null cause oauth");
                 return null;
             }
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
+                Printing.println("return null no connection");
                 return null;
             }
             ArrayList<UserModel>[] ret = OrganizationHandler.getMembersAndOrganizers(oAuthCode,Integer.parseInt(orgID), databaseConnection);
             databaseConnection.close();
+            Printing.println("return from handler "+ret[0]);
             return ret;
+
         }, new JsonTransformer());
 
         get("/Organization/joinRequests","application.json", (request, response) -> {
@@ -408,6 +412,7 @@ public class LambencyServer{
             EventFilterModel efm = new Gson().fromJson(request.body(), EventFilterModel.class);
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
+                Printing.println("Error on database connet");
                 return null;
             }
             List<EventModel> ret = EventHandler.getEventsWithFilter(efm, databaseConnection);

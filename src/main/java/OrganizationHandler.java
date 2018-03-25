@@ -30,11 +30,13 @@ public class OrganizationHandler {
         // Saves the orgs image to a file
         String path = null;
         int status;
-        try {
-            path = ImageWR.writeImageToFile(org.getImage());
+        if(org.getImage() != null) {
+            try {
+                path = ImageWR.writeImageToFile(org.getImage());
 
-        } catch (IOException e) {
-            Printing.println("Error adding image.");
+            } catch (IOException e) {
+                Printing.println("Error adding image.");
+            }
         }
         try {
             Printing.println(org.toString());
@@ -126,6 +128,7 @@ public class OrganizationHandler {
      * @return a list of the events of that organization
      */
     public static ArrayList<EventModel> searchEventsByOrg(String oAuthCode, int orgID, DatabaseConnection dbc){
+        ArrayList<EventModel> list = new ArrayList<EventModel>();
         try {
             if(oAuthCode == null){
                 return null;
@@ -137,9 +140,9 @@ public class OrganizationHandler {
             ArrayList<Integer> ids = dbc.getOrgEvents(orgID);
             if(ids == null || ids.size() == 0){
                 Printing.println("Organization has no events");
-                return null;
+                return list;
             }
-            ArrayList<EventModel> list = new ArrayList<EventModel>();
+
             for(int i: ids){
                 list.add(EventHandler.searchEventID(i, dbc));
             }
@@ -267,11 +270,13 @@ public class OrganizationHandler {
             UserModel u = dbc.searchForUser(oAuthcode);
             OrganizationModel org = dbc.searchForOrg(orgID);
             if(u == null || org == null){
+                Printing.println("no user:"+u+" or org: "+org);
                 return null;
             }
             else{
                 GroupiesModel g = dbc.searchGroupies(u.getUserId(),orgID);
                 if(g == null || g.getType() < DatabaseConnection.MEMBER){
+                    Printing.println("No gorupie for organizer");
                     return null;
                 }
                 else{
@@ -289,6 +294,7 @@ public class OrganizationHandler {
             return memsandorgs;
         } catch (SQLException e) {
             e.printStackTrace();
+            Printing.println("sql error");
             return null;
         }
 
@@ -328,7 +334,7 @@ public class OrganizationHandler {
      * @param orgID id of the org
      * @param userChangedID id of the user being changed
      * @param type 0 is kick from org, 1 set to member, 2 set to organizer
-     * @return 0 on success, -1 db error, -2 on insufficient permission, -3 on failure to verify parameters
+     * @return 0 on success, -1 db error, -2 on insufficient permission, -3 on failure to verify parameters, -4 if illegal removal (last organizer)
      */
     public static Integer manageUserPermissions(String oAuthCode, int orgID, int userChangedID, int type, DatabaseConnection dbc){
         try{
@@ -361,6 +367,10 @@ public class OrganizationHandler {
                 return new Integer(-3);
             }
             if(type == 0){
+                if(g.getType() == DatabaseConnection.ORGANIZER && dbc.getMembersAndOrganizers(orgID)[1].size() == 1){
+                    Printing.println("Dude, you cant leave the organization if you are the last organizer. Please pass the torch first.");
+                    return -4;
+                }
                 return dbc.deleteGroupies(userChangedID, orgID, g.getType());
             }
             else if(type == 1){
@@ -457,11 +467,10 @@ public class OrganizationHandler {
                 return 3;
             }
             //get organizations this user is a member/organizer of
-            ArrayList<Integer> membersOf = dbc.getUserList(user.getUserId(),DatabaseConnection.MEMBER,true);
             ArrayList<Integer> organizersOf = dbc.getUserList(user.getUserId(),DatabaseConnection.ORGANIZER,true);
 
             //check if any of those organizations match given orgid given
-            if((membersOf != null && membersOf.contains(orgID)) || (organizersOf != null && organizersOf.contains(orgID))){
+            if(organizersOf != null && organizersOf.contains(orgID)){
                 //find user by email
                 int invitedID= dbc.getUserByEmail(emailString);
                 if(invitedID == -1){

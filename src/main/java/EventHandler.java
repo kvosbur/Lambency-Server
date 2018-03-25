@@ -88,6 +88,7 @@ public class EventHandler {
 
     public static List<EventModel> getEventsWithFilter(EventFilterModel efm, DatabaseConnection dbc){
         if(efm == null){
+            Printing.println("null Filter Model");
             return null;
         }
         List<Integer> eventIDs;
@@ -96,6 +97,7 @@ public class EventHandler {
             eventIDs = dbc.searchEventsWithFilterModel(efm);
             if(eventIDs == null){
                 //there were no search results found
+                Printing.println("No search results from Model");
                 return null;
             }
             for(Integer i: eventIDs){
@@ -105,10 +107,11 @@ public class EventHandler {
             }
         } catch (SQLException e) {
             Printing.println(e.toString());
-            Printing.println("Error in get events by location: "+e);
+            Printing.println("Error in get events by filter with error: "+e);;
             return null;
         } catch (Exception e){
-            System.out.println("Error in get events by location");
+            Printing.println(e.toString());
+            Printing.println("Error in get events by Filter");
             return null;
         }
 
@@ -284,13 +287,22 @@ public class EventHandler {
                         return 3;
                     }
 
+                    System.out.println("Begin");
+
                     //clock in user
                     if (clockType == EventAttendanceModel.CLOCKOUTCODE){
-                        dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getEndTime(), EventAttendanceModel.CLOCKOUTCODE);
+                        //get current attendance model to check if already clocked in
+                        EventAttendanceModel attendance = dbc.searchEventAttendance(us.getUserId(),eventAttendanceModel.getEventID());
+                        if(attendance.getStartTime() != null) {
+                            dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKINCODE);
+                            return 0;
+                        }
                     }else if(clockType == EventAttendanceModel.CLOCKINCODE){
-                        dbc.eventClockInOutUser(eventid,us.getUserId(),eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKINCODE);
+
+                        dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKOUTCODE);
+                        return 0;
                     }
-                    return 0;
+                    return 4;
                 }else{
                     return 2;
                 }
@@ -365,6 +377,10 @@ public class EventHandler {
             }
             if(dbc.searchForUser(oAuthCode) == null){
                 Printing.println("Unable to verify user");
+                return new Integer(-1);
+            }
+            if(dbc.searchEvents(eventID) == null){
+                Printing.println("Could not find event.");
                 return new Integer(-1);
             }
             return dbc.numUsersAttending(eventID);
