@@ -45,19 +45,7 @@ public class LambencyAPITest {
         }
     }
 
-
-    @Test
-    public void getFollowOrg() {
-    }
-
-    @Test
-    public void getUnfollowOrg() {
-    }
-
-    @Test
-    public void getMyOrganizedOrgs() {
-    }
-
+    //user story 3
     @Test
     public void get5EventsFromOrg() {
 
@@ -175,867 +163,7 @@ public class LambencyAPITest {
 
     }
 
-    @Test
-    public void getRequestsToJoinFrom3UnconfirmedUsers() {
-
-        //Create organizer, create 3 users, create an organization locally
-        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
-        UserModel user1 = new UserModel("user1", "lastnameUSER1", "user1@nonemail.com");
-        UserModel user2 = new UserModel("user2", "lastnameUSER2", "user2@nonemail.com");
-        UserModel user3 = new UserModel("user3", "lastnameUSER3", "user3@nonemail.com");
-        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-
-        try {
-            this.getDatabaseInstance().truncateTables();
-
-
-
-            //create in database
-            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
-                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
-            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
-                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
-            user2.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user2.getFirstName(),
-                    user2.getLastName(), user2.getEmail(), DatabaseConnection.GOOGLE));
-            user3.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user3.getFirstName(),
-                    user3.getLastName(), user3.getEmail(), DatabaseConnection.GOOGLE));
-
-            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
-
-            //create oAuthCode for organizer
-            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
-            organizer.setOauthToken(ua.getoAuthCode());
-            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
-
-            // force users to join organization in database
-
-            this.getDatabaseInstance().addGroupies(user1.getUserId(), organization.getOrgID(),
-                    DatabaseConnection.MEMBER, 0);
-            this.getDatabaseInstance().addGroupies(user2.getUserId(), organization.getOrgID(),
-                    DatabaseConnection.MEMBER, 0);
-            this.getDatabaseInstance().addGroupies(user3.getUserId(), organization.getOrgID(),
-                    DatabaseConnection.MEMBER, 0);
-        }
-        catch (SQLException sqlException){
-            sqlException.printStackTrace();
-            assertTrue(false);
-        }
-
-        //test the API retrofit call
-        Response<ArrayList<UserModel>> response = null;
-        try {
-            response = this.getInstance().getRequestsToJoin(organizer.getOauthToken(),organization.getOrgID()).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-        if (response.body() == null || response.code() != 200) {
-            System.out.println("ERROR!!!!!");
-            assertTrue(false);
-        }
-        //when response is back
-        ArrayList<UserModel> users = response.body();
-
-        assertTrue(users.contains(user1) && users.contains(user2) && users.contains(user3));
-
-
-    }
-
-    @Test
-    public void endorseEvent() {
-        //Create organizer,  create an organization locally
-        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
-        OrganizationModel organization1 = new OrganizationModel(organizer,"Organization1","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        OrganizationModel organization2 = new OrganizationModel(organizer,"Organization2","1101 3rd street",-1,"Test org2","organization2@noemail.com",organizer,null);
-
-        EventModel event0 = new EventModel("Event before timeFrame", organization1.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization1");
-
-
-
-
-        try {
-            this.getDatabaseInstance().truncateTables();
-
-
-
-            //create in database
-            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
-                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
-
-            organization1 = OrganizationHandler.createOrganization(organization1, this.getDatabaseInstance());
-            organization2 = OrganizationHandler.createOrganization(organization2, this.getDatabaseInstance());
-
-            //create oAuthCode for organizer
-            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
-            organizer.setOauthToken(ua.getoAuthCode());
-            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
-
-
-            event0.setOrg_id(organization1.getOrgID());
-
-            event0 = EventHandler.createEvent(event0,this.getDatabaseInstance());
-
-        }
-        catch (SQLException sqlException){
-            sqlException.printStackTrace();
-            assertTrue(false);
-        }
-
-
-
-
-
-        //test the API retrofit call
-        Response<Integer> response = null;
-        try {
-            response = this.getInstance().getEndorse(organizer.getOauthToken(),""+organization2.getOrgID(),""+event0.getEvent_id()).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-        if (response.body() == null || response.code() != 200) {
-            System.out.println("ERROR!!!!!");
-            assertTrue(false);
-        }
-        //when response is back
-        Integer ret = response.body();
-
-        try {
-            assertTrue(ret == 0 && this.getDatabaseInstance().isEndorsed(organization2.getOrgID(),event0.getEvent_id()));
-        } catch (SQLException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-
-    }
-
-    @Test
-    public void endorseEventAlreadyEndorsedByThisOrg() {
-        //Create organizer,  create an organization locally
-        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
-        OrganizationModel organization1 = new OrganizationModel(organizer,"Organization1","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        OrganizationModel organization2 = new OrganizationModel(organizer,"Organization2","1101 3rd street",-1,"Test org2","organization2@noemail.com",organizer,null);
-
-        EventModel event0 = new EventModel("Event before timeFrame", organization1.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization1");
-
-
-
-
-        try {
-            this.getDatabaseInstance().truncateTables();
-
-
-
-            //create in database
-            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
-                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
-
-            organization1 = OrganizationHandler.createOrganization(organization1, this.getDatabaseInstance());
-            organization2 = OrganizationHandler.createOrganization(organization2, this.getDatabaseInstance());
-
-            //create oAuthCode for organizer
-            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
-            organizer.setOauthToken(ua.getoAuthCode());
-            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
-
-
-            event0.setOrg_id(organization1.getOrgID());
-
-            event0 = EventHandler.createEvent(event0,this.getDatabaseInstance());
-
-            this.getDatabaseInstance().endorseEvent(organization2.getOrgID(),event0.getEvent_id());
-
-        }
-        catch (SQLException sqlException){
-            sqlException.printStackTrace();
-            assertTrue(false);
-        }
-
-
-
-
-
-        //test the API retrofit call
-        Response<Integer> response = null;
-        try {
-            response = this.getInstance().getEndorse(organizer.getOauthToken(),""+organization2.getOrgID(),""+event0.getEvent_id()).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-        if (response.body() == null || response.code() != 200) {
-            System.out.println("ERROR!!!!!");
-            assertTrue(false);
-        }
-        //when response is back
-        Integer ret = response.body();
-
-        try {
-            assertTrue(ret == -2 && this.getDatabaseInstance().isEndorsed(organization2.getOrgID(),event0.getEvent_id()));
-        } catch (SQLException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-
-    }
-
-
-    @Test
-    public void testRemoveMemberFromOrg() {
-        //Create organizer, create 3 users, create an organization locally
-        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
-        UserModel user1 = new UserModel("user1", "lastnameUSER1", "user1@nonemail.com");
-        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-
-        try {
-            this.getDatabaseInstance().truncateTables();
-
-
-
-            //create in database
-            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
-                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
-            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
-                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));;
-
-            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
-
-            //create oAuthCode for organizer
-            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
-            organizer.setOauthToken(ua.getoAuthCode());
-            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
-
-            // force users to join organization in database
-
-            this.getDatabaseInstance().addGroupies(user1.getUserId(), organization.getOrgID(),
-                    DatabaseConnection.MEMBER, 1);
-        }
-        catch (SQLException sqlException){
-            sqlException.printStackTrace();
-            assertTrue(false);
-        }
-
-        //test the API retrofit call
-
-        Response<Integer> response = null;
-        try{
-            response = this.getInstance().getChangeUserPermissions(organizer.getOauthToken(),""+organization.getOrgID(),""+user1.getUserId(),""+0).execute();
-        }
-        catch (IOException e){
-            e.printStackTrace();
-            assertTrue(false);
-        }
-        if (response.body() == null || response.code() != 200) {
-            System.out.println("ERROR!!!!!");
-            assertTrue(false);
-        }
-        Integer ret = response.body();
-        if(ret != 0 ){
-            System.out.println("response issue");
-            assertTrue(false);
-        }
-
-
-
-
-        ArrayList<Integer>[] response2 = null;
-        try {
-            response2 = this.getDatabaseInstance().getMembersAndOrganizers(organization.getOrgID());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-
-        assertTrue( !response2[0].contains(user1));
-
-
-    }
-
-    @Test
-    public void testRemoveOrganizerFromOrg() {
-        //Create organizer, create 3 users, create an organization locally
-        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
-        UserModel organizer2 = new UserModel("user1", "lastnameUSER1", "user1@nonemail.com");
-        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-
-        try {
-            this.getDatabaseInstance().truncateTables();
-
-
-
-            //create in database
-            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
-                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
-            organizer2.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer2.getFirstName(),
-                    organizer2.getLastName(),organizer2.getEmail(), DatabaseConnection.GOOGLE));;
-
-            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
-
-            //create oAuthCode for organizer
-            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
-            organizer.setOauthToken(ua.getoAuthCode());
-            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
-
-            // force users to join organization in database
-
-            this.getDatabaseInstance().addGroupies(organizer2.getUserId(), organization.getOrgID(),
-                    DatabaseConnection.ORGANIZER, 1);
-        }
-        catch (SQLException sqlException){
-            sqlException.printStackTrace();
-            assertTrue(false);
-        }
-
-        //test the API retrofit call
-
-        Response<Integer> response = null;
-        try{
-            response = this.getInstance().getChangeUserPermissions(organizer.getOauthToken(),""+organization.getOrgID(),""+organizer2.getUserId(),""+0).execute();
-        }
-        catch (IOException e){
-            e.printStackTrace();
-            assertTrue(false);
-        }
-        if (response.body() == null || response.code() != 200) {
-            System.out.println("ERROR!!!!!");
-            assertTrue(false);
-        }
-        Integer ret = response.body();
-        if(ret != 0 ){
-            System.out.println("response issue");
-            assertTrue(false);
-        }
-
-
-
-
-        ArrayList<Integer>[] response2 = null;
-        try {
-            response2 = this.getDatabaseInstance().getMembersAndOrganizers(organization.getOrgID());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-
-        assertTrue( !response2[1].contains(organizer2) && response2[1].size() == 1 && response2[1].contains(organizer.getUserId()));
-
-
-    }
-
-    @Test
-    public void testRemoveLastOrganizerFromOrg() {
-        //Create organizer, create 3 users, create an organization locally
-        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
-        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-
-        try {
-            this.getDatabaseInstance().truncateTables();
-
-
-
-            //create in database
-            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
-                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
-
-            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
-
-            //create oAuthCode for organizer
-            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
-            organizer.setOauthToken(ua.getoAuthCode());
-            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
-
-            // force users to join organization in database
-
-        }
-        catch (SQLException sqlException){
-            sqlException.printStackTrace();
-            assertTrue(false);
-        }
-
-        //test the API retrofit call
-
-        Response<Integer> response = null;
-        try{
-            response = this.getInstance().getChangeUserPermissions(organizer.getOauthToken(),""+organization.getOrgID(),""+organizer.getUserId(),""+0).execute();
-        }
-        catch (IOException e){
-            e.printStackTrace();
-            assertTrue(false);
-        }
-        if (response.body() == null || response.code() != 200) {
-            System.out.println("ERROR!!!!!");
-            assertTrue(false);
-        }
-        Integer ret = response.body();
-        Printing.println(ret);
-        assertTrue(ret == -4);
-
-
-
-    }
-
-    @Test
-    public void getMembersAndOrganizersWith0UsersAnd1Organizer() {
-
-        //Create organizer, create 3 users, create an organization locally
-        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
-        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-
-        try {
-            this.getDatabaseInstance().truncateTables();
-
-
-
-            //create in database
-            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
-                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
-
-            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
-
-            //create oAuthCode for organizer
-            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
-            organizer.setOauthToken(ua.getoAuthCode());
-            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
-
-        }
-        catch (SQLException sqlException){
-            sqlException.printStackTrace();
-            assertTrue(false);
-        }
-
-        //test the API retrofit call
-        Response<ArrayList<UserModel>[]> response = null;
-        try {
-            response = this.getInstance().getMembersAndOrganizers(organizer.getOauthToken(),organization.getOrgID()).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-        if (response.body() == null || response.code() != 200) {
-            System.out.println("ERROR!!!!!");
-            assertTrue(false);
-        }
-        //when response is back
-        ArrayList<UserModel>[] users = response.body();
-
-
-        ArrayList<UserModel> members = users[0];
-        ArrayList<UserModel> organizers = users[1];
-        assertTrue(members.isEmpty() && organizers.contains(organizer));
-
-
-    }
-
-    @Test
-    public void getMembersAndOrganizersWith3UsersAnd1Organizer() {
-
-        //Create organizer, create 3 users, create an organization locally
-        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
-        UserModel user1 = new UserModel("user1", "lastnameUSER1", "user1@nonemail.com");
-        UserModel user2 = new UserModel("user2", "lastnameUSER2", "user2@nonemail.com");
-        UserModel user3 = new UserModel("user3", "lastnameUSER3", "user3@nonemail.com");
-        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-
-        try {
-            this.getDatabaseInstance().truncateTables();
-
-
-
-            //create in database
-            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
-                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
-            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
-                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
-            user2.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user2.getFirstName(),
-                    user2.getLastName(), user2.getEmail(), DatabaseConnection.GOOGLE));
-            user3.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user3.getFirstName(),
-                    user3.getLastName(), user3.getEmail(), DatabaseConnection.GOOGLE));
-
-            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
-
-            //create oAuthCode for organizer
-            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
-            organizer.setOauthToken(ua.getoAuthCode());
-            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
-
-            // force users to join organization in database
-
-            this.getDatabaseInstance().addGroupies(user1.getUserId(), organization.getOrgID(),
-                    DatabaseConnection.MEMBER, 1);
-            this.getDatabaseInstance().addGroupies(user2.getUserId(), organization.getOrgID(),
-                    DatabaseConnection.MEMBER, 1);
-            this.getDatabaseInstance().addGroupies(user3.getUserId(), organization.getOrgID(),
-                    DatabaseConnection.MEMBER, 1);
-        }
-        catch (SQLException sqlException){
-            sqlException.printStackTrace();
-            assertTrue(false);
-        }
-
-        //test the API retrofit call
-        Response<ArrayList<UserModel>[]> response = null;
-        try {
-            response = this.getInstance().getMembersAndOrganizers(organizer.getOauthToken(),organization.getOrgID()).execute();
-            Printing.println("Done executing");
-        } catch (IOException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-        if (response.body() == null || response.code() != 200) {
-            System.out.println("ERROR!!!!!");
-            assertTrue(false);
-        }
-        //when response is back
-        ArrayList<UserModel>[] users = response.body();
-
-
-        ArrayList<UserModel> members = users[0];
-        ArrayList<UserModel> organizers = users[1];
-        assertTrue(members.contains(user1) && members.contains(user2) && members.contains(user3)&& organizers.contains(organizer));
-
-
-    }
-
-    @Test
-    public void respondToJoinRequest() {
-
-        //Create organizer, create 3 users, create an organization locally
-        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
-        UserModel user1 = new UserModel("user1", "lastnameUSER1", "user1@nonemail.com");
-        UserModel user2 = new UserModel("user2", "lastnameUSER2", "user2@nonemail.com");
-        UserModel user3 = new UserModel("user3", "lastnameUSER3", "user3@nonemail.com");
-        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-
-        try {
-            this.getDatabaseInstance().truncateTables();
-
-
-
-            //create in database
-            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
-                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
-            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
-                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
-            user2.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user2.getFirstName(),
-                    user2.getLastName(), user2.getEmail(), DatabaseConnection.GOOGLE));
-            user3.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user3.getFirstName(),
-                    user3.getLastName(), user3.getEmail(), DatabaseConnection.GOOGLE));
-
-            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
-
-            //create oAuthCode for organizer
-            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
-            organizer.setOauthToken(ua.getoAuthCode());
-            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
-
-            // force users to join organization in database
-
-            this.getDatabaseInstance().addGroupies(user1.getUserId(), organization.getOrgID(),
-                    DatabaseConnection.MEMBER, 0);
-            this.getDatabaseInstance().addGroupies(user2.getUserId(), organization.getOrgID(),
-                    DatabaseConnection.MEMBER, 0);
-            this.getDatabaseInstance().addGroupies(user3.getUserId(), organization.getOrgID(),
-                    DatabaseConnection.MEMBER, 0);
-        }
-        catch (SQLException sqlException){
-            sqlException.printStackTrace();
-            assertTrue(false);
-        }
-
-        //test the API retrofit call
-
-        Response<Integer> response = null;
-        try{
-            response = this.getInstance().respondToJoinRequest(organizer.getOauthToken(),organization.getOrgID(),user1.getUserId(),true).execute();
-        }
-        catch (IOException e){
-            e.printStackTrace();
-            assertTrue(false);
-        }
-        if (response.body() == null || response.code() != 200) {
-            System.out.println("ERROR!!!!!");
-            assertTrue(false);
-        }
-        Integer ret = response.body();
-        if(ret != 0 ){
-            System.out.println("response issue");
-            assertTrue(false);
-        }
-
-
-
-
-        Response<ArrayList<UserModel>> response2 = null;
-        try {
-            response2 = this.getInstance().getRequestsToJoin(organizer.getOauthToken(),organization.getOrgID()).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-        if (response2.body() == null || response2.code() != 200) {
-            System.out.println("ERROR!!!!!");
-            assertTrue(false);
-        }
-        //when response is back
-        ArrayList<UserModel> users = response2.body();
-
-        assertTrue( users.contains(user2) && users.contains(user3));
-
-
-    }
-
-    @Test
-    public void getEventNumAttendingWithInvalidEventID() {
-
-
-        //Create organizer, create 3 users, create organization, and create event locally
-        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
-        UserModel user1 = new UserModel("user1", "lastnameUSER1", "user1@nonemail.com");
-        UserModel user2 = new UserModel("user2", "lastnameUSER2", "user2@nonemail.com");
-        UserModel user3 = new UserModel("user3", "lastnameUSER3", "user3@nonemail.com");
-        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
-        try {
-            this.getDatabaseInstance().truncateTables();
-
-
-
-            //create in database
-            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
-                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
-            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
-                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
-            user2.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user2.getFirstName(),
-                    user2.getLastName(), user2.getEmail(), DatabaseConnection.GOOGLE));
-            user3.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user3.getFirstName(),
-                    user3.getLastName(), user3.getEmail(), DatabaseConnection.GOOGLE));
-
-            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
-            event.setOrg_id(organization.getOrgID());
-            event = EventHandler.createEvent(event,this.getDatabaseInstance());
-
-            //create oAuthCode for organizer
-            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
-            organizer.setOauthToken(ua.getoAuthCode());
-            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
-
-            // force users to attend evnet in database
-
-            this.getDatabaseInstance().registerForEvent(user1.getUserId(),event.getEvent_id());
-            this.getDatabaseInstance().registerForEvent(user2.getUserId(),event.getEvent_id());
-            this.getDatabaseInstance().registerForEvent(user3.getUserId(),event.getEvent_id());
-        }
-        catch (SQLException sqlException){
-            sqlException.printStackTrace();
-            assertTrue(false);
-        }
-
-        //test the API retrofit call
-        Response<Integer> response = null;
-        try {
-            response = this.getInstance().getEventNumAttending(organizer.getOauthToken(),"-1").execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-        if (response.body() == null || response.code() != 200) {
-            System.out.println("ERROR!!!!!");
-            assertTrue(false);
-        }
-        //when response is back
-        Integer ret = response.body();
-        assertTrue(ret == -1);
-    }
-
-    @Test
-    public void getEventNumAttendingWithInvalidOAUTHCODE() {
-
-
-        //Create organizer, create 3 users, create organization, and create event locally
-        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
-        UserModel user1 = new UserModel("user1", "lastnameUSER1", "user1@nonemail.com");
-        UserModel user2 = new UserModel("user2", "lastnameUSER2", "user2@nonemail.com");
-        UserModel user3 = new UserModel("user3", "lastnameUSER3", "user3@nonemail.com");
-        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
-        try {
-            this.getDatabaseInstance().truncateTables();
-
-
-
-            //create in database
-            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
-                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
-            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
-                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
-            user2.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user2.getFirstName(),
-                    user2.getLastName(), user2.getEmail(), DatabaseConnection.GOOGLE));
-            user3.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user3.getFirstName(),
-                    user3.getLastName(), user3.getEmail(), DatabaseConnection.GOOGLE));
-
-            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
-            event.setOrg_id(organization.getOrgID());
-            event = EventHandler.createEvent(event,this.getDatabaseInstance());
-
-            //create oAuthCode for organizer
-            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
-            organizer.setOauthToken(ua.getoAuthCode());
-            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
-
-            // force users to attend evnet in database
-
-            this.getDatabaseInstance().registerForEvent(user1.getUserId(),event.getEvent_id());
-            this.getDatabaseInstance().registerForEvent(user2.getUserId(),event.getEvent_id());
-            this.getDatabaseInstance().registerForEvent(user3.getUserId(),event.getEvent_id());
-        }
-        catch (SQLException sqlException){
-            sqlException.printStackTrace();
-            assertTrue(false);
-        }
-
-        //test the API retrofit call
-        Response<Integer> response = null;
-        try {
-            response = this.getInstance().getEventNumAttending("NOT A REAL oAUTHCODE",""+event.getEvent_id()).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-        if (response.body() == null || response.code() != 200) {
-            System.out.println("ERROR!!!!!");
-            assertTrue(false);
-        }
-        //when response is back
-        Integer ret = response.body();
-        assertTrue(ret == -1);
-    }
-
-    @Test
-    public void getEventNumAttendingWith0Attending() {
-
-
-        //Create organizer, create 3 users, create organization, and create event locally
-        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
-        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
-        try {
-            this.getDatabaseInstance().truncateTables();
-
-
-
-            //create in database
-            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
-                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
-
-            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
-            event.setOrg_id(organization.getOrgID());
-            event = EventHandler.createEvent(event,this.getDatabaseInstance());
-
-            //create oAuthCode for organizer
-            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
-            organizer.setOauthToken(ua.getoAuthCode());
-            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
-
-            // force users to attend evnet in database
-        }
-        catch (SQLException sqlException){
-            sqlException.printStackTrace();
-            assertTrue(false);
-        }
-
-        //test the API retrofit call
-        Response<Integer> response = null;
-        try {
-            response = this.getInstance().getEventNumAttending(organizer.getOauthToken(),""+event.getEvent_id()).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-        if (response.body() == null || response.code() != 200) {
-            System.out.println("ERROR!!!!!");
-            System.out.println("reponse code: " + response.code());
-            assertTrue(false);
-        }
-        //when response is back
-        Integer ret = response.body();
-        assertTrue(ret == 0);
-    }
-
-    @Test
-    public void getEventNumAttendingWith3Attending() {
-
-
-        //Create organizer, create 3 users, create organization, and create event locally
-        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
-        UserModel user1 = new UserModel("user1", "lastnameUSER1", "user1@nonemail.com");
-        UserModel user2 = new UserModel("user2", "lastnameUSER2", "user2@nonemail.com");
-        UserModel user3 = new UserModel("user3", "lastnameUSER3", "user3@nonemail.com");
-        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
-        try {
-            this.getDatabaseInstance().truncateTables();
-
-
-
-            //create in database
-            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
-                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
-            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
-                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
-            user2.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user2.getFirstName(),
-                    user2.getLastName(), user2.getEmail(), DatabaseConnection.GOOGLE));
-            user3.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user3.getFirstName(),
-                    user3.getLastName(), user3.getEmail(), DatabaseConnection.GOOGLE));
-
-            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
-            event.setOrg_id(organization.getOrgID());
-            event = EventHandler.createEvent(event,this.getDatabaseInstance());
-
-            //create oAuthCode for organizer
-            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
-            organizer.setOauthToken(ua.getoAuthCode());
-            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
-
-            // force users to attend evnet in database
-
-            this.getDatabaseInstance().registerForEvent(user1.getUserId(),event.getEvent_id());
-            this.getDatabaseInstance().registerForEvent(user2.getUserId(),event.getEvent_id());
-            this.getDatabaseInstance().registerForEvent(user3.getUserId(),event.getEvent_id());
-        }
-        catch (SQLException sqlException){
-            sqlException.printStackTrace();
-            assertTrue(false);
-        }
-
-        //test the API retrofit call
-        Response<Integer> response = null;
-        try {
-            response = this.getInstance().getEventNumAttending(organizer.getOauthToken(),""+event.getEvent_id()).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
-        if (response.body() == null || response.code() != 200) {
-            System.out.println("ERROR!!!!!");
-            assertTrue(false);
-        }
-        //when response is back
-        Integer ret = response.body();
-        assertTrue(ret == 3);
-    }
-
-    @Test
-    public void postLeaveOrganization() {
-    }
-
-    @Test
-    public void getEventsFeed() {
-    }
-
-    @Test
-    public void getEndorsedOrgs() {
-    }
-
+    //user story 4
     @Test
     public void testFilterWithNoDate(){
 
@@ -1324,6 +452,7 @@ public class LambencyAPITest {
 
     }
 
+    //user story 5
     @Test
     public void testFilterWithJustDistance(){
         long currentTime = System.currentTimeMillis();
@@ -1485,6 +614,631 @@ public class LambencyAPITest {
 
     }
 
+    //user story 6
+    @Test
+    public void getEventNumAttendingWithInvalidEventID() {
+
+
+        //Create organizer, create 3 users, create organization, and create event locally
+        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
+        UserModel user1 = new UserModel("user1", "lastnameUSER1", "user1@nonemail.com");
+        UserModel user2 = new UserModel("user2", "lastnameUSER2", "user2@nonemail.com");
+        UserModel user3 = new UserModel("user3", "lastnameUSER3", "user3@nonemail.com");
+        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
+        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
+        try {
+            this.getDatabaseInstance().truncateTables();
+
+
+
+            //create in database
+            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
+                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
+            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
+                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
+            user2.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user2.getFirstName(),
+                    user2.getLastName(), user2.getEmail(), DatabaseConnection.GOOGLE));
+            user3.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user3.getFirstName(),
+                    user3.getLastName(), user3.getEmail(), DatabaseConnection.GOOGLE));
+
+            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
+            event.setOrg_id(organization.getOrgID());
+            event = EventHandler.createEvent(event,this.getDatabaseInstance());
+
+            //create oAuthCode for organizer
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            organizer.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
+
+            // force users to attend evnet in database
+
+            this.getDatabaseInstance().registerForEvent(user1.getUserId(),event.getEvent_id());
+            this.getDatabaseInstance().registerForEvent(user2.getUserId(),event.getEvent_id());
+            this.getDatabaseInstance().registerForEvent(user3.getUserId(),event.getEvent_id());
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            assertTrue(false);
+        }
+
+        //test the API retrofit call
+        Response<Integer> response = null;
+        try {
+            response = this.getInstance().getEventNumAttending(organizer.getOauthToken(),"-1").execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        //when response is back
+        Integer ret = response.body();
+        assertTrue(ret == -1);
+    }
+
+    @Test
+    public void getEventNumAttendingWithInvalidOAUTHCODE() {
+
+
+        //Create organizer, create 3 users, create organization, and create event locally
+        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
+        UserModel user1 = new UserModel("user1", "lastnameUSER1", "user1@nonemail.com");
+        UserModel user2 = new UserModel("user2", "lastnameUSER2", "user2@nonemail.com");
+        UserModel user3 = new UserModel("user3", "lastnameUSER3", "user3@nonemail.com");
+        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
+        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
+        try {
+            this.getDatabaseInstance().truncateTables();
+
+
+
+            //create in database
+            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
+                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
+            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
+                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
+            user2.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user2.getFirstName(),
+                    user2.getLastName(), user2.getEmail(), DatabaseConnection.GOOGLE));
+            user3.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user3.getFirstName(),
+                    user3.getLastName(), user3.getEmail(), DatabaseConnection.GOOGLE));
+
+            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
+            event.setOrg_id(organization.getOrgID());
+            event = EventHandler.createEvent(event,this.getDatabaseInstance());
+
+            //create oAuthCode for organizer
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            organizer.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
+
+            // force users to attend evnet in database
+
+            this.getDatabaseInstance().registerForEvent(user1.getUserId(),event.getEvent_id());
+            this.getDatabaseInstance().registerForEvent(user2.getUserId(),event.getEvent_id());
+            this.getDatabaseInstance().registerForEvent(user3.getUserId(),event.getEvent_id());
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            assertTrue(false);
+        }
+
+        //test the API retrofit call
+        Response<Integer> response = null;
+        try {
+            response = this.getInstance().getEventNumAttending("NOT A REAL oAUTHCODE",""+event.getEvent_id()).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        //when response is back
+        Integer ret = response.body();
+        assertTrue(ret == -1);
+    }
+
+    @Test
+    public void getEventNumAttendingWith0Attending() {
+
+
+        //Create organizer, create 3 users, create organization, and create event locally
+        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
+        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
+        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
+        try {
+            this.getDatabaseInstance().truncateTables();
+
+
+
+            //create in database
+            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
+                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
+
+            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
+            event.setOrg_id(organization.getOrgID());
+            event = EventHandler.createEvent(event,this.getDatabaseInstance());
+
+            //create oAuthCode for organizer
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            organizer.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
+
+            // force users to attend evnet in database
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            assertTrue(false);
+        }
+
+        //test the API retrofit call
+        Response<Integer> response = null;
+        try {
+            response = this.getInstance().getEventNumAttending(organizer.getOauthToken(),""+event.getEvent_id()).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            System.out.println("reponse code: " + response.code());
+            assertTrue(false);
+        }
+        //when response is back
+        Integer ret = response.body();
+        assertTrue(ret == 0);
+    }
+
+    @Test
+    public void getEventNumAttendingWith3Attending() {
+
+
+        //Create organizer, create 3 users, create organization, and create event locally
+        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
+        UserModel user1 = new UserModel("user1", "lastnameUSER1", "user1@nonemail.com");
+        UserModel user2 = new UserModel("user2", "lastnameUSER2", "user2@nonemail.com");
+        UserModel user3 = new UserModel("user3", "lastnameUSER3", "user3@nonemail.com");
+        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
+        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
+        try {
+            this.getDatabaseInstance().truncateTables();
+
+
+
+            //create in database
+            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
+                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
+            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
+                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
+            user2.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user2.getFirstName(),
+                    user2.getLastName(), user2.getEmail(), DatabaseConnection.GOOGLE));
+            user3.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user3.getFirstName(),
+                    user3.getLastName(), user3.getEmail(), DatabaseConnection.GOOGLE));
+
+            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
+            event.setOrg_id(organization.getOrgID());
+            event = EventHandler.createEvent(event,this.getDatabaseInstance());
+
+            //create oAuthCode for organizer
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            organizer.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
+
+            // force users to attend evnet in database
+
+            this.getDatabaseInstance().registerForEvent(user1.getUserId(),event.getEvent_id());
+            this.getDatabaseInstance().registerForEvent(user2.getUserId(),event.getEvent_id());
+            this.getDatabaseInstance().registerForEvent(user3.getUserId(),event.getEvent_id());
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            assertTrue(false);
+        }
+
+        //test the API retrofit call
+        Response<Integer> response = null;
+        try {
+            response = this.getInstance().getEventNumAttending(organizer.getOauthToken(),""+event.getEvent_id()).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        //when response is back
+        Integer ret = response.body();
+        assertTrue(ret == 3);
+    }
+
+    //user story 7
+    @Test
+    public void testClockInNotAttending(){
+
+        UserModel user1 = new UserModel("Organizer", "Lastname", "organizer@gmail.com");
+
+        OrganizationModel organization = new OrganizationModel(user1,"Organization","1101 3rd street",-1,
+                "Test org","organization@noemail.com",user1,null);
+
+        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()),
+                new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
+
+        try {
+            this.getDatabaseInstance().truncateTables();
+
+            //create in database
+            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
+                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
+
+            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
+
+            event.setOrg_id(organization.getOrgID());
+            event = EventHandler.createEvent(event,this.getDatabaseInstance());
+
+            //create oAuthCode for organizer
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            user1.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(user1.getUserId(),ua.getoAuthCode());
+
+
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            assertTrue(false);
+        }
+
+        //model of user attendance
+        EventAttendanceModel attendance = new EventAttendanceModel(event.getEvent_id(),user1.getUserId(),
+                new Timestamp(System.currentTimeMillis()),event.getClockInCode());
+
+
+        //test the API retrofit call for user
+        Response<Integer> response = null;
+        try {
+            response = this.getInstance().sendClockInCode(user1.getOauthToken(),attendance).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response == null || response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        //when response is back
+        int responseValue = response.body();
+
+        assertTrue(responseValue != 0);
+
+    }
+
+    @Test
+    public void testClockOutBeforeClockIn(){
+        //testing if able to clock out before clocking in
+
+        UserModel user1 = new UserModel("Organizer", "Lastname", "organizer@gmail.com");
+
+        OrganizationModel organization = new OrganizationModel(user1,"Organization","1101 3rd street",-1,
+                "Test org","organization@noemail.com",user1,null);
+
+        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()),
+                new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
+
+        try {
+            this.getDatabaseInstance().truncateTables();
+
+            //create in database
+            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
+                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
+
+            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
+
+            event.setOrg_id(organization.getOrgID());
+            event = EventHandler.createEvent(event,this.getDatabaseInstance());
+
+            //create oAuthCode for organizer
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            user1.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(user1.getUserId(),ua.getoAuthCode());
+
+
+            this.getDatabaseInstance().registerForEvent(user1.getUserId(),event.getEvent_id());
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            assertTrue(false);
+        }
+
+        //model of user attendance
+        EventAttendanceModel attendance = new EventAttendanceModel(event.getEvent_id(),user1.getUserId(),
+                new Timestamp(System.currentTimeMillis()),event.getClockOutCode());
+
+
+        //test the API retrofit call for user
+        Response<Integer> response = null;
+        try {
+            response = this.getInstance().sendClockInCode(user1.getOauthToken(),attendance).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response == null || response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        //when response is back
+        int responseValue = response.body();
+
+        assertTrue(responseValue != 0);
+    }
+
+
+    //user story 9
+    @Test
+    public void endorseEvent() {
+        //Create organizer,  create an organization locally
+        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
+        OrganizationModel organization1 = new OrganizationModel(organizer,"Organization1","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
+        OrganizationModel organization2 = new OrganizationModel(organizer,"Organization2","1101 3rd street",-1,"Test org2","organization2@noemail.com",organizer,null);
+
+        EventModel event0 = new EventModel("Event before timeFrame", organization1.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization1");
+
+
+
+
+        try {
+            this.getDatabaseInstance().truncateTables();
+
+
+
+            //create in database
+            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
+                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
+
+            organization1 = OrganizationHandler.createOrganization(organization1, this.getDatabaseInstance());
+            organization2 = OrganizationHandler.createOrganization(organization2, this.getDatabaseInstance());
+
+            //create oAuthCode for organizer
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            organizer.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
+
+
+            event0.setOrg_id(organization1.getOrgID());
+
+            event0 = EventHandler.createEvent(event0,this.getDatabaseInstance());
+
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            assertTrue(false);
+        }
+
+
+
+
+
+        //test the API retrofit call
+        Response<Integer> response = null;
+        try {
+            response = this.getInstance().getEndorse(organizer.getOauthToken(),""+organization2.getOrgID(),""+event0.getEvent_id()).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        //when response is back
+        Integer ret = response.body();
+
+        try {
+            assertTrue(ret == 0 && this.getDatabaseInstance().isEndorsed(organization2.getOrgID(),event0.getEvent_id()));
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+
+    }
+
+    @Test
+    public void endorseEventAlreadyEndorsedByThisOrg() {
+        //Create organizer,  create an organization locally
+        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
+        OrganizationModel organization1 = new OrganizationModel(organizer,"Organization1","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
+        OrganizationModel organization2 = new OrganizationModel(organizer,"Organization2","1101 3rd street",-1,"Test org2","organization2@noemail.com",organizer,null);
+
+        EventModel event0 = new EventModel("Event before timeFrame", organization1.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization1");
+
+
+
+
+        try {
+            this.getDatabaseInstance().truncateTables();
+
+
+
+            //create in database
+            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
+                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
+
+            organization1 = OrganizationHandler.createOrganization(organization1, this.getDatabaseInstance());
+            organization2 = OrganizationHandler.createOrganization(organization2, this.getDatabaseInstance());
+
+            //create oAuthCode for organizer
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            organizer.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
+
+
+            event0.setOrg_id(organization1.getOrgID());
+
+            event0 = EventHandler.createEvent(event0,this.getDatabaseInstance());
+
+            this.getDatabaseInstance().endorseEvent(organization2.getOrgID(),event0.getEvent_id());
+
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            assertTrue(false);
+        }
+
+
+
+
+
+        //test the API retrofit call
+        Response<Integer> response = null;
+        try {
+            response = this.getInstance().getEndorse(organizer.getOauthToken(),""+organization2.getOrgID(),""+event0.getEvent_id()).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        //when response is back
+        Integer ret = response.body();
+
+        try {
+            assertTrue(ret == -2 && this.getDatabaseInstance().isEndorsed(organization2.getOrgID(),event0.getEvent_id()));
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+
+    }
+
+    //user story 10
+    @Test
+    public void getMembersAndOrganizersWith0UsersAnd1Organizer() {
+
+        //Create organizer, create 3 users, create an organization locally
+        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
+        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
+
+        try {
+            this.getDatabaseInstance().truncateTables();
+
+
+
+            //create in database
+            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
+                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
+
+            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
+
+            //create oAuthCode for organizer
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            organizer.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
+
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            assertTrue(false);
+        }
+
+        //test the API retrofit call
+        Response<ArrayList<UserModel>[]> response = null;
+        try {
+            response = this.getInstance().getMembersAndOrganizers(organizer.getOauthToken(),organization.getOrgID()).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        //when response is back
+        ArrayList<UserModel>[] users = response.body();
+
+
+        ArrayList<UserModel> members = users[0];
+        ArrayList<UserModel> organizers = users[1];
+        assertTrue(members.isEmpty() && organizers.contains(organizer));
+
+
+    }
+
+    @Test
+    public void getMembersAndOrganizersWith3UsersAnd1Organizer() {
+
+        //Create organizer, create 3 users, create an organization locally
+        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
+        UserModel user1 = new UserModel("user1", "lastnameUSER1", "user1@nonemail.com");
+        UserModel user2 = new UserModel("user2", "lastnameUSER2", "user2@nonemail.com");
+        UserModel user3 = new UserModel("user3", "lastnameUSER3", "user3@nonemail.com");
+        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
+
+        try {
+            this.getDatabaseInstance().truncateTables();
+
+
+
+            //create in database
+            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
+                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
+            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
+                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
+            user2.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user2.getFirstName(),
+                    user2.getLastName(), user2.getEmail(), DatabaseConnection.GOOGLE));
+            user3.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user3.getFirstName(),
+                    user3.getLastName(), user3.getEmail(), DatabaseConnection.GOOGLE));
+
+            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
+
+            //create oAuthCode for organizer
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            organizer.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
+
+            // force users to join organization in database
+
+            this.getDatabaseInstance().addGroupies(user1.getUserId(), organization.getOrgID(),
+                    DatabaseConnection.MEMBER, 1);
+            this.getDatabaseInstance().addGroupies(user2.getUserId(), organization.getOrgID(),
+                    DatabaseConnection.MEMBER, 1);
+            this.getDatabaseInstance().addGroupies(user3.getUserId(), organization.getOrgID(),
+                    DatabaseConnection.MEMBER, 1);
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            assertTrue(false);
+        }
+
+        //test the API retrofit call
+        Response<ArrayList<UserModel>[]> response = null;
+        try {
+            response = this.getInstance().getMembersAndOrganizers(organizer.getOauthToken(),organization.getOrgID()).execute();
+            Printing.println("Done executing");
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        //when response is back
+        ArrayList<UserModel>[] users = response.body();
+
+
+        ArrayList<UserModel> members = users[0];
+        ArrayList<UserModel> organizers = users[1];
+        assertTrue(members.contains(user1) && members.contains(user2) && members.contains(user3)&& organizers.contains(organizer));
+
+
+    }
+
+    //user story 12
     @Test
     public void testOrgInviteInvalidPermissions(){
         //person trying to invite is not in an org / not in org for request
@@ -1690,34 +1444,172 @@ public class LambencyAPITest {
         assertTrue(responseValue != 0);
     }
 
+    //user story 13
     @Test
-    public void testClockInNotAttending(){
-
-        UserModel user1 = new UserModel("Organizer", "Lastname", "organizer@gmail.com");
-
-        OrganizationModel organization = new OrganizationModel(user1,"Organization","1101 3rd street",-1,
-                "Test org","organization@noemail.com",user1,null);
-
-        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()),
-                new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
+    public void testRemoveMemberFromOrg() {
+        //Create organizer, create 3 users, create an organization locally
+        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
+        UserModel user1 = new UserModel("user1", "lastnameUSER1", "user1@nonemail.com");
+        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
 
         try {
             this.getDatabaseInstance().truncateTables();
 
+
+
             //create in database
+            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
+                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
             user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
-                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
+                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));;
 
             organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
 
-            event.setOrg_id(organization.getOrgID());
-            event = EventHandler.createEvent(event,this.getDatabaseInstance());
+            //create oAuthCode for organizer
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            organizer.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
+
+            // force users to join organization in database
+
+            this.getDatabaseInstance().addGroupies(user1.getUserId(), organization.getOrgID(),
+                    DatabaseConnection.MEMBER, 1);
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            assertTrue(false);
+        }
+
+        //test the API retrofit call
+
+        Response<Integer> response = null;
+        try{
+            response = this.getInstance().getChangeUserPermissions(organizer.getOauthToken(),""+organization.getOrgID(),""+user1.getUserId(),""+0).execute();
+        }
+        catch (IOException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        Integer ret = response.body();
+        if(ret != 0 ){
+            System.out.println("response issue");
+            assertTrue(false);
+        }
+
+
+
+
+        ArrayList<Integer>[] response2 = null;
+        try {
+            response2 = this.getDatabaseInstance().getMembersAndOrganizers(organization.getOrgID());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+
+        assertTrue( !response2[0].contains(user1));
+
+
+    }
+
+    @Test
+    public void testRemoveOrganizerFromOrg() {
+        //Create organizer, create 3 users, create an organization locally
+        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
+        UserModel organizer2 = new UserModel("user1", "lastnameUSER1", "user1@nonemail.com");
+        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
+
+        try {
+            this.getDatabaseInstance().truncateTables();
+
+
+
+            //create in database
+            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
+                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
+            organizer2.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer2.getFirstName(),
+                    organizer2.getLastName(),organizer2.getEmail(), DatabaseConnection.GOOGLE));;
+
+            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
 
             //create oAuthCode for organizer
             UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
-            user1.setOauthToken(ua.getoAuthCode());
-            this.getDatabaseInstance().setOauthCode(user1.getUserId(),ua.getoAuthCode());
+            organizer.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
 
+            // force users to join organization in database
+
+            this.getDatabaseInstance().addGroupies(organizer2.getUserId(), organization.getOrgID(),
+                    DatabaseConnection.ORGANIZER, 1);
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            assertTrue(false);
+        }
+
+        //test the API retrofit call
+
+        Response<Integer> response = null;
+        try{
+            response = this.getInstance().getChangeUserPermissions(organizer.getOauthToken(),""+organization.getOrgID(),""+organizer2.getUserId(),""+0).execute();
+        }
+        catch (IOException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        Integer ret = response.body();
+        if(ret != 0 ){
+            System.out.println("response issue");
+            assertTrue(false);
+        }
+
+
+
+
+        ArrayList<Integer>[] response2 = null;
+        try {
+            response2 = this.getDatabaseInstance().getMembersAndOrganizers(organization.getOrgID());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+
+        assertTrue( !response2[1].contains(organizer2) && response2[1].size() == 1 && response2[1].contains(organizer.getUserId()));
+
+
+    }
+
+    @Test
+    public void testRemoveLastOrganizerFromOrg() {
+        //Create organizer, create 3 users, create an organization locally
+        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
+        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
+
+        try {
+            this.getDatabaseInstance().truncateTables();
+
+
+
+            //create in database
+            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
+                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
+
+            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
+
+            //create oAuthCode for organizer
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            organizer.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
+
+            // force users to join organization in database
 
         }
         catch (SQLException sqlException){
@@ -1725,90 +1617,186 @@ public class LambencyAPITest {
             assertTrue(false);
         }
 
-        //model of user attendance
-        EventAttendanceModel attendance = new EventAttendanceModel(event.getEvent_id(),user1.getUserId(),
-                new Timestamp(System.currentTimeMillis()),event.getClockInCode());
+        //test the API retrofit call
 
-
-        //test the API retrofit call for user
         Response<Integer> response = null;
-        try {
-            response = this.getInstance().sendClockInCode(user1.getOauthToken(),attendance).execute();
-        } catch (IOException e) {
+        try{
+            response = this.getInstance().getChangeUserPermissions(organizer.getOauthToken(),""+organization.getOrgID(),""+organizer.getUserId(),""+0).execute();
+        }
+        catch (IOException e){
             e.printStackTrace();
             assertTrue(false);
         }
-        if (response == null || response.body() == null || response.code() != 200) {
+        if (response.body() == null || response.code() != 200) {
             System.out.println("ERROR!!!!!");
             assertTrue(false);
         }
-        //when response is back
-        int responseValue = response.body();
+        Integer ret = response.body();
+        Printing.println(ret);
+        assertTrue(ret == -4);
 
-        assertTrue(responseValue != 0);
+
 
     }
 
+    //user story 15
+
     @Test
-    public void testClockOutBeforeClockIn(){
-        //testing if able to clock out before clocking in
+    public void getRequestsToJoinFrom3UnconfirmedUsers() {
 
-        UserModel user1 = new UserModel("Organizer", "Lastname", "organizer@gmail.com");
-
-        OrganizationModel organization = new OrganizationModel(user1,"Organization","1101 3rd street",-1,
-                "Test org","organization@noemail.com",user1,null);
-
-        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()),
-                new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
+        //Create organizer, create 3 users, create an organization locally
+        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
+        UserModel user1 = new UserModel("user1", "lastnameUSER1", "user1@nonemail.com");
+        UserModel user2 = new UserModel("user2", "lastnameUSER2", "user2@nonemail.com");
+        UserModel user3 = new UserModel("user3", "lastnameUSER3", "user3@nonemail.com");
+        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
 
         try {
             this.getDatabaseInstance().truncateTables();
 
+
+
             //create in database
+            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
+                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
             user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
                     user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
+            user2.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user2.getFirstName(),
+                    user2.getLastName(), user2.getEmail(), DatabaseConnection.GOOGLE));
+            user3.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user3.getFirstName(),
+                    user3.getLastName(), user3.getEmail(), DatabaseConnection.GOOGLE));
 
             organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
 
-            event.setOrg_id(organization.getOrgID());
-            event = EventHandler.createEvent(event,this.getDatabaseInstance());
-
             //create oAuthCode for organizer
             UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
-            user1.setOauthToken(ua.getoAuthCode());
-            this.getDatabaseInstance().setOauthCode(user1.getUserId(),ua.getoAuthCode());
+            organizer.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
 
+            // force users to join organization in database
 
-            this.getDatabaseInstance().registerForEvent(user1.getUserId(),event.getEvent_id());
+            this.getDatabaseInstance().addGroupies(user1.getUserId(), organization.getOrgID(),
+                    DatabaseConnection.MEMBER, 0);
+            this.getDatabaseInstance().addGroupies(user2.getUserId(), organization.getOrgID(),
+                    DatabaseConnection.MEMBER, 0);
+            this.getDatabaseInstance().addGroupies(user3.getUserId(), organization.getOrgID(),
+                    DatabaseConnection.MEMBER, 0);
         }
         catch (SQLException sqlException){
             sqlException.printStackTrace();
             assertTrue(false);
         }
 
-        //model of user attendance
-        EventAttendanceModel attendance = new EventAttendanceModel(event.getEvent_id(),user1.getUserId(),
-                new Timestamp(System.currentTimeMillis()),event.getClockOutCode());
-
-
-        //test the API retrofit call for user
-        Response<Integer> response = null;
+        //test the API retrofit call
+        Response<ArrayList<UserModel>> response = null;
         try {
-            response = this.getInstance().sendClockInCode(user1.getOauthToken(),attendance).execute();
+            response = this.getInstance().getRequestsToJoin(organizer.getOauthToken(),organization.getOrgID()).execute();
         } catch (IOException e) {
             e.printStackTrace();
             assertTrue(false);
         }
-        if (response == null || response.body() == null || response.code() != 200) {
+        if (response.body() == null || response.code() != 200) {
             System.out.println("ERROR!!!!!");
             assertTrue(false);
         }
         //when response is back
-        int responseValue = response.body();
+        ArrayList<UserModel> users = response.body();
 
-        assertTrue(responseValue != 0);
+        assertTrue(users.contains(user1) && users.contains(user2) && users.contains(user3));
+
+
     }
 
+    @Test
+    public void respondToJoinRequest() {
+
+        //Create organizer, create 3 users, create an organization locally
+        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
+        UserModel user1 = new UserModel("user1", "lastnameUSER1", "user1@nonemail.com");
+        UserModel user2 = new UserModel("user2", "lastnameUSER2", "user2@nonemail.com");
+        UserModel user3 = new UserModel("user3", "lastnameUSER3", "user3@nonemail.com");
+        OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
+
+        try {
+            this.getDatabaseInstance().truncateTables();
+
+
+
+            //create in database
+            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
+                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
+            user1.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user1.getFirstName(),
+                    user1.getLastName(), user1.getEmail(), DatabaseConnection.GOOGLE));
+            user2.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user2.getFirstName(),
+                    user2.getLastName(), user2.getEmail(), DatabaseConnection.GOOGLE));
+            user3.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user3.getFirstName(),
+                    user3.getLastName(), user3.getEmail(), DatabaseConnection.GOOGLE));
+
+            organization = OrganizationHandler.createOrganization(organization, this.getDatabaseInstance());
+
+            //create oAuthCode for organizer
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            organizer.setOauthToken(ua.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
+
+            // force users to join organization in database
+
+            this.getDatabaseInstance().addGroupies(user1.getUserId(), organization.getOrgID(),
+                    DatabaseConnection.MEMBER, 0);
+            this.getDatabaseInstance().addGroupies(user2.getUserId(), organization.getOrgID(),
+                    DatabaseConnection.MEMBER, 0);
+            this.getDatabaseInstance().addGroupies(user3.getUserId(), organization.getOrgID(),
+                    DatabaseConnection.MEMBER, 0);
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            assertTrue(false);
+        }
+
+        //test the API retrofit call
+
+        Response<Integer> response = null;
+        try{
+            response = this.getInstance().respondToJoinRequest(organizer.getOauthToken(),organization.getOrgID(),user1.getUserId(),true).execute();
+        }
+        catch (IOException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        Integer ret = response.body();
+        if(ret != 0 ){
+            System.out.println("response issue");
+            assertTrue(false);
+        }
+
+
+
+
+        Response<ArrayList<UserModel>> response2 = null;
+        try {
+            response2 = this.getInstance().getRequestsToJoin(organizer.getOauthToken(),organization.getOrgID()).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        if (response2.body() == null || response2.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+        //when response is back
+        ArrayList<UserModel> users = response2.body();
+
+        assertTrue( users.contains(user2) && users.contains(user3));
+
+
+    }
+
+
+    //user story 17
     @Test
     public void testEventsFeed(){
         long currentTime = System.currentTimeMillis();
