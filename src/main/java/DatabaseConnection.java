@@ -524,6 +524,7 @@ public class DatabaseConnection {
 
     public List<Integer> searchEventsWithFilterModel(EventFilterModel efm) throws SQLException{
         PreparedStatement ps = connect.prepareStatement(efm.createStringQuery());
+        System.out.println(efm.createStringQuery());
         ResultSet rs = ps.executeQuery();
 
         //create resulting list
