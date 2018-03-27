@@ -1,4 +1,5 @@
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserModel {
@@ -10,13 +11,25 @@ public class UserModel {
     private List<Integer> eventsAttending;
     private List<Integer> followingOrgs;
     private List<Integer> joinedOrgs;
+    private List<Integer> requestedJoinOrgIds; // orgIDs for all join requests that are still unconfirmed
     private int userId;
     private int hoursWorked;
     private String oauthToken;
 
+    public UserModel(String firstName,String lastName, String email){
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        myOrgs = new ArrayList<>();
+        eventsAttending = new ArrayList<>();
+        followingOrgs = new ArrayList<>();
+        joinedOrgs = new ArrayList<>();
+        requestedJoinOrgIds = new ArrayList<>();
+    }
+
 
     public UserModel(String firstName, String lastName, String email, List<Integer> myOrgs, List<Integer> eventsAttending,
-                     List<Integer> followingOrgs, List<Integer> joinedOrgs, int userId, int hoursWorked, String oauthToken) {
+                     List<Integer> followingOrgs, List<Integer> joinedOrgs, List<Integer> orgJoinRequests, int userId, int hoursWorked, String oauthToken) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -27,6 +40,7 @@ public class UserModel {
         this.userId = userId;
         this.hoursWorked = hoursWorked;
         this.oauthToken = oauthToken;
+        this.requestedJoinOrgIds = orgJoinRequests;
 
     }
 
@@ -111,6 +125,20 @@ public class UserModel {
         return oauthToken;
     }
 
+    public List<Integer> getRequestedJoinOrgIds() {
+        if(requestedJoinOrgIds == null){
+            requestedJoinOrgIds = new ArrayList<>();
+        }
+        return requestedJoinOrgIds;
+    }
+
+    public void setRequestedJoinOrgIds(List<Integer> orgJoinRequests) {
+        if(orgJoinRequests == null){
+            System.out.println("WILL NOT SET JOIN REQUESTS TO NULL.");
+            return;
+        }
+        this.requestedJoinOrgIds = orgJoinRequests;
+    }
 
     public String toString(){
         /*
@@ -167,11 +195,12 @@ public class UserModel {
         return result;
     }
 
-    /** Method to unfollow an organization
-     *
-     * @param user_id   ID of user who wants to do the user_id
-     * @param org_id    ID of organization that you are unfollowing
-     * @return          0 if success and 1 if failure
-     */
+    public boolean equals(Object o){
+        if(o.getClass().equals(UserModel.class)){
+            return(((UserModel)o).getUserId() == getUserId());
+        }
+        return false;
+    }
+
 
 }

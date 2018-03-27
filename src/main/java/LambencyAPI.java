@@ -25,6 +25,9 @@ public interface LambencyAPI {
     @GET("User/unfollowOrg")
     Call<Integer> getUnfollowOrg(@Query("oAuthCode") String oAuthCode, @Query("org_id") String orgID);
 
+    @GET("User/getOrgs")
+    Call<ArrayList<OrganizationModel>> getMyOrganizedOrgs(@Query("oAuthCode") String oAuthCode);
+
     @POST("Organization/create")
     Call<Integer> postCreateOrganization(@Body OrganizationModel org);
     @GET("Organization/search")
@@ -32,6 +35,28 @@ public interface LambencyAPI {
 
     @GET("Organization/searchByID")
     Call<OrganizationModel> getOrgSearchByID(@Query("id") String org_id);
+
+    @GET("Organization/events")
+    Call<ArrayList<EventModel>> getEventsByOrg(@Query("oAuthCode") String oAuthCode, @Query("id") String org_id);
+
+    @GET("Organization/joinRequests")
+    Call<ArrayList<UserModel>> getRequestsToJoin(@Query("oAuthCode") String oAuthCode, @Query("orgID") int org_id);
+
+    @GET("Organization/endorse")
+    Call<Integer> getEndorse(@Query("oAuthCode") String oAuthCode, @Query("orgID") String org_id, @Query("eventID") String event_id);
+
+    @GET("/Organization/changeUserPermissions")
+    Call<Integer> getChangeUserPermissions(@Query("oAuthCode") String oAuthCode, @Query("orgID") String org_id, @Query("userChanged") String changedID, @Query("type") String type);
+
+    @GET("Organization/unendorse")
+    Call<Integer> getUnendorse(@Query("oAuthCode") String oAuthCode, @Query("orgID") String org_id, @Query("eventID") String event_id);
+
+    @GET("/Organization/members")
+    Call<ArrayList<UserModel>[]> getMembersAndOrganizers(@Query("oAuthCode") String oAuthCode, @Query("orgID") int orgID);
+
+    @GET("Organization/respondToJoinRequest")
+    Call<Integer> respondToJoinRequest(@Query("oAuthCode") String oAuthCode, @Query("orgID") int orgID, @Query("userID") int userID, @Query("approved") boolean
+                                        approved);
 
     @GET("Event/search")
     Call<List<EventModel>> getEventsWithParams(@Query("lat") double lat, @Query("long") double longitude,
@@ -45,8 +70,14 @@ public interface LambencyAPI {
     @POST("Event/update")
     Call<Integer> postUpdateEvent(@Body EventModel event);
 
+    @GET("Event/numAttending")
+    Call<Integer> getEventNumAttending(@Query("oAuthCode") String oAuthCode, @Query("id") String event_id);
+
     @POST("User/requestJoinOrg")
     Call<Integer> postJoinOrganization(@Query("oAuthCode") String oAuthCode, @Query("orgId") int orgID);
+
+    @POST("User/leaveOrg")
+    Call<Integer> postLeaveOrganization(@Query("oAuthCode") String oAuthCode, @Query("orgID") int orgID);
 
     @GET("User/changeInfo")
     Call<UserModel> getChangeAccountInfo(@Query("user") UserModel u);
@@ -54,6 +85,23 @@ public interface LambencyAPI {
     @GET("User/registerForEvent")
     Call<Integer> getRegisterEvent(@Query("oAuthCode") String oAuthCode, @Query("eventID") int eventID);
 
+    @GET("User/eventsFeed")
+    Call<List<EventModel>> getEventsFeed(@Query("oAuthCode") String oAuthCode, @Query("latitude") String latitude, @Query("longitude") String longitude);
+
     @POST("Event/create")
     Call<Integer> createEvent(@Body EventModel eventModel);
+
+    @GET("Event/endorsedOrgs")
+    Call<List<OrganizationModel>> getEndorsedOrgs(@Query("oAuthCode") String oAuthCode, @Query("eventId") String eventID);
+
+    @POST("/Event/searchWithFilter")
+    Call<ArrayList<EventModel>> getEventsWithFilter(@Body EventFilterModel efm);
+
+    @POST("Organization/InviteUser")
+    Call<Integer> inviteUser(@Query("oAuthCode") String oAuthCode, @Query("orgID") String orgID, @Query("emailString") String userEmail);
+
+    @POST("/User/ClockInOut")
+    Call<Integer> sendClockInCode(@Query("oAuthCode") String oAuthCode, @Body EventAttendanceModel eventAttendanceModel);
+
+
 }

@@ -1,3 +1,5 @@
+import com.sun.corba.se.spi.ior.ObjectKey;
+
 import java.io.IOException;
 import java.sql.Timestamp;
 
@@ -14,32 +16,37 @@ public class EventModel {
     private int event_id;
     private double latitude;
     private double longitude;
+    private String clockInCode;
+    private String clockOutCode;
+    private String orgName;
 
 
-    public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location) {
+    public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location, String orgName) {
         this.name = name;
         this.org_id = org_id;
         this.start = start;
         this.end = end;
         this.description = description;
         this.location = location;
+        this.orgName = orgName;
     }
 
-    public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location, double latitude, double longitude) {
-        this(name, org_id, start, end, description, location);
+    public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location, double latitude,
+                      double longitude, String orgName) {
+        this(name, org_id, start, end, description, location, orgName);
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
     public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
-                      String imageFile, double latitude, double longitude) {
+                      String imageFile, double latitude, double longitude, String orgName) {
 
-        this(name, org_id, start, end, description, location, latitude, longitude);
+        this(name, org_id, start, end, description, location, latitude, longitude, orgName);
     }
 
-    public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
+    public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location, String orgName,
                       String imageFile) {
-        this(name, org_id, start, end, description, location);
+        this(name, org_id, start, end, description, location, orgName);
         try {
             updateImage(imageFile);
         } catch (IOException e) {
@@ -51,10 +58,13 @@ public class EventModel {
 
 
     public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
-                      String image_path, int event_id, double latitude, double longitude) {
-        this(name, org_id, start, end, description, location, latitude, longitude);
+                      String image_path, int event_id, double latitude, double longitude, String clockInCode,
+                      String clockOutCode, String orgName) {
+        this(name, org_id, start, end, description, location, latitude, longitude, orgName);
         this.image_path = image_path;
         this.event_id = event_id;
+        this.clockInCode = clockInCode;
+        this.clockOutCode = clockOutCode;
     }
 
     /**
@@ -167,4 +177,56 @@ public class EventModel {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getClockInCode() {
+        return clockInCode;
+    }
+
+    public void setClockInCode(String clockInCode) {
+        this.clockInCode = clockInCode;
+    }
+
+    public String getClockOutCode() {
+        return clockOutCode;
+    }
+
+    public void setClockOutCode(String clockOutCode) {
+        this.clockOutCode = clockOutCode;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
+    }
+
+    @Override
+    public boolean equals(Object obj){
+        if (obj == null) {
+            return false;
+        }
+        if(!( obj instanceof EventModel)){
+            Printing.println("BAD class");
+            return false;
+        }
+        EventModel em = (EventModel) obj;
+        return em.getEvent_id() == event_id;
+    }
+
+    @Override
+    public String toString(){
+        return  "NAME: "+getName() + "\t"+
+                "Addr: "+getLocation() +"\t" + "ID: "+getEvent_id();
+    }
+
 }
