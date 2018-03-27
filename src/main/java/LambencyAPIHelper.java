@@ -229,6 +229,33 @@ public void joinOrganizationRetrofit(String oAuthCode, int orgId)
     });
 }
 
+    public void eventsByOrgRetrofit(String oAuthCode, String orgId)
+    {
+        this.getInstance().getEventsByOrg(oAuthCode, orgId).enqueue(new Callback<ArrayList<EventModel>>() {
+            @Override
+            public void onResponse(Call<ArrayList<EventModel>> call, Response<ArrayList<EventModel>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                List<EventModel> list = response.body();
+                if(list == null){
+                    //System.out.println("Org has no events or error has occurred");
+                }
+                else{
+                    //System.out.println("list is a list of events for that org");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<EventModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
 public void createOrganizationRetrofit(OrganizationModel org){
 
         this.getInstance().postCreateOrganization(org).enqueue(new Callback<Integer>() {
@@ -478,6 +505,357 @@ public void createOrganizationRetrofit(OrganizationModel org){
 
             @Override
             public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+
+    public void leaveOrganization(String oAuthCode, int orgID){
+        this.getInstance().postLeaveOrganization(oAuthCode,orgID).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == 0){
+                    System.out.println("successfully left organization");
+                }
+                else if(ret == 100){
+                    System.out.println("Join request canceled");
+                }
+                else if (ret == -1){
+                    System.out.println("Database error caught.");
+                }
+                else if (ret == 1){
+                    System.out.println("User not found");
+                }
+                else if (ret == 2){
+                    System.out.println("Org does not exist");
+                }
+                else if(ret == 3){
+                    System.out.println("Not a member of the organization, so can not leave.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+    public void numAttendingEventRetrofit(String oAuthCode, String eventId)
+    {
+        this.getInstance().getEventNumAttending(oAuthCode, eventId).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    /**
+                     * set number to 0 !!!!!!!!!!
+                     */
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == -1){
+                    /**
+                     * set number to 0 !!!!!!!!!!
+                     */
+                    System.out.println("Error has occurred");
+                }
+                else{
+                    System.out.println("the number of users attending this event is" + ret);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+    public void getMembersAndOrganizersFromOrg(String oAuthCode, int orgID){
+        this.getInstance().getMembersAndOrganizers(oAuthCode,orgID).enqueue(new Callback<ArrayList<UserModel>[]>() {
+            @Override
+            public void onResponse(Call<ArrayList<UserModel>[]> call, Response<ArrayList<UserModel>[]> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                ArrayList<UserModel>[] users = response.body();
+                if(users == null ){
+                    System.out.println("Server returned null to getting members and organizers");
+                }
+                else{
+                    ArrayList<UserModel> members = users[0];
+                    ArrayList<UserModel> organizers = users[1];
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<UserModel>[]> call, Throwable throwable) {
+                System.out.println("FAILED CALL in MEMBERS AND ORGANIZERS GETTING");
+            }
+        });
+
+
+
+    }
+
+
+    public void getRequestsToJoin(String oAuthCode, int orgID){
+        this.getInstance().getRequestsToJoin(oAuthCode,orgID).enqueue(new Callback<ArrayList<UserModel>>() {
+            @Override
+            public void onResponse(Call<ArrayList<UserModel>> call, Response<ArrayList<UserModel>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                ArrayList<UserModel> users = response.body();
+                if(users == null ){
+                    System.out.println("Error has occurred");
+                }
+                else{
+                    System.out.println("the number of member join requests is" + users.size());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<UserModel>> call, Throwable throwable) {
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+
+
+
+
+
+    public void endorseRetrofit(String oAuthCode, String orgId, String eventId)
+    {
+        this.getInstance().getEndorse(oAuthCode, orgId, eventId).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == 0){
+                    System.out.println("Success");
+                }
+                else if(ret == -1){
+                    System.out.println("an error has occurred");
+                }
+                else if(ret == -2){
+                    System.out.println("already endorsed");
+                }
+                else if(ret == -3){
+                    System.out.println("invalid arguments");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+    public void unendorseRetrofit(String oAuthCode, String orgId, String eventId)
+    {
+        this.getInstance().getUnendorse(oAuthCode, orgId, eventId).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == 0){
+                    System.out.println("Success");
+                }
+                else if(ret == -1){
+                    System.out.println("an error has occurred");
+                }
+                else if(ret == -2){
+                    System.out.println("not endorsed");
+                }
+                else if(ret == -3){
+                    System.out.println("invalid arguments");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+    public void changeUserPermissionsRetrofit(String oAuthCode, String orgId, String userChangedID, String type)
+    {
+        //type  0 is remove from group
+        //      1 is set to member
+        //      2 is set to organizer
+        this.getInstance().getChangeUserPermissions(oAuthCode, orgId, userChangedID, type).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == 0){
+                    System.out.println("Success");
+                }
+                else if(ret == -1){
+                    System.out.println("an error has occurred");
+                }
+                else if(ret == -2){
+                    System.out.println("insufficient permissions");
+                }
+                else if(ret == -3){
+                    System.out.println("invalid arguments");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+    public void eventsFeedRetrofit(String oAuthCode, String latitude, String longitude)
+    {
+        this.getInstance().getEventsFeed(oAuthCode, latitude, longitude).enqueue(new Callback<List<EventModel>>() {
+            @Override
+            public void onResponse(Call<List<EventModel>> call, Response<List<EventModel>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                List<EventModel> eventList = response.body();
+                if(eventList == null){
+                    System.out.println("An error has occurred");
+                }
+                else if(eventList.size() == 0){
+                    System.out.println("No events founud");
+                }
+                else{
+                    System.out.println("success");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<EventModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+    public void respondToJoinRequest(String oAuthCode, int user_id, int org_id, boolean approved){
+        this.getInstance().respondToJoinRequest(oAuthCode,org_id,user_id,approved).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("Shit. It messed up.");
+                    return;
+                }
+
+                Integer returned = response.body();
+                if(returned == 0){
+                    System.out.println("Yay it worked!!! We have a new member!");
+                }
+                else if(returned == 1){
+                    System.out.println("Yay!! We protected our organization from some crazy person!");
+                }
+                else{
+                    System.out.println("Hmmm... something went wrong... oops");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                System.out.println("We are sorry, we can't handle your response to a join request. Please try turning it off then back on again.");
+            }
+        });
+    }
+
+
+    public void getMyOrganizedOrgs(String oAuthCode)
+    {
+        this.getInstance().getMyOrganizedOrgs(oAuthCode).enqueue(new Callback<ArrayList<OrganizationModel>>() {
+            @Override
+            public void onResponse(Call<ArrayList<OrganizationModel>> call,
+                                   Response<ArrayList<OrganizationModel>> response) {
+
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                ArrayList<OrganizationModel> ret = response.body();
+                if(ret == null){
+                    System.out.println("Error");
+                }
+                else{
+                    //use ret here
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<OrganizationModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+    public void endorsedOrgsRetrofit(String oAuthCode, String eventID)
+    {
+        this.getInstance().getEndorsedOrgs(oAuthCode, eventID).enqueue(new Callback<List<OrganizationModel>>() {
+            @Override
+            public void onResponse(Call<List<OrganizationModel>> call, Response<List<OrganizationModel>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("An error has occurred or no organizations were found");
+                    return;
+                }
+                //when response is back
+                List<OrganizationModel> orgList = response.body();
+                if(orgList == null){
+                    System.out.println("An error has occurred");
+                }
+                else if(orgList.size() == 0){
+                    System.out.println("No events founud");
+                }
+                else{
+                    System.out.println("success");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<OrganizationModel>> call, Throwable throwable) {
                 //when failure
                 System.out.println("FAILED CALL");
             }

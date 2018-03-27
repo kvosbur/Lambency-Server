@@ -28,9 +28,13 @@ public class ImageWR {
      */
 
     public static String writeImageToFile(String imgEncoding) throws IOException{
-        Printing.println("Write");
+        if(imgEncoding == null){
+            Printing.println("imgEncoding read null");
+            return null;
+        }
 
         String path = "~/Lambency/files/images/";
+        //String path = "../../Lambency/files/images";
         Date date = new Date();
         String fileName = date.toString() + ".txt";
 
@@ -57,22 +61,31 @@ public class ImageWR {
         @throws         : IOException if error writing to file
 
      */
-    public static String getEncodedImageFromFile(String filepath) throws IOException{
-        Printing.println("Read");
-        File file = new File(filepath);
-        FileReader fileReader = new FileReader(file);
-        BufferedReader bufferedReader = new BufferedReader(fileReader);
-        StringBuffer stringBuffer = new StringBuffer();
-        String line;
-        while ((line = bufferedReader.readLine()) != null) {
-            stringBuffer.append(line);
-            stringBuffer.append("\n");
-        }
-        fileReader.close();
-        Printing.println("Contents of file:");
-        //Printing.println(stringBuffer.toString());
+    public static String getEncodedImageFromFile(String filepath){
+        try {
+            if (filepath == null) {
+                Printing.println("Filepath read null;");
+                return null;
+            }
+            File file = new File(filepath);
+            FileReader fileReader = new FileReader(file);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            StringBuffer stringBuffer = new StringBuffer();
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                stringBuffer.append(line);
+                stringBuffer.append("\n");
+            }
+            fileReader.close();
+            Printing.println("Contents of file:");
+            //Printing.println(stringBuffer.toString());
 
-        return stringBuffer.toString();
+            return stringBuffer.toString();
+        }
+        catch(IOException e){
+            System.out.println("Could nt find filepath with image so setting null image");
+            return null;
+        }
     }
 
     public static void main(String[] args){
