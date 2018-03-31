@@ -861,6 +861,38 @@ public void createOrganizationRetrofit(OrganizationModel org){
             }
         });
     }
+    public void deleteEventRetrofit(String oAuthCode, String eventID, String message)
+    {
+        this.getInstance().getDeleteEvent(oAuthCode, eventID, message).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("An error has occurred");
+                    return;
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == null || ret == -1){
+                    System.out.println("An error has occurred");
+                }
+                else if(ret == -2){
+                    System.out.println("User or event not found");
+                }
+                else if(ret == -3){
+                    System.out.println("User does not have permissions to delete the event");
+                }
+                else if(ret == 0){
+                    System.out.println("success");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
 
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
