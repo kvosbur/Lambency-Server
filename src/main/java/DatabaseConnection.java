@@ -999,7 +999,35 @@ public class DatabaseConnection {
         return 0;
     }
 
+    /**
+     * Removes the event from the database and the event_attendence for that event
+     * @param eventID the id of the event to be deleted
+     * @return 0 on success, -1 on failure
+     * @throws SQLException
+     */
+    public int deleteEvent(int eventID) throws SQLException{
+        if(searchEvents(eventID) == null){
+            return -1;
+        }
+        PreparedStatement ps;
+        int result;
+        ps = connect.prepareStatement("DELETE FROM events WHERE event_id = ?");
+        ps.setInt(1,eventID);
+        ps.executeUpdate();
+        result = ps.executeUpdate();
+        if(result == 0){
+            return -1;
+        }
+        ps = connect.prepareStatement("DELETE FROM event_attendence WHERE event_id = ?");
+        ps.setInt(1,eventID);
+        ps.executeUpdate();
+        result = ps.executeUpdate();
+        if(result == 0){
+            return -1;
+        }
 
+        return 0;
+    }
 
 
 
