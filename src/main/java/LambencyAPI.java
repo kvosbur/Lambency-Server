@@ -94,6 +94,9 @@ public interface LambencyAPI {
     @GET("Event/endorsedOrgs")
     Call<List<OrganizationModel>> getEndorsedOrgs(@Query("oAuthCode") String oAuthCode, @Query("eventId") String eventID);
 
+    @GET("Event/deleteEvent")
+    Call<Integer> getDeleteEvent(@Query("oAuthCode") String oAuthCode, @Query("eventID") String eventID, @Query("message") String message);
+
     @POST("/Event/searchWithFilter")
     Call<ArrayList<EventModel>> getEventsWithFilter(@Body EventFilterModel efm);
 
