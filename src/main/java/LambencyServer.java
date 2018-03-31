@@ -481,6 +481,19 @@ public class LambencyServer{
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());
+        get("/Event/deleteEvent","application/json",(request,response)->{
+            Printing.printlnEndpoint("/Event/deleteEvent");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return new Integer(-1);
+            }
+            String oAuthCode = request.queryParams("oAuthCode");
+            int eventID = Integer.parseInt(request.queryParams("eventID"));
+            String message = request.queryParams("message");
+            Integer ret = EventHandler.deleteEvent(oAuthCode, eventID, message, databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
         get("/User/login/facebook", "application/json", (request, response) -> {
             Printing.printlnEndpoint("/User/login/facebook");
             DatabaseConnection databaseConnection = new DatabaseConnection();
