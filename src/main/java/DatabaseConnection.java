@@ -1022,9 +1022,6 @@ public class DatabaseConnection {
         ps.setInt(1,eventID);
         ps.executeUpdate();
         result = ps.executeUpdate();
-        if(result == 0){
-            return -1;
-        }
 
         return 0;
     }
