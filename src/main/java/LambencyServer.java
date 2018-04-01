@@ -591,6 +591,19 @@ public class LambencyServer{
             return ret;
         },new JsonTransformer());
 
+        post("/Organization/searchWithFilter","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/Organization/searchWithFilter");
+            OrganizationFilterModel ofm = new Gson().fromJson(request.body(), OrganizationFilterModel.class);
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                Printing.println("Error on database connect");
+                return null;
+            }
+            ArrayList<OrganizationModel> ret = OrganizationHandler.getOrganizationWithFilter(ofm, databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
+
     }
 
     public static void main(String[]args){
