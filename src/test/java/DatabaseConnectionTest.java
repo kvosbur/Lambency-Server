@@ -1,5 +1,7 @@
 import org.eclipse.jetty.server.Authentication;
+import org.junit.Test;
 
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -1009,6 +1011,37 @@ public class DatabaseConnectionTest {
         array = OrganizationHandler.getMembersAndOrganizers(u.getOauthToken(), -1, dbc);
         if(array!= null){
             throw new Exception("failed to view members: returned non-null when expected null");
+        }
+    }
+
+    @org.junit.Test
+    public void testDeleteEvent() throws Exception{
+        insertData();
+        UserModel u = dbc.searchForUser("facebookUser", 2);
+        int ret = dbc.deleteEvent(event_id);
+        if(ret != 0){
+            throw new Exception("failed to delete event: returned incorrect value");
+        }
+        EventModel e = dbc.searchEvents(event_id);
+        if(e != null){
+            throw new Exception("failed to delete event: event still exists");
+        }
+        EventAttendanceModel eventAttendanceModel = dbc.searchEventAttendance(u.getUserId(), event_id);
+        if(eventAttendanceModel != null){
+            throw new Exception("failed to delete event: event attendance still exists");
+        }
+    }
+
+    @org.junit.Test
+    public void testDeleteEventInvalidID() throws Exception{
+        insertData();
+        int ret = dbc.deleteEvent(0);
+        if(ret != -1){
+            throw new Exception("failed to delete event: returned incorrect value when given bad id");
+        }
+        ret = dbc.deleteEvent(-1);
+        if(ret != -1){
+            throw new Exception("failed to delete event: returned incorrect value when given bad id");
         }
     }
 
