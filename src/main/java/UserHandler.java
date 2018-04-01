@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -608,6 +607,44 @@ public class UserHandler {
             Printing.println("SQLExcpetion");
             Printing.println(e.toString());
             return null;
+        }
+    }
+
+
+    /**
+     * Registers new Lambency account with given information
+     * @param firstName firstname of user
+     * @param lastName lastname of user
+     * @param email  email account of user
+     * @param passwd password of user
+     * @param dbc database connection to be used in method
+     * @return updated user object
+     */
+    public static int register(String firstName, String lastName, String email,
+            String passwd, DatabaseConnection dbc){
+        try{
+            //verify unique email address
+            int uniqueEmail = dbc.verifyUserEmail(email);
+
+            //if not unique return now with value for non unique email
+            if(uniqueEmail == -1){
+                return 2;
+            }
+
+            //send email verification to user
+
+            //get hash and salt for given passwd
+            String[] pair = {"salt","hash"};  //implement hashing and salt creation method
+
+            //save account information into database with a non verified email
+
+            int success = 0; //implement database method to insert information into table
+
+            return success;
+        } catch (Exception e) {
+            Printing.println("Excpetion");
+            Printing.println(e.toString());
+            return 1;
         }
     }
 
