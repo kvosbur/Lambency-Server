@@ -1,22 +1,29 @@
 
 import com.google.maps.model.LatLng;
+import com.sun.xml.internal.ws.api.ha.StickyFeature;
+
 import java.util.ArrayList;
 
 public class OrganizationFilterModel {
 
-    private double latitude;
-    private double longitude;
+    private Double latitude;
+    private Double longitude;
     private int distanceMiles = -1;
     private String title;
     private String location;
 
-    public OrganizationFilterModel(double latitude, double longitude, int distanceMiles, String title,
-                                   String location) {
-        this.latitude = latitude;
-        this.longitude = longitude;
+    public OrganizationFilterModel(String location, int distanceMiles) {
         this.distanceMiles = distanceMiles;
-        this.title = title;
         this.location = location;
+    }
+
+    public OrganizationFilterModel(String location, int distanceMiles, String title){
+        this(location,distanceMiles);
+        this.title = title;
+    }
+
+    public OrganizationFilterModel(String title){
+        this.title = title;
     }
 
     public OrganizationFilterModel(double latitude, double longitude) {
@@ -44,9 +51,13 @@ public class OrganizationFilterModel {
         String where = "";
 
 
-
-        fields = "org_id, name, description, org_email, `org_ contact`, org_img, org_location, sqrt(pow(latitude - " + latitude + ",2) + " +
-                "pow(longitude - " + longitude + ",2)) as distance";
+        if(latitude == null || longitude == null){
+            fields = "org_id, name, description, org_email, `org_ contact`, org_img, org_location";
+        }
+        else {
+            fields = "org_id, name, description, org_email, `org_ contact`, org_img, org_location, sqrt(pow(latitude - " + latitude + ",2) + " +
+                    "pow(longitude - " + longitude + ",2)) as distance";
+        }
         if(distanceMiles != -1){
             ands.add("(sqrt(pow(latitude - " + latitude + ",2) + " +
                     "pow(longitude - " + longitude + ",2)) * 69)  <= "+ distanceMiles +"");
@@ -69,7 +80,7 @@ public class OrganizationFilterModel {
         }
         //SELECT +"+fields+" FROM Events WHERE start_time > ?
         //SELECT "+fields+ " FROM events "+where+"
-        String query = "SELECT "+fields+ " FROM ( SELECT "+fields+ " FROM organization "+where+") AS T ORDER BY distance asc ;" ;
+        String query = "SELECT org_id, name, description, org_email, `org_ contact`, org_img, org_location FROM ( SELECT "+fields+ " FROM organization "+where+") AS T ORDER BY distance asc ;" ;
         return query;
     }
 
