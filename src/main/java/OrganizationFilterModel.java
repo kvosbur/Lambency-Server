@@ -10,6 +10,27 @@ public class OrganizationFilterModel {
     private String title;
     private String location;
 
+    public OrganizationFilterModel(double latitude, double longitude, int distanceMiles, String title,
+                                   String location) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.distanceMiles = distanceMiles;
+        this.title = title;
+        this.location = location;
+    }
+
+    public OrganizationFilterModel(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    public OrganizationFilterModel(double latitude, double longitude, String title) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.title = title;
+    }
+
+
 
     public String createStringQuery(){
         if(location != null){
@@ -24,7 +45,7 @@ public class OrganizationFilterModel {
 
 
 
-        fields = "org_id, sqrt(pow(latitude - " + latitude + ",2) + " +
+        fields = "org_id, name, description, org_email, `org_ contact`, org_img, org_location, sqrt(pow(latitude - " + latitude + ",2) + " +
                 "pow(longitude - " + longitude + ",2)) as distance";
         if(distanceMiles != -1){
             ands.add("(sqrt(pow(latitude - " + latitude + ",2) + " +
@@ -48,7 +69,7 @@ public class OrganizationFilterModel {
         }
         //SELECT +"+fields+" FROM Events WHERE start_time > ?
         //SELECT "+fields+ " FROM events "+where+"
-        String query = "SELECT org_id "+ " FROM ( SELECT "+fields+ " FROM organization "+where+") AS T ORDER BY distance asc ;" ;
+        String query = "SELECT "+fields+ " FROM ( SELECT "+fields+ " FROM organization "+where+") AS T ORDER BY distance asc ;" ;
         return query;
     }
 
@@ -75,5 +96,21 @@ public class OrganizationFilterModel {
 
     public void setDistanceMiles(int distanceMiles) {
         this.distanceMiles = distanceMiles;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }
