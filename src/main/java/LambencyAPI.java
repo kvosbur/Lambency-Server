@@ -4,6 +4,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -105,6 +106,9 @@ public interface LambencyAPI {
 
     @POST("/User/ClockInOut")
     Call<Integer> sendClockInCode(@Query("oAuthCode") String oAuthCode, @Body EventAttendanceModel eventAttendanceModel);
+
+    @POST("Organization/searchWithFilter")
+    Call<ArrayList<OrganizationModel>> getOrganizationsWithFilter(@Body OrganizationFilterModel organizationFilterModel);
 
 
 }

@@ -1,4 +1,6 @@
 
+import com.google.maps.model.LatLng;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -26,6 +28,13 @@ public class OrganizationHandler {
             Printing.println(e.toString());
         }
 
+        LatLng latlng = GoogleGeoCodeUtil.getGeoData(org.getLocation());
+        if(latlng == null){
+            latlng = new LatLng(180,180);
+        }
+
+        org.setLattitude(latlng.lat);
+        org.setLongitude(latlng.lng);
 
         // Saves the orgs image to a file
         String path = null;
@@ -39,9 +48,8 @@ public class OrganizationHandler {
             }
         }
         try {
-            Printing.println(org.toString());
             status = dbc.createOrganization(org.getName(), org.getDescription(), org.getEmail(), org.getContact()
-                    .getUserId(), org.getLocation(), path, org.getOrganizers().get(0).getUserId());
+                    .getUserId(), org.getLocation(), path, org.getOrganizers().get(0).getUserId(),latlng.lat,latlng.lng);
             OrganizationModel organization = dbc.searchForOrg(status);
             //image is currently storing path so change it to store
             organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
@@ -547,6 +555,7 @@ public class OrganizationHandler {
      * @return  Arraylist of Organziation models.
      */
     public static ArrayList<OrganizationModel> getOrganizationWithFilter(OrganizationFilterModel ofm, DatabaseConnection dbc){
+        Printing.println("Search ORG with filter");
         if(ofm == null){
             Printing.println("null Filter Model");
             return null;
