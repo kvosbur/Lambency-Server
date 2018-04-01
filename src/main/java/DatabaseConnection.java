@@ -1586,6 +1586,26 @@ public class DatabaseConnection {
         return userEmails;
     }
 
+    public ArrayList<OrganizationModel> searchOrganizationsWithFilterModel(OrganizationFilterModel ofm) throws SQLException{
+        PreparedStatement ps = connect.prepareStatement(ofm.createStringQuery());
+        ResultSet rs = ps.executeQuery();
+
+        //create resulting list
+        ArrayList<OrganizationModel> results = new ArrayList<>();
+
+        //check for results and if any then return user
+        if(rs.next()){
+            UserModel owner = searchForUser("" + rs.getInt(5), LAMBNECYUSERID);
+            if(owner == null){
+                return null;
+            }
+            results.add( new OrganizationModel(owner,rs.getString(2),rs.getString(7), rs.getInt(1),
+                    rs.getString(3),rs.getString(4),owner,rs.getString(6)));
+        }
+
+        return results;
+    }
+
     /**
      * END ORGANIZATION METHODS
      */
