@@ -1015,9 +1015,6 @@ public class DatabaseConnection {
         ps.setInt(1,eventID);
         ps.executeUpdate();
         result = ps.executeUpdate();
-        if(result == 0){
-            return -1;
-        }
         ps = connect.prepareStatement("DELETE FROM event_attendence WHERE event_id = ?");
         ps.setInt(1,eventID);
         ps.executeUpdate();
