@@ -539,4 +539,33 @@ public class OrganizationHandler {
 
     }
 
+    /**
+     * Using an OrganizationFitlerModel, return Organization models that match the request
+     *
+     * @param ofm  OrganizationFilterModel through which to search
+     * @param dbc   Databaseconnection to use
+     * @return  Arraylist of Organziation models.
+     */
+    public static ArrayList<OrganizationModel> getOrganizationWithFilter(OrganizationFilterModel ofm, DatabaseConnection dbc){
+        if(ofm == null){
+            Printing.println("null Filter Model");
+            return null;
+        }
+        ArrayList<OrganizationModel> orgs;
+        try{
+            orgs = dbc.searchOrganizationsWithFilterModel(ofm);
+
+        } catch (SQLException e) {
+            Printing.println(e.toString());
+            Printing.println("Error in get Organization by filter with error: "+e);;
+            return null;
+        } catch (Exception e){
+            Printing.println(e.toString());
+            Printing.println("Error in get Organization by Filter");
+            return null;
+        }
+
+        return orgs;
+    }
+
 }
