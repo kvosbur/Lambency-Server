@@ -152,7 +152,7 @@ public class LambencyServer{
             String email = request.queryParams("email");
             String firstName = request.queryParams("first");
             String lastName = request.queryParams("last");
-            char[] passwd = new Gson().fromJson(request.body(), char[].class);
+            String passwd = request.queryParams("passwd");
             if(email == null || firstName == null || lastName == null || passwd == null){
                 databaseConnection.close();
                 return -2;
