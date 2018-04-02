@@ -123,7 +123,7 @@ public class Testing {
                 return false;
             }
             dbc.modifyEventInfo(event_id, "Updated Name", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 10), "Updated description",
-                    "Location 2", "img2", 20, 20);
+                    "Location 2", "img2", 20, 20,false);
             e = dbc.searchEvents(event_id);
             if(e == null){
                 System.out.println("search for event failed");

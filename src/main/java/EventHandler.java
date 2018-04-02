@@ -33,7 +33,7 @@ public class EventHandler {
             //create event
             int event_id = dbc.createEvent(event.getOrg_id(),event.getName(),event.getStart(),
                     event.getEnd(),event.getDescription(),event.getLocation(),event.getImage_path(), latlng.lat, latlng.lng,
-                    event.getClockInCode(), event.getClockOutCode());
+                    event.getClockInCode(), event.getClockOutCode(),event.getPrivateEvent());
 
             //notify users of event creation
             ArrayList<String> userEmails = dbc.getUserEmailsToNotify(event.getOrg_id());
@@ -62,7 +62,7 @@ public class EventHandler {
         try{
             EventModel prev = dbc.searchEvents(event.getEvent_id());
             dbc.modifyEventInfo(event.getEvent_id(),event.getName(),event.getStart(),event.getEnd(),
-                    event.getDescription(),event.getLocation(),event.getImage_path(),event.getLattitude(),event.getLongitude());
+                    event.getDescription(),event.getLocation(),event.getImage_path(),event.getLattitude(),event.getLongitude(), event.getPrivateEvent());
             EventModel now = dbc.searchEvents(event.getEvent_id());
 
             //send emails to attending users of info change
