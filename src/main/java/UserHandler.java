@@ -638,7 +638,7 @@ public class UserHandler {
 
             //save account information into database with a non verified email
 
-            int success = 0; //implement database method to insert information into table
+            int success = dbc.createUser(firstName,lastName,email,pair[0], pair[1]); //implement database method to insert information into table
 
             return success;
         } catch (Exception e) {
