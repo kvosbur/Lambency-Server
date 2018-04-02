@@ -70,6 +70,9 @@ public class LambencyServer{
 
         timer.schedule(new ServerTaskTimer(serverTaskThread),date.getTime(),TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS));
     }
+    LambencyServer(int useless){
+
+    }
 
     public void addroutes(){
         // example of responding with a json object made from a java object
