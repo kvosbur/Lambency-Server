@@ -292,12 +292,12 @@ public class EventHandler {
                         //get current attendance model to check if already clocked in
                         EventAttendanceModel attendance = dbc.searchEventAttendance(us.getUserId(),eventAttendanceModel.getEventID());
                         if(attendance.getStartTime() != null) {
-                            Printing.println("clock out user");
+                            Printing.println("clock out 1 user");
                             dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKINCODE);
                             return 0;
                         }
                     }else if(clockType == EventAttendanceModel.CLOCKINCODE){
-                        Printing.println("clock in user");
+                        Printing.println("clock in 1 user");
                         dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKOUTCODE);
                         return 0;
                     }
