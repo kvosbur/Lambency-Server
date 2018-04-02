@@ -148,7 +148,7 @@ public class DatabaseConnectionTest {
             throw new Exception("search for event failed");
         }
         dbc.modifyEventInfo(event_id, "Updated Name", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 10), "Updated description",
-                "Location 2", "img2", 20, 20);
+                "Location 2", "img2", 20, 20, false);
         e = dbc.searchEvents(event_id);
         if(e == null){
             throw new Exception("search for event failed");
@@ -1074,12 +1074,12 @@ public class DatabaseConnectionTest {
 
             OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
             int eventID = dbc.createEvent(org.getOrgID(),"Event 1", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 500),
-                    "This is a test event", "Location", "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", 5 , 5, "ClockIn", "ClockOut");
+                    "This is a test event", "Location", "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", 5 , 5, "ClockIn", "ClockOut", false);
             event_id = eventID;
 
             EventModel e = dbc.searchEvents(event_id);
             dbc.modifyEventInfo(event_id, "Updated Name", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 10), "Updated description",
-                    "Location 2", "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", 20, 20);
+                    "Location 2", "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", 20, 20, false);
 
             ua = FacebookLogin.facebookLogin("User2", "Jeff", "Turkstra", "jeff@purdue.edu", dbc);
             u = dbc.searchForUser("User2", 2);
