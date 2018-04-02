@@ -203,6 +203,49 @@ public class DatabaseConnection {
 
 
     /**
+     Description: Given user information create a user profile that is either associated with a google or facebook profile
+
+     @param firstName users first name
+     @param lastName users last name
+     @param email users email
+     @param hash hash of password and salt
+     @param salt salt used for user
+
+     @return returns int of lambency user id  on success, NULL on failure
+     */
+
+    public int createUser(String firstName, String lastName, String email, String hash, String salt) throws SQLException{
+
+        String sqlColumns = "(user_email, first_name, last_name, hash_password, salt)";
+
+        //insert user into table
+        PreparedStatement ps = connect.prepareStatement("INSERT INTO user " + sqlColumns +" VALUES ('TEMP',?,?,?,?)");
+
+        //insert values into prepare statement
+        ps.setString(1, firstName);
+        ps.setString(2, lastName);
+        ps.setString(3, hash);
+        ps.setString(4, salt);
+
+        ps.execute();
+
+        //get user id from sql table
+        Statement st = connect.createStatement();
+        ResultSet rs = st.executeQuery("SELECT user_id FROM user WHERE user_email = 'TEMP'");
+        rs.next();
+        int lambencyID = rs.getInt(1);
+
+        //update user with actual firstname
+        ps = connect.prepareStatement("UPDATE user SET user_email = ? WHERE user_id = " + lambencyID);
+        ps.setString(1, email);
+
+        ps.executeUpdate();
+
+        return lambencyID;
+
+    }
+
+    /**
      *  Description: Creates an event in the database from these elements
      *
      * @param org_id    Integer that represents an organization in this database
