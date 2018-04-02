@@ -143,6 +143,24 @@ public class LambencyServer{
             }
         }, new JsonTransformer());
 
+        get("/User/register","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/User/register");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return -1;
+            }
+            String email = request.queryParams("email");
+            String firstName = request.queryParams("first");
+            String lastName = request.queryParams("last");
+            String passwd = request.queryParams("passwd");
+            if(email == null || firstName == null || lastName == null || passwd == null){
+                databaseConnection.close();
+                return -2;
+            }
+            int ret = UserHandler.register(firstName,lastName,email,passwd,databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
 
         post("/User/requestJoinOrg", "application/json", (request, response) -> {
             Printing.printlnEndpoint("/User/requestJoinOrg");
