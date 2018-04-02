@@ -1,3 +1,4 @@
+import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -621,7 +622,7 @@ public class UserHandler {
      * @return updated user object
      */
     public static int register(String firstName, String lastName, String email,
-            String passwd, DatabaseConnection dbc){
+            char[] passwd, DatabaseConnection dbc){
         try{
             //verify unique email address
             int uniqueEmail = dbc.verifyUserEmail(email);
@@ -634,7 +635,8 @@ public class UserHandler {
             //send email verification to user
 
             //get hash and salt for given passwd
-            String[] pair = {"salt","hash"};  //implement hashing and salt creation method
+            String[] pair = PasswordUtil.hash(passwd, Charset.defaultCharset());
+            //pair = {hash, salt}
 
             //save account information into database with a non verified email
 
