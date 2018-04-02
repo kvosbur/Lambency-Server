@@ -1089,6 +1089,7 @@ public class DatabaseConnection {
      */
 
     public int createOrganization(String name, String description, String email, int userContact_id, String location, String img_path, int organizer_id ) throws SQLException{
+        Printing.printlnError("Using Organization Creation without LATLONG");
         if(searchForOrg(name) != null){
             return -1;
         }
@@ -1124,6 +1125,43 @@ public class DatabaseConnection {
         return orgID;
     }
 
+    public int createOrganization(String name, String description, String email, int userContact_id, String location, String img_path, int organizer_id, double lat, double lng ) throws SQLException{
+        if(searchForOrg(name) != null){
+            return -1;
+        }
+        PreparedStatement ps = null;
+        ps = connect.prepareStatement("INSERT INTO organization (name, description, org_email, `org_ contact`, org_img, org_location, date_created, latitude, longitude) VALUES ('TEMP',?,?,?,?,?,NOW(),?,?)");
+
+
+        if(ps != null) {
+            //insert values into prepare statement
+            ps.setString(1, description);
+            ps.setString(2, email);
+            ps.setInt(3, userContact_id);
+            ps.setString(4, img_path);
+            ps.setString(5, location);
+            ps.setDouble(6,lat);
+            ps.setDouble(7,lng);
+            ps.execute();
+
+        }else{
+            throw new SQLException("Improper use. There was an error in creating the SQL statement");
+        }
+
+        //get user id from sql table
+        Statement st = connect.createStatement();
+        ResultSet rs = st.executeQuery("SELECT org_id FROM organization WHERE name = 'TEMP'");
+        rs.next();
+        int orgID = rs.getInt(1);
+
+        //update user with actual firstname
+        ps = connect.prepareStatement("UPDATE organization SET name = ? WHERE org_id = " + orgID);
+        ps.setString(1, name);
+        ps.executeUpdate();
+
+        addGroupies(organizer_id, orgID, ORGANIZER, 1);
+        return orgID;
+    }
 
     /**
      * Searches for an organization by name
@@ -1624,6 +1662,26 @@ public class DatabaseConnection {
         }
 
         return userEmails;
+    }
+
+    public ArrayList<OrganizationModel> searchOrganizationsWithFilterModel(OrganizationFilterModel ofm) throws SQLException{
+        PreparedStatement ps = connect.prepareStatement(ofm.createStringQuery());
+        ResultSet rs = ps.executeQuery();
+
+        //create resulting list
+        ArrayList<OrganizationModel> results = new ArrayList<>();
+
+        //check for results and if any then return user
+        while(rs.next()){
+            UserModel owner = searchForUser("" + rs.getInt(5), LAMBNECYUSERID);
+            if(owner == null){
+                return null;
+            }
+            results.add( new OrganizationModel(owner,rs.getString(2),rs.getString(7), rs.getInt(1),
+                    rs.getString(3),rs.getString(4),owner,rs.getString(6)));
+        }
+
+        return results;
     }
 
     /**

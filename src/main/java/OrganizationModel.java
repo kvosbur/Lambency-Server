@@ -12,6 +12,8 @@ public class OrganizationModel {
     public UserModel contact;
     public String image;
     public ArrayList<UserModel> organizers;
+    public double lattitude;
+    public double longitude;
 
     public OrganizationModel(UserModel owner, String name, String location, int orgID, String description, String email, UserModel contact, String image) {
         this.owner = owner;
@@ -28,6 +30,25 @@ public class OrganizationModel {
         this.organizers = new ArrayList<UserModel>();
         organizers.add(owner);
 
+    }
+
+    public OrganizationModel(UserModel owner, String name, String location, int orgID, String description,
+                             String email, UserModel contact, String image, double lattitude, double longitude) {
+        this.owner = owner;
+        this.name = name;
+        this.location = location;
+        this.orgID = orgID;
+        this.description = description;
+        this.email = email;
+        this.contact = contact;
+        this.image = image;
+        this.lattitude = lattitude;
+        this.longitude = longitude;
+        members = new ArrayList<UserModel>();
+        members.add(owner);
+        events = new ArrayList<>();
+        this.organizers = new ArrayList<UserModel>();
+        organizers.add(owner);
     }
 
     public int numFollowing;
@@ -113,6 +134,23 @@ public class OrganizationModel {
         this.organizers = organizers;
     }
 
+    public double getLattitude()
+    {
+        return lattitude;
+    }
+
+    public void setLattitude(double lattitude) {
+        this.lattitude = lattitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
     public int getNumFollowing(){
         return numFollowing;
     }
@@ -162,5 +200,18 @@ public class OrganizationModel {
             result += "Events: Some\n";
         }
         return result;
+    }
+
+    @Override
+    public boolean equals(Object obj){
+        if (obj == null) {
+            return false;
+        }
+        if(!( obj instanceof OrganizationModel)){
+            Printing.println("BAD class");
+            return false;
+        }
+        OrganizationModel om = (OrganizationModel) obj;
+        return om.getOrgID() == orgID;
     }
 }

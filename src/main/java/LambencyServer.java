@@ -54,7 +54,7 @@ public class LambencyServer{
         port(20000);
 
         //adds https capability to server
-        secure("cert.jks", "l4b3ncY!r0ckz",null,null);
+        //secure("cert.jks", "l4b3ncY!r0ckz",null,null);
 
         addroutes();
 
@@ -611,6 +611,19 @@ public class LambencyServer{
             databaseConnection.close();
             return ret;
         },new JsonTransformer());
+
+        post("/Organization/searchWithFilter","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/Organization/searchWithFilter");
+            OrganizationFilterModel ofm = new Gson().fromJson(request.body(), OrganizationFilterModel.class);
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                Printing.println("Error on database connect");
+                return null;
+            }
+            ArrayList<OrganizationModel> ret = OrganizationHandler.getOrganizationWithFilter(ofm, databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
 
     }
 
