@@ -863,10 +863,8 @@ public class DatabaseConnection {
         //create string for query
         String field;
         if(type == EventAttendanceModel.CLOCKINCODE) {
-            Printing.println("check in database");
             field = "check_in_time";
         }else if(type == EventAttendanceModel.CLOCKOUTCODE){
-            Printing.println("check out database");
             field = "check_out_time";
         }else{
             throw new SQLException("please give a valid code type from EventAttendanceModel.");
