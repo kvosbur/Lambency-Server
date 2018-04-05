@@ -1,3 +1,4 @@
+import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -638,8 +639,9 @@ public class UserHandler {
 
             //send email verification to user
 
+
             //get hash and salt for given passwd
-            String[] pair = {"salt","hash"};  //implement hashing and salt creation method
+            String[] pair = PasswordUtil.hash(passwd.toCharArray(), Charset.defaultCharset());//{"salt","hash"};  //implement hashing and salt creation method
 
             //save account information into database with a non verified email
 
@@ -653,7 +655,38 @@ public class UserHandler {
         }
     }
 
+    /**
+     * Set the firebase service code for a specific user
+     *
+     * @param oAuthCode         oAuthCode for user in question
+     * @param firebaseCode  the code to insert for this specific user
+     * @return the success code of setting the code. 0 on success, otherwise failure
+     */
+    public static int setFirebaseCode(String oAuthCode, String firebaseCode, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null){
+                return 1;
+            }
+            //get user for specific oauthcode
+            UserModel user = dbc.searchForUser(oAuthCode);
+            if (user == null) {
+                Printing.println("UserModel not found");
+                return 2;
+            }
 
+            //set the code in the database
+            int ret = dbc.userSetFirebase(user.getUserId(),firebaseCode);
+            if(ret == 1) {
+                return 0;
+            }
+            return 4;
+
+        } catch (SQLException e) {
+            Printing.println("SQLExcpetion");
+            Printing.println(e.toString());
+            return 3;
+        }
+    }
 
     private static UserModel updateOrgLists(UserModel u, DatabaseConnection dbc) throws SQLException{
 
