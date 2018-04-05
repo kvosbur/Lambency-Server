@@ -99,7 +99,9 @@ public class LambencyServer{
                 return null;
             }
             UserModel u = UserHandler.searchForUser(oAuthCode,id, databaseConnection);
-            Printing.println(u.toString());
+            if(u != null) {
+                Printing.println(u.toString());
+            }
             databaseConnection.close();
             return u;
         }, new JsonTransformer());
@@ -166,6 +168,8 @@ public class LambencyServer{
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());
+
+
 
         post("/User/requestJoinOrg", "application/json", (request, response) -> {
             Printing.printlnEndpoint("/User/requestJoinOrg");
