@@ -53,6 +53,9 @@ public class LambencyServer{
 
         port(20000);
 
+        //adds https capability to server
+        secure("cert.jks", "l4b3ncY!r0ckz",null,null);
+
         addroutes();
 
         //Setup and start timer for midnight server task
@@ -68,6 +71,9 @@ public class LambencyServer{
         timer.schedule(new ServerTaskTimer(serverTaskThread),date.getTime(),TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS));
 
         FirebaseHelper.initializeFirebase();
+    }
+    LambencyServer(int useless){
+
     }
 
     public void addroutes(){
@@ -142,6 +148,24 @@ public class LambencyServer{
             }
         }, new JsonTransformer());
 
+        get("/User/register","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/User/register");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return -1;
+            }
+            String email = request.queryParams("email");
+            String firstName = request.queryParams("first");
+            String lastName = request.queryParams("last");
+            String passwd = request.queryParams("passwd");
+            if(email == null || firstName == null || lastName == null || passwd == null){
+                databaseConnection.close();
+                return -2;
+            }
+            int ret = UserHandler.register(firstName,lastName,email,passwd,databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
 
         post("/User/requestJoinOrg", "application/json", (request, response) -> {
             Printing.printlnEndpoint("/User/requestJoinOrg");
@@ -483,6 +507,19 @@ public class LambencyServer{
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());
+        get("/Event/deleteEvent","application/json",(request,response)->{
+            Printing.printlnEndpoint("/Event/deleteEvent");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return new Integer(-1);
+            }
+            String oAuthCode = request.queryParams("oAuthCode");
+            int eventID = Integer.parseInt(request.queryParams("eventID"));
+            String message = request.queryParams("message");
+            Integer ret = EventHandler.deleteEvent(oAuthCode, eventID, message, databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
         get("/User/login/facebook", "application/json", (request, response) -> {
             Printing.printlnEndpoint("/User/login/facebook");
             DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -576,6 +613,19 @@ public class LambencyServer{
             databaseConnection.close();
             return ret;
         },new JsonTransformer());
+
+        post("/Organization/searchWithFilter","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/Organization/searchWithFilter");
+            OrganizationFilterModel ofm = new Gson().fromJson(request.body(), OrganizationFilterModel.class);
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                Printing.println("Error on database connect");
+                return null;
+            }
+            ArrayList<OrganizationModel> ret = OrganizationHandler.getOrganizationWithFilter(ofm, databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
 
     }
 

@@ -287,19 +287,16 @@ public class EventHandler {
                         return 3;
                     }
 
-                    System.out.println("Begin");
-
                     //clock in user
                     if (clockType == EventAttendanceModel.CLOCKOUTCODE){
                         //get current attendance model to check if already clocked in
                         EventAttendanceModel attendance = dbc.searchEventAttendance(us.getUserId(),eventAttendanceModel.getEventID());
                         if(attendance.getStartTime() != null) {
-                            dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKINCODE);
+                            dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKOUTCODE);
                             return 0;
                         }
                     }else if(clockType == EventAttendanceModel.CLOCKINCODE){
-
-                        dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKOUTCODE);
+                        dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKINCODE);
                         return 0;
                     }
                     return 4;
@@ -560,5 +557,39 @@ public class EventHandler {
             Printing.println(e.toString());
         }
         return null;
+    }
+
+    /**
+     * Deletes the events the event if the user has permissions
+     * @param oAuthCode oAuthCode of the user
+     * @param eventID id of the event to be deleted
+     * @param dbc database connection
+     * @return 0 on success, -1 on error, -2 on invalid inputs, -3 on insufficient permissions
+     */
+    public static Integer deleteEvent(String oAuthCode, int eventID, String message, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null){
+                Printing.println("invalid oAuthCode");
+                return -2;
+            }
+            if(dbc.searchForUser(oAuthCode) == null){
+                Printing.println("Unable to verify user");
+                return -2;
+            }
+            EventModel e = EventHandler.searchEventID(eventID, dbc);
+            if(e == null){
+                Printing.println("Event not found");
+                return -2;
+            }
+            if(!OrganizationHandler.isAdmin(oAuthCode, e.getOrg_id(), dbc)){
+                Printing.println("User is not an organizer of this org");
+                return -3;
+            }
+            return dbc.deleteEvent(eventID);
+        }
+        catch (SQLException e){
+            Printing.println(e.toString());
+        }
+        return -1;
     }
 }
