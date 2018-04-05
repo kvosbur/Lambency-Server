@@ -169,7 +169,22 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
 
-
+        post("/User/verifyEmail","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/User/verifyEmail");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return -1;
+            }
+            String verificationCode = request.queryParams("code");
+            int userID = Integer.parseInt(request.queryParams("userID"));
+            if(verificationCode == null ){
+                databaseConnection.close();
+                return -2;
+            }
+            int ret = UserHandler.verifyEmail(userID,verificationCode,databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
 
         post("/User/requestJoinOrg", "application/json", (request, response) -> {
             Printing.printlnEndpoint("/User/requestJoinOrg");

@@ -274,7 +274,7 @@ public class DatabaseConnection {
      Description: get code that is used for email verification for user
      @param userid users id in the main users table
 
-     @return
+     @return String of verification code for user
      */
     public String userGetVerification(int userid) throws SQLException{
 
@@ -292,6 +292,31 @@ public class DatabaseConnection {
             return rs.getString(1);
         }
         return null;
+    }
+
+
+    /**
+     Description: Remove the verification for user from table (means user's email has been verified successfully)
+     @param userid users id in the main users table
+
+     @return 0 on success , 1 on failure
+     */
+    public int userRemoveVerification(int userid) throws SQLException{
+
+        String sql = "DELETE FROM  verify WHERE user_id = ?";
+        //create prepare statement for sql query
+        PreparedStatement ps = connect.prepareStatement(sql);
+
+        //set parameters for prepared statement
+        ps.setInt(1, userid);
+
+        //execute query
+        int ret = ps.executeUpdate();
+
+        if(ret == 1){
+            return 0;
+        }
+        return 1;
     }
 
     /**

@@ -692,7 +692,7 @@ public class UserHandler {
             //send email verification to user
             String code = new String(PasswordUtil.generateSalt(30));
             dbc.userAddVerification(id,code);
-            int ret = GMailHelper.sendVerificationEmail(email, code);
+            int ret = GMailHelper.sendVerificationEmail(email,id, code);
 
             return ret;
         } catch (Exception e) {
@@ -700,6 +700,34 @@ public class UserHandler {
             Printing.println(e.toString());
             return 2;
         }
+    }
+
+    /**
+     * Verifys the email of a user by the code it is given
+     * @param userID id of user in question
+     * @param verificationCode the code to use to verify the email
+     * @param dbc database connection to be used in method
+     * @return updated user object
+     */
+    public static int verifyEmail(int userID, String verificationCode, DatabaseConnection dbc){
+        try{
+            String storedCode = dbc.userGetVerification(userID);
+            if(storedCode == null){
+                return 2;
+            }
+
+            if(storedCode.equals(verificationCode)){
+                //valid verification code
+                dbc.userRemoveVerification(userID);
+                return 0;
+            }
+            return 3;
+        } catch (Exception e) {
+            Printing.println("Excpetion");
+            Printing.println(e.toString());
+            return 1;
+        }
+
     }
 
     /**
