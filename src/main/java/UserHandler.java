@@ -682,21 +682,23 @@ public class UserHandler {
                 return 2;
             }
 
-            //send email verification to user
-
-
             //get hash and salt for given passwd
             String[] pair = PasswordUtil.hash(passwd.toCharArray(), Charset.defaultCharset());//{"salt","hash"};  //implement hashing and salt creation method
 
             //save account information into database with a non verified email
 
-            int success = dbc.createUser(firstName,lastName,email,pair[0], pair[1]); //implement database method to insert information into table
+            int id = dbc.createUser(firstName,lastName,email,pair[0], pair[1]); //implement database method to insert information into table
 
-            return success;
+            //send email verification to user
+            String code = new String(PasswordUtil.generateSalt(30));
+            dbc.userAddVerification(id,code);
+            int ret = GMailHelper.sendVerificationEmail(email, code);
+
+            return ret;
         } catch (Exception e) {
             Printing.println("Excpetion");
             Printing.println(e.toString());
-            return 1;
+            return 2;
         }
     }
 
