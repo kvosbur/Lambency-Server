@@ -417,7 +417,7 @@ public class OrganizationHandler {
             }
             OrganizationModel org = dbc.searchForOrg(orgID);
             if(org == null){
-                Printing.println("Organization does not exist. Try again next time");
+                Printing.println("Organization does not exist. Try again next time" + orgID);
                 return -1;
             }
             GroupiesModel g = dbc.searchGroupies(organizer.getUserId(), orgID);
