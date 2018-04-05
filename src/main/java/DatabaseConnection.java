@@ -823,6 +823,27 @@ public class DatabaseConnection {
     }
 
     /**
+     *
+     * @param eventID the id of the event
+     * @return true if a user has clocked in to the event, otherwise false
+     * @throws SQLException
+     */
+    public boolean isClockInForEvent(int eventID) throws SQLException{
+        String query = "SELECT check_in_time FROM event_attendence WHERE event_id = ?";
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ResultSet rs = ps.executeQuery();
+        while(rs.next()){
+            Date date = rs.getDate(1);
+            if(date != null){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Returns the number of users registered for an event
      * @param eventID the id of the event to search for
      * @return Integer representing the number of users attending the event
@@ -839,6 +860,7 @@ public class DatabaseConnection {
         ResultSet rs = ps.executeQuery();
 
         int counter = 0;
+
 
         //check for results and return object
         while(rs.next()){
@@ -1100,6 +1122,9 @@ public class DatabaseConnection {
         ps.setInt(1,eventID);
         ps.executeUpdate();
         ps = connect.prepareStatement("DELETE FROM endorse WHERE endorsed_id = ?");
+        ps.setInt(1,eventID);
+        ps.executeUpdate();
+        ps = connect.prepareStatement("DELETE FROM event_attendence WHERE event_id = ?");
         ps.setInt(1,eventID);
         ps.executeUpdate();
 

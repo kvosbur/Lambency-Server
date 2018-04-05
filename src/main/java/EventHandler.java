@@ -2,6 +2,7 @@ import com.google.maps.model.LatLng;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -610,11 +611,12 @@ public class EventHandler {
     }
 
     /**
-     * Deletes the events the event if the user has permissions
+     * Deletes the events the event if the user has permissions. If there is a user with attendance for the event,
+     * then it is not deleted and the end time is changed
      * @param oAuthCode oAuthCode of the user
      * @param eventID id of the event to be deleted
      * @param dbc database connection
-     * @return 0 on success, -1 on error, -2 on invalid inputs, -3 on insufficient permissions
+     * @return 0 on success, -1 on error, -2 on invalid inputs, -3 on insufficient permissions, 1 on event cancelled
      */
     public static Integer deleteEvent(String oAuthCode, int eventID, String message, DatabaseConnection dbc){
         try{
@@ -635,9 +637,18 @@ public class EventHandler {
                 Printing.println("User is not an organizer of this org");
                 return -3;
             }
-            ArrayList<Object> users = dbc.searchEventAttendanceUsers(eventID,true);
-            sendEmailsOfEventDeletion(users, e, message, dbc);
-            return dbc.deleteEvent(eventID);
+            if(dbc.isClockInForEvent(eventID)){
+                // someone has clocked in = cancel
+                e.setEnd(new Timestamp(System.currentTimeMillis()));
+                EventHandler.updateEvent(e, "Event has been cancelled", dbc);
+                return 1;
+            }
+            else {
+                // No clock in = delete
+                ArrayList<Object> users = dbc.searchEventAttendanceUsers(eventID, true);
+                sendEmailsOfEventDeletion(users, e, message, dbc);
+                return dbc.deleteEvent(eventID);
+            }
         }
         catch (SQLException e){
             Printing.println(e.toString());
