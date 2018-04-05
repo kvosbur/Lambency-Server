@@ -1,4 +1,6 @@
 
+import com.google.maps.model.LatLng;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -26,6 +28,13 @@ public class OrganizationHandler {
             Printing.println(e.toString());
         }
 
+        LatLng latlng = GoogleGeoCodeUtil.getGeoData(org.getLocation());
+        if(latlng == null){
+            latlng = new LatLng(180,180);
+        }
+
+        org.setLattitude(latlng.lat);
+        org.setLongitude(latlng.lng);
 
         // Saves the orgs image to a file
         String path = null;
@@ -39,9 +48,8 @@ public class OrganizationHandler {
             }
         }
         try {
-            Printing.println(org.toString());
             status = dbc.createOrganization(org.getName(), org.getDescription(), org.getEmail(), org.getContact()
-                    .getUserId(), org.getLocation(), path, org.getOrganizers().get(0).getUserId());
+                    .getUserId(), org.getLocation(), path, org.getOrganizers().get(0).getUserId(),latlng.lat,latlng.lng);
             OrganizationModel organization = dbc.searchForOrg(status);
             //image is currently storing path so change it to store
             organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
@@ -409,7 +417,7 @@ public class OrganizationHandler {
             }
             OrganizationModel org = dbc.searchForOrg(orgID);
             if(org == null){
-                Printing.println("Organization does not exist. Try again next time");
+                Printing.println("Organization does not exist. Try again next time" + orgID);
                 return -1;
             }
             GroupiesModel g = dbc.searchGroupies(organizer.getUserId(), orgID);
@@ -537,6 +545,108 @@ public class OrganizationHandler {
         }
         return 0;
 
+    }
+
+    /**
+     * Using an OrganizationFitlerModel, return Organization models that match the request
+     *
+     * @param ofm  OrganizationFilterModel through which to search
+     * @param dbc   Databaseconnection to use
+     * @return  Arraylist of Organziation models.
+     */
+    public static ArrayList<OrganizationModel> getOrganizationWithFilter(OrganizationFilterModel ofm, DatabaseConnection dbc){
+        Printing.println("Search ORG with filter");
+        if(ofm == null){
+            Printing.println("null Filter Model");
+            return null;
+        }
+        ArrayList<OrganizationModel> orgs;
+        try{
+            orgs = dbc.searchOrganizationsWithFilterModel(ofm);
+
+        } catch (SQLException e) {
+            Printing.println(e.toString());
+            Printing.println("Error in get Organization by filter with error: "+e);;
+            return null;
+        } catch (Exception e){
+            Printing.println(e.toString());
+            Printing.println("Error in get Organization by Filter");
+            return null;
+        }
+
+        return orgs;
+    }
+
+    /**
+     *
+     * @param oAuthCode the oAuthCode of the user
+     * @param newOrg model to be changed to
+     * @param dbc database connection
+     * @return updated model, null on error or insufficient permissions
+     */
+    public static OrganizationModel editOrg(String oAuthCode, OrganizationModel newOrg, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null){
+                Printing.println("invalid oAuthCode");
+                return null;
+            }
+            if(dbc.searchForUser(oAuthCode) == null){
+                Printing.println("Unable to verify user");
+                return null;
+            }
+            if(newOrg == null){
+                Printing.println("Invalid new org");
+                return null;
+            }
+            OrganizationModel organizationModel = OrganizationHandler.searchOrgID(newOrg.getOrgID(), dbc);
+            if(organizationModel == null){
+                Printing.println("Org not found");
+                return null;
+            }
+            if(!OrganizationHandler.isAdmin(oAuthCode, newOrg.getOrgID(), dbc)){
+                Printing.println("User is not an organizer of this org");
+                return null;
+            }
+            return dbc.modifyOrganization(newOrg);
+        }
+        catch (SQLException e){
+            Printing.println(e.toString());
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param oAuthCode
+     * @param orgID
+     * @param dbc
+     * @return 0 on success, -1 on error or bad params, -2 on invalid user permissions
+     */
+    public static int deleteOrg(String oAuthCode, int orgID, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null){
+                Printing.println("invalid oAuthCode");
+                return -1;
+            }
+            if(dbc.searchForUser(oAuthCode) == null){
+                Printing.println("Unable to verify user");
+                return -1;
+            }
+            OrganizationModel organizationModel = OrganizationHandler.searchOrgID(orgID, dbc);
+            if(organizationModel == null){
+                Printing.println("Org not found");
+                return -1;
+            }
+            if(!OrganizationHandler.isAdmin(oAuthCode, organizationModel.getOrgID(), dbc)){
+                Printing.println("User is not an organizer of this org");
+                return -2;
+            }
+            return dbc.deleteOrganization(orgID);
+        }
+        catch (SQLException e){
+            Printing.println(e.toString());
+        }
+        return -1;
     }
 
 }

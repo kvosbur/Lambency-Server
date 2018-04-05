@@ -57,7 +57,7 @@ public class EventHandler {
     }
 
 
-    public static int updateEvent(EventModel event, DatabaseConnection dbc) {
+    public static int updateEvent(EventModel event, String message, DatabaseConnection dbc) {
 
         try{
             EventModel prev = dbc.searchEvents(event.getEvent_id());
@@ -68,7 +68,7 @@ public class EventHandler {
             //send emails to attending users of info change
             ArrayList<Object> users = dbc.searchEventAttendanceUsers(prev.getEvent_id(),true);
             if(users != null) {
-                EventHandler.sendEmailsOfEventModification(users, prev, now, dbc);
+                EventHandler.sendEmailsOfEventModification(users, prev, now, message, dbc);
             }
 
             return 0;
@@ -287,19 +287,16 @@ public class EventHandler {
                         return 3;
                     }
 
-                    System.out.println("Begin");
-
                     //clock in user
                     if (clockType == EventAttendanceModel.CLOCKOUTCODE){
                         //get current attendance model to check if already clocked in
                         EventAttendanceModel attendance = dbc.searchEventAttendance(us.getUserId(),eventAttendanceModel.getEventID());
                         if(attendance.getStartTime() != null) {
-                            dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKINCODE);
+                            dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKOUTCODE);
                             return 0;
                         }
                     }else if(clockType == EventAttendanceModel.CLOCKINCODE){
-
-                        dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKOUTCODE);
+                        dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKINCODE);
                         return 0;
                     }
                     return 4;
@@ -452,7 +449,7 @@ public class EventHandler {
      * @param prev The event info as it previous was
      * @param now The event info as it now is
      */
-    public static void sendEmailsOfEventModification(ArrayList<Object> users, EventModel prev, EventModel now, DatabaseConnection dbc){
+    public static void sendEmailsOfEventModification(ArrayList<Object> users, EventModel prev, EventModel now, String message, DatabaseConnection dbc){
 
         try{
 
@@ -470,7 +467,10 @@ public class EventHandler {
                 changed = true;
             }
             sb.append(name);
-
+            if(message != null && message != ""){
+                message = "<strong>" + message + "</strong><br>";
+                sb.append(message);
+            }
             String startingPrev = new SimpleDateFormat("MMMM dd, YYYY hh:mm a").format(prev.getStart());
             String startingNow = new SimpleDateFormat("MMMM dd, YYYY hh:mm a").format(now.getStart());
             String endingPrev = new SimpleDateFormat("MMMM dd, YYYY hh:mm a").format(prev.getEnd());
@@ -525,6 +525,53 @@ public class EventHandler {
         }
     }
 
+    /**
+     * Sends emails to users listed of the modified event
+     * @param users list of users
+     * @param eventModel the model of the deleted event
+     * @param message a message to be sent to the users
+     */
+    public static void sendEmailsOfEventDeletion(ArrayList<Object> users, EventModel eventModel, String message, DatabaseConnection dbc){
+
+        try{
+
+            boolean changed = false;
+            //create email
+            String subject = "The event " + eventModel.getName() + "has been deleted";
+
+            //for each info item of event bold title of it if the info has changed
+            StringBuilder sb = new StringBuilder();
+            String name;
+            name = "<strong>The event" + eventModel.getName() + " has been deleted</strong><br>";
+
+            sb.append(name);
+            if(message != null && message != ""){
+                message = "<strong>" + message + "</strong><br>";
+                sb.append(message);
+            }
+
+            sb.append("<br><br>*Please do not reply to this email as this is an automated message.*");
+
+            //don't send emails if nothing really changed
+
+            //create GMailHelper object
+            GMailHelper gMailHelper = new GMailHelper();
+
+            //send emails to all users
+            for (Object userObject : users) {
+                UserModel user =  (UserModel) userObject;
+                int ret = gMailHelper.sendEmail(user.getEmail(), subject, sb.toString());
+                if (ret == GMailHelper.FAILURE) {
+                    Printing.println("Issue sending email to " + user.getEmail() + " for event creation");
+                }
+            }
+
+
+        }catch(Exception e){
+            Printing.println("Issue trying to send emails to users for event modification.");
+            e.printStackTrace();
+        }
+    }
     /**
      *
      * @param oAuthCode oAuthCode of the user
@@ -588,6 +635,8 @@ public class EventHandler {
                 Printing.println("User is not an organizer of this org");
                 return -3;
             }
+            ArrayList<Object> users = dbc.searchEventAttendanceUsers(eventID,true);
+            sendEmailsOfEventDeletion(users, e, message, dbc);
             return dbc.deleteEvent(eventID);
         }
         catch (SQLException e){

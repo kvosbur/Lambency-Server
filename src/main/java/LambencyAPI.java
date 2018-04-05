@@ -4,6 +4,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -57,6 +58,11 @@ public interface LambencyAPI {
     @GET("Organization/respondToJoinRequest")
     Call<Integer> respondToJoinRequest(@Query("oAuthCode") String oAuthCode, @Query("orgID") int orgID, @Query("userID") int userID, @Query("approved") boolean
                                         approved);
+    @GET("Organization/edit")
+    Call<OrganizationModel> getEditOrganization(@Query("oAuthCode") String oAuthCode, @Query("org") OrganizationModel organizationModel);
+
+    @GET("Organization/delete")
+    Call<Integer> getDeleteOrganization(@Query("oAuthCode") String oAuthCode, @Query("orgID") String orgID);
 
     @GET("Event/search")
     Call<List<EventModel>> getEventsWithParams(@Query("lat") double lat, @Query("long") double longitude,
@@ -67,8 +73,8 @@ public interface LambencyAPI {
     @GET("Event/users")
     Call<ArrayList<UserModel>> getListOfUsers(@Query("oauthcode") String oAuthCode, @Query("event_id") int eventId);
 
-    @POST("Event/update")
-    Call<Integer> postUpdateEvent(@Body EventModel event);
+    @GET("Event/update")
+    Call<Integer> getUpdateEvent(@Query("event") EventModel event, @Query("message") String message);
 
     @GET("Event/numAttending")
     Call<Integer> getEventNumAttending(@Query("oAuthCode") String oAuthCode, @Query("id") String event_id);
@@ -105,6 +111,9 @@ public interface LambencyAPI {
 
     @POST("/User/ClockInOut")
     Call<Integer> sendClockInCode(@Query("oAuthCode") String oAuthCode, @Body EventAttendanceModel eventAttendanceModel);
+
+    @POST("Organization/searchWithFilter")
+    Call<ArrayList<OrganizationModel>> getOrganizationsWithFilter(@Body OrganizationFilterModel organizationFilterModel);
 
 
 }

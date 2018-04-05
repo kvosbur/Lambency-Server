@@ -202,6 +202,49 @@ public class DatabaseConnection {
 
 
     /**
+     Description: Given user information create a user profile that is either associated with a google or facebook profile
+
+     @param firstName users first name
+     @param lastName users last name
+     @param email users email
+     @param hash hash of password and salt
+     @param salt salt used for user
+
+     @return returns int of lambency user id  on success, NULL on failure
+     */
+
+    public int createUser(String firstName, String lastName, String email, String hash, String salt) throws SQLException{
+
+        String sqlColumns = "(user_email, first_name, last_name, hash_password, salt)";
+
+        //insert user into table
+        PreparedStatement ps = connect.prepareStatement("INSERT INTO user " + sqlColumns +" VALUES ('TEMP',?,?,?,?)");
+
+        //insert values into prepare statement
+        ps.setString(1, firstName);
+        ps.setString(2, lastName);
+        ps.setString(3, hash);
+        ps.setString(4, salt);
+
+        ps.execute();
+
+        //get user id from sql table
+        Statement st = connect.createStatement();
+        ResultSet rs = st.executeQuery("SELECT user_id FROM user WHERE user_email = 'TEMP'");
+        rs.next();
+        int lambencyID = rs.getInt(1);
+
+        //update user with actual firstname
+        ps = connect.prepareStatement("UPDATE user SET user_email = ? WHERE user_id = " + lambencyID);
+        ps.setString(1, email);
+
+        ps.executeUpdate();
+
+        return lambencyID;
+
+    }
+
+    /**
      *  Description: Creates an event in the database from these elements
      *
      * @param org_id    Integer that represents an organization in this database
@@ -405,7 +448,46 @@ public class DatabaseConnection {
     }
 
 
+    /**
+     *  Given a user id assign a firebase token to that user
+     * @param userID  userid of user to add token to
+     * @param firebaseToken  firebase token for specified user
+     * @return 1 on success and != 1 on failure
+     */
+    public int userSetFirebase(int userID, String firebaseToken) throws SQLException{
 
+        String query = "UPDATE user set firebase_token = ? where user_id = ?";
+        PreparedStatement ps = connect.prepareStatement(query);
+
+        ps.setString(1,firebaseToken);
+        ps.setInt(2, userID);
+
+        int ret = ps.executeUpdate();
+
+        return ret;
+    }
+
+    /**
+     *  Given a user id get the firebase token for that user
+     * @param userID  userid of user to get token from
+     * @return firebase token String
+     */
+
+    public String userGetFirebase(int userID) throws SQLException{
+
+        String query = "SELECT  firebase_token FROM user WHERE user_id = ?";
+
+        PreparedStatement ps = connect.prepareStatement(query);
+
+        ps.setInt(1, userID);
+
+        ResultSet rs = ps.executeQuery();
+
+        if(rs.next()){
+            return rs.getString(1);
+        }
+        return null;
+    }
 
 
     /**
@@ -1059,11 +1141,12 @@ public class DatabaseConnection {
         ps = connect.prepareStatement("DELETE FROM events WHERE event_id = ?");
         ps.setInt(1,eventID);
         ps.executeUpdate();
-        result = ps.executeUpdate();
         ps = connect.prepareStatement("DELETE FROM event_attendence WHERE event_id = ?");
         ps.setInt(1,eventID);
         ps.executeUpdate();
-        result = ps.executeUpdate();
+        ps = connect.prepareStatement("DELETE FROM endorse WHERE event_id = ?");
+        ps.setInt(1,eventID);
+        ps.executeUpdate();
 
         return 0;
     }
@@ -1091,6 +1174,7 @@ public class DatabaseConnection {
      */
 
     public int createOrganization(String name, String description, String email, int userContact_id, String location, String img_path, int organizer_id ) throws SQLException{
+        Printing.printlnError("Using Organization Creation without LATLONG");
         if(searchForOrg(name) != null){
             return -1;
         }
@@ -1126,6 +1210,53 @@ public class DatabaseConnection {
         return orgID;
     }
 
+    public int createOrganization(String name, String description, String email, int userContact_id, String location, String img_path, int organizer_id, double lat, double lng ) throws SQLException{
+        if(searchForOrg(name) != null){
+            return -1;
+        }
+        PreparedStatement ps = null;
+        ps = connect.prepareStatement("INSERT INTO organization (name, description, org_email, `org_ contact`, org_img, org_location, date_created, latitude, longitude) VALUES ('TEMP',?,?,?,?,?,NOW(),?,?)");
+
+
+        if(ps != null) {
+            //insert values into prepare statement
+            ps.setString(1, description);
+            ps.setString(2, email);
+            ps.setInt(3, userContact_id);
+            ps.setString(4, img_path);
+            ps.setString(5, location);
+            ps.setDouble(6,lat);
+            ps.setDouble(7,lng);
+            ps.execute();
+
+        }else{
+            throw new SQLException("Improper use. There was an error in creating the SQL statement");
+        }
+
+        //get user id from sql table
+        Statement st = connect.createStatement();
+        ResultSet rs = st.executeQuery("SELECT org_id FROM organization WHERE name = 'TEMP'");
+        rs.next();
+        int orgID = rs.getInt(1);
+
+        //update user with actual firstname
+        ps = connect.prepareStatement("UPDATE organization SET name = ? WHERE org_id = " + orgID);
+        ps.setString(1, name);
+        ps.executeUpdate();
+
+        addGroupies(organizer_id, orgID, ORGANIZER, 1);
+        return orgID;
+    }
+
+    public OrganizationModel modifyOrganization(OrganizationModel organizationModel) throws SQLException{
+        //create prepare statement for sql query
+        return null;
+    }
+
+    public int deleteOrganization(int orgID) throws SQLException{
+
+        return -1;
+    }
 
     /**
      * Searches for an organization by name
@@ -1626,6 +1757,26 @@ public class DatabaseConnection {
         }
 
         return userEmails;
+    }
+
+    public ArrayList<OrganizationModel> searchOrganizationsWithFilterModel(OrganizationFilterModel ofm) throws SQLException{
+        PreparedStatement ps = connect.prepareStatement(ofm.createStringQuery());
+        ResultSet rs = ps.executeQuery();
+
+        //create resulting list
+        ArrayList<OrganizationModel> results = new ArrayList<>();
+
+        //check for results and if any then return user
+        while(rs.next()){
+            UserModel owner = searchForUser("" + rs.getInt(5), LAMBNECYUSERID);
+            if(owner == null){
+                return null;
+            }
+            results.add( new OrganizationModel(owner,rs.getString(2),rs.getString(7), rs.getInt(1),
+                    rs.getString(3),rs.getString(4),owner,rs.getString(6)));
+        }
+
+        return results;
     }
 
     /**

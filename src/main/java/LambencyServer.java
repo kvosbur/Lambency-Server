@@ -69,6 +69,11 @@ public class LambencyServer{
         Timer timer = new Timer();
 
         timer.schedule(new ServerTaskTimer(serverTaskThread),date.getTime(),TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS));
+
+        FirebaseHelper.initializeFirebase();
+    }
+    LambencyServer(int useless){
+
     }
 
     public void addroutes(){
@@ -143,6 +148,24 @@ public class LambencyServer{
             }
         }, new JsonTransformer());
 
+        get("/User/register","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/User/register");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return -1;
+            }
+            String email = request.queryParams("email");
+            String firstName = request.queryParams("first");
+            String lastName = request.queryParams("last");
+            String passwd = request.queryParams("passwd");
+            if(email == null || firstName == null || lastName == null || passwd == null){
+                databaseConnection.close();
+                return -2;
+            }
+            int ret = UserHandler.register(firstName,lastName,email,passwd,databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
 
         post("/User/requestJoinOrg", "application/json", (request, response) -> {
             Printing.printlnEndpoint("/User/requestJoinOrg");
@@ -199,6 +222,19 @@ public class LambencyServer{
             List<EventModel> events = UserHandler.eventsFeed(oAuthCode, latitude, longitude, databaseConnection);
             databaseConnection.close();
             return events;
+        }, new JsonTransformer());
+
+        post("/User/setFirebase", "application/json", (request, response) -> {
+            Printing.printlnEndpoint("/User/setFirebase");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String oAuthCode = request.queryParams("oAuthCode");
+            String firebaseCode = request.queryParams("firebase");
+            int ret = UserHandler.setFirebaseCode(oAuthCode, firebaseCode, databaseConnection);
+            databaseConnection.close();
+            return ret;
         }, new JsonTransformer());
         post("/Organization/create", "application/json",
                 (request, response) -> {
@@ -373,14 +409,48 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
 
-        post("/Event/update", "application/json",
+
+        get("/Organization/edit", "application.json", (request, response) -> {
+            Printing.printlnEndpoint("Organization/edit");
+            String oAuthCode = request.queryParams("oAuthCode");
+            OrganizationModel organizationModel = new Gson().fromJson(request.queryParams("org"), OrganizationModel.class);
+            if(oAuthCode == null){
+                return null;
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            OrganizationModel ret = OrganizationHandler.editOrg(oAuthCode, organizationModel, databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
+
+        get("/Organization/delete", "application.json", (request, response) -> {
+            Printing.printlnEndpoint("Organization/delete");
+            String oAuthCode = request.queryParams("oAuthCode");
+            int orgID = Integer.parseInt(request.queryParams("orgID"));
+            if(oAuthCode == null || orgID <= 0){
+                return new Integer(-1);
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return new Integer(-1);
+            }
+            int ret = OrganizationHandler.deleteOrg(oAuthCode, orgID, databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
+
+        get("/Event/update", "application/json",
                 (request, response) ->{
                     Printing.printlnEndpoint("/Event/update");
                     DatabaseConnection databaseConnection = new DatabaseConnection();
                     if(databaseConnection.connect == null){
                         return null;
                     }
-                    int ret =  EventHandler.updateEvent( new Gson().fromJson(request.body(), EventModel.class), databaseConnection);
+                    String message = request.queryParams("message");
+                    int ret =  EventHandler.updateEvent( new Gson().fromJson(request.queryParams("event"), EventModel.class), message, databaseConnection);
                     databaseConnection.close();
                     return ret;
                 }
@@ -591,9 +661,24 @@ public class LambencyServer{
             return ret;
         },new JsonTransformer());
 
+        post("/Organization/searchWithFilter","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/Organization/searchWithFilter");
+            OrganizationFilterModel ofm = new Gson().fromJson(request.body(), OrganizationFilterModel.class);
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                Printing.println("Error on database connect");
+                return null;
+            }
+            ArrayList<OrganizationModel> ret = OrganizationHandler.getOrganizationWithFilter(ofm, databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
+
     }
 
     public static void main(String[]args){
+
+        FirebaseHelper.initializeFirebase();
 
         LambencyServer lb = new LambencyServer();
 //
