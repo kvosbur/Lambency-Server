@@ -511,6 +511,61 @@ public void createOrganizationRetrofit(OrganizationModel org){
         });
     }
 
+    public void editOrg(String oAuthCode, OrganizationModel organizationModel){
+
+        this.getInstance().getEditOrganization(oAuthCode, organizationModel).enqueue(new Callback<OrganizationModel>() {
+            @Override
+            public void onResponse(Call<OrganizationModel> call, Response<OrganizationModel> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("failed to update org or invalid permissions");
+                }
+                //when response is back
+                OrganizationModel organization= response.body();
+                if(organization == null){
+                    System.out.println("failed to update organization");
+                }
+                else{
+                    System.out.println("updated org: " + organization.getDescription());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<OrganizationModel> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+    public void deleteOrg(String oAuthCode, String orgID){
+
+        this.getInstance().getDeleteOrganization(oAuthCode, orgID).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("failed to update org or invalid permissions");
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == 0){
+                    System.out.println("successfully deleted org");
+                }
+                else if(ret == -1){
+                    System.out.println("failed to delete org: bad params or error occurred");
+                }
+                else if(ret == -2){
+                    System.out.println("user is not an organizer");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
 
     public void leaveOrganization(String oAuthCode, int orgID){
         this.getInstance().postLeaveOrganization(oAuthCode,orgID).enqueue(new Callback<Integer>() {
