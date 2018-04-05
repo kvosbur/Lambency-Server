@@ -450,7 +450,7 @@ public class LambencyServer{
                         return null;
                     }
                     String message = request.queryParams("message");
-                    int ret =  EventHandler.updateEvent( new Gson().fromJson(request.queryParams("event"), EventModel.class), message, databaseConnection);
+                    int ret =  EventHandler.updateEvent( new Gson().fromJson(request.body(), EventModel.class), message, databaseConnection);
                     databaseConnection.close();
                     return ret;
                 }
