@@ -215,14 +215,14 @@ public class GMailHelper {
      * @throws MessagingException
      * @throws IOException
      */
-    public static int sendVerificationEmail(String email, String verificationCode){
+    public static int sendVerificationEmail(String email,int userID, String verificationCode){
 
         String subject = "Email Vefification for Lambency Account";
 
         StringBuilder sb = new StringBuilder();
 
         sb.append("Please click the link below to open our app in order to verify your email.<br>");
-        sb.append("<a href=\"www.mylambencyclient.com/verify?code=" + verificationCode);
+        sb.append("<a href=\"www.mylambencyclient.com/verify?code=" + verificationCode + "&uid=" + userID);
         sb.append("\"> Click Here To Vefify</a>");
 
         String body = sb.toString();
