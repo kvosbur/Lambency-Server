@@ -396,14 +396,15 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
 
-        post("/Event/update", "application/json",
+        get("/Event/update", "application/json",
                 (request, response) ->{
                     Printing.printlnEndpoint("/Event/update");
                     DatabaseConnection databaseConnection = new DatabaseConnection();
                     if(databaseConnection.connect == null){
                         return null;
                     }
-                    int ret =  EventHandler.updateEvent( new Gson().fromJson(request.body(), EventModel.class), databaseConnection);
+                    String message = request.queryParams("message");
+                    int ret =  EventHandler.updateEvent( new Gson().fromJson(request.queryParams("event"), EventModel.class), message, databaseConnection);
                     databaseConnection.close();
                     return ret;
                 }
