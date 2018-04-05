@@ -33,7 +33,7 @@ public class EventHandler {
             //create event
             int event_id = dbc.createEvent(event.getOrg_id(),event.getName(),event.getStart(),
                     event.getEnd(),event.getDescription(),event.getLocation(),event.getImage_path(), latlng.lat, latlng.lng,
-                    event.getClockInCode(), event.getClockOutCode());
+                    event.getClockInCode(), event.getClockOutCode(),event.getPrivateEvent());
 
             //notify users of event creation
             ArrayList<String> userEmails = dbc.getUserEmailsToNotify(event.getOrg_id());
@@ -62,7 +62,7 @@ public class EventHandler {
         try{
             EventModel prev = dbc.searchEvents(event.getEvent_id());
             dbc.modifyEventInfo(event.getEvent_id(),event.getName(),event.getStart(),event.getEnd(),
-                    event.getDescription(),event.getLocation(),event.getImage_path(),event.getLattitude(),event.getLongitude());
+                    event.getDescription(),event.getLocation(),event.getImage_path(),event.getLattitude(),event.getLongitude(), event.getPrivateEvent());
             EventModel now = dbc.searchEvents(event.getEvent_id());
 
             //send emails to attending users of info change
@@ -79,39 +79,48 @@ public class EventHandler {
         }
     }
 
-
     /** Call from the API to gather the events that are searched by location
+     * UPDATED TO INCLUDE THE SEARCH FOR PRIVATE EVENTS
      *
      * @param efm EventFilterModel that contains all constraints for the search
      * @return     List of events if successful, null otherwise
      */
 
-    public static List<EventModel> getEventsWithFilter(EventFilterModel efm, DatabaseConnection dbc){
-        if(efm == null){
-            Printing.println("null Filter Model");
+    public static List<EventModel> getEventsWithFilter(String oAuth, EventFilterModel efm, DatabaseConnection dbc){
+        if(efm == null) {
+            Printing.printlnError("null Filter Model");
             return null;
         }
         List<Integer> eventIDs;
         List<EventModel> events = new ArrayList<>();
         try{
+            UserModel u = dbc.searchForUser(oAuth);
+            if(u == null){
+                Printing.printlnError("No user model found. User model is now required to search with filter to allow for private events.");
+                return null;
+            }
             eventIDs = dbc.searchEventsWithFilterModel(efm);
             if(eventIDs == null){
                 //there were no search results found
-                Printing.println("No search results from Model");
+                Printing.printlnError("No search results from Model");
                 return null;
             }
             for(Integer i: eventIDs){
                 EventModel eventModel = dbc.searchEvents(i);
+                GroupiesModel g = dbc.searchGroupies(u.getUserId(),eventModel.getOrg_id());
+                if(eventModel.getPrivateEvent() &&( g==null || g.getType() < DatabaseConnection.MEMBER)){
+                    continue;
+                }
                 eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                 events.add(eventModel);
             }
         } catch (SQLException e) {
             Printing.println(e.toString());
-            Printing.println("Error in get events by filter with error: "+e);;
+            Printing.printlnError("Error in get events by filter with error: "+e);;
             return null;
         } catch (Exception e){
             Printing.println(e.toString());
-            Printing.println("Error in get events by Filter");
+            Printing.printlnError("Error in get events by Filter");
             return null;
         }
 
@@ -127,6 +136,7 @@ public class EventHandler {
 
     public static List<EventModel> getEventsByLocation(double lattitude, double longitude, DatabaseConnection dbc){
         // I am assuming that the odds of them being at exactly 0,0 (lat,long) is so microscopic that the only case that it would be 0 is if Double.parse(null) == 0
+        Printing.printlnError("This method is deprecated. Please use getEventsWithFilter.");
         if(lattitude == 0 || longitude == 0) {
             return null;
         }
@@ -141,11 +151,11 @@ public class EventHandler {
             }
         } catch (SQLException e) {
             Printing.println(e.toString());
-            Printing.println("Error in get events by location: "+e);
+            Printing.printlnError("Error in get events by location: "+e);
             return null;
         } catch (Exception e){
-            Printing.println(e.toString());
-            Printing.println("Error in get events by location" + e);
+            Printing.printlnError(e.toString());
+            Printing.printlnError("Error in get events by location" + e);
             return null;
         }
 

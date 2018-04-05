@@ -14,6 +14,7 @@ public class DatabaseConnectionTest {
 
     private static DatabaseConnection dbc;
     private static int event_id = 0;
+    private static UserModel u;
 
     @org.junit.Test
     public void createUser() throws Exception {
@@ -148,7 +149,7 @@ public class DatabaseConnectionTest {
             throw new Exception("search for event failed");
         }
         dbc.modifyEventInfo(event_id, "Updated Name", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 10), "Updated description",
-                "Location 2", "img2", 20, 20);
+                "Location 2", "img2", 20, 20, false);
         e = dbc.searchEvents(event_id);
         if(e == null){
             throw new Exception("search for event failed");
@@ -639,7 +640,7 @@ public class DatabaseConnectionTest {
         date = new Date(119, 1, 1, 1, 1, 1);
         Timestamp end = new Timestamp(date.getTime());
         EventFilterModel efm = new EventFilterModel(0, 0, start, end);
-        List<EventModel> list = EventHandler.getEventsWithFilter(efm, dbc);
+        List<EventModel> list = EventHandler.getEventsWithFilter(u.getOauthToken(),efm, dbc);
         if(list == null){
             throw new Exception("failed to search events by date: returned null");
         }
@@ -654,7 +655,7 @@ public class DatabaseConnectionTest {
         date = new Date(122, 1, 1, 1, 1, 1);
         end = new Timestamp(date.getTime());
         efm = new EventFilterModel(0, 0, start, end);
-        list = EventHandler.getEventsWithFilter(efm, dbc);
+        list = EventHandler.getEventsWithFilter(u.getOauthToken(),efm, dbc);
         if(list == null){
             throw new Exception("failed to search events by date: returned null");
         }
@@ -674,7 +675,7 @@ public class DatabaseConnectionTest {
         date = new Date(119, 1, 1, 1, 1, 1);
         Timestamp end = new Timestamp(date.getTime());
         EventFilterModel efm = new EventFilterModel(0, 0, null, end);
-        List<EventModel> list = EventHandler.getEventsWithFilter(efm, dbc);
+        List<EventModel> list = EventHandler.getEventsWithFilter(u.getOauthToken(),efm, dbc);
         if(list == null){
             throw new Exception("failed to search events by date: returned null");
         }
@@ -687,7 +688,7 @@ public class DatabaseConnectionTest {
 
         start = end;
         efm = new EventFilterModel(0, 0, start, null);
-        list = EventHandler.getEventsWithFilter(efm, dbc);
+        list = EventHandler.getEventsWithFilter(u.getOauthToken(),efm, dbc);
         if(list == null){
             throw new Exception("failed to search events by date: returned null");
         }
@@ -699,7 +700,7 @@ public class DatabaseConnectionTest {
         }
 
         efm = new EventFilterModel(0, 0, null, null);
-        list = EventHandler.getEventsWithFilter(efm, dbc);
+        list = EventHandler.getEventsWithFilter(u.getOauthToken(),efm, dbc);
         if(list == null){
             throw new Exception("failed to search events by date: returned null");
         }
@@ -710,7 +711,7 @@ public class DatabaseConnectionTest {
             throw new Exception("failed to search events by date: returned incorrect event");
         }
 
-        list = EventHandler.getEventsWithFilter(null, dbc);
+        list = EventHandler.getEventsWithFilter(u.getOauthToken(),null, dbc);
         if(list != null){
             throw new Exception("failed to search events by date: returned null");
         }
@@ -724,7 +725,7 @@ public class DatabaseConnectionTest {
         date = new Date(119, 1, 10, 1, 1, 1);
         Timestamp end = new Timestamp(date.getTime());
         EventFilterModel efm = new EventFilterModel(0, 0, start, end);
-        List<EventModel> list = EventHandler.getEventsWithFilter(efm, dbc);
+        List<EventModel> list = EventHandler.getEventsWithFilter(u.getOauthToken(),efm, dbc);
         if(list == null){
             throw new Exception("failed to search events by date: returned null");
         }
@@ -740,7 +741,7 @@ public class DatabaseConnectionTest {
         date = new Date(119, 1, 3, 1, 1, 1);
         end = new Timestamp(date.getTime());
         efm = new EventFilterModel(0, 0, start, end);
-        list = EventHandler.getEventsWithFilter(efm, dbc);
+        list = EventHandler.getEventsWithFilter(u.getOauthToken(),efm, dbc);
         if(list == null){
             throw new Exception("failed to search events by date: returned null");
         }
@@ -1059,7 +1060,7 @@ public class DatabaseConnectionTest {
         setUpTests();
         try{
             int userID = dbc.createUser("facebookUser", "First", "Last", "email@gmail.com", 2);
-            UserModel u = dbc.searchForUser("facebookUser", 2);
+            u = dbc.searchForUser("facebookUser", 2);
             UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
             dbc.setOauthCode(userID, ua.getoAuthCode());
 
@@ -1074,12 +1075,12 @@ public class DatabaseConnectionTest {
 
             OrganizationModel org = dbc.searchForOrg("My OrganizationModel");
             int eventID = dbc.createEvent(org.getOrgID(),"Event 1", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 500),
-                    "This is a test event", "Location", "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", 5 , 5, "ClockIn", "ClockOut");
+                    "This is a test event", "Location", "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", 5 , 5, "ClockIn", "ClockOut", false);
             event_id = eventID;
 
             EventModel e = dbc.searchEvents(event_id);
             dbc.modifyEventInfo(event_id, "Updated Name", new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 10), "Updated description",
-                    "Location 2", "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", 20, 20);
+                    "Location 2", "C:\\Users\\zm\\Pictures\\Camera Roll\\Schedule.PNG", 20, 20, false);
 
             ua = FacebookLogin.facebookLogin("User2", "Jeff", "Turkstra", "jeff@purdue.edu", dbc);
             u = dbc.searchForUser("User2", 2);

@@ -19,9 +19,10 @@ public class EventModel {
     private String clockInCode;
     private String clockOutCode;
     private String orgName;
+    private boolean privateEvent;
 
 
-    public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location, String orgName) {
+    public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location, String orgName, boolean privateEvent) {
         this.name = name;
         this.org_id = org_id;
         this.start = start;
@@ -29,24 +30,25 @@ public class EventModel {
         this.description = description;
         this.location = location;
         this.orgName = orgName;
+        this.privateEvent = privateEvent;
     }
 
     public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location, double latitude,
-                      double longitude, String orgName) {
-        this(name, org_id, start, end, description, location, orgName);
+                      double longitude, String orgName, boolean privateEvent) {
+        this(name, org_id, start, end, description, location, orgName, privateEvent);
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
     public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
-                      String imageFile, double latitude, double longitude, String orgName) {
+                      String imageFile, double latitude, double longitude, String orgName, boolean privateEvent) {
 
-        this(name, org_id, start, end, description, location, latitude, longitude, orgName);
+        this(name, org_id, start, end, description, location, latitude, longitude, orgName, privateEvent);
     }
 
     public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location, String orgName,
-                      String imageFile) {
-        this(name, org_id, start, end, description, location, orgName);
+                      String imageFile, boolean privateEvent) {
+        this(name, org_id, start, end, description, location, orgName, privateEvent);
         try {
             updateImage(imageFile);
         } catch (IOException e) {
@@ -59,8 +61,8 @@ public class EventModel {
 
     public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
                       String image_path, int event_id, double latitude, double longitude, String clockInCode,
-                      String clockOutCode, String orgName) {
-        this(name, org_id, start, end, description, location, latitude, longitude, orgName);
+                      String clockOutCode, String orgName, boolean privateEvent) {
+        this(name, org_id, start, end, description, location, latitude, longitude, orgName, privateEvent);
         this.image_path = image_path;
         this.event_id = event_id;
         this.clockInCode = clockInCode;
@@ -208,6 +210,14 @@ public class EventModel {
 
     public void setOrgName(String orgName) {
         this.orgName = orgName;
+    }
+
+    public boolean getPrivateEvent() {
+        return privateEvent;
+    }
+
+    public void setPrivateEvent(boolean privateEvent) {
+        this.privateEvent = privateEvent;
     }
 
     @Override

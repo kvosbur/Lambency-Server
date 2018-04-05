@@ -430,11 +430,18 @@ public class UserHandler {
                 for(int event: events){
                     EventModel eventModel = dbc.searchEvents(event);
                     if(eventModel == null){
-                        Printing.println("null event");
+                        Printing.printlnError("null event");
                     }
                     else {
-                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                        if (!u.getEventsAttending().contains(event)  && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
+                        boolean permissionToView = true;
+                        if(eventModel.getPrivateEvent()) {
+                            GroupiesModel g = dbc.searchGroupies(u.getUserId(), eventModel.getOrg_id());
+                            if( g==null || g.getType() < DatabaseConnection.MEMBER){
+                                permissionToView = false;
+                            }
+                        }
+                        if(permissionToView &&!u.getEventsAttending().contains(event)  && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
+                            eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                             subList.add(eventModel);
                         }
                     }
@@ -451,11 +458,18 @@ public class UserHandler {
                 for(int event: events){
                     EventModel eventModel = dbc.searchEvents(event);
                     if(eventModel == null){
-                        Printing.println("null event");
+                        Printing.printlnError("null event");
                     }
                     else {
-                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                        if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
+                        boolean permissionToView = true;
+                        if(eventModel.getPrivateEvent()) {
+                            GroupiesModel g = dbc.searchGroupies(u.getUserId(), eventModel.getOrg_id());
+                            if( g==null || g.getType() < DatabaseConnection.MEMBER){
+                                permissionToView = false;
+                            }
+                        }
+                        if(permissionToView &&!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
+                            eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                             subList.add(eventModel);
                         }
                     }
@@ -469,15 +483,25 @@ public class UserHandler {
 
             list = u.getFollowingOrgs();
             for(int org: list){
+                Printing.println(org);
                 ArrayList<Integer> events = dbc.getOrgEvents(org);
                 for(int event: events){
+                    Printing.println("EVent id: "+event);
                     EventModel eventModel = dbc.searchEvents(event);
                     if(eventModel == null){
-                        Printing.println("null event");
+                        Printing.printlnError("null event");
                     }
                     else {
-                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                        if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
+                        boolean permissionToView = true;
+                        if(eventModel.getPrivateEvent()) {
+                            GroupiesModel g = dbc.searchGroupies(u.getUserId(), eventModel.getOrg_id());
+                            if( g==null || g.getType() < DatabaseConnection.MEMBER){
+                                permissionToView = false;
+                                Printing.println("No permission to view");
+                            }
+                        }
+                        if(permissionToView &&!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
+                            eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                             subList.add(eventModel);
                         }
                     }
@@ -494,11 +518,18 @@ public class UserHandler {
                 for(int event: events){
                     EventModel eventModel = dbc.searchEvents(event);
                     if(eventModel == null){
-                        Printing.println("null event");
+                        Printing.printlnError("null event");
                     }
                     else {
-                        eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                        if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
+                        boolean permissionToView = true;
+                        if(eventModel.getPrivateEvent()) {
+                            GroupiesModel g = dbc.searchGroupies(u.getUserId(), eventModel.getOrg_id());
+                            if( g==null || g.getType() < DatabaseConnection.MEMBER){
+                                permissionToView = false;
+                            }
+                        }
+                        if(permissionToView && !u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
+                            eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                             subList.add(eventModel);
                         }
                     }
@@ -518,7 +549,14 @@ public class UserHandler {
                         nearby = EventHandler.sortEventListByDate(nearby);
                         int i = 0;
                         while (eventsFeed.size() < 20 && i < nearby.size()) {
-                            if (!u.getEventsAttending().contains(nearby.get(i).getEvent_id()) && !eventsFeed.contains(nearby.get(i)) && !subList.contains(nearby.get(i))) {
+                            boolean permissionToView = true;
+                            if(nearby.get(i).getPrivateEvent()) {
+                                GroupiesModel g = dbc.searchGroupies(u.getUserId(), nearby.get(i).getOrg_id());
+                                if( g==null || g.getType() < DatabaseConnection.MEMBER){
+                                    permissionToView = false;
+                                }
+                            }
+                            if(permissionToView && !u.getEventsAttending().contains(nearby.get(i).getEvent_id()) && !eventsFeed.contains(nearby.get(i)) && !subList.contains(nearby.get(i))) {
                                 if(nearby.get(i) != null) {
                                     eventsFeed.add(nearby.get(i));
                                 }
@@ -539,11 +577,18 @@ public class UserHandler {
                         for (int event : events) {
                             EventModel eventModel = dbc.searchEvents(event);
                             if(eventModel == null){
-                                Printing.println("null event");
+                                Printing.printlnError("null event");
                             }
                             else {
-                                eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
-                                if (!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
+                                boolean permissionToView = true;
+                                if(eventModel.getPrivateEvent()) {
+                                    GroupiesModel g = dbc.searchGroupies(u.getUserId(), eventModel.getOrg_id());
+                                    if( g==null || g.getType() < DatabaseConnection.MEMBER){
+                                        permissionToView = false;
+                                    }
+                                }
+                                if(permissionToView && !u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
+                                    eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                                     subList.add(eventModel);
                                 }
                             }
@@ -561,8 +606,8 @@ public class UserHandler {
             return eventsFeed;
         }
         catch (SQLException e){
-            Printing.println("SQLException");
-            Printing.println(e.toString());
+            Printing.printlnError("SQLException");
+            Printing.printlnError(e.toString());
         }
 //        catch (Exception e){
 //            Printing.println("General Exception");

@@ -56,11 +56,11 @@ public class LambencyAPITest {
         //Create organizer, create organization, and create event locally
         UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
         OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        EventModel event0 = new EventModel("Event before timeFrame", organization.getOrgID(), new Timestamp(startTime - 2000000), new Timestamp(startTime - 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event1 = new EventModel("Event starts before and ends during timeFrame", organization.getOrgID(), new Timestamp(startTime - 500000), new Timestamp(currentTime),"Test event 1", "1101 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event2 = new EventModel("Event runs during time Frame", organization.getOrgID(), new Timestamp(startTime), new Timestamp(endTime),"Test event 2", "1102 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event3 = new EventModel("Event starts during and ends after timeFrame", organization.getOrgID(), new Timestamp(currentTime), new Timestamp(endTime + 500000),"Test event 3", "1103 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event4 = new EventModel("Event after timeFrame", organization.getOrgID(), new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 4", "1103 3rd Street West Lafayette, IN 47906", "Organization");
+        EventModel event0 = new EventModel("Event before timeFrame", organization.getOrgID(), new Timestamp(startTime - 2000000), new Timestamp(startTime - 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event1 = new EventModel("Event starts before and ends during timeFrame", organization.getOrgID(), new Timestamp(startTime - 500000), new Timestamp(currentTime),"Test event 1", "1101 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event2 = new EventModel("Event runs during time Frame", organization.getOrgID(), new Timestamp(startTime), new Timestamp(endTime),"Test event 2", "1102 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event3 = new EventModel("Event starts during and ends after timeFrame", organization.getOrgID(), new Timestamp(currentTime), new Timestamp(endTime + 500000),"Test event 3", "1103 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event4 = new EventModel("Event after timeFrame", organization.getOrgID(), new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 4", "1103 3rd Street West Lafayette, IN 47906", "Organization",false);
         try {
             this.getDatabaseInstance().truncateTables();
 
@@ -174,11 +174,11 @@ public class LambencyAPITest {
         //Create organizer, create organization, and create event locally
         UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
         OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        EventModel event0 = new EventModel("Event before timeFrame", organization.getOrgID(), new Timestamp(startTime - 2000000), new Timestamp(startTime - 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event1 = new EventModel("Event starts before and ends during timeFrame", organization.getOrgID(), new Timestamp(startTime - 500000), new Timestamp(currentTime),"Test event 1", "1101 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event2 = new EventModel("Event runs during time Frame", organization.getOrgID(), new Timestamp(startTime), new Timestamp(endTime),"Test event 2", "1102 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event3 = new EventModel("Event starts during and ends after timeFrame", organization.getOrgID(), new Timestamp(currentTime), new Timestamp(endTime + 500000),"Test event 3", "1103 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event4 = new EventModel("Event after timeFrame", organization.getOrgID(), new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 4", "1103 3rd Street West Lafayette, IN 47906", "Organization");
+        EventModel event0 = new EventModel("Event before timeFrame", organization.getOrgID(), new Timestamp(startTime - 2000000), new Timestamp(startTime - 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event1 = new EventModel("Event starts before and ends during timeFrame", organization.getOrgID(), new Timestamp(startTime - 500000), new Timestamp(currentTime),"Test event 1", "1101 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event2 = new EventModel("Event runs during time Frame", organization.getOrgID(), new Timestamp(startTime), new Timestamp(endTime),"Test event 2", "1102 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event3 = new EventModel("Event starts during and ends after timeFrame", organization.getOrgID(), new Timestamp(currentTime), new Timestamp(endTime + 500000),"Test event 3", "1103 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event4 = new EventModel("Event after timeFrame", organization.getOrgID(), new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 4", "1103 3rd Street West Lafayette, IN 47906", "Organization",false);
         try {
             this.getDatabaseInstance().truncateTables();
 
@@ -245,10 +245,10 @@ public class LambencyAPITest {
         //Create organizer, create 3 users, create organization, and create event locally
         UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
         OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        EventModel event0 = new EventModel("Event before startDate", organization.getOrgID(), new Timestamp(startTimeZero), new Timestamp(currentTime - 5000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event1 = new EventModel("Event ends on startDate", organization.getOrgID(), new Timestamp(startTimeZero), new Timestamp(currentTime),"Test event 1", "1101 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event2 = new EventModel("Event starts before and ends after Start Date", organization.getOrgID(), new Timestamp((currentTime + startTimeZero)/2), new Timestamp(currentTime + 10000000),"Test event 2", "1102 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event3 = new EventModel("Event starts after start date", organization.getOrgID(), new Timestamp(currentTime + 10000000), new Timestamp(currentTime + 20000000),"Test event 3", "1103 3rd Street West Lafayette, IN 47906", "Organization");
+        EventModel event0 = new EventModel("Event before startDate", organization.getOrgID(), new Timestamp(startTimeZero), new Timestamp(currentTime - 5000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event1 = new EventModel("Event ends on startDate", organization.getOrgID(), new Timestamp(startTimeZero), new Timestamp(currentTime),"Test event 1", "1101 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event2 = new EventModel("Event starts before and ends after Start Date", organization.getOrgID(), new Timestamp((currentTime + startTimeZero)/2), new Timestamp(currentTime + 10000000),"Test event 2", "1102 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event3 = new EventModel("Event starts after start date", organization.getOrgID(), new Timestamp(currentTime + 10000000), new Timestamp(currentTime + 20000000),"Test event 3", "1103 3rd Street West Lafayette, IN 47906", "Organization",false);
         try {
             this.getDatabaseInstance().truncateTables();
 
@@ -315,10 +315,10 @@ public class LambencyAPITest {
         //Create organizer, create 3 users, create organization, and create event locally
         UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
         OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        EventModel event0 = new EventModel("Event before endDate", organization.getOrgID(), new Timestamp(startTimeZero), new Timestamp(currentTime - 5000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event1 = new EventModel("Event ends on endDate", organization.getOrgID(), new Timestamp(startTimeZero), new Timestamp(currentTime),"Test event 1", "1101 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event2 = new EventModel("Event starts before and ends after endDate", organization.getOrgID(), new Timestamp((currentTime + startTimeZero)/2), new Timestamp(currentTime + 10000000),"Test event 2", "1102 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event3 = new EventModel("Event starts after endDate", organization.getOrgID(), new Timestamp(currentTime + 10000000), new Timestamp(currentTime + 20000000),"Test event 3", "1103 3rd Street West Lafayette, IN 47906", "Organization");
+        EventModel event0 = new EventModel("Event before endDate", organization.getOrgID(), new Timestamp(startTimeZero), new Timestamp(currentTime - 5000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event1 = new EventModel("Event ends on endDate", organization.getOrgID(), new Timestamp(startTimeZero), new Timestamp(currentTime),"Test event 1", "1101 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event2 = new EventModel("Event starts before and ends after endDate", organization.getOrgID(), new Timestamp((currentTime + startTimeZero)/2), new Timestamp(currentTime + 10000000),"Test event 2", "1102 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event3 = new EventModel("Event starts after endDate", organization.getOrgID(), new Timestamp(currentTime + 10000000), new Timestamp(currentTime + 20000000),"Test event 3", "1103 3rd Street West Lafayette, IN 47906", "Organization",false);
         try {
             this.getDatabaseInstance().truncateTables();
 
@@ -385,11 +385,11 @@ public class LambencyAPITest {
         //Create organizer, create 3 users, create organization, and create event locally
         UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
         OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        EventModel event0 = new EventModel("Event before timeFrame", organization.getOrgID(), new Timestamp(startTime - 2000000), new Timestamp(startTime - 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event1 = new EventModel("Event starts before and ends during timeFrame", organization.getOrgID(), new Timestamp(startTime - 500000), new Timestamp(currentTime),"Test event 1", "1101 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event2 = new EventModel("Event runs during time Frame", organization.getOrgID(), new Timestamp(startTime), new Timestamp(endTime),"Test event 2", "1102 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event3 = new EventModel("Event starts during and ends after timeFrame", organization.getOrgID(), new Timestamp(currentTime), new Timestamp(endTime + 500000),"Test event 3", "1103 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event4 = new EventModel("Event after timeFrame", organization.getOrgID(), new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 4", "1103 3rd Street West Lafayette, IN 47906", "Organization");
+        EventModel event0 = new EventModel("Event before timeFrame", organization.getOrgID(), new Timestamp(startTime - 2000000), new Timestamp(startTime - 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event1 = new EventModel("Event starts before and ends during timeFrame", organization.getOrgID(), new Timestamp(startTime - 500000), new Timestamp(currentTime),"Test event 1", "1101 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event2 = new EventModel("Event runs during time Frame", organization.getOrgID(), new Timestamp(startTime), new Timestamp(endTime),"Test event 2", "1102 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event3 = new EventModel("Event starts during and ends after timeFrame", organization.getOrgID(), new Timestamp(currentTime), new Timestamp(endTime + 500000),"Test event 3", "1103 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event4 = new EventModel("Event after timeFrame", organization.getOrgID(), new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 4", "1103 3rd Street West Lafayette, IN 47906", "Organization",false);
         Printing.println(new Timestamp(endTime + 1000000) +" baaarrb   " + new Timestamp(endTime + 2000000));
         try {
             this.getDatabaseInstance().truncateTables();
@@ -462,10 +462,10 @@ public class LambencyAPITest {
         //Create organizer, create 3 users, create organization, and create event locally
         UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
         OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        EventModel event0 = new EventModel("Event At location", organization.getOrgID(), new Timestamp(startTime - 2000000), new Timestamp(startTime - 1000000),"Test event 0", "1101 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event1 = new EventModel("Event near location", organization.getOrgID(), new Timestamp(startTime - 500000), new Timestamp(currentTime),"Test event 1", "1275 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event2 = new EventModel("Event far but within range", organization.getOrgID(), new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 4", "47403", "Organization");
-        EventModel event3 = new EventModel("Event not in range", organization.getOrgID(), new Timestamp(currentTime), new Timestamp(endTime + 500000),"Test event 3", "63017", "Organization");
+        EventModel event0 = new EventModel("Event At location", organization.getOrgID(), new Timestamp(startTime - 2000000), new Timestamp(startTime - 1000000),"Test event 0", "1101 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event1 = new EventModel("Event near location", organization.getOrgID(), new Timestamp(startTime - 500000), new Timestamp(currentTime),"Test event 1", "1275 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event2 = new EventModel("Event far but within range", organization.getOrgID(), new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 4", "47403", "Organization",false);
+        EventModel event3 = new EventModel("Event not in range", organization.getOrgID(), new Timestamp(currentTime), new Timestamp(endTime + 500000),"Test event 3", "63017", "Organization",false);
         try {
             this.getDatabaseInstance().truncateTables();
 
@@ -535,17 +535,17 @@ public class LambencyAPITest {
         //Create organizer, create 3 users, create organization, and create event locally
         UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
         OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        EventModel event01 = new EventModel("Event At location out of Time Frame", organization.getOrgID(),  new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 0", "1101 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event02 = new EventModel("Event At location in time Frame", organization.getOrgID(),  new Timestamp(startTime), new Timestamp(endTime),"Test event 0", "1101 3rd Street West Lafayette, IN 47906", "Organization");
+        EventModel event01 = new EventModel("Event At location out of Time Frame", organization.getOrgID(),  new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 0", "1101 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event02 = new EventModel("Event At location in time Frame", organization.getOrgID(),  new Timestamp(startTime), new Timestamp(endTime),"Test event 0", "1101 3rd Street West Lafayette, IN 47906", "Organization",false);
 
-        EventModel event11 = new EventModel("Event near location not in timeFrame", organization.getOrgID(),  new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 1", "1275 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event12 = new EventModel("Event near location in timeFrame", organization.getOrgID(),  new Timestamp(startTime), new Timestamp(endTime),"Test event 1", "1275 3rd Street West Lafayette, IN 47906", "Organization");
+        EventModel event11 = new EventModel("Event near location not in timeFrame", organization.getOrgID(),  new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 1", "1275 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event12 = new EventModel("Event near location in timeFrame", organization.getOrgID(),  new Timestamp(startTime), new Timestamp(endTime),"Test event 1", "1275 3rd Street West Lafayette, IN 47906", "Organization",false);
 
-        EventModel event21 = new EventModel("Event far but within range not in timeFrame", organization.getOrgID(), new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 4", "47403", "Organization");
-        EventModel event22 = new EventModel("Event far but within range in timeFrame", organization.getOrgID(),  new Timestamp(startTime), new Timestamp(endTime),"Test event 4", "47403", "Organization");
+        EventModel event21 = new EventModel("Event far but within range not in timeFrame", organization.getOrgID(), new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 4", "47403", "Organization",false);
+        EventModel event22 = new EventModel("Event far but within range in timeFrame", organization.getOrgID(),  new Timestamp(startTime), new Timestamp(endTime),"Test event 4", "47403", "Organization",false);
 
-        EventModel event31 = new EventModel("Event not in range not in timeFrame", organization.getOrgID(),  new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 3", "63017", "Organization");
-        EventModel event32 = new EventModel("Event not in range in timeFrame", organization.getOrgID(),  new Timestamp(startTime), new Timestamp(endTime),"Test event 3", "63017", "Organization");
+        EventModel event31 = new EventModel("Event not in range not in timeFrame", organization.getOrgID(),  new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 3", "63017", "Organization",false);
+        EventModel event32 = new EventModel("Event not in range in timeFrame", organization.getOrgID(),  new Timestamp(startTime), new Timestamp(endTime),"Test event 3", "63017", "Organization",false);
 
         try {
             this.getDatabaseInstance().truncateTables();
@@ -625,7 +625,7 @@ public class LambencyAPITest {
         UserModel user2 = new UserModel("user2", "lastnameUSER2", "user2@nonemail.com");
         UserModel user3 = new UserModel("user3", "lastnameUSER3", "user3@nonemail.com");
         OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
+        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization",false);
         try {
             this.getDatabaseInstance().truncateTables();
 
@@ -688,7 +688,7 @@ public class LambencyAPITest {
         UserModel user2 = new UserModel("user2", "lastnameUSER2", "user2@nonemail.com");
         UserModel user3 = new UserModel("user3", "lastnameUSER3", "user3@nonemail.com");
         OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
+        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization",false);
         try {
             this.getDatabaseInstance().truncateTables();
 
@@ -748,7 +748,7 @@ public class LambencyAPITest {
         //Create organizer, create 3 users, create organization, and create event locally
         UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
         OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
+        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization",false);
         try {
             this.getDatabaseInstance().truncateTables();
 
@@ -802,7 +802,7 @@ public class LambencyAPITest {
         UserModel user2 = new UserModel("user2", "lastnameUSER2", "user2@nonemail.com");
         UserModel user3 = new UserModel("user3", "lastnameUSER3", "user3@nonemail.com");
         OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
+        EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization",false);
         try {
             this.getDatabaseInstance().truncateTables();
 
@@ -865,7 +865,7 @@ public class LambencyAPITest {
                 "Test org","organization@noemail.com",user1,null);
 
         EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()),
-                new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
+                new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization",false);
 
         try {
             this.getDatabaseInstance().truncateTables();
@@ -925,7 +925,7 @@ public class LambencyAPITest {
                 "Test org","organization@noemail.com",user1,null);
 
         EventModel event = new EventModel("Event 1", organization.getOrgID(), new Timestamp(System.currentTimeMillis()),
-                new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization");
+                new Timestamp(System.currentTimeMillis() + 50000),"Test event", "1101 3rd Street West Lafayette, IN 47906", "Organization",false);
 
         try {
             this.getDatabaseInstance().truncateTables();
@@ -984,7 +984,7 @@ public class LambencyAPITest {
         OrganizationModel organization1 = new OrganizationModel(organizer,"Organization1","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
         OrganizationModel organization2 = new OrganizationModel(organizer,"Organization2","1101 3rd street",-1,"Test org2","organization2@noemail.com",organizer,null);
 
-        EventModel event0 = new EventModel("Event before timeFrame", organization1.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization1");
+        EventModel event0 = new EventModel("Event before timeFrame", organization1.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization1",false);
 
 
 
@@ -1052,7 +1052,7 @@ public class LambencyAPITest {
         OrganizationModel organization1 = new OrganizationModel(organizer,"Organization1","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
         OrganizationModel organization2 = new OrganizationModel(organizer,"Organization2","1101 3rd street",-1,"Test org2","organization2@noemail.com",organizer,null);
 
-        EventModel event0 = new EventModel("Event before timeFrame", organization1.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization1");
+        EventModel event0 = new EventModel("Event before timeFrame", organization1.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization1",false);
 
 
 
@@ -1806,18 +1806,18 @@ public class LambencyAPITest {
         //Create organizer, create organization, and create event locally
         UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
         OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        EventModel event0 = new EventModel("Event before timeFrame", organization.getOrgID(), new Timestamp(startTime - 2000000), new Timestamp(startTime - 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event1 = new EventModel("Event starts before and ends during timeFrame", organization.getOrgID(), new Timestamp(startTime - 500000), new Timestamp(currentTime),"Test event 1", "1101 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event2 = new EventModel("Event runs during time Frame", organization.getOrgID(), new Timestamp(startTime), new Timestamp(endTime),"Test event 2", "1102 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event3 = new EventModel("Event starts during and ends after timeFrame", organization.getOrgID(), new Timestamp(currentTime), new Timestamp(endTime + 500000),"Test event 3", "1103 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event4 = new EventModel("Event after timeFrame", organization.getOrgID(), new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 4", "1103 3rd Street West Lafayette, IN 47906", "Organization");
+        EventModel event0 = new EventModel("Event before timeFrame", organization.getOrgID(), new Timestamp(startTime - 2000000), new Timestamp(startTime - 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event1 = new EventModel("Event starts before and ends during timeFrame", organization.getOrgID(), new Timestamp(startTime - 500000), new Timestamp(currentTime),"Test event 1", "1101 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event2 = new EventModel("Event runs during time Frame", organization.getOrgID(), new Timestamp(startTime), new Timestamp(endTime),"Test event 2", "1102 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event3 = new EventModel("Event starts during and ends after timeFrame", organization.getOrgID(), new Timestamp(currentTime), new Timestamp(endTime + 500000),"Test event 3", "1103 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event4 = new EventModel("Event after timeFrame", organization.getOrgID(), new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 4", "1103 3rd Street West Lafayette, IN 47906", "Organization",false);
 
 
         UserModel organizer2 = new UserModel("Organizer2", "Lastname2", "organizer2@nonemail.com");
         OrganizationModel organization1 = new OrganizationModel(organizer2,"Organization2","1101 3rd street",-1,"Test org2","organizatio2@noemail.com",organizer2,null);
         OrganizationModel organization2 = new OrganizationModel(organizer2,"Organization3","1101 3rd street",-1,"Test org3","organization3@noemail.com",organizer2,null);
 
-        EventModel event20 = new EventModel("Event 20", organization1.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization1");
+        EventModel event20 = new EventModel("Event 20", organization1.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization1",false);
 
         try {
             this.getDatabaseInstance().truncateTables();
@@ -1906,18 +1906,18 @@ public class LambencyAPITest {
         //Create organizer, create organization, and create event locally
         UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
         OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
-        EventModel event0 = new EventModel("Event before timeFrame", organization.getOrgID(), new Timestamp(startTime - 2000000), new Timestamp(startTime - 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event1 = new EventModel("Event starts before and ends during timeFrame", organization.getOrgID(), new Timestamp(startTime - 500000), new Timestamp(currentTime),"Test event 1", "1101 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event2 = new EventModel("Event runs during time Frame", organization.getOrgID(), new Timestamp(startTime), new Timestamp(endTime),"Test event 2", "1102 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event3 = new EventModel("Event starts during and ends after timeFrame", organization.getOrgID(), new Timestamp(currentTime), new Timestamp(endTime + 500000),"Test event 3", "1103 3rd Street West Lafayette, IN 47906", "Organization");
-        EventModel event4 = new EventModel("Event after timeFrame", organization.getOrgID(), new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 4", "1103 3rd Street West Lafayette, IN 47906", "Organization");
+        EventModel event0 = new EventModel("Event before timeFrame", organization.getOrgID(), new Timestamp(startTime - 2000000), new Timestamp(startTime - 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event1 = new EventModel("Event starts before and ends during timeFrame", organization.getOrgID(), new Timestamp(startTime - 500000), new Timestamp(currentTime),"Test event 1", "1101 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event2 = new EventModel("Event runs during time Frame", organization.getOrgID(), new Timestamp(startTime), new Timestamp(endTime),"Test event 2", "1102 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event3 = new EventModel("Event starts during and ends after timeFrame", organization.getOrgID(), new Timestamp(currentTime), new Timestamp(endTime + 500000),"Test event 3", "1103 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event4 = new EventModel("Event after timeFrame", organization.getOrgID(), new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 4", "1103 3rd Street West Lafayette, IN 47906", "Organization",false);
 
 
         UserModel organizer2 = new UserModel("Organizer2", "Lastname2", "organizer2@nonemail.com");
         OrganizationModel organization1 = new OrganizationModel(organizer2,"Organization2","1101 3rd street",-1,"Test org2","organizatio2@noemail.com",organizer2,null);
         OrganizationModel organization2 = new OrganizationModel(organizer2,"Organization3","1101 3rd street",-1,"Test org3","organization3@noemail.com",organizer2,null);
 
-        EventModel event20 = new EventModel("Event 20", organization1.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization1");
+        EventModel event20 = new EventModel("Event 20", organization1.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization1",false);
 
         try {
             this.getDatabaseInstance().truncateTables();
@@ -2244,13 +2244,13 @@ public class LambencyAPITest {
             eventlessOrg = OrganizationHandler.createOrganization(eventlessOrg, dbc);
 
             //make events
-            EventModel event1 = new EventModel("Event1", org1.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 2000000),"Event 1", "1103 3rd Street West Lafayette, IN 47906", "Org1");
+            EventModel event1 = new EventModel("Event1", org1.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 2000000),"Event 1", "1103 3rd Street West Lafayette, IN 47906", "Org1",false);
             event1 = EventHandler.createEvent(event1, dbc);
-            EventModel event2 = new EventModel("Event2", org2.getOrgID(), new Timestamp(System.currentTimeMillis() + 3000000), new Timestamp(System.currentTimeMillis() + 4000000),"Event 2", "305 N University St West Lafayette, IN 47906", "Org2");
+            EventModel event2 = new EventModel("Event2", org2.getOrgID(), new Timestamp(System.currentTimeMillis() + 3000000), new Timestamp(System.currentTimeMillis() + 4000000),"Event 2", "305 N University St West Lafayette, IN 47906", "Org2",false);
             event2 = EventHandler.createEvent(event2, dbc);
-            EventModel event3 = new EventModel("Event3", org3.getOrgID(), new Timestamp(System.currentTimeMillis() + 4000000), new Timestamp(System.currentTimeMillis() + 5000000),"Event 3", "1090 3rd Street West Lafayette, IN 47906", "Org3");
+            EventModel event3 = new EventModel("Event3", org3.getOrgID(), new Timestamp(System.currentTimeMillis() + 4000000), new Timestamp(System.currentTimeMillis() + 5000000),"Event 3", "1090 3rd Street West Lafayette, IN 47906", "Org3",false);
             event3 = EventHandler.createEvent(event3, dbc);
-            EventModel event4 = new EventModel("Event4", org3.getOrgID(), new Timestamp(System.currentTimeMillis() + 5000000), new Timestamp(System.currentTimeMillis() + 6000000),"Event 4", "250 N University St West Lafayette, IN 47906", "Org3");
+            EventModel event4 = new EventModel("Event4", org3.getOrgID(), new Timestamp(System.currentTimeMillis() + 5000000), new Timestamp(System.currentTimeMillis() + 6000000),"Event 4", "250 N University St West Lafayette, IN 47906", "Org3",false);
             event4 = EventHandler.createEvent(event4, dbc);
 
             //add users to other groups
