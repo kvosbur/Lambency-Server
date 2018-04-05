@@ -563,6 +563,9 @@ public class OrganizationHandler {
         ArrayList<OrganizationModel> orgs;
         try{
             orgs = dbc.searchOrganizationsWithFilterModel(ofm);
+            if(orgs == null){
+                Printing.printlnError("ORGS IS NULL");
+            }
 
         } catch (SQLException e) {
             Printing.println(e.toString());

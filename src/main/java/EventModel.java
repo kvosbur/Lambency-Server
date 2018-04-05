@@ -30,6 +30,7 @@ public class EventModel {
         this.description = description;
         this.location = location;
         this.orgName = orgName;
+        this.privateEvent = privateEvent;
     }
 
     public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location, double latitude,
