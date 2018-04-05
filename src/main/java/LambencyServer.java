@@ -468,6 +468,7 @@ public class LambencyServer{
                 , new JsonTransformer());
         get("/Event/search","application/json", (request,response)->{
             Printing.printlnEndpoint("/Event/search");
+            Printing.printlnError("/Event/search is deprecated");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
@@ -483,12 +484,17 @@ public class LambencyServer{
         post("/Event/searchWithFilter","application/json",(request, response) -> {
             Printing.printlnEndpoint("/Event/searchWithFilter");
             EventFilterModel efm = new Gson().fromJson(request.body(), EventFilterModel.class);
+            String oAuth = request.queryParams("oAuthCode");
+            if(oAuth == null){
+                Printing.printlnError("Error in /Event/searchWithFilter. Additional param required from Retrofit: oAuthCode");
+                return null;
+            }
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 Printing.println("Error on database connet");
                 return null;
             }
-            List<EventModel> ret = EventHandler.getEventsWithFilter(efm, databaseConnection);
+            List<EventModel> ret = EventHandler.getEventsWithFilter(oAuth, efm, databaseConnection);
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());

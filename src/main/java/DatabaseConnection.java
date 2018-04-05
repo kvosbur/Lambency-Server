@@ -518,7 +518,7 @@ public class DatabaseConnection {
 
     public int createEvent(int org_id, String name , Timestamp start, Timestamp end, String description, String location,
                            String imgPath, double latitude, double longitude, String clockInCode, String clockOutCode) throws SQLException{
-        Printing.println("using outdated createEvent");
+        Printing.println("using outdated createEvent!!!!!!!!!!!!!");
 
         //insert event into table
         PreparedStatement ps;
@@ -562,12 +562,11 @@ public class DatabaseConnection {
 
     public int createEvent(int org_id, String name , Timestamp start, Timestamp end, String description, String location,
                            String imgPath, double latitude, double longitude, String clockInCode, String clockOutCode, boolean privateEvent) throws SQLException{
-        Printing.println("using outdated createEvent");
 
         //insert event into table
         PreparedStatement ps;
         ps = connect.prepareStatement("INSERT INTO events (name, org_id, start_time, end_time, description, location, " +
-                "event_img, latitude, longitude, clock_in_code, clock_out_code) VALUES ('TEMP',?,?,?,?,?,?,?,?,?,?)");
+                "event_img, latitude, longitude, clock_in_code, clock_out_code, private) VALUES ('TEMP',?,?,?,?,?,?,?,?,?,?,?)");
 
 
         if(ps != null) {
@@ -582,6 +581,7 @@ public class DatabaseConnection {
             ps.setDouble(8, longitude);
             ps.setString(9, clockInCode);
             ps.setString(10, clockOutCode);
+            ps.setBoolean(11,privateEvent);
             ps.execute();
 
         }else{
