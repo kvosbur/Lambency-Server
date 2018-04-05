@@ -547,7 +547,6 @@ public class DatabaseConnection {
      * @param userID  userid of user to get token from
      * @return firebase token String
      */
-
     public String userGetFirebase(int userID) throws SQLException{
 
         String query = "SELECT  firebase_token FROM user WHERE user_id = ?";
@@ -560,6 +559,30 @@ public class DatabaseConnection {
 
         if(rs.next()){
             return rs.getString(1);
+        }
+        return null;
+    }
+
+    /**
+     *  Gets the hash and salt for a given user
+     * @param userID  userid of user to get info for
+     * @return array containing hash and salt where it goes salt and then hash
+     */
+    public String[] userGetHash(int userID) throws SQLException{
+
+        String query = "SELECT  salt, hash_password FROM user WHERE user_id = ?";
+
+        PreparedStatement ps = connect.prepareStatement(query);
+
+        ps.setInt(1, userID);
+
+        ResultSet rs = ps.executeQuery();
+
+        if(rs.next()){
+            String[] strings = new String[2];
+            strings[0] = rs.getString(1);
+            strings[1] = rs.getString(2);
+            return strings;
         }
         return null;
     }

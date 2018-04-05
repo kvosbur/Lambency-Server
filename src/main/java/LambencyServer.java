@@ -90,6 +90,18 @@ public class LambencyServer{
             databaseConnection.close();
             return authenticator;
         }, new JsonTransformer());
+        get("/User/login/lambency", "application/json", (request, response) -> {
+            Printing.printlnEndpoint("/User/login/lambency");
+            String email = request.queryParams("email");
+            String password = request.queryParams("password");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            UserAuthenticator authenticator = UserHandler.lambencyLogin(email, password, databaseConnection);
+            databaseConnection.close();
+            return authenticator;
+        }, new JsonTransformer());
         get("/User/search", "application/json", (request, response) -> {
             Printing.printlnEndpoint("/User/search");
             String oAuthCode = request.queryParams("oAuthToken");

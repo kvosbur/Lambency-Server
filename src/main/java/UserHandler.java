@@ -1,4 +1,3 @@
-import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -683,11 +682,11 @@ public class UserHandler {
             }
 
             //get hash and salt for given passwd
-            String[] pair = PasswordUtil.hash(passwd.toCharArray(), Charset.defaultCharset());//{"salt","hash"};  //implement hashing and salt creation method
+            String hash = PasswordUtil.hash(passwd);//{"salt","hash"};  //implement hashing and salt creation method
 
             //save account information into database with a non verified email
 
-            int id = dbc.createUser(firstName,lastName,email,pair[0], pair[1]); //implement database method to insert information into table
+            int id = dbc.createUser(firstName,lastName,email,hash, ""); //implement database method to insert information into table
 
             //send email verification to user
             String code = new String(PasswordUtil.generateSalt(30));
@@ -719,6 +718,8 @@ public class UserHandler {
             if(storedCode.equals(verificationCode)){
                 //valid verification code
                 dbc.userRemoveVerification(userID);
+                UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+                dbc.setOauthCode(userID, ua.getoAuthCode());
                 return 0;
             }
             return 3;
@@ -726,6 +727,40 @@ public class UserHandler {
             Printing.println("Excpetion");
             Printing.println(e.toString());
             return 1;
+        }
+
+    }
+
+
+    /**
+     * Logins in a user using their email and password
+     * @param email email of user to login
+     * @param password unhashed password of user login attempt
+     * @param dbc database connection to be used in method
+     * @return UserAuthenticator object
+     */
+    public static UserAuthenticator lambencyLogin(String email, String password, DatabaseConnection dbc){
+        try{
+            //search for user by email
+            int user_id = dbc.getUserByEmail(email);
+            if(user_id < 0){
+                return null;
+            }
+
+            //get salt and hash for user
+            String[] strings = dbc.userGetHash(user_id);
+            //add salt to password and verify it against hash
+            if(PasswordUtil.verify(password, strings[1])){
+                //correct password
+                UserModel um = dbc.searchForUser("" + user_id, DatabaseConnection.LAMBNECYUSERID);
+                return new UserAuthenticator(UserAuthenticator.Status.SUCCESS, um.getOauthToken());
+            }
+            //invalid password
+            return new UserAuthenticator(UserAuthenticator.Status.INVALID_PASSWORD, null);
+        } catch (Exception e) {
+            Printing.println("Excpetion");
+            Printing.println(e.toString());
+            return null;
         }
 
     }
