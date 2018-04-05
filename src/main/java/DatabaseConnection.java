@@ -1096,11 +1096,12 @@ public class DatabaseConnection {
         ps = connect.prepareStatement("DELETE FROM events WHERE event_id = ?");
         ps.setInt(1,eventID);
         ps.executeUpdate();
-        result = ps.executeUpdate();
         ps = connect.prepareStatement("DELETE FROM event_attendence WHERE event_id = ?");
         ps.setInt(1,eventID);
         ps.executeUpdate();
-        result = ps.executeUpdate();
+        ps = connect.prepareStatement("DELETE FROM endorse WHERE event_id = ?");
+        ps.setInt(1,eventID);
+        ps.executeUpdate();
 
         return 0;
     }

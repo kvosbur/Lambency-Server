@@ -144,9 +144,9 @@ public void getOrganizationSearch(String name){
         });
 }
 
-    public void updateEventRetrofit(EventModel event){
+    public void updateEventRetrofit(EventModel event, String message){
 
-        this.getInstance().postUpdateEvent(event).enqueue(new Callback<Integer>() {
+        this.getInstance().getUpdateEvent(event, message).enqueue(new Callback<Integer>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.body() == null || response.code() != 200) {
