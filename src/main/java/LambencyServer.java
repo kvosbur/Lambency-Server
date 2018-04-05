@@ -1,11 +1,5 @@
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
 import com.google.gson.Gson;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -72,6 +66,8 @@ public class LambencyServer{
         Timer timer = new Timer();
 
         timer.schedule(new ServerTaskTimer(serverTaskThread),date.getTime(),TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS));
+
+        FirebaseHelper.initializeFirebase();
     }
 
     public void addroutes(){

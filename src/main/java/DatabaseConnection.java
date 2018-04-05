@@ -404,7 +404,46 @@ public class DatabaseConnection {
     }
 
 
+    /**
+     *  Given a user id assign a firebase token to that user
+     * @param userID  userid of user to add token to
+     * @param firebaseToken  firebase token for specified user
+     * @return 1 on success and != 1 on failure
+     */
+    public int userSetFirebase(int userID, String firebaseToken) throws SQLException{
 
+        String query = "UPDATE user set firebase_token = ? where user_id = ?";
+        PreparedStatement ps = connect.prepareStatement(query);
+
+        ps.setString(1,firebaseToken);
+        ps.setInt(2, userID);
+
+        int ret = ps.executeUpdate();
+
+        return ret;
+    }
+
+    /**
+     *  Given a user id get the firebase token for that user
+     * @param userID  userid of user to get token from
+     * @return firebase token String
+     */
+
+    public String userGetFirebase(int userID) throws SQLException{
+
+        String query = "SELECT  firebase_token FROM user WHERE user_id = ?";
+
+        PreparedStatement ps = connect.prepareStatement(query);
+
+        ps.setInt(1, userID);
+
+        ResultSet rs = ps.executeQuery();
+
+        if(rs.next()){
+            return rs.getString(1);
+        }
+        return null;
+    }
 
 
     /**
@@ -998,9 +1037,6 @@ public class DatabaseConnection {
 
         return 0;
     }
-
-
-
 
 
     /**
