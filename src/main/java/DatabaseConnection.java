@@ -1144,7 +1144,7 @@ public class DatabaseConnection {
         ps = connect.prepareStatement("DELETE FROM event_attendence WHERE event_id = ?");
         ps.setInt(1,eventID);
         ps.executeUpdate();
-        ps = connect.prepareStatement("DELETE FROM endorse WHERE event_id = ?");
+        ps = connect.prepareStatement("DELETE FROM endorse WHERE endorsed_id = ?");
         ps.setInt(1,eventID);
         ps.executeUpdate();
 
@@ -1248,14 +1248,59 @@ public class DatabaseConnection {
         return orgID;
     }
 
-    public OrganizationModel modifyOrganization(OrganizationModel organizationModel) throws SQLException{
+    /**
+     * modifies the org in the database to organizationModel
+     * @param organizationModel
+     * @return 0 on success, -1 on error
+     * @throws SQLException
+     */
+    public int modifyOrganization(OrganizationModel organizationModel) throws SQLException{
         //create prepare statement for sql query
-        return null;
+        PreparedStatement ps = connect.prepareStatement("UPDATE organization SET name = ?, description = ?, org_email = ?, " +
+                        "org_img = ?, org_location = ?, longitude = ?, latitude = ? WHERE org_id = ?");
+
+        //set parameters for prepared statement
+        if(ps != null) {
+            ps.setString(1, organizationModel.getName());
+            ps.setString(2, organizationModel.getDescription());
+            ps.setString(3, organizationModel.getEmail());
+            ps.setString(4, organizationModel.getImage());
+            ps.setString(5, organizationModel.getLocation());
+            ps.setDouble(6,organizationModel.getLongitude());
+            ps.setDouble(7,organizationModel.getLattitude());
+            ps.setInt(8,organizationModel.getOrgID());
+        }
+        else{
+            return -1;
+        }
+
+        //execute query
+        ps.executeUpdate();
+
+        return 0;
     }
 
+    /**
+     * Removes the orgization
+     * @param orgID
+     * @return
+     * @throws SQLException
+     */
     public int deleteOrganization(int orgID) throws SQLException{
+        if(searchEvents(orgID) == null){
+            return -1;
+        }
+        PreparedStatement ps;
+        int result;
+        ps = connect.prepareStatement("UPDATE organization SET deleted = 1 WHERE org_id = ?");
+        ps.setInt(1,orgID);
+        ps.executeUpdate();
 
-        return -1;
+        ps = connect.prepareStatement("DELETE FROM groupies WHERE org_id = ?");
+        ps.setInt(1,orgID);
+        ps.executeUpdate();
+
+        return 0;
     }
 
     /**
