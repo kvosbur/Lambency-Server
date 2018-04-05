@@ -72,7 +72,6 @@ public class DatabaseConnection {
         return array;
     }
 
-
     /**
      * Description: given unique string identifier return matching user object
      @param identifier either represents google user id or facebook user id depending on situation
@@ -314,11 +313,12 @@ public class DatabaseConnection {
      * @throws SQLException Throws if there is an issue with the database
      */
 
-    public void modifyEventInfo(int event_id, String name , Timestamp start, Timestamp end, String description, String location, String imgPath, double lat, double longit) throws SQLException{
+
+    public void modifyEventInfo(int event_id, String name , Timestamp start, Timestamp end, String description, String location, String imgPath, double lat, double longit, boolean privateEvent) throws SQLException{
 
         //create prepare statement for sql query
         PreparedStatement ps = connect.prepareStatement("UPDATE events SET name = ? , start_time = ?, " +
-                "end_time = ? , description = ? , location = ? , event_img = ?, latitude = ?, longitude = ? WHERE event_id = ?");
+                "end_time = ? , description = ? , location = ? , event_img = ?, latitude = ?, longitude = ?, private = ? WHERE event_id = ?");
 
         //set parameters for prepared statement
         ps.setString(1, name);
@@ -330,6 +330,7 @@ public class DatabaseConnection {
         ps.setDouble(7,lat);
         ps.setDouble(8,longit);
         ps.setInt(9,event_id);
+        ps.setBoolean(10,privateEvent);
 
         //execute query
         ps.executeUpdate();
@@ -517,7 +518,7 @@ public class DatabaseConnection {
 
     public int createEvent(int org_id, String name , Timestamp start, Timestamp end, String description, String location,
                            String imgPath, double latitude, double longitude, String clockInCode, String clockOutCode) throws SQLException{
-
+        Printing.println("using outdated createEvent!!!!!!!!!!!!!");
 
         //insert event into table
         PreparedStatement ps;
@@ -537,6 +538,50 @@ public class DatabaseConnection {
             ps.setDouble(8, longitude);
             ps.setString(9, clockInCode);
             ps.setString(10, clockOutCode);
+            ps.execute();
+
+        }else{
+            throw new SQLException("Error in SQL database.");
+        }
+
+        //get event id from sql table
+        Statement st = connect.createStatement();
+        ResultSet rs = st.executeQuery("SELECT event_id FROM events WHERE name = 'TEMP'");
+        rs.next();
+        int event_id = rs.getInt(1);
+
+        //update event with actual name
+        ps = connect.prepareStatement("UPDATE events SET name = ? WHERE event_id = " + event_id);
+        ps.setString(1, name);
+
+        ps.executeUpdate();
+
+        return event_id;
+
+    }
+
+    public int createEvent(int org_id, String name , Timestamp start, Timestamp end, String description, String location,
+                           String imgPath, double latitude, double longitude, String clockInCode, String clockOutCode, boolean privateEvent) throws SQLException{
+
+        //insert event into table
+        PreparedStatement ps;
+        ps = connect.prepareStatement("INSERT INTO events (name, org_id, start_time, end_time, description, location, " +
+                "event_img, latitude, longitude, clock_in_code, clock_out_code, private) VALUES ('TEMP',?,?,?,?,?,?,?,?,?,?,?)");
+
+
+        if(ps != null) {
+            //insert values into prepare statement
+            ps.setInt(1, org_id);
+            ps.setObject(2,start);      // According to google, java should know how to turn a Timestamp object into a dateTime object for the db
+            ps.setObject(3,end);
+            ps.setString(4,description);
+            ps.setString(5, location);
+            ps.setString(6, (imgPath == null)?"":imgPath);
+            ps.setDouble(7,latitude);
+            ps.setDouble(8, longitude);
+            ps.setString(9, clockInCode);
+            ps.setString(10, clockOutCode);
+            ps.setBoolean(11,privateEvent);
             ps.execute();
 
         }else{
@@ -656,7 +701,7 @@ public class DatabaseConnection {
 
         //create string for query
         String fields = "event_id, org_id, name, start_time, end_time, description," +
-                "location, event_img, latitude, longitude, clock_in_code, clock_out_code";
+                "location, event_img, latitude, longitude, clock_in_code, clock_out_code, private";
         String query = "SELECT " + fields + " FROM events WHERE event_id = ?";
 
         //run query
@@ -670,7 +715,7 @@ public class DatabaseConnection {
             EventModel em =  new EventModel(rs.getString(3),rs.getInt(2), rs.getTimestamp(4), rs.getTimestamp(5),
                     rs.getString(6), rs.getString(7), rs.getString(8), rs.getInt(1),
                     rs.getDouble(9), rs.getDouble(10), rs.getString(11), rs.getString(12),
-                    org.getName());
+                    org.getName(),rs.getBoolean(13));
             //em.setOrgName(getNameOfOrgForEvent(em.getOrg_id()));
             return em;
         }

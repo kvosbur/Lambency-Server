@@ -79,7 +79,13 @@ public class OrganizationFilterModel {
         }
         //SELECT +"+fields+" FROM Events WHERE start_time > ?
         //SELECT "+fields+ " FROM events "+where+"
-        String query = "SELECT org_id, name, description, org_email, `org_ contact`, org_img, org_location FROM ( SELECT "+fields+ " FROM organization "+where+") AS T ORDER BY distance asc ;" ;
+        String query;
+        if(latitude == null || longitude == null) {
+            query = "SELECT org_id, name, description, org_email, `org_ contact`, org_img, org_location FROM ( SELECT " + fields + " FROM organization " + where + ") AS T ;";
+        }
+        else{
+            query = "SELECT org_id, name, description, org_email, `org_ contact`, org_img, org_location FROM ( SELECT " + fields + " FROM organization " + where + ") AS T ORDER BY distance asc ;";
+        }
         return query;
     }
 
