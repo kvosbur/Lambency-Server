@@ -69,6 +69,8 @@ public class LambencyServer{
         Timer timer = new Timer();
 
         timer.schedule(new ServerTaskTimer(serverTaskThread),date.getTime(),TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS));
+
+        FirebaseHelper.initializeFirebase();
     }
     LambencyServer(int useless){
 
@@ -628,6 +630,8 @@ public class LambencyServer{
     }
 
     public static void main(String[]args){
+
+        FirebaseHelper.initializeFirebase();
 
         LambencyServer lb = new LambencyServer();
 //
