@@ -28,11 +28,13 @@ public class FirebaseHelper {
         }
     }
 
-    public static void sendCloudJoinRequest(String registrationToken, String username, String orgName){
+    public static void sendCloudJoinRequest(String registrationToken, String username, String uid, String orgName, String org_id){
         Message message = Message.builder()
                 .putData("type", "joinRequest")
                 .putData("user", username)
+                .putData("uid", uid)
                 .putData("org", orgName)
+                .putData("org_id", org_id)
                 .setToken(registrationToken)
                 .build();
 
@@ -56,8 +58,6 @@ public class FirebaseHelper {
         // This registration token comes from the client FCM SDKs.
         String registrationToken = "fSKEStmhAzs:APA91bES98kK8nPMSaXDu25RM4C3PKxALl3yjK95b0L78zu4A4CrTRgm8ETWULqgWVFor2kzJzdb1xeud_cHJbR_sDPrtN8QguQqC_NGT3pvm-rg7wQTUcTNMbSAtjihQnWgRvnHEtY8";
 
-        sendCloudJoinRequest(registrationToken, "lshank", "the best org");
-
-
+        sendCloudJoinRequest(registrationToken, "lshank", "uid", "the best org", "5");
     }
 }
