@@ -246,6 +246,56 @@ public class DatabaseConnection {
     }
 
     /**
+     Description: add user to table to be verified
+     @param userid users id in the main users table
+     @param code the code to verify that user's email
+
+     @return
+     */
+    public int userAddVerification(int userid, String code) throws SQLException{
+
+        String sql = "INSERT INTO verify (user_id, vefification_code) VALUES (?,?)";
+        //create prepare statement for sql query
+        PreparedStatement ps = connect.prepareStatement(sql);
+
+        //set parameters for prepared statement
+        ps.setInt(1, userid);
+        ps.setString(2,code);
+
+
+        //execute query
+        int ret = ps.executeUpdate();
+        if(ret == 1){
+            return 0;
+        }
+        return 1;
+    }
+
+    /**
+     Description: get code that is used for email verification for user
+     @param userid users id in the main users table
+
+     @return
+     */
+    public String userGetVerification(int userid) throws SQLException{
+
+        String sql = "SELECT vefification_code FROM  verify WHERE user_id = ?";
+        //create prepare statement for sql query
+        PreparedStatement ps = connect.prepareStatement(sql);
+
+        //set parameters for prepared statement
+        ps.setInt(1, userid);
+
+
+        //execute query
+        ResultSet rs = ps.executeQuery();
+        if(rs.next()){
+            return rs.getString(1);
+        }
+        return null;
+    }
+
+    /**
      *  Description: Creates an event in the database from these elements
      *
      * @param org_id    Integer that represents an organization in this database
