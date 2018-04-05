@@ -577,4 +577,76 @@ public class OrganizationHandler {
         return orgs;
     }
 
+    /**
+     *
+     * @param oAuthCode the oAuthCode of the user
+     * @param newOrg model to be changed to
+     * @param dbc database connection
+     * @return updated model, null on error or insufficient permissions
+     */
+    public static OrganizationModel editOrg(String oAuthCode, OrganizationModel newOrg, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null){
+                Printing.println("invalid oAuthCode");
+                return null;
+            }
+            if(dbc.searchForUser(oAuthCode) == null){
+                Printing.println("Unable to verify user");
+                return null;
+            }
+            if(newOrg == null){
+                Printing.println("Invalid new org");
+                return null;
+            }
+            OrganizationModel organizationModel = OrganizationHandler.searchOrgID(newOrg.getOrgID(), dbc);
+            if(organizationModel == null){
+                Printing.println("Org not found");
+                return null;
+            }
+            if(!OrganizationHandler.isAdmin(oAuthCode, newOrg.getOrgID(), dbc)){
+                Printing.println("User is not an organizer of this org");
+                return null;
+            }
+            return dbc.modifyOrganization(newOrg);
+        }
+        catch (SQLException e){
+            Printing.println(e.toString());
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param oAuthCode
+     * @param orgID
+     * @param dbc
+     * @return 0 on success, -1 on error or bad params, -2 on invalid user permissions
+     */
+    public static int deleteOrg(String oAuthCode, int orgID, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null){
+                Printing.println("invalid oAuthCode");
+                return -1;
+            }
+            if(dbc.searchForUser(oAuthCode) == null){
+                Printing.println("Unable to verify user");
+                return -1;
+            }
+            OrganizationModel organizationModel = OrganizationHandler.searchOrgID(orgID, dbc);
+            if(organizationModel == null){
+                Printing.println("Org not found");
+                return -1;
+            }
+            if(!OrganizationHandler.isAdmin(oAuthCode, organizationModel.getOrgID(), dbc)){
+                Printing.println("User is not an organizer of this org");
+                return -2;
+            }
+            return dbc.deleteOrganization(orgID);
+        }
+        catch (SQLException e){
+            Printing.println(e.toString());
+        }
+        return -1;
+    }
+
 }

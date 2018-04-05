@@ -1203,6 +1203,16 @@ public class DatabaseConnection {
         return orgID;
     }
 
+    public OrganizationModel modifyOrganization(OrganizationModel organizationModel) throws SQLException{
+        //create prepare statement for sql query
+        return null;
+    }
+
+    public int deleteOrganization(int orgID) throws SQLException{
+
+        return -1;
+    }
+
     /**
      * Searches for an organization by name
      * @param name name of the organization
