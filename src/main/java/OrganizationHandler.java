@@ -607,7 +607,30 @@ public class OrganizationHandler {
                 Printing.println("User is not an organizer of this org");
                 return null;
             }
-            return dbc.modifyOrganization(newOrg);
+            LatLng latlng = GoogleGeoCodeUtil.getGeoData(newOrg.getLocation());
+            if(latlng == null){
+                latlng = new LatLng(180,180);
+            }
+
+            newOrg.setLattitude(latlng.lat);
+            newOrg.setLongitude(latlng.lng);
+
+            // Saves the orgs image to a file
+            String path = null;
+            if(newOrg.getImage() != null) {
+                try {
+                    path = ImageWR.writeImageToFile(newOrg.getImage());
+
+                } catch (IOException e) {
+                    Printing.println("Error adding image.");
+                }
+            }
+            newOrg.setImage(path);
+            int ret = dbc.modifyOrganization(newOrg);
+            if(ret == 0){
+                return OrganizationHandler.searchOrgID(newOrg.getOrgID(), dbc);
+            }
+            return null;
         }
         catch (SQLException e){
             Printing.println(e.toString());
