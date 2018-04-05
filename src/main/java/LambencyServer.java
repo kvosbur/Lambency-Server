@@ -1,5 +1,11 @@
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import com.google.gson.Gson;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -578,6 +584,8 @@ public class LambencyServer{
     }
 
     public static void main(String[]args){
+
+        FirebaseHelper.initializeFirebase();
 
         LambencyServer lb = new LambencyServer();
 //
