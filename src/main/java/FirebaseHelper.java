@@ -6,6 +6,7 @@ import com.google.firebase.messaging.Message;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 public class FirebaseHelper {
@@ -50,6 +51,22 @@ public class FirebaseHelper {
 
         // Response is a message ID string.
         System.out.println("Successfully sent join request message: " + response);
+    }
+
+    public static void userSendOrgJoinRequest(UserModel u, OrganizationModel o, ArrayList<Integer> ids, DatabaseConnection dbc){
+
+        try {
+            for (Integer i : ids) {
+                String firebase = dbc.userGetFirebase(i);
+                if(firebase != null){
+                    FirebaseHelper.sendCloudJoinRequest(firebase, u.getFirstName() + " " + u.getLastName(), "" + u.getUserId(),
+                            o.name, "" + o.getOrgID());
+                }
+            }
+        }catch(Exception e){
+            Printing.println(e.toString());
+        }
+
     }
 
     public static void main (String [] args){
