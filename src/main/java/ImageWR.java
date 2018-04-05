@@ -77,7 +77,7 @@ public class ImageWR {
                 stringBuffer.append("\n");
             }
             fileReader.close();
-            Printing.println("Contents of file:");
+            //Printing.println("Contents of file:");
             //Printing.println(stringBuffer.toString());
 
             return stringBuffer.toString();
