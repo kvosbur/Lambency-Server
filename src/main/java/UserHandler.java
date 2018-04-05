@@ -111,9 +111,8 @@ public class UserHandler {
                 if (g == null) {
                     //if org is found and no groupies already exist, set to follow in database
                     dbc.addGroupies(u.getUserId(), orgID, DatabaseConnection.MEMBER, 0);
-                    String firebase_token = dbc.userGetFirebase(u.getUserId());
-                    FirebaseHelper.sendCloudJoinRequest(firebase_token,u.getFirstName() + " " + u.getLastName(),"" + u.getUserId(),
-                            org.name, "" + org.getOrgID());
+                    ArrayList<Integer>[] user_ids = dbc.getMembersAndOrganizers(orgID);
+                    FirebaseHelper.userSendOrgJoinRequest(u,org, user_ids[1], dbc);
                     return 0;
                 } else {
                     //GroupiesModel already exist for this user
