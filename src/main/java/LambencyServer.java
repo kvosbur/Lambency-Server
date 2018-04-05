@@ -223,6 +223,19 @@ public class LambencyServer{
             databaseConnection.close();
             return events;
         }, new JsonTransformer());
+
+        post("/User/setFirebase", "application/json", (request, response) -> {
+            Printing.printlnEndpoint("/User/setFirebase");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String oAuthCode = request.queryParams("oAuthCode");
+            String firebaseCode = request.queryParams("firebase");
+            int ret = UserHandler.setFirebaseCode(oAuthCode, firebaseCode, databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
         post("/Organization/create", "application/json",
                 (request, response) -> {
                     Printing.printlnEndpoint("/Organization/create");
