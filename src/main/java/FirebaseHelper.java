@@ -28,16 +28,11 @@ public class FirebaseHelper {
         }
     }
 
-    public static void main (String [] args){
-        initializeFirebase();
-
-        // This registration token comes from the client FCM SDKs.
-        String registrationToken = "fSKEStmhAzs:APA91bES98kK8nPMSaXDu25RM4C3PKxALl3yjK95b0L78zu4A4CrTRgm8ETWULqgWVFor2kzJzdb1xeud_cHJbR_sDPrtN8QguQqC_NGT3pvm-rg7wQTUcTNMbSAtjihQnWgRvnHEtY8";
-
-        // See documentation on defining a message payload.
+    public static void sendCloudJoinRequest(String registrationToken, String username, String orgName){
         Message message = Message.builder()
-                .putData("score", "850")
-                .putData("time", "2:45")
+                .putData("type", "joinRequest")
+                .putData("user", username)
+                .putData("org", orgName)
                 .setToken(registrationToken)
                 .build();
 
@@ -50,8 +45,18 @@ public class FirebaseHelper {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
+
         // Response is a message ID string.
-        System.out.println("Successfully sent message: " + response);
+        System.out.println("Successfully sent join request message: " + response);
+    }
+
+    public static void main (String [] args){
+        initializeFirebase();
+
+        // This registration token comes from the client FCM SDKs.
+        String registrationToken = "fSKEStmhAzs:APA91bES98kK8nPMSaXDu25RM4C3PKxALl3yjK95b0L78zu4A4CrTRgm8ETWULqgWVFor2kzJzdb1xeud_cHJbR_sDPrtN8QguQqC_NGT3pvm-rg7wQTUcTNMbSAtjihQnWgRvnHEtY8";
+
+        sendCloudJoinRequest(registrationToken, "lshank", "the best org");
 
 
     }
