@@ -1099,7 +1099,7 @@ public class DatabaseConnection {
         ps = connect.prepareStatement("DELETE FROM event_attendence WHERE event_id = ?");
         ps.setInt(1,eventID);
         ps.executeUpdate();
-        ps = connect.prepareStatement("DELETE FROM endorse WHERE event_id = ?");
+        ps = connect.prepareStatement("DELETE FROM endorse WHERE endorsed_id = ?");
         ps.setInt(1,eventID);
         ps.executeUpdate();
 
