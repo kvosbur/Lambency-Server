@@ -72,7 +72,6 @@ public class DatabaseConnection {
         return array;
     }
 
-
     /**
      * Description: given unique string identifier return matching user object
      @param identifier either represents google user id or facebook user id depending on situation
