@@ -549,7 +549,6 @@ public class EventHandler {
                 message = "<strong>" + message + "</strong><br>";
                 sb.append(message);
             }
-            sb.append(message);
 
             sb.append("<br><br>*Please do not reply to this email as this is an automated message.*");
 
