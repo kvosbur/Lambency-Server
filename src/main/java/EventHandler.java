@@ -469,8 +469,8 @@ public class EventHandler {
             sb.append(name);
             if(message != null && message != ""){
                 message = "<strong>" + message + "</strong><br>";
+                sb.append(message);
             }
-            sb.append(name);
             String startingPrev = new SimpleDateFormat("MMMM dd, YYYY hh:mm a").format(prev.getStart());
             String startingNow = new SimpleDateFormat("MMMM dd, YYYY hh:mm a").format(now.getStart());
             String endingPrev = new SimpleDateFormat("MMMM dd, YYYY hh:mm a").format(prev.getEnd());
@@ -547,6 +547,7 @@ public class EventHandler {
             sb.append(name);
             if(message != null && message != ""){
                 message = "<strong>" + message + "</strong><br>";
+                sb.append(message);
             }
             sb.append(message);
 
