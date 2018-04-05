@@ -33,4 +33,12 @@ public class Printing {
         }
     }
 
+    public static void printlnException(Exception e){
+        if(verbose){
+            System.out.print(ANSI_BLUE);
+            e.printStackTrace();
+            System.out.print(ANSI_RESET);
+        }
+    }
+
 }
