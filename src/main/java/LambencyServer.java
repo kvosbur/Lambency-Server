@@ -396,6 +396,39 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
 
+
+        get("/Organization/edit", "application.json", (request, response) -> {
+            Printing.printlnEndpoint("Organization/edit");
+            String oAuthCode = request.queryParams("oAuthCode");
+            OrganizationModel organizationModel = new Gson().fromJson(request.queryParams("org"), OrganizationModel.class);
+            if(oAuthCode == null){
+                return null;
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            OrganizationModel ret = OrganizationHandler.editOrg(oAuthCode, organizationModel, databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
+
+        get("/Organization/delete", "application.json", (request, response) -> {
+            Printing.printlnEndpoint("Organization/delete");
+            String oAuthCode = request.queryParams("oAuthCode");
+            int orgID = Integer.parseInt(request.queryParams("orgID"));
+            if(oAuthCode == null || orgID <= 0){
+                return new Integer(-1);
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return new Integer(-1);
+            }
+            int ret = OrganizationHandler.deleteOrg(oAuthCode, orgID, databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
+
         get("/Event/update", "application/json",
                 (request, response) ->{
                     Printing.printlnEndpoint("/Event/update");
