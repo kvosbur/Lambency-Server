@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -119,6 +118,9 @@ public class UserHandler {
                         //upgrade to a member
                         dbc.deleteGroupies(u.getUserId(), orgID, DatabaseConnection.FOLLOW);
                         dbc.addGroupies(u.getUserId(), orgID, DatabaseConnection.MEMBER, 0);
+                        String firebase_token = dbc.userGetFirebase(u.getUserId());
+                        FirebaseHelper.sendCloudJoinRequest(firebase_token,u.getFirstName() + " " + u.getLastName(),"" + u.getUserId(),
+                                org.name, "" + org.getOrgID());
                         return 0;
                     }
                     //user already has higher or equal permissions
