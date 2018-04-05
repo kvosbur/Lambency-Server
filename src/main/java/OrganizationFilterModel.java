@@ -1,6 +1,5 @@
 
 import com.google.maps.model.LatLng;
-import com.sun.xml.internal.ws.api.ha.StickyFeature;
 
 import java.util.ArrayList;
 
