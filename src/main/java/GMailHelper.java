@@ -207,6 +207,29 @@ public class GMailHelper {
         }
     }
 
+    /**
+     * Send a verification email to the new user's email
+     *
+     * @param email The email of the new user
+     * @return status of the email
+     * @throws MessagingException
+     * @throws IOException
+     */
+    public static int sendVerificationEmail(String email, String verificationCode){
+
+        String subject = "Email Vefification for Lambency Account";
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Please click the link below to open our app in order to verify your email.<br>");
+        sb.append("<a href=\"www.mylambencyclient.com/verify?code=" + verificationCode);
+        sb.append("\"> Click Here To Vefify</a>");
+
+        String body = sb.toString();
+        GMailHelper gmh = new GMailHelper();
+        return gmh.sendEmail(email, subject, body);
+    }
+
     public static void main(String[] args) throws IOException {
         //send email using gmail
 
