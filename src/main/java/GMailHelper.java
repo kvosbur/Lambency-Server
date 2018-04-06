@@ -222,7 +222,7 @@ public class GMailHelper {
         StringBuilder sb = new StringBuilder();
 
         sb.append("Please click the link below to open our app in order to verify your email.<br>");
-        sb.append("<a href=\"www.mylambencyclient.com/verify?code=" + verificationCode + "&uid=" + userID);
+        sb.append("<a href=\"www.mylambencyclient.com/login?code=" + verificationCode + "&uid=" + userID);
         sb.append("\"> Click Here To Vefify</a>");
 
         String body = sb.toString();
