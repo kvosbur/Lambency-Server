@@ -589,6 +589,32 @@ public class DatabaseConnection {
 
 
     /**
+     *  Sets the hash and salt for a given user
+     * @param userID  userid of user to set password for
+     * @param hash hash of password to store for user
+     * @param salt salt for password hash for user
+     * @return integer; 0 on success , 1 on failure
+     */
+    public int userSetHash(int userID, String hash, String salt) throws SQLException{
+
+        String query = "UPDATE user set salt = ? , hash_password = ?  WHERE user_id = ?";
+
+        PreparedStatement ps = connect.prepareStatement(query);
+
+        ps.setString(1,salt);
+        ps.setString(2,hash);
+        ps.setInt(3, userID);
+
+        int ret = ps.executeUpdate();
+
+        if(ret == 1){
+            return 0;
+        }
+        return 1;
+    }
+
+
+    /**
      * END USER METHODS
      */
 
