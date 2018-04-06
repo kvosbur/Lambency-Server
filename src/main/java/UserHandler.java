@@ -755,7 +755,7 @@ public class UserHandler {
                 UserModel um = dbc.searchForUser("" + user_id, DatabaseConnection.LAMBNECYUSERID);
                 if(um.getOauthToken() == null || um.getOauthToken().equals("")){
                     //if email has yet to be verified
-                    return new UserAuthenticator(UserAuthenticator.Status.NON_UNIQUE_EMAIL, null);;
+                    return new UserAuthenticator(UserAuthenticator.Status.NON_UNIQUE_EMAIL, null);
                 }
                 return new UserAuthenticator(UserAuthenticator.Status.SUCCESS, um.getOauthToken());
             }
