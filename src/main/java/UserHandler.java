@@ -839,6 +839,29 @@ public class UserHandler {
         }
     }
 
+    /**
+     *
+     * @param start the start of the range
+     * @param end end of the range
+     * @return returns a list of users with ranks on the leaderboard between the start and end, null on error
+     */
+    public static List<UserModel> leaderboardRange(int start, int end, DatabaseConnection dbc){
+        if(start < 0 || end < 0 || start > end){
+            return null;
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param oAuthCode the oAuthCode of the user
+     * @param dbc
+     * @return returns a list of users around the given users on the leaderboard, null on error or invalid
+     */
+    public static List<UserModel> leaderboardAroundUser(String oAuthCode, DatabaseConnection dbc){
+        return null;
+    }
+
     private static UserModel updateOrgLists(UserModel u, DatabaseConnection dbc) throws SQLException{
 
         u.setMyOrgs(dbc.getUserList(u.getUserId(),DatabaseConnection.ORGANIZER, true));
