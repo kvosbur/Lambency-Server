@@ -697,7 +697,7 @@ public class UserHandler {
         } catch (Exception e) {
             Printing.println("Excpetion");
             Printing.println(e.toString());
-            return 2;
+            return 3;
         }
     }
 
@@ -711,7 +711,7 @@ public class UserHandler {
     public static int verifyEmail(int userID, String verificationCode, DatabaseConnection dbc){
         try{
             String storedCode = dbc.userGetVerification(userID);
-            if(storedCode == null){
+            if(storedCode == null || storedCode.equals("")){
                 return 2;
             }
 

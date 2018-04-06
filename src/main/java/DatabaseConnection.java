@@ -253,7 +253,7 @@ public class DatabaseConnection {
      */
     public int userAddVerification(int userid, String code) throws SQLException{
 
-        String sql = "INSERT INTO verify (user_id, vefification_code) VALUES (?,?)";
+        String sql = "INSERT INTO verify (user_id, verification_code) VALUES (?,?)";
         //create prepare statement for sql query
         PreparedStatement ps = connect.prepareStatement(sql);
 
@@ -278,7 +278,7 @@ public class DatabaseConnection {
      */
     public String userGetVerification(int userid) throws SQLException{
 
-        String sql = "SELECT vefification_code FROM  verify WHERE user_id = ?";
+        String sql = "SELECT verification_code FROM  verify WHERE user_id = ?";
         //create prepare statement for sql query
         PreparedStatement ps = connect.prepareStatement(sql);
 
