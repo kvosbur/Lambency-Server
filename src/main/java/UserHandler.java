@@ -813,29 +813,29 @@ public class UserHandler {
     public static int changePassword(String oAuthCode, String password, String confirmPassword, DatabaseConnection dbc){
         try{
             if(oAuthCode == null){
-                return 1;
+                return 3;
             }
             //get user for specific oauthcode
             UserModel user = dbc.searchForUser(oAuthCode);
             if (user == null) {
                 Printing.println("UserModel not found");
-                return 2;
+                return 4;
             }
 
             //check if both passwords are the same password
             if(password.equals(confirmPassword)){
                 //the new passwords are the same
                 //change password in database
-
-                return 0;
+                int ret = PasswordUtil.setPassword(password, user.getUserId(), dbc);
+                return ret;
             }
             //passwords are different
-            return 4;
+            return 5;
 
         } catch (SQLException e) {
             Printing.println("SQLExcpetion");
             Printing.println(e.toString());
-            return 3;
+            return 6;
         }
     }
 

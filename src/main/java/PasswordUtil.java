@@ -1,6 +1,5 @@
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
-import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.Locale;
 
@@ -41,12 +40,31 @@ public final class PasswordUtil {
         return BCrypt.checkpw(password,hash);
     }
 
-    public static void main(String[] args) {
-        Charset charset = Charset.defaultCharset();
-        String passwd = "abE2!r?6";
+    public static int setPassword(String password, int userID, DatabaseConnection dbc){
 
-        long startTime = System.nanoTime();
-        String hash = hash(passwd);
+        String hash = hash(password);
+        try {
+            return dbc.userSetHash(userID, hash, "");
+        }catch(Exception e){
+            Printing.printlnException(e);
+            return 2;
+        }
+    }
+
+    public static void main(String[] args) {
+        DatabaseConnection dbc = new DatabaseConnection();
+
+        int ret = PasswordUtil.setPassword("mysecurepassword", 1, dbc);
+        System.out.println(ret);
+        try {
+            String[] strings = dbc.userGetHash(1);
+            System.out.println(strings[0]);
+            System.out.println(strings[1]);
+            System.out.println(PasswordUtil.verify("mysecurepassword", strings[1]));
+        }catch(Exception e){
+            Printing.printlnException(e);
+        }
+        dbc.close();
 
 
     }
