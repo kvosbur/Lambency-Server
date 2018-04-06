@@ -267,6 +267,21 @@ public class LambencyServer{
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());
+
+        post("/User/changePassword", "application/json", (request, response) -> {
+            Printing.printlnEndpoint("/User/changePassword");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String password = request.queryParams("newPassword");
+            String confirmPassword = request.queryParams("confirmPassword");
+            String oAuthToken = request.queryParams("oAuthToken");
+            int changed = UserHandler.changePassword(oAuthToken, password, confirmPassword, databaseConnection);
+            databaseConnection.close();
+            return changed;
+        }, new JsonTransformer());
+
         post("/Organization/create", "application/json",
                 (request, response) -> {
                     Printing.printlnEndpoint("/Organization/create");

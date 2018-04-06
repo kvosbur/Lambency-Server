@@ -753,6 +753,10 @@ public class UserHandler {
             if(PasswordUtil.verify(password, strings[1])){
                 //correct password
                 UserModel um = dbc.searchForUser("" + user_id, DatabaseConnection.LAMBNECYUSERID);
+                if(um.getOauthToken() == null || um.getOauthToken().equals("")){
+                    //if email has yet to be verified
+                    return new UserAuthenticator(UserAuthenticator.Status.NON_UNIQUE_EMAIL, null);;
+                }
                 return new UserAuthenticator(UserAuthenticator.Status.SUCCESS, um.getOauthToken());
             }
             //invalid password
@@ -789,6 +793,43 @@ public class UserHandler {
             if(ret == 1) {
                 return 0;
             }
+            return 4;
+
+        } catch (SQLException e) {
+            Printing.println("SQLExcpetion");
+            Printing.println(e.toString());
+            return 3;
+        }
+    }
+
+    /**
+     * Change the password of a given user using their oAuthToken
+     *
+     * @param oAuthCode oAuthCode for user in question
+     * @param password  the new password of the user
+     * @param confirmPassword  a duplicate of the new password to confirm right password
+     * @return the success code of setting the new password
+     */
+    public static int changePassword(String oAuthCode, String password, String confirmPassword, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null){
+                return 1;
+            }
+            //get user for specific oauthcode
+            UserModel user = dbc.searchForUser(oAuthCode);
+            if (user == null) {
+                Printing.println("UserModel not found");
+                return 2;
+            }
+
+            //check if both passwords are the same password
+            if(password.equals(confirmPassword)){
+                //the new passwords are the same
+                //change password in database
+
+                return 0;
+            }
+            //passwords are different
             return 4;
 
         } catch (SQLException e) {
