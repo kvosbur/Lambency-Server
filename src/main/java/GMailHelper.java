@@ -212,8 +212,6 @@ public class GMailHelper {
      *
      * @param email The email of the new user
      * @return status of the email
-     * @throws MessagingException
-     * @throws IOException
      */
     public static int sendVerificationEmail(String email,int userID, String verificationCode){
 
@@ -224,6 +222,27 @@ public class GMailHelper {
         sb.append("Please click the link below to open our app in order to verify your email.<br>");
         sb.append("<a href=\"www.mylambencyclient.com/login?code=" + verificationCode + "&uid=" + userID);
         sb.append("\"> Click Here To Vefify</a>");
+
+        String body = sb.toString();
+        GMailHelper gmh = new GMailHelper();
+        return gmh.sendEmail(email, subject, body);
+    }
+
+    /**
+     * Send an email to a user to allow them to change their password
+     *
+     * @param email The email of the  user
+     * @return status of the email
+     */
+    public static int sendChangePasswordEmail(String email,int userID, String verificationCode){
+
+        String subject = "Password Reset for Lambency Account";
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Please click the link below to open our app in order to set your new password.<br>");
+        sb.append("<a href=\"www.mylambencyclient.com/changePassword?code=" + verificationCode + "&uid=" + userID);
+        sb.append("\"> Click Here To Change Password</a>");
 
         String body = sb.toString();
         GMailHelper gmh = new GMailHelper();
