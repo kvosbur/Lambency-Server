@@ -839,6 +839,38 @@ public class UserHandler {
         }
     }
 
+    /**
+     * Change the password of a given user using their oAuthToken
+     *
+     * @param email email of user that wants to reset their password
+     * @return the success code of setting the new password
+     */
+    public static int beginRecoverPassword(String email, DatabaseConnection dbc){
+        try{
+
+            //get user for specific oauthcode
+            int userID = dbc.getUserByEmail(email);
+            if (userID < 0) {
+                Printing.println("Trouble with finding email address");
+                return userID;  // -1 doesn't have account , -2 not unique (shouldn't happen)
+            }
+
+            //create code for user
+            String code = new String(PasswordUtil.generateSalt(30));
+            if(dbc.userGetVerification(userID) != null){
+                //remove previous verification if present
+                dbc.userRemoveVerification(userID);
+            }
+            dbc.userAddVerification(userID,code);
+            return GMailHelper.sendChangePasswordEmail(email, userID, code);
+
+        } catch (Exception e) {
+            Printing.println("SQLExcpetion");
+            Printing.printlnException(e);
+            return 2;
+        }
+    }
+
     private static UserModel updateOrgLists(UserModel u, DatabaseConnection dbc) throws SQLException{
 
         u.setMyOrgs(dbc.getUserList(u.getUserId(),DatabaseConnection.ORGANIZER, true));

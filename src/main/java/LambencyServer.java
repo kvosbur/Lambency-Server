@@ -282,6 +282,19 @@ public class LambencyServer{
             return changed;
         }, new JsonTransformer());
 
+        post("/User/beginRecovery", "application/json", (request, response) -> {
+            Printing.printlnEndpoint("/User/changePassword");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+
+            String email = request.queryParams("email");
+            int changed = UserHandler.beginRecoverPassword(email, databaseConnection);
+            databaseConnection.close();
+            return changed;
+        }, new JsonTransformer());
+
         post("/Organization/create", "application/json",
                 (request, response) -> {
                     Printing.printlnEndpoint("/Organization/create");
