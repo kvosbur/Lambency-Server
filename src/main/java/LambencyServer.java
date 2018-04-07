@@ -282,6 +282,7 @@ public class LambencyServer{
             }
 
             int changed = UserHandler.changePassword(oAuthToken, password, confirmPassword, databaseConnection);
+            Printing.println("return code is: " + changed);
             databaseConnection.close();
             return changed;
         }, new JsonTransformer());
