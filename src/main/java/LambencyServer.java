@@ -276,19 +276,20 @@ public class LambencyServer{
             }
             String password = request.queryParams("newPassword");
             String confirmPassword = request.queryParams("confirmPassword");
+            String oldPassword = request.queryParams("oldPassword");
             String oAuthToken = request.queryParams("oAuthToken");
             if(password == null || confirmPassword == null || oAuthToken == null){
                 return -1;
             }
 
-            int changed = UserHandler.changePassword(oAuthToken, password, confirmPassword, databaseConnection);
+            int changed = UserHandler.changePassword(oAuthToken, password, confirmPassword, oldPassword, databaseConnection);
             Printing.println("return code is: " + changed);
             databaseConnection.close();
             return changed;
         }, new JsonTransformer());
 
         post("/User/beginRecovery", "application/json", (request, response) -> {
-            Printing.printlnEndpoint("/User/changePassword");
+            Printing.printlnEndpoint("/User/beginRecovery");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
