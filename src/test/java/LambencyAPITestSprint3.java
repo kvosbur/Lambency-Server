@@ -732,6 +732,89 @@ public class LambencyAPITestSprint3 {
         }
     }
 
+    @Test
+    public void testSetPreference(){
+        Response<Integer> response = null;
+        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
+        try {
+            getDatabaseInstance().truncateTables();
+            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
+                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            organizer.setOauthToken(ua.getoAuthCode());
+
+            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
+
+        //test the API retrofit call
+
+            response = this.getInstance().updateNotificationPreference(ua.getoAuthCode(),DatabaseConnection.NOTIFY_NOT).execute();
+            organizer = this.getDatabaseInstance().searchForUser(organizer.getOauthToken());
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        } catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+
+
+        if (response.body() == null || response.code() != 200) {
+            System.out.println(response.code());
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+
+
+        //when response is back
+        Integer ret = response.body();
+        System.out.println(ret);
+        assertTrue(ret == 0);
+        assertTrue(organizer.getNotification_preference() == DatabaseConnection.NOTIFY_NOT);
+
+    }
+
+    @Test
+    public void testFailToSetPreference(){
+        Response<Integer> response = null;
+        UserModel organizer = new UserModel("Organizer", "Lastname", "organizer@nonemail.com");
+        try {
+            getDatabaseInstance().truncateTables();
+            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
+                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            organizer.setOauthToken(ua.getoAuthCode());
+
+            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
+
+            //test the API retrofit call
+
+            response = this.getInstance().updateNotificationPreference(ua.getoAuthCode(),5).execute();
+            organizer = this.getDatabaseInstance().searchForUser(organizer.getOauthToken());
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        } catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+
+
+        if (response.body() == null || response.code() != 200) {
+            System.out.println(response.code());
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+
+
+        //when response is back
+        Integer ret = response.body();
+        System.out.println(ret);
+        assertTrue(ret == -2);
+        assertTrue(organizer.getNotification_preference() == DatabaseConnection.NOTIFY_EMAIL_PUSH);
+
+    }
+
+
     public void searches(){
         DatabaseConnection dbc = this.getDatabaseInstance();
 

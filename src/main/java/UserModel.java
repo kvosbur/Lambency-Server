@@ -203,5 +203,11 @@ public class UserModel {
         return false;
     }
 
+    public int getNotification_preference() {
+        return notification_preference;
+    }
 
+    public void setNotification_preference(int notification_preference) {
+        this.notification_preference = notification_preference;
+    }
 }
