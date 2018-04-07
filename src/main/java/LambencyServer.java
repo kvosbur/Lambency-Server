@@ -278,7 +278,7 @@ public class LambencyServer{
             String confirmPassword = request.queryParams("confirmPassword");
             String oldPassword = request.queryParams("oldPassword");
             String oAuthToken = request.queryParams("oAuthToken");
-            if(password == null || confirmPassword == null || oAuthToken == null){
+            if(password == null || confirmPassword == null || oAuthToken == null || oldPassword == null){
                 return -1;
             }
 
