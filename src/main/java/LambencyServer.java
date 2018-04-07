@@ -526,7 +526,7 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
 
-        get("/Event/update", "application/json",
+        post("/Event/update", "application/json",
                 (request, response) ->{
                     Printing.printlnEndpoint("/Event/update");
                     DatabaseConnection databaseConnection = new DatabaseConnection();
