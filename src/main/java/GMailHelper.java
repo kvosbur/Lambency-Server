@@ -241,7 +241,7 @@ public class GMailHelper {
         StringBuilder sb = new StringBuilder();
 
         sb.append("Please click the link below to open our app in order to set your new password.<br>");
-        sb.append("<a href=\"www.mylambencyclient.com/login?code=" + verificationCode + "&uid=" + userID);
+        sb.append("<a href=\"www.mylambencyclient.com/changePassword?code=" + verificationCode + "&uid=" + userID);
         sb.append("\"> Click Here To Change Password</a>");
 
         String body = sb.toString();
