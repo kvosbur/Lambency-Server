@@ -810,7 +810,7 @@ public class UserHandler {
      * @param confirmPassword  a duplicate of the new password to confirm right password
      * @return the success code of setting the new password
      */
-    public static int changePassword(String oAuthCode, String password, String confirmPassword, DatabaseConnection dbc){
+    public static int changePassword(String oAuthCode, String password, String confirmPassword, String oldPassword, DatabaseConnection dbc){
         try{
             if(oAuthCode == null){
                 return 3;
@@ -822,15 +822,26 @@ public class UserHandler {
                 return 4;
             }
 
-            //check if both passwords are the same password
-            if(password.equals(confirmPassword)){
-                //the new passwords are the same
-                //change password in database
-                int ret = PasswordUtil.setPassword(password, user.getUserId(), dbc);
-                return ret;
+            //check if old password is correct
+            //get salt and hash for user
+            String[] strings = dbc.userGetHash(user.getUserId());
+
+            if(PasswordUtil.verify(oldPassword, strings[1])) {
+
+                //check if both passwords are the same password
+                if (password.equals(confirmPassword)) {
+                    //the new passwords are the same
+                    //change password in database
+                    int ret = PasswordUtil.setPassword(password, user.getUserId(), dbc);
+                    return ret;
+                }
+                //passwords are different
+                return 5;
             }
-            //passwords are different
-            return 5;
+
+            //incorrect old password
+            return 7;
+
 
         } catch (SQLException e) {
             Printing.println("SQLExcpetion");
