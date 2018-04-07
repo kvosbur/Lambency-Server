@@ -710,7 +710,10 @@ public class UserHandler {
      */
     public static int verifyEmail(int userID, String verificationCode, DatabaseConnection dbc){
         try{
+            System.out.println("userid: userID");
             String storedCode = dbc.userGetVerification(userID);
+            System.out.println((storedCode == null));
+            System.out.println(storedCode);
             if(storedCode == null || storedCode.equals("")){
                 return 2;
             }
