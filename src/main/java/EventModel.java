@@ -1,5 +1,4 @@
-import com.sun.corba.se.spi.ior.ObjectKey;
-
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.sql.Timestamp;
 
@@ -19,6 +18,7 @@ public class EventModel {
     private String clockInCode;
     private String clockOutCode;
     private String orgName;
+    private BufferedImage imageToSave;
     private boolean privateEvent;
 
 
@@ -77,8 +77,16 @@ public class EventModel {
     private void updateImage(String encodedImage) throws IOException{
 
         this.imageFile = encodedImage;
-        this.image_path = ImageWR.writeImageToFile(encodedImage);
+        //this.image_path = ImageWR.writeImageToFile(encodedImage);
 
+    }
+
+    public BufferedImage getImageToSave() {
+        return imageToSave;
+    }
+
+    public void setImageToSave(BufferedImage imageToSave) {
+        this.imageToSave = imageToSave;
     }
 
     public String getName() {

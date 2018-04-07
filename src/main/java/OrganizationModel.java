@@ -1,3 +1,4 @@
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class OrganizationModel {
@@ -14,6 +15,7 @@ public class OrganizationModel {
     public ArrayList<UserModel> organizers;
     public double lattitude;
     public double longitude;
+    public BufferedImage imageToSave;
 
     public OrganizationModel(UserModel owner, String name, String location, int orgID, String description, String email, UserModel contact, String image) {
         this.owner = owner;
@@ -53,6 +55,13 @@ public class OrganizationModel {
 
     public int numFollowing;
 
+    public BufferedImage getImageToSave() {
+        return imageToSave;
+    }
+
+    public void setImageToSave(BufferedImage imageToSave) {
+        this.imageToSave = imageToSave;
+    }
 
     public String getName() {
         return name;
