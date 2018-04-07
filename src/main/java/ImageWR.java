@@ -1,9 +1,9 @@
 import sun.misc.BASE64Decoder;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.Base64;
 import java.util.Date;
 
 public class ImageWR {
@@ -23,18 +23,19 @@ public class ImageWR {
         @throws     `      : IOException when there is an issue writing to a file
      */
 
-    /*
+
     public static String writeImageToFile(String imgEncoding) throws IOException{
         if(imgEncoding == null){
             Printing.println("imgEncoding read null");
             return null;
         }
 
-        String path = "~/Lambency/files/images/";
+        String path = "photos/";
         //String path = "../../Lambency/files/images";
         Date date = new Date();
-        String fileName = date.toString() + ".txt";
+        String fileName = date.toString() + ".jpg";
 
+        /*
         File directory = new File(path);
         Printing.println("dir exists: "+directory.exists());
         if (!directory.exists()){
@@ -42,14 +43,22 @@ public class ImageWR {
             // If you require it to make the entire directory path including parents,
             // use directory.mkdirs(); here instead.
         }
-        Path destinationFile = Paths.get(path, fileName);
-        Files.write(destinationFile, imgEncoding.getBytes());
+        //Path destinationFile = Paths.get(path, fileName);
+        //Files.write(destinationFile, imgEncoding.getBytes());
+        */
+
+        FileOutputStream fos = new FileOutputStream(path);
+
+        byte[] bytes = Base64.getDecoder().decode(imgEncoding);
+        fos.write(bytes);
+        fos.close();
 
 
         return path+fileName;
     }
-    */
 
+
+    /*
     public static String saveImage(BufferedImage img) throws IOException{
 
             String path = "photos";
@@ -71,6 +80,7 @@ public class ImageWR {
             return fileName;
 
     }
+    */
 
     /**
 
@@ -123,6 +133,7 @@ public class ImageWR {
         try {
             for (File file : list) {
                 Printing.println(file.getName());
+                /*
                 FileReader fileReader = new FileReader(file);
                 BufferedReader bufferedReader = new BufferedReader(fileReader);
                 StringBuffer stringBuffer = new StringBuffer();
@@ -132,6 +143,15 @@ public class ImageWR {
                     stringBuffer.append("\n");
                 }
                 fileReader.close();
+                */
+                FileInputStream fileInputStream;
+                byte[] bfile = new byte[(int) file.length()];
+
+
+                fileInputStream = new FileInputStream(file);
+                fileInputStream.read(bfile);
+                fileInputStream.close();
+
                 String name = "photos/" + file.getName();
 
                 int index = name.lastIndexOf(".");
@@ -142,13 +162,17 @@ public class ImageWR {
 
 
                 BASE64Decoder decoder = new BASE64Decoder();
-                byte[] imageByte = decoder.decodeBuffer(stringBuffer.toString());
+                //byte[] imageByte = decoder.decodeBuffer(stringBuffer.toString());
+                //byte[] imageByte = Base64.getDecoder().decode(bfile);
 
-                ByteArrayInputStream bis = new ByteArrayInputStream(imageByte);
-                BufferedImage image = ImageIO.read(bis);
+                //ByteArrayInputStream bis = new ByteArrayInputStream(imageByte);
+                //BufferedImage image = ImageIO.read(bis);
+                FileOutputStream fos = new FileOutputStream(name);
 
-                File f = new File(name);
-                ImageIO.write(image, "jpg", f);
+                fos.write(bfile);
+                fos.close();
+                //File f = new File(name);
+                //ImageIO.write(image, "jpg", f);
 
                 break;
 

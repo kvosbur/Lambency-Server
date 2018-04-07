@@ -39,10 +39,10 @@ public class OrganizationHandler {
         // Saves the orgs image to a file
         String path = null;
         int status;
-        if(org.getImageToSave() != null) {
+        if(org.getImage() != null) {
             try {
-                //path = ImageWR.writeImageToFile(org.getImage());
-                path = ImageWR.saveImage(org.getImageToSave());
+                path = ImageWR.writeImageToFile(org.getImage());
+                //path = ImageWR.saveImage(org.getImageToSave());
 
             } catch (IOException e) {
                 Printing.println("Error adding image for org " + org.getName() + ".");
@@ -623,8 +623,8 @@ public class OrganizationHandler {
             String path = null;
             if(newOrg.getImage() != null) {
                 try {
-                    //path = ImageWR.writeImageToFile(newOrg.getImage());
-                    path = ImageWR.saveImage(newOrg.getImageToSave());
+                    path = ImageWR.writeImageToFile(newOrg.getImage());
+                    //path = ImageWR.saveImage(newOrg.getImageToSave());
 
                 } catch (IOException e) {
                     Printing.println("Error adding image.");
