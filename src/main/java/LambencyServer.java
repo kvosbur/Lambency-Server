@@ -277,6 +277,10 @@ public class LambencyServer{
             String password = request.queryParams("newPassword");
             String confirmPassword = request.queryParams("confirmPassword");
             String oAuthToken = request.queryParams("oAuthToken");
+            if(password == null || confirmPassword == null || oAuthToken == null){
+                return -1;
+            }
+
             int changed = UserHandler.changePassword(oAuthToken, password, confirmPassword, databaseConnection);
             databaseConnection.close();
             return changed;
@@ -291,6 +295,25 @@ public class LambencyServer{
 
             String email = request.queryParams("email");
             int changed = UserHandler.beginRecoverPassword(email, databaseConnection);
+            databaseConnection.close();
+            return changed;
+        }, new JsonTransformer());
+
+        post("/User/endRecovery", "application/json", (request, response) -> {
+            Printing.printlnEndpoint("/User/endRecovery");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String password = request.queryParams("newPassword");
+            String confirmPassword = request.queryParams("confirmPassword");
+            String verification = request.queryParams("verification");
+            int userID = Integer.parseInt(request.queryParams("userID"));
+            if(password == null || confirmPassword == null || verification == null){
+                return -1;
+            }
+
+            int changed = UserHandler.endRecoveryPassword(verification, password, confirmPassword, userID, databaseConnection);
             databaseConnection.close();
             return changed;
         }, new JsonTransformer());
