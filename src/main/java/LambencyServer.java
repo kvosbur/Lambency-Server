@@ -51,10 +51,14 @@ public class LambencyServer{
 
     LambencyServer(){
 
+        ImageWR.fix();
+
         port(20000);
 
         //adds https capability to server
         secure("cert.jks", "l4b3ncY!r0ckz",null,null);
+
+        staticFiles.externalLocation("photos");
 
         addroutes();
 

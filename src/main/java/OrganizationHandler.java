@@ -39,12 +39,13 @@ public class OrganizationHandler {
         // Saves the orgs image to a file
         String path = null;
         int status;
-        if(org.getImage() != null) {
+        if(org.getImageToSave() != null) {
             try {
-                path = ImageWR.writeImageToFile(org.getImage());
+                //path = ImageWR.writeImageToFile(org.getImage());
+                path = ImageWR.saveImage(org.getImageToSave());
 
             } catch (IOException e) {
-                Printing.println("Error adding image.");
+                Printing.println("Error adding image for org " + org.getName() + ".");
             }
         }
         try {
@@ -52,7 +53,7 @@ public class OrganizationHandler {
                     .getUserId(), org.getLocation(), path, org.getOrganizers().get(0).getUserId(),latlng.lat,latlng.lng);
             OrganizationModel organization = dbc.searchForOrg(status);
             //image is currently storing path so change it to store
-            organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
+            //organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
             return organization;
         }
         catch (Exception e){
@@ -77,7 +78,7 @@ public class OrganizationHandler {
             //for each organization in the array
             for(OrganizationModel org: array){
                 if(org.getImage() != null) {
-                    org.setImage(ImageWR.getEncodedImageFromFile(org.getImage()));
+                    //org.setImage(ImageWR.getEncodedImageFromFile(org.getImage()));
                 }
             }
         }
@@ -622,7 +623,8 @@ public class OrganizationHandler {
             String path = null;
             if(newOrg.getImage() != null) {
                 try {
-                    path = ImageWR.writeImageToFile(newOrg.getImage());
+                    //path = ImageWR.writeImageToFile(newOrg.getImage());
+                    path = ImageWR.saveImage(newOrg.getImageToSave());
 
                 } catch (IOException e) {
                     Printing.println("Error adding image.");
