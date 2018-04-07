@@ -613,6 +613,18 @@ public class DatabaseConnection {
         return 1;
     }
 
+    /**
+     *
+     * @param start the start of the range
+     * @param end the end of the range
+     * @return the list of the user IDs of the corresponding range
+     * @throws SQLException
+     */
+    public List<Integer> leaderboardRange(int start, int end) throws SQLException{
+
+        return null;
+    }
+
 
     /**
      * END USER METHODS

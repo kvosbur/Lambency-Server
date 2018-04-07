@@ -848,6 +848,19 @@ public class UserHandler {
     public static List<UserModel> leaderboardRange(int start, int end, DatabaseConnection dbc){
         if(start < 0 || end < 0 || start > end){
             return null;
+
+        }
+        try{
+            List<Integer> userIDs = dbc.leaderboardRange(start, end);
+            if(userIDs == null){
+                Printing.println(" dbc.leaderboardRange() returned null");
+                return null;
+            }
+
+        }
+        catch (SQLException e){
+            Printing.println("SQLException");
+            Printing.printlnException(e);
         }
         return null;
     }
