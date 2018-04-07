@@ -150,6 +150,22 @@ public class DatabaseConnection {
         return null;
     }
 
+    /**
+     *
+     * @param oauthCode
+     * @param prefernces
+     * @return  -2: illegal preference number
+     *          0 on success
+     *
+     */
+    public void updateUserNotificationPreferences(String oauthCode, int prefernces) throws SQLException{
+
+        PreparedStatement ps = connect.prepareStatement("UPDATE user SET notify_pref = ? WHERE oauth_token = ?");
+        ps.setInt(1,prefernces);
+        ps.setString(2,oauthCode);
+        ps.executeUpdate();
+    }
+
 
     /**
      Description: Given user information create a user profile that is either associated with a google or facebook profile

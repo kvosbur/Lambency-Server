@@ -240,6 +240,25 @@ public class LambencyServer{
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());
+
+        get("/User/setNotificationPreference","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/User/setNotificationPreference");
+
+            String oAuthCode = request.queryParams("oAuthCode");
+            String preference = request.queryParams("preference");
+            if(preference == null || oAuthCode == null){
+                Printing.printlnError("Wrong params.");
+                return new Integer(-5);
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            int ret = UserHandler.updateNotificationPreferences(oAuthCode,Integer.parseInt(preference),databaseConnection);
+            databaseConnection.close();
+            return ret;
+        },new JsonTransformer());
+
         post("/Organization/create", "application/json",
                 (request, response) -> {
                     Printing.printlnEndpoint("/Organization/create");

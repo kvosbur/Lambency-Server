@@ -745,6 +745,40 @@ public class UserHandler {
         return u;
     }
 
+    /**
+     * Change the notification preference for the user
+     *
+     * @param oAuthCode
+     * @param preference
+     * @param dbc
+     * @return  -1: No user Model
+     *          -2: -2 Illegal preference value
+     *          -3: SQL exception
+     *          -4: bad SQL connection
+     */
+    public static Integer updateNotificationPreferences(String oAuthCode, int preference, DatabaseConnection dbc){
+        if(dbc.connect == null){
+            return -4;
+        }
+        //search for user
+        if(preference < DatabaseConnection.NOTIFY_EMAIL_PUSH || preference > DatabaseConnection.NOTIFY_NOT){
+            return -2;
+        }
+        try {
+            if(dbc.searchForUser(oAuthCode) == null){
+                Printing.println("UserModel not found");
+                return -1;
+            }
+
+            dbc.updateUserNotificationPreferences(oAuthCode,preference);
+            return 0;
+
+        } catch (SQLException e) {
+            Printing.printlnException(e);
+            return -3;
+        }
+
+    }
 
 
 }

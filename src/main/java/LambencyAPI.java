@@ -115,5 +115,8 @@ public interface LambencyAPI {
     @POST("Organization/searchWithFilter")
     Call<ArrayList<OrganizationModel>> getOrganizationsWithFilter(@Body OrganizationFilterModel organizationFilterModel);
 
+    @GET("User/setNotificationPreference")
+    Call<Integer> updateNotificationPreference(@Query("oAuthCode") String oAuthCode, @Query("preference") int preference);
+
 
 }

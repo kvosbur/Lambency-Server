@@ -949,6 +949,44 @@ public void createOrganizationRetrofit(OrganizationModel org){
         });
     }
 
+    public void updateNotifyPreference(String oAuthCode, int preference){
+        this.getInstance().updateNotificationPreference(oAuthCode,preference).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                Integer status = response.body();
+                System.out.println(status);
+                if(status == 0){
+                    //System.out.println("SUCCESS");
+                }
+                else if(status == -1){
+                    //System.out.println("BAD USER ID");
+                }
+                else if(status == -2){
+                    //System.out.println("Illegal preference");
+                }
+                else if(status == -3){
+                    //System.out.println("SQL EXCEPTION");
+                }
+                else if(status == -4){
+                    //System.out.println("BAD SQL Connection");
+                }
+                else if(status == -5){
+                    //System.out.println("Bad arguments passed in retrofit");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+
+            }
+        });
+    }
+
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
         //OrganizationModel org = new OrganizationModel(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");
