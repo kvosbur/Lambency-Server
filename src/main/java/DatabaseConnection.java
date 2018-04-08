@@ -625,6 +625,16 @@ public class DatabaseConnection {
         return null;
     }
 
+    /**
+     *
+     * @param userID the id of the user to check for their rank
+     * @return the rank of the user, -1 on error
+     * @throws SQLException
+     */
+    public int leaderboardRankOf(int userID) throws SQLException{
+        return -1;
+    }
+
 
     /**
      * END USER METHODS

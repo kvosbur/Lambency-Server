@@ -856,7 +856,16 @@ public class UserHandler {
                 Printing.println(" dbc.leaderboardRange() returned null");
                 return null;
             }
+            int rank = start;
+            List<UserModel> leaderboard = new ArrayList<UserModel>();
+            for(int i : userIDs){
+                UserModel userModel = dbc.searchForUser("" + i, DatabaseConnection.LAMBNECYUSERID);
+                userModel.setOauthToken("" + rank);
+                rank++;
+                leaderboard.add(userModel);
+            }
 
+            return leaderboard;
         }
         catch (SQLException e){
             Printing.println("SQLException");
@@ -872,6 +881,31 @@ public class UserHandler {
      * @return returns a list of users around the given users on the leaderboard, null on error or invalid
      */
     public static List<UserModel> leaderboardAroundUser(String oAuthCode, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null || dbc == null){
+                Printing.println("null oAuthCode");
+                return null;
+            }
+            //get user for specific oauthcode
+            UserModel user = dbc.searchForUser(oAuthCode);
+            if (user == null) {
+                Printing.println("UserModel not found");
+                return null;
+            }
+            int userRank = dbc.leaderboardRankOf(user.getUserId());
+            int start = userRank - 2;
+            int end = userRank + 2;
+            if(start <= 10){
+                Printing.println("User in top 10, use leaderboard range");
+                return null;
+            }
+            return leaderboardRange(start, end, dbc);
+
+        }
+        catch (SQLException e){
+            Printing.println("SQLException");
+            Printing.printlnException(e);
+        }
         return null;
     }
 
