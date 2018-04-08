@@ -10,12 +10,13 @@ public class OrganizationModel {
     public String description;
     public String email;
     public UserModel contact;
-    public String image;
+    public String imagePath;
+    public byte[] imageFile;
     public ArrayList<UserModel> organizers;
     public double lattitude;
     public double longitude;
 
-    public OrganizationModel(UserModel owner, String name, String location, int orgID, String description, String email, UserModel contact, String image) {
+    public OrganizationModel(UserModel owner, String name, String location, int orgID, String description, String email, UserModel contact, String imagePath) {
         this.owner = owner;
         this.name = name;
         this.location = location;
@@ -23,7 +24,7 @@ public class OrganizationModel {
         this.description = description;
         this.email = email;
         this.contact = contact;
-        this.image = image;
+        this.imagePath = imagePath;
         members = new ArrayList<UserModel>();
         members.add(owner);
         events = new ArrayList<>();
@@ -33,7 +34,7 @@ public class OrganizationModel {
     }
 
     public OrganizationModel(UserModel owner, String name, String location, int orgID, String description,
-                             String email, UserModel contact, String image, double lattitude, double longitude) {
+                             String email, UserModel contact, String imagePath, double lattitude, double longitude) {
         this.owner = owner;
         this.name = name;
         this.location = location;
@@ -41,7 +42,7 @@ public class OrganizationModel {
         this.description = description;
         this.email = email;
         this.contact = contact;
-        this.image = image;
+        this.imagePath = imagePath;
         this.lattitude = lattitude;
         this.longitude = longitude;
         members = new ArrayList<UserModel>();
@@ -52,6 +53,14 @@ public class OrganizationModel {
     }
 
     public int numFollowing;
+
+    public byte[] getImageFile() {
+        return imageFile;
+    }
+
+    public void setImageFile(byte[] imageFile) {
+        this.imageFile = imageFile;
+    }
 
     public String getName() {
         return name;
@@ -117,12 +126,12 @@ public class OrganizationModel {
         this.contact = contact;
     }
 
-    public String getImage() {
-        return image;
+    public String getImagePath() {
+        return imagePath;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setImage(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     public ArrayList<UserModel> getOrganizers() {

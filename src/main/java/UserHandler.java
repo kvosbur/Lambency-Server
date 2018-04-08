@@ -357,15 +357,11 @@ public class UserHandler {
             for(Integer i: user.getMyOrgs()){
                 OrganizationModel org = dbc.searchForOrg(i);
                 if(org != null){
-                    if(org.getImage() != null) {
-                        org.setImage(ImageWR.getEncodedImageFromFile(org.getImage()));
-                    }
                     myOrgs.add(org);
                     ArrayList<Integer> events = dbc.getOrgEvents(i);
                     for(Integer j: events){
                         EventModel event = dbc.searchEvents(j);
                         if(event != null){
-                            event.setImageFile(ImageWR.getEncodedImageFromFile(event.getImage_path()));
                             eventsOrganizing.add(event);
                         }
                     }
@@ -377,9 +373,6 @@ public class UserHandler {
             for(Integer i: user.getJoinedOrgs()){
                 OrganizationModel org = dbc.searchForOrg(i);
                 if(org != null){
-                    if(org.getImage() != null) {
-                        org.setImage(ImageWR.getEncodedImageFromFile(org.getImage()));
-                    }
                     joinedOrgs.add(org);
                 }
             }
@@ -389,7 +382,6 @@ public class UserHandler {
             for(Integer i: user.getEventsAttending()){
                 EventModel event = dbc.searchEvents(i);
                 if(event != null){
-                    event.setImageFile(ImageWR.getEncodedImageFromFile(event.getImage_path()));
                     eventsAttending.add(event);
                 }
             }
@@ -440,7 +432,6 @@ public class UserHandler {
                             }
                         }
                         if(permissionToView &&!u.getEventsAttending().contains(event)  && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
-                            eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                             subList.add(eventModel);
                         }
                     }
@@ -468,7 +459,6 @@ public class UserHandler {
                             }
                         }
                         if(permissionToView &&!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
-                            eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                             subList.add(eventModel);
                         }
                     }
@@ -500,7 +490,6 @@ public class UserHandler {
                             }
                         }
                         if(permissionToView &&!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
-                            eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                             subList.add(eventModel);
                         }
                     }
@@ -528,7 +517,6 @@ public class UserHandler {
                             }
                         }
                         if(permissionToView && !u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
-                            eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                             subList.add(eventModel);
                         }
                     }
@@ -587,7 +575,6 @@ public class UserHandler {
                                     }
                                 }
                                 if(permissionToView && !u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
-                                    eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                                     subList.add(eventModel);
                                 }
                             }
@@ -645,10 +632,6 @@ public class UserHandler {
             ArrayList<OrganizationModel> orgs = new ArrayList<>();
             for(Integer org_id:user.getMyOrgs()){
                 OrganizationModel organization = dbc.searchForOrg(org_id);
-                if(organization.getImage() != null) {
-                    organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
-
-                }
                 orgs.add(organization);
             }
             return orgs;
