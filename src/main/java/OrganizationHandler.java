@@ -39,14 +39,17 @@ public class OrganizationHandler {
         // Saves the orgs image to a file
         String path = null;
         int status;
-        if(org.getImage() != null) {
+        if(org.getImageFile() != null) {
             try {
-                path = ImageWR.writeImageToFile(org.getImage());
+                Printing.println("imageFile not null");
+                path = ImageWR.writeImageToFile(org.getImageFile());
                 //path = ImageWR.saveImage(org.getImageToSave());
 
             } catch (IOException e) {
                 Printing.println("Error adding image for org " + org.getName() + ".");
             }
+        }else{
+            Printing.println("imageFile null");
         }
         try {
             status = dbc.createOrganization(org.getName(), org.getDescription(), org.getEmail(), org.getContact()
@@ -75,12 +78,14 @@ public class OrganizationHandler {
         try {
             array = dbc.searchForOrgArray(name);
 
+            /*
             //for each organization in the array
             for(OrganizationModel org: array){
                 if(org.getImage() != null) {
                     //org.setImage(ImageWR.getEncodedImageFromFile(org.getImage()));
                 }
             }
+            */
         }
         catch (SQLException e){
             array = new ArrayList<OrganizationModel>();
@@ -116,9 +121,11 @@ public class OrganizationHandler {
             organization.setMembers(memsandorgs[0]);
             organization.setOrganizers(memsandorgs[1]);
 
+            /*
             if(organization.getImage() != null) {
                 organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
             }
+            */
             return organization;
         } catch (SQLException e) {
             Printing.println("Error in finding organization");
@@ -621,14 +628,17 @@ public class OrganizationHandler {
 
             // Saves the orgs image to a file
             String path = null;
-            if(newOrg.getImage() != null) {
+            if(newOrg.getImageFile() != null) {
                 try {
-                    path = ImageWR.writeImageToFile(newOrg.getImage());
+                    Printing.println("imageFile not null");
+                    path = ImageWR.writeImageToFile(newOrg.getImageFile());
                     //path = ImageWR.saveImage(newOrg.getImageToSave());
 
                 } catch (IOException e) {
                     Printing.println("Error adding image.");
                 }
+            }else{
+                Printing.println("imageFile null");
             }
             newOrg.setImage(path);
             int ret = dbc.modifyOrganization(newOrg);

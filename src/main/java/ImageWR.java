@@ -3,7 +3,6 @@ import sun.misc.BASE64Decoder;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.Base64;
 import java.util.Date;
 
 public class ImageWR {
@@ -24,7 +23,7 @@ public class ImageWR {
      */
 
 
-    public static String writeImageToFile(String imgEncoding) throws IOException{
+    public static String writeImageToFile(byte[] imgEncoding) throws IOException{
         if(imgEncoding == null){
             Printing.println("imgEncoding read null");
             return null;
@@ -47,10 +46,11 @@ public class ImageWR {
         //Files.write(destinationFile, imgEncoding.getBytes());
         */
 
-        FileOutputStream fos = new FileOutputStream(path);
+        FileOutputStream fos = new FileOutputStream(path + fileName);
 
-        byte[] bytes = Base64.getDecoder().decode(imgEncoding);
-        fos.write(bytes);
+        //byte[] bytes = Base64.getDecoder().decode(imgEncoding.getBytes());
+
+        fos.write(imgEncoding);
         fos.close();
 
 

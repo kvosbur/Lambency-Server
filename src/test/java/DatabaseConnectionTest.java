@@ -1,7 +1,3 @@
-import org.eclipse.jetty.server.Authentication;
-import org.junit.Test;
-
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -109,7 +105,7 @@ public class DatabaseConnectionTest {
             throw new Exception("search for org by id failed: returned null");
         }
         if(!(org.getName().equals("My OrganizationModel") && org.getDescription().equals("This is a description") && org.getEmail().equals("Org@gmail.com")
-                && org.getContact().getUserId() == u.getUserId() && org.getLocation().equals("West Lafayette") && org.getImage().equals("img"))){
+                && org.getContact().getUserId() == u.getUserId() && org.getLocation().equals("West Lafayette") && org.getImagePath().equals("img"))){
             throw new Exception("search for org by id failed: incorrect fields");
         }
         org = org2;
@@ -117,7 +113,7 @@ public class DatabaseConnectionTest {
             throw new Exception("search for org by name failed: returned null");
         }
         if(!(org.getName().equals("My OrganizationModel") && org.getDescription().equals("This is a description") && org.getEmail().equals("Org@gmail.com")
-                && org.getContact().getUserId() == u.getUserId() && org.getLocation().equals("West Lafayette") && org.getImage().equals("img"))){
+                && org.getContact().getUserId() == u.getUserId() && org.getLocation().equals("West Lafayette") && org.getImagePath().equals("img"))){
             throw new Exception("search for org by name failed: incorrect fields");
         }
     }

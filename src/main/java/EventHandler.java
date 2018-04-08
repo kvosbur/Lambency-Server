@@ -25,8 +25,12 @@ public class EventHandler {
             //write event image
             Printing.println("file_path is null: "+event.getImage_path() == null);
             if(event.getImage_path() == null && event.getImageFile() != null){
+                //event.setImage_path(ImageWR.writeImageToFile(event.getImageFile()));
                 event.setImage_path(ImageWR.writeImageToFile(event.getImageFile()));
                 //event.setImage_path(ImageWR.saveImage(event.getImageToSave()));
+                Printing.println("bytes are not null");
+            }else{
+                Printing.println("bytes are null");
             }
             //create clock in and clock out code
             event.setClockInCode(EventHandler.generateClockInOutCodes());
@@ -63,6 +67,13 @@ public class EventHandler {
         try{
             EventModel prev = dbc.searchEvents(event.getEvent_id());
 
+            if(event.getImageFile() != null){
+                Printing.println("Bytes not null");
+                event.setImage_path(ImageWR.writeImageToFile(event.getImageFile()));
+            }else{
+                Printing.println("Bytes null");
+            }
+
             dbc.modifyEventInfo(event.getEvent_id(),event.getName(),event.getStart(),event.getEnd(),
                     event.getDescription(),event.getLocation(),event.getImage_path(),event.getLattitude(),event.getLongitude(), event.getPrivateEvent());
             EventModel now = dbc.searchEvents(event.getEvent_id());
@@ -75,7 +86,7 @@ public class EventHandler {
 
             return 0;
         }
-        catch (SQLException e){
+        catch (Exception e){
             Printing.println("Error in updating Event: "+event.getName());
             return 1;
         }
