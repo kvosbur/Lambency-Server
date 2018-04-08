@@ -644,8 +644,10 @@ public class DatabaseConnection {
         String query = "SELECT hours FROM user WHERE user_id = ?";
         PreparedStatement ps = connect.prepareStatement(query);
         ps.setInt(1,userID);
-        int ret = ps.executeUpdate();
-        // ret = number of users with more hours than userID
+        int ret = ps.executeUpdate(); // ret = number of hours for user
+        query = "SELECT COUNT(*) FROM user WHERE hours > ?";
+        ps.setInt(1,ret);
+        ret = ps.executeUpdate(); // ret = number of users with more hours than userID
         ret++; // rank of user
         return ret;
     }
