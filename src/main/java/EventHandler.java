@@ -68,8 +68,9 @@ public class EventHandler {
             EventModel prev = dbc.searchEvents(event.getEvent_id());
 
             if(event.getImageFile() != null){
-                Printing.println("Bytes not null");
+                Printing.println("event image old path: " + event.getImage_path());
                 event.setImage_path(ImageWR.writeImageToFile(event.getImageFile()));
+                Printing.println("event image new path: " + event.getImage_path());
             }else{
                 Printing.println("Bytes null");
             }
