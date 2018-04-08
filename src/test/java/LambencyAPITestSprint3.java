@@ -1047,6 +1047,159 @@ public class LambencyAPITestSprint3 {
         }
     }
 
+    @Test
+    public void testDeleteOrg(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        UserModel u2;
+        UserModel u3;
+        OrganizationModel org1;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            u2 = dbc.searchForUser("facebook2", 2);
+            u2 = UserHandler.searchForUser(u2.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            Response<Integer> response = null;
+            try {
+                response = this.getInstance().getDeleteOrganization(u1.getOauthToken(), "" + org1.getOrgID()).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            int ret = response.body();
+            assertTrue(ret == 0);
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            assertTrue(org1.getName().contains("(Inactive)"));
+            assertTrue(dbc.searchGroupies(u1.getUserId(), org1.getOrgID()) == null);
+            assertTrue(dbc.searchGroupies(u2.getUserId(), org1.getOrgID()) == null);
+            assertTrue(dbc.searchGroupies(u3.getUserId(), org1.getOrgID()) == null);
+            assertTrue(EventHandler.searchEventID(1, dbc) != null);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+    @Test
+    public void testDeleteOrgWithEvents(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        UserModel u2;
+        UserModel u3;
+        OrganizationModel org2;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            u2 = dbc.searchForUser("facebook2", 2);
+            u2 = UserHandler.searchForUser(u2.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            org2 = OrganizationHandler.searchOrgID(2, dbc);
+            Response<Integer> response = null;
+            try {
+                response = this.getInstance().getDeleteOrganization(u2.getOauthToken(), "" + org2.getOrgID()).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            int ret = response.body();
+            assertTrue(ret == 0);
+            org2 = OrganizationHandler.searchOrgID(2, dbc);
+            assertTrue(org2.getName().contains("(Inactive)"));
+            assertTrue(dbc.searchGroupies(u1.getUserId(), org2.getOrgID()) == null);
+            assertTrue(dbc.searchGroupies(u2.getUserId(), org2.getOrgID()) == null);
+            assertTrue(dbc.searchGroupies(u3.getUserId(), org2.getOrgID()) == null);
+            assertTrue(EventHandler.searchEventID(2, dbc) == null);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test
+    public void testDeleteOrgInsuficcient(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        UserModel u2;
+        UserModel u3;
+        OrganizationModel org1;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            u2 = dbc.searchForUser("facebook2", 2);
+            u2 = UserHandler.searchForUser(u2.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            Response<Integer> response = null;
+            try {
+                response = this.getInstance().getDeleteOrganization(u2.getOauthToken(), "" + org1.getOrgID()).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            int ret = response.body();
+            assertTrue(ret == -2);
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            assertTrue(!org1.getName().contains("(Inactive)"));
+            assertTrue(dbc.searchGroupies(u1.getUserId(), org1.getOrgID()) != null);
+            assertTrue(dbc.searchGroupies(u2.getUserId(), org1.getOrgID()) != null);
+            assertTrue(dbc.searchGroupies(u3.getUserId(), org1.getOrgID()) != null);
+            assertTrue(EventHandler.searchEventID(1, dbc) != null);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+    @Test
+    public void testDeleteOrgInvalid(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        UserModel u2;
+        UserModel u3;
+        OrganizationModel org1;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            u2 = dbc.searchForUser("facebook2", 2);
+            u2 = UserHandler.searchForUser(u2.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            Response<Integer> response = null;
+            try {
+                response = this.getInstance().getDeleteOrganization(u1.getOauthToken(), "-1" ).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            int ret = response.body();
+            assertTrue(ret == -1);
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            assertTrue(!org1.getName().contains("(Inactive)"));
+            assertTrue(dbc.searchGroupies(u1.getUserId(), org1.getOrgID()) != null);
+            assertTrue(dbc.searchGroupies(u2.getUserId(), org1.getOrgID()) != null);
+            assertTrue(dbc.searchGroupies(u3.getUserId(), org1.getOrgID()) != null);
+            assertTrue(EventHandler.searchEventID(1, dbc) != null);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+
+
+
     public void searches(){
         DatabaseConnection dbc = this.getDatabaseInstance();
 
