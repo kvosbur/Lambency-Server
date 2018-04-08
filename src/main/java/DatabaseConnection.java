@@ -404,8 +404,8 @@ public class DatabaseConnection {
         ps.setString(6, imgPath);
         ps.setDouble(7,lat);
         ps.setDouble(8,longit);
-        ps.setInt(9,event_id);
-        ps.setBoolean(10,privateEvent);
+        ps.setBoolean(9,privateEvent);
+        ps.setInt(10,event_id);
 
         //execute query
         ps.executeUpdate();
