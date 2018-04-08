@@ -1493,24 +1493,31 @@ public class DatabaseConnection {
     }
 
     /**
-     * Removes the orgization
-     * @param orgID
+     * sets the organization to deleted in db. makes it unsearchable
+     * @param orgID the org id to be set to deleted
      * @return
      * @throws SQLException
      */
     public int deleteOrganization(int orgID) throws SQLException{
-        if(searchEvents(orgID) == null){
+        if(searchForOrg(orgID) == null){
             return -1;
         }
         PreparedStatement ps;
         int result;
-        ps = connect.prepareStatement("UPDATE organization SET deleted = 1 WHERE org_id = ?");
+        ps = connect.prepareStatement("UPDATE organization SET deleted = 1, name = Concat('(Inactive) ', name) WHERE org_id = ?;");
         ps.setInt(1,orgID);
         ps.executeUpdate();
 
         ps = connect.prepareStatement("DELETE FROM groupies WHERE org_id = ?");
         ps.setInt(1,orgID);
         ps.executeUpdate();
+
+        ps = connect.prepareStatement("SELECT event_id FROM events WHERE org_id = ? AND start_time > now();");
+        ps.setInt(1,orgID);
+        ResultSet rs = ps.executeQuery();
+        while(rs.next()){
+            deleteEvent(rs.getInt(1));
+        }
 
         return 0;
     }
