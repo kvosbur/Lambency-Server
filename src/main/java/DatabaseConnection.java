@@ -644,12 +644,36 @@ public class DatabaseConnection {
         String query = "SELECT hours FROM user WHERE user_id = ?";
         PreparedStatement ps = connect.prepareStatement(query);
         ps.setInt(1,userID);
-        int ret = ps.executeUpdate(); // ret = number of hours for user
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        int ret = rs.getInt(1);// ret = number of hours for user
         query = "SELECT COUNT(*) FROM user WHERE hours > ?";
+        ps = connect.prepareStatement(query);
         ps.setInt(1,ret);
-        ret = ps.executeUpdate(); // ret = number of users with more hours than userID
+        rs = ps.executeQuery();
+        rs.next();
+        ret = rs.getInt(1);// ret = number of users with more hours than userID
         ret++; // rank of user
         return ret;
+    }
+
+    /**
+     * adds to the current hours of the user
+     * @param userID the id of the user
+     * @param hours number of hours to be added
+     * @return 0 on success
+     * @throws SQLException
+     */
+    public int addHours(int userID, int hours) throws SQLException{
+        if(userID <= 0 || hours < 0){
+            return -1;
+        }
+        String query = "UPDATE user SET hours = hours + ? WHERE user_id = ?";
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1,hours);
+        ps.setInt(2,userID);
+        ps.executeUpdate();
+        return 0;
     }
 
 
