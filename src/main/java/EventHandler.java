@@ -1,5 +1,6 @@
 import com.google.maps.model.LatLng;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -28,9 +29,6 @@ public class EventHandler {
                 //event.setImage_path(ImageWR.writeImageToFile(event.getImageFile()));
                 event.setImage_path(ImageWR.writeImageToFile(event.getImageFile()));
                 //event.setImage_path(ImageWR.saveImage(event.getImageToSave()));
-                Printing.println("bytes are not null");
-            }else{
-                Printing.println("bytes are null");
             }
             //create clock in and clock out code
             event.setClockInCode(EventHandler.generateClockInOutCodes());
@@ -65,6 +63,8 @@ public class EventHandler {
     public static int updateEvent(EventModel event, String message, DatabaseConnection dbc) {
 
         try{
+            Printing.println("given\n" + event.toString());
+
             EventModel prev = dbc.searchEvents(event.getEvent_id());
 
             if(event.getImageFile() != null){
@@ -78,6 +78,7 @@ public class EventHandler {
             dbc.modifyEventInfo(event.getEvent_id(),event.getName(),event.getStart(),event.getEnd(),
                     event.getDescription(),event.getLocation(),event.getImage_path(),event.getLattitude(),event.getLongitude(), event.getPrivateEvent());
             EventModel now = dbc.searchEvents(event.getEvent_id());
+            Printing.println("after\n" + now.toString());
 
             //send emails to attending users of info change
             ArrayList<Object> users = dbc.searchEventAttendanceUsers(prev.getEvent_id(),true);

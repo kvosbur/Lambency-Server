@@ -727,7 +727,7 @@ public class UserHandler {
             //search for user by email
             int user_id = dbc.getUserByEmail(email);
             if(user_id < 0){
-                return null;
+                return new UserAuthenticator(UserAuthenticator.Status.INVALID_LOGIN, null);
             }
 
             //get salt and hash for user
@@ -743,7 +743,7 @@ public class UserHandler {
                 return new UserAuthenticator(UserAuthenticator.Status.SUCCESS, um.getOauthToken());
             }
             //invalid password
-            return new UserAuthenticator(UserAuthenticator.Status.INVALID_PASSWORD, null);
+            return new UserAuthenticator(UserAuthenticator.Status.INVALID_LOGIN, null);
         } catch (Exception e) {
             Printing.println("Excpetion");
             Printing.println(e.toString());
@@ -793,7 +793,7 @@ public class UserHandler {
      * @param confirmPassword  a duplicate of the new password to confirm right password
      * @return the success code of setting the new password
      */
-    public static int changePassword(String oAuthCode, String password, String confirmPassword, DatabaseConnection dbc){
+    public static int changePassword(String oAuthCode, String password, String confirmPassword, String oldPassword, DatabaseConnection dbc){
         try{
             if(oAuthCode == null){
                 return 3;
@@ -805,20 +805,181 @@ public class UserHandler {
                 return 4;
             }
 
-            //check if both passwords are the same password
-            if(password.equals(confirmPassword)){
-                //the new passwords are the same
-                //change password in database
-                int ret = PasswordUtil.setPassword(password, user.getUserId(), dbc);
-                return ret;
+            //check if old password is correct
+            //get salt and hash for user
+            String[] strings = dbc.userGetHash(user.getUserId());
+
+            if(PasswordUtil.verify(oldPassword, strings[1])) {
+
+                //check if both passwords are the same password
+                if (password.equals(confirmPassword)) {
+                    //the new passwords are the same
+                    //change password in database
+                    int ret = PasswordUtil.setPassword(password, user.getUserId(), dbc);
+                    return ret;
+                }
+                //passwords are different
+                return 5;
             }
-            //passwords are different
-            return 5;
+
+            //incorrect old password
+            return 7;
+
 
         } catch (SQLException e) {
             Printing.println("SQLExcpetion");
             Printing.println(e.toString());
             return 6;
+        }
+    }
+
+    /**
+     *
+     * @param start the start of the range
+     * @param end end of the range
+     * @return returns a list of users with ranks on the leaderboard between the start and end, null on error
+     */
+    public static List<UserModel> leaderboardRange(int start, int end, DatabaseConnection dbc){
+        if(start < 0 || end < 0 || start > end){
+            return null;
+
+        }
+        try{
+            List<Integer> userIDs = dbc.leaderboardRange(start, end);
+            if(userIDs == null){
+                Printing.println(" dbc.leaderboardRange() returned null");
+                return null;
+            }
+            int rank = start;
+            List<UserModel> leaderboard = new ArrayList<UserModel>();
+            for(int i : userIDs){
+                UserModel userModel = dbc.searchForUser("" + i, DatabaseConnection.LAMBNECYUSERID);
+                userModel.setOauthToken("" + rank);
+                rank++;
+                leaderboard.add(userModel);
+            }
+
+            return leaderboard;
+        }
+        catch (SQLException e){
+            Printing.println("SQLException");
+            Printing.printlnException(e);
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param oAuthCode the oAuthCode of the user
+     * @param dbc
+     * @return returns a list of users around the given users on the leaderboard, null on error or invalid
+     */
+    public static List<UserModel> leaderboardAroundUser(String oAuthCode, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null || dbc == null){
+                Printing.println("null oAuthCode");
+                return null;
+            }
+            //get user for specific oauthcode
+            UserModel user = dbc.searchForUser(oAuthCode);
+            if (user == null) {
+                Printing.println("UserModel not found");
+                return null;
+            }
+            int userRank = dbc.leaderboardRankOf(user.getUserId());
+            int start = userRank - 2;
+            int end = userRank + 2;
+            if(start <= 10){
+                Printing.println("User in top 10, use leaderboard range");
+                return null;
+            }
+            return leaderboardRange(start, end, dbc);
+
+        }
+        catch (SQLException e){
+            Printing.println("SQLException");
+            Printing.printlnException(e);
+        }
+        return null;
+    }
+    /**
+     * send email to user that would wish to recover their password
+     *
+     * @param email email of user that wants to reset their password
+     * @return the success code of setting the new password
+     */
+    public static int beginRecoverPassword(String email, DatabaseConnection dbc){
+        try{
+
+            //get user for specific oauthcode
+            int userID = dbc.getUserByEmail(email);
+            if (userID < 0) {
+                Printing.println("Trouble with finding email address");
+                return userID;  // -1 doesn't have account , -2 not unique (shouldn't happen)
+            }
+
+            //create code for user
+            String code = new String(PasswordUtil.generateSalt(30));
+            if(dbc.userGetVerification(userID) != null){
+                //remove previous verification if present
+                dbc.userRemoveVerification(userID);
+            }
+            dbc.userAddVerification(userID,code);
+            return GMailHelper.sendChangePasswordEmail(email, userID, code);
+
+        } catch (Exception e) {
+            Printing.println("SQLExcpetion");
+            Printing.printlnException(e);
+            return 2;
+        }
+    }
+
+    /**
+     * Change the password of a given their correct verification code
+     *
+     * @param verification verification code of user in question
+     * @param password  the new password of the user
+     * @param confirmPassword  a duplicate of the new password to confirm right password
+     * @return the success code of setting the new password
+     */
+    public static int endRecoveryPassword(String verification, String password, String confirmPassword, int userID,  DatabaseConnection dbc){
+        try{
+            if(verification == null){
+                return 3;
+            }
+            UserModel user = dbc.searchForUser("" + userID, DatabaseConnection.LAMBNECYUSERID);
+
+            if (user == null) {
+                Printing.println("Not a valid user for recovering password " + userID);
+                return 4;
+            }
+
+            //get user for specific oauthcode
+            String code = dbc.userGetVerification(userID);
+            if (code == null) {
+                Printing.println("Could not find verification code for given user");
+                return 5;
+            }
+
+            if(code.equals(verification)) {
+
+                //check if both passwords are the same password
+                if (password.equals(confirmPassword)) {
+                    //the new passwords are the same
+                    //change password in database
+                    int ret = PasswordUtil.setPassword(password, user.getUserId(), dbc);
+                    dbc.userRemoveVerification(userID);
+                    return ret;
+                }
+                //passwords are different but correct code
+                return 6;
+            }
+            //not valid code
+            return 7;
+        } catch (SQLException e) {
+            Printing.println("SQLExcpetion");
+            Printing.println(e.toString());
+            return 8;
         }
     }
 
