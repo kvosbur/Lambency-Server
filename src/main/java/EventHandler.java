@@ -61,10 +61,14 @@ public class EventHandler {
     public static int updateEvent(EventModel event, String message, DatabaseConnection dbc) {
 
         try{
+            Printing.println("given\n" + event.toString());
+
             EventModel prev = dbc.searchEvents(event.getEvent_id());
+            Printing.println("before\n" + prev.toString());
             dbc.modifyEventInfo(event.getEvent_id(),event.getName(),event.getStart(),event.getEnd(),
                     event.getDescription(),event.getLocation(),event.getImage_path(),event.getLattitude(),event.getLongitude(), event.getPrivateEvent());
             EventModel now = dbc.searchEvents(event.getEvent_id());
+            Printing.println("after\n" + now.toString());
 
             //send emails to attending users of info change
             ArrayList<Object> users = dbc.searchEventAttendanceUsers(prev.getEvent_id(),true);

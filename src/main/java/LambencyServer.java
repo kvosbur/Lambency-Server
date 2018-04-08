@@ -321,8 +321,46 @@ public class LambencyServer{
             }
             String password = request.queryParams("newPassword");
             String confirmPassword = request.queryParams("confirmPassword");
+            String oldPassword = request.queryParams("oldPassword");
             String oAuthToken = request.queryParams("oAuthToken");
-            int changed = UserHandler.changePassword(oAuthToken, password, confirmPassword, databaseConnection);
+            if(password == null || confirmPassword == null || oAuthToken == null || oldPassword == null){
+                return -1;
+            }
+
+            int changed = UserHandler.changePassword(oAuthToken, password, confirmPassword, oldPassword, databaseConnection);
+            Printing.println("return code is: " + changed);
+            databaseConnection.close();
+            return changed;
+        }, new JsonTransformer());
+
+        post("/User/beginRecovery", "application/json", (request, response) -> {
+            Printing.printlnEndpoint("/User/beginRecovery");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+
+            String email = request.queryParams("email");
+            int changed = UserHandler.beginRecoverPassword(email, databaseConnection);
+            databaseConnection.close();
+            return changed;
+        }, new JsonTransformer());
+
+        post("/User/endRecovery", "application/json", (request, response) -> {
+            Printing.printlnEndpoint("/User/endRecovery");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String password = request.queryParams("newPassword");
+            String confirmPassword = request.queryParams("confirmPassword");
+            String verification = request.queryParams("verification");
+            int userID = Integer.parseInt(request.queryParams("userID"));
+            if(password == null || confirmPassword == null || verification == null){
+                return -1;
+            }
+
+            int changed = UserHandler.endRecoveryPassword(verification, password, confirmPassword, userID, databaseConnection);
             databaseConnection.close();
             return changed;
         }, new JsonTransformer());
@@ -533,7 +571,7 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
 
-        get("/Event/update", "application/json",
+        post("/Event/update", "application/json",
                 (request, response) ->{
                     Printing.printlnEndpoint("/Event/update");
                     DatabaseConnection databaseConnection = new DatabaseConnection();

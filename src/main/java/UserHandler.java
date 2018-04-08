@@ -744,7 +744,7 @@ public class UserHandler {
             //search for user by email
             int user_id = dbc.getUserByEmail(email);
             if(user_id < 0){
-                return null;
+                return new UserAuthenticator(UserAuthenticator.Status.INVALID_LOGIN, null);
             }
 
             //get salt and hash for user
@@ -760,7 +760,7 @@ public class UserHandler {
                 return new UserAuthenticator(UserAuthenticator.Status.SUCCESS, um.getOauthToken());
             }
             //invalid password
-            return new UserAuthenticator(UserAuthenticator.Status.INVALID_PASSWORD, null);
+            return new UserAuthenticator(UserAuthenticator.Status.INVALID_LOGIN, null);
         } catch (Exception e) {
             Printing.println("Excpetion");
             Printing.println(e.toString());
@@ -810,7 +810,7 @@ public class UserHandler {
      * @param confirmPassword  a duplicate of the new password to confirm right password
      * @return the success code of setting the new password
      */
-    public static int changePassword(String oAuthCode, String password, String confirmPassword, DatabaseConnection dbc){
+    public static int changePassword(String oAuthCode, String password, String confirmPassword, String oldPassword, DatabaseConnection dbc){
         try{
             if(oAuthCode == null){
                 return 3;
@@ -822,15 +822,26 @@ public class UserHandler {
                 return 4;
             }
 
-            //check if both passwords are the same password
-            if(password.equals(confirmPassword)){
-                //the new passwords are the same
-                //change password in database
-                int ret = PasswordUtil.setPassword(password, user.getUserId(), dbc);
-                return ret;
+            //check if old password is correct
+            //get salt and hash for user
+            String[] strings = dbc.userGetHash(user.getUserId());
+
+            if(PasswordUtil.verify(oldPassword, strings[1])) {
+
+                //check if both passwords are the same password
+                if (password.equals(confirmPassword)) {
+                    //the new passwords are the same
+                    //change password in database
+                    int ret = PasswordUtil.setPassword(password, user.getUserId(), dbc);
+                    return ret;
+                }
+                //passwords are different
+                return 5;
             }
-            //passwords are different
-            return 5;
+
+            //incorrect old password
+            return 7;
+
 
         } catch (SQLException e) {
             Printing.println("SQLExcpetion");
@@ -907,6 +918,86 @@ public class UserHandler {
             Printing.printlnException(e);
         }
         return null;
+    }
+    /**
+     * send email to user that would wish to recover their password
+     *
+     * @param email email of user that wants to reset their password
+     * @return the success code of setting the new password
+     */
+    public static int beginRecoverPassword(String email, DatabaseConnection dbc){
+        try{
+
+            //get user for specific oauthcode
+            int userID = dbc.getUserByEmail(email);
+            if (userID < 0) {
+                Printing.println("Trouble with finding email address");
+                return userID;  // -1 doesn't have account , -2 not unique (shouldn't happen)
+            }
+
+            //create code for user
+            String code = new String(PasswordUtil.generateSalt(30));
+            if(dbc.userGetVerification(userID) != null){
+                //remove previous verification if present
+                dbc.userRemoveVerification(userID);
+            }
+            dbc.userAddVerification(userID,code);
+            return GMailHelper.sendChangePasswordEmail(email, userID, code);
+
+        } catch (Exception e) {
+            Printing.println("SQLExcpetion");
+            Printing.printlnException(e);
+            return 2;
+        }
+    }
+
+    /**
+     * Change the password of a given their correct verification code
+     *
+     * @param verification verification code of user in question
+     * @param password  the new password of the user
+     * @param confirmPassword  a duplicate of the new password to confirm right password
+     * @return the success code of setting the new password
+     */
+    public static int endRecoveryPassword(String verification, String password, String confirmPassword, int userID,  DatabaseConnection dbc){
+        try{
+            if(verification == null){
+                return 3;
+            }
+            UserModel user = dbc.searchForUser("" + userID, DatabaseConnection.LAMBNECYUSERID);
+
+            if (user == null) {
+                Printing.println("Not a valid user for recovering password " + userID);
+                return 4;
+            }
+
+            //get user for specific oauthcode
+            String code = dbc.userGetVerification(userID);
+            if (code == null) {
+                Printing.println("Could not find verification code for given user");
+                return 5;
+            }
+
+            if(code.equals(verification)) {
+
+                //check if both passwords are the same password
+                if (password.equals(confirmPassword)) {
+                    //the new passwords are the same
+                    //change password in database
+                    int ret = PasswordUtil.setPassword(password, user.getUserId(), dbc);
+                    dbc.userRemoveVerification(userID);
+                    return ret;
+                }
+                //passwords are different but correct code
+                return 6;
+            }
+            //not valid code
+            return 7;
+        } catch (SQLException e) {
+            Printing.println("SQLExcpetion");
+            Printing.println(e.toString());
+            return 8;
+        }
     }
 
     private static UserModel updateOrgLists(UserModel u, DatabaseConnection dbc) throws SQLException{
