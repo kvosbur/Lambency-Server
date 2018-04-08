@@ -1476,7 +1476,7 @@ public class DatabaseConnection {
             ps.setString(1, organizationModel.getName());
             ps.setString(2, organizationModel.getDescription());
             ps.setString(3, organizationModel.getEmail());
-            ps.setString(4, organizationModel.getImage());
+            ps.setString(4, organizationModel.getImagePath());
             ps.setString(5, organizationModel.getLocation());
             ps.setDouble(6,organizationModel.getLongitude());
             ps.setDouble(7,organizationModel.getLattitude());

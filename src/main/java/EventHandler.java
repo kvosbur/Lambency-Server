@@ -26,7 +26,9 @@ public class EventHandler {
             //write event image
             Printing.println("file_path is null: "+event.getImage_path() == null);
             if(event.getImage_path() == null && event.getImageFile() != null){
+                //event.setImage_path(ImageWR.writeImageToFile(event.getImageFile()));
                 event.setImage_path(ImageWR.writeImageToFile(event.getImageFile()));
+                //event.setImage_path(ImageWR.saveImage(event.getImageToSave()));
             }
             //create clock in and clock out code
             event.setClockInCode(EventHandler.generateClockInOutCodes());
@@ -48,7 +50,7 @@ public class EventHandler {
             Printing.println("Error in creating event: "+event.getName());
             return null;
         }
-        catch (IOException e){
+        catch (Exception e){
             Printing.println("Error in writing image.");
             Printing.println("Error in creating event: "+event.getName());
             Printing.println(e.toString());
@@ -64,7 +66,15 @@ public class EventHandler {
             Printing.println("given\n" + event.toString());
 
             EventModel prev = dbc.searchEvents(event.getEvent_id());
-            Printing.println("before\n" + prev.toString());
+
+            if(event.getImageFile() != null){
+                Printing.println("event image old path: " + event.getImage_path());
+                event.setImage_path(ImageWR.writeImageToFile(event.getImageFile()));
+                Printing.println("event image new path: " + event.getImage_path());
+            }else{
+                Printing.println("Bytes null");
+            }
+
             dbc.modifyEventInfo(event.getEvent_id(),event.getName(),event.getStart(),event.getEnd(),
                     event.getDescription(),event.getLocation(),event.getImage_path(),event.getLattitude(),event.getLongitude(), event.getPrivateEvent());
             EventModel now = dbc.searchEvents(event.getEvent_id());
@@ -78,7 +88,7 @@ public class EventHandler {
 
             return 0;
         }
-        catch (SQLException e){
+        catch (Exception e){
             Printing.println("Error in updating Event: "+event.getName());
             return 1;
         }
@@ -116,7 +126,7 @@ public class EventHandler {
                 if(eventModel.getPrivateEvent() &&( g==null || g.getType() < DatabaseConnection.MEMBER)){
                     continue;
                 }
-                eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                //eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                 events.add(eventModel);
             }
         } catch (SQLException e) {
@@ -151,7 +161,7 @@ public class EventHandler {
             eventIDs = dbc.searchEventsByLocation(lattitude,longitude);
             for(Integer i: eventIDs){
                 EventModel eventModel = dbc.searchEvents(i);
-                eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                //eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                 events.add(eventModel);
             }
         } catch (SQLException e) {
@@ -225,7 +235,7 @@ public class EventHandler {
 
         try {
             EventModel eventModel = dbc.searchEvents(eventID);
-            eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+            //eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
             return eventModel;
         } catch (SQLException e) {
             Printing.println("Error in finding event");

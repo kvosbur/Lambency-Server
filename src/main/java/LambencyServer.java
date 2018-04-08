@@ -56,6 +56,8 @@ public class LambencyServer{
         //adds https capability to server
         secure("cert.jks", "l4b3ncY!r0ckz",null,null);
 
+        staticFiles.externalLocation("photos");
+
         addroutes();
 
         //Setup and start timer for midnight server task
