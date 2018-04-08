@@ -84,7 +84,7 @@ public class DatabaseConnection {
 
         //figure query to use dependent on identifier type
         String query;
-        String fields = "user_id, first_name, last_name, user_email, oauth_token";
+        String fields = "user_id, first_name, last_name, user_email, oauth_token, hours";
         if(type == GOOGLE){
             query = "SELECT " + fields + " FROM user WHERE google_id = ?";
         }else if(type == FACEBOOK) {
@@ -103,7 +103,7 @@ public class DatabaseConnection {
         //check if entry in results and if so create new user object with information
         if(rs.next()){
             return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
-                    null, null,null,rs.getInt(1), 0, rs.getString(5));
+                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5));
         }
 
         return null;
@@ -121,7 +121,7 @@ public class DatabaseConnection {
     public UserModel searchForUser(String oauthCode) throws SQLException{
 
         //create string for query
-        String fields = "user_id, first_name, last_name, user_email, oauth_token";
+        String fields = "user_id, first_name, last_name, user_email, oauth_token, hours";
         String query = "SELECT " + fields + " FROM user WHERE oauth_token = ?";
 
         //run query
@@ -138,7 +138,7 @@ public class DatabaseConnection {
             rs.getString(4);
             rs.getString(5);
             return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
-                    null, null,null,rs.getInt(1), 0, rs.getString(5));
+                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5));
         }
         return null;
     }
@@ -611,6 +611,45 @@ public class DatabaseConnection {
             return 0;
         }
         return 1;
+    }
+
+    /**
+     *
+     * @param start the start of the range
+     * @param end the end of the range
+     * @return the list of the user IDs of the corresponding range
+     * @throws SQLException
+     */
+    public List<Integer> leaderboardRange(int start, int end) throws SQLException{
+        String fields = "user_id";
+        String query = "SELECT " + fields + " FROM user ORDER BY hours DESC LIMIT ?,?";
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, start - 1);
+        ps.setInt(2, end - start + 1);
+        ResultSet rs = ps.executeQuery();
+        List<Integer> leaderboard = new ArrayList<Integer>();
+        while(rs.next()){
+            leaderboard.add(rs.getInt(1));
+        }
+        return leaderboard;
+    }
+
+    /**
+     *
+     * @param userID the id of the user to check for their rank
+     * @return the rank of the user, -1 on error
+     * @throws SQLException
+     */
+    public int leaderboardRankOf(int userID) throws SQLException{
+        String query = "SELECT hours FROM user WHERE user_id = ?";
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1,userID);
+        int ret = ps.executeUpdate(); // ret = number of hours for user
+        query = "SELECT COUNT(*) FROM user WHERE hours > ?";
+        ps.setInt(1,ret);
+        ret = ps.executeUpdate(); // ret = number of users with more hours than userID
+        ret++; // rank of user
+        return ret;
     }
 
 

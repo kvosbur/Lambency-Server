@@ -164,6 +164,51 @@ public class LambencyServer{
             }
         }, new JsonTransformer());
 
+        get("/User/leaderboardRange","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/User/leaderboardRange");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String start = request.queryParams("start");
+            String end = request.queryParams("end");
+            if(start == null || end == null){
+                Printing.println("Bad spelling");
+                databaseConnection.close();
+                return null;
+            }
+            else{
+                List<UserModel> userModels = UserHandler.leaderboardRange(Integer.parseInt(start), Integer.parseInt(end), databaseConnection);
+                databaseConnection.close();
+                if(userModels == null){
+                    Printing.println("/User/leaderboardRange returned null;");
+                }
+                return userModels;
+            }
+        }, new JsonTransformer());
+
+        get("/User/leaderboardAroundUser","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/User/leaderboardAroundUser");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String oAuthCode = request.queryParams("oAuthCode");
+            if(oAuthCode == null){
+                Printing.println("Bad spelling");
+                databaseConnection.close();
+                return null;
+            }
+            else{
+                List<UserModel> userModels = UserHandler.leaderboardAroundUser(oAuthCode, databaseConnection);
+                databaseConnection.close();
+                if(userModels == null){
+                    Printing.println("/User/leaderboardAroundUser returned null;");
+                }
+                return userModels;
+            }
+        }, new JsonTransformer());
+
         get("/User/register","application/json",(request, response) -> {
             Printing.printlnEndpoint("/User/register");
             DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -278,8 +323,46 @@ public class LambencyServer{
             }
             String password = request.queryParams("newPassword");
             String confirmPassword = request.queryParams("confirmPassword");
+            String oldPassword = request.queryParams("oldPassword");
             String oAuthToken = request.queryParams("oAuthToken");
-            int changed = UserHandler.changePassword(oAuthToken, password, confirmPassword, databaseConnection);
+            if(password == null || confirmPassword == null || oAuthToken == null || oldPassword == null){
+                return -1;
+            }
+
+            int changed = UserHandler.changePassword(oAuthToken, password, confirmPassword, oldPassword, databaseConnection);
+            Printing.println("return code is: " + changed);
+            databaseConnection.close();
+            return changed;
+        }, new JsonTransformer());
+
+        post("/User/beginRecovery", "application/json", (request, response) -> {
+            Printing.printlnEndpoint("/User/beginRecovery");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+
+            String email = request.queryParams("email");
+            int changed = UserHandler.beginRecoverPassword(email, databaseConnection);
+            databaseConnection.close();
+            return changed;
+        }, new JsonTransformer());
+
+        post("/User/endRecovery", "application/json", (request, response) -> {
+            Printing.printlnEndpoint("/User/endRecovery");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String password = request.queryParams("newPassword");
+            String confirmPassword = request.queryParams("confirmPassword");
+            String verification = request.queryParams("verification");
+            int userID = Integer.parseInt(request.queryParams("userID"));
+            if(password == null || confirmPassword == null || verification == null){
+                return -1;
+            }
+
+            int changed = UserHandler.endRecoveryPassword(verification, password, confirmPassword, userID, databaseConnection);
             databaseConnection.close();
             return changed;
         }, new JsonTransformer());
