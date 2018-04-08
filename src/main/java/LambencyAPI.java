@@ -26,6 +26,12 @@ public interface LambencyAPI {
 
     @GET("User/getOrgs")
     Call<ArrayList<OrganizationModel>> getMyOrganizedOrgs(@Query("oAuthCode") String oAuthCode);
+    
+    @GET("User/leaderboardRange")
+    Call<List<UserModel>> getLeaderboardRange(@Query("start") String start, @Query("end") String end);
+
+    @GET("User/leaderboardAroundUser")
+    Call<List<UserModel>> getLeaderboardAroundUser(@Query("oAuthCode") String oAuthCode);
 
     @POST("Organization/create")
     Call<Integer> postCreateOrganization(@Body OrganizationModel org);
