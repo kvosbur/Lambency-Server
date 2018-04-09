@@ -202,7 +202,7 @@ public class GMailHelper {
             sendMessage(service,"me",example);
             return SUCCESS;
         }catch(Exception e){
-            e.printStackTrace();
+            Printing.printlnException(e);
             return FAILURE;
         }
     }
