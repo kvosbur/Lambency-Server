@@ -3,7 +3,7 @@ import java.util.Random;
 public class UserAuthenticator {
 
     public enum Status{
-        SUCCESS,NON_UNIQUE_EMAIL,NON_DETERMINANT_ERROR
+        SUCCESS,NON_UNIQUE_EMAIL,NON_DETERMINANT_ERROR, INVALID_LOGIN
     }
 
     private final char[] charArray = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();

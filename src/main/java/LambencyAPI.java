@@ -4,9 +4,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
-
 import java.util.List;
 
 public interface LambencyAPI {
@@ -28,6 +26,12 @@ public interface LambencyAPI {
 
     @GET("User/getOrgs")
     Call<ArrayList<OrganizationModel>> getMyOrganizedOrgs(@Query("oAuthCode") String oAuthCode);
+    
+    @GET("User/leaderboardRange")
+    Call<List<UserModel>> getLeaderboardRange(@Query("start") String start, @Query("end") String end);
+
+    @GET("User/leaderboardAroundUser")
+    Call<List<UserModel>> getLeaderboardAroundUser(@Query("oAuthCode") String oAuthCode);
 
     @POST("Organization/create")
     Call<Integer> postCreateOrganization(@Body OrganizationModel org);
@@ -58,8 +62,8 @@ public interface LambencyAPI {
     @GET("Organization/respondToJoinRequest")
     Call<Integer> respondToJoinRequest(@Query("oAuthCode") String oAuthCode, @Query("orgID") int orgID, @Query("userID") int userID, @Query("approved") boolean
                                         approved);
-    @GET("Organization/edit")
-    Call<OrganizationModel> getEditOrganization(@Query("oAuthCode") String oAuthCode, @Query("org") OrganizationModel organizationModel);
+    @POST("Organization/edit")
+    Call<OrganizationModel> getEditOrganization(@Query("oAuthCode") String oAuthCode, @Body OrganizationModel organizationModel);
 
     @GET("Organization/delete")
     Call<Integer> getDeleteOrganization(@Query("oAuthCode") String oAuthCode, @Query("orgID") String orgID);
@@ -73,7 +77,7 @@ public interface LambencyAPI {
     @GET("Event/users")
     Call<ArrayList<UserModel>> getListOfUsers(@Query("oauthcode") String oAuthCode, @Query("event_id") int eventId);
 
-    @GET("Event/update")
+    @POST("Event/update")
     Call<Integer> getUpdateEvent(@Body EventModel event, @Query("message") String message);
 
     @GET("Event/numAttending")

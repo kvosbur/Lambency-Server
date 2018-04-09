@@ -1,7 +1,5 @@
-import de.mkammerer.argon2.Argon2;
-import de.mkammerer.argon2.Argon2Factory;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 
-import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.Locale;
 
@@ -26,59 +24,47 @@ public final class PasswordUtil {
         char[] symbols = alphanum.toCharArray();
         for(int i = 0; i < length; i++){
             salt[i] = symbols[secure.nextInt(symbols.length)];
+
         }
         return salt;
     }
 
-    public static String[] hash(char[] password, Charset charset){
-        String[] ret = new String[2];
-        Argon2 argon2hasher = null;
-        char[] appended = new char[100 + password.length];
+    public static String hash(String password){
 
-        try{
-            argon2hasher = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2i);
+        String salt = BCrypt.gensalt();
+        return BCrypt.hashpw(password, salt);
+    }
 
-            //generate salt
-            char[] salt = generateSalt(100);
-            ret[1] = new String(salt);
+    public static boolean verify(String password, String hash){
 
-            int index = 0;
-            for(int i = 0; i < salt.length; i++, index++){
-                System.out.print(salt[i]);
-                appended[index] = salt[i];
-            }
-            System.out.print("\n");
+        return BCrypt.checkpw(password,hash);
+    }
 
-            for(int i = 0; i < password.length; i++, index++){
-                appended[index] = password[i];
-            }
+    public static int setPassword(String password, int userID, DatabaseConnection dbc){
 
-            ret[0] = argon2hasher.hash(ITERATIONS, MEMORY, PARALLELISM,appended);
-        }finally{
-            if(argon2hasher != null){
-                argon2hasher.wipeArray(password);
-                argon2hasher.wipeArray(appended);
-            }
+        String hash = hash(password);
+        try {
+            return dbc.userSetHash(userID, hash, "");
+        }catch(Exception e){
+            Printing.printlnException(e);
+            return 2;
         }
-        int index = ret[0].lastIndexOf("p=4$");
-        ret[0] = ret[0].substring(index+4);
-        return ret;
     }
 
     public static void main(String[] args) {
-        Charset charset = Charset.defaultCharset();
-        char[] passwd = {'a', 'b', 'E', '2', '!', 'r', '?', '6'};
+        DatabaseConnection dbc = new DatabaseConnection();
 
-        long startTime = System.nanoTime();
-        String[] hash = hash(passwd, charset);
-
-        long endTime = System.nanoTime();
-        System.out.println(((endTime - startTime) / 1000000));
-        System.out.println(hash[0]);
-        System.out.println(hash[1]);
-
-
-
+        int ret = PasswordUtil.setPassword("mysecurepassword", 1, dbc);
+        System.out.println(ret);
+        try {
+            String[] strings = dbc.userGetHash(1);
+            System.out.println(strings[0]);
+            System.out.println(strings[1]);
+            System.out.println(PasswordUtil.verify("mysecurepassword", strings[1]));
+        }catch(Exception e){
+            Printing.printlnException(e);
+        }
+        dbc.close();
 
 
     }
