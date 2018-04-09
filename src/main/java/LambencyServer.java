@@ -541,10 +541,10 @@ public class LambencyServer{
         }, new JsonTransformer());
 
 
-        get("/Organization/edit", "application.json", (request, response) -> {
+        post("/Organization/edit", "application.json", (request, response) -> {
             Printing.printlnEndpoint("Organization/edit");
             String oAuthCode = request.queryParams("oAuthCode");
-            OrganizationModel organizationModel = new Gson().fromJson(request.queryParams("org"), OrganizationModel.class);
+            OrganizationModel organizationModel = new Gson().fromJson(request.body(), OrganizationModel.class);
             if(oAuthCode == null){
                 return null;
             }
