@@ -1197,6 +1197,53 @@ public class LambencyAPITestSprint3 {
         }
     }
 
+    @Test
+    public void testEditOrg(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        OrganizationModel org1;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            org1.setName("Updated name");
+            org1.setDescription("Updated description");
+            org1.setEmail("updated@nomail.com");
+            org1.setLocation("348 Cottonwood Lane");
+            Response<OrganizationModel> response = null;
+            try {
+                response = this.getInstance().getEditOrganization(u1.getOauthToken(), org1 ).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            OrganizationModel orgNew = response.body();
+            assertTrue(orgNew!= null);
+            assertTrue(orgNew.getName().equals(org1.getName()));
+            assertTrue(orgNew.getDescription().equals(org1.getDescription()));
+            assertTrue(orgNew.getEmail().equals(org1.getEmail()));
+            assertTrue(orgNew.getLocation().equals(org1.getLocation()));
+            assertTrue(orgNew.getOrgID() == org1.getOrgID());
+            assertTrue(orgNew.getNumFollowing() == org1.getNumFollowing());
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            assertTrue(orgNew!= null);
+            assertTrue(orgNew.getName().equals(org1.getName()));
+            assertTrue(orgNew.getDescription().equals(org1.getDescription()));
+            assertTrue(orgNew.getEmail().equals(org1.getEmail()));
+            assertTrue(orgNew.getLocation().equals(org1.getLocation()));
+            assertTrue(orgNew.getOrgID() == org1.getOrgID());
+            assertTrue(orgNew.getNumFollowing() == org1.getNumFollowing());
+
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+
+    }
+
 
 
 
