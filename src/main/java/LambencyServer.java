@@ -315,6 +315,24 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
 
+        get("/User/setNotificationPreference","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/User/setNotificationPreference");
+
+            String oAuthCode = request.queryParams("oAuthCode");
+            String preference = request.queryParams("preference");
+            if(preference == null || oAuthCode == null){
+                Printing.printlnError("Wrong params.");
+                return new Integer(-5);
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            int ret = UserHandler.updateNotificationPreferences(oAuthCode,Integer.parseInt(preference),databaseConnection);
+            databaseConnection.close();
+            return ret;
+        },new JsonTransformer());
+
         post("/User/changePassword", "application/json", (request, response) -> {
             Printing.printlnEndpoint("/User/changePassword");
             DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -350,10 +368,12 @@ public class LambencyServer{
 
         post("/User/endRecovery", "application/json", (request, response) -> {
             Printing.printlnEndpoint("/User/endRecovery");
+
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;
             }
+
             String password = request.queryParams("newPassword");
             String confirmPassword = request.queryParams("confirmPassword");
             String verification = request.queryParams("verification");
@@ -366,6 +386,7 @@ public class LambencyServer{
             databaseConnection.close();
             return changed;
         }, new JsonTransformer());
+
 
         post("/Organization/create", "application/json",
                 (request, response) -> {

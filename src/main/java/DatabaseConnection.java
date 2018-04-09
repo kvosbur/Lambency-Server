@@ -11,6 +11,13 @@ public class DatabaseConnection {
     public final static int FOLLOW = 0;
     public final static int MEMBER = 1;
     public final static int ORGANIZER = 2;
+    public final static int NOTIFY_EMAIL_PUSH = 0;
+    public final static int NOTIFY_EMAIL = 1;
+    public final static int NOTIFY_PUSH = 2;
+    public final static int NOTIFY_NOT = 3;
+
+
+
     DatabaseConnection(){
         // This will load the MySQL driver, each DB has its own driver
 
@@ -84,7 +91,8 @@ public class DatabaseConnection {
 
         //figure query to use dependent on identifier type
         String query;
-        String fields = "user_id, first_name, last_name, user_email, oauth_token, hours";
+
+        String fields = "user_id, first_name, last_name, user_email, oauth_token, hours, notify_pref";
         if(type == GOOGLE){
             query = "SELECT " + fields + " FROM user WHERE google_id = ?";
         }else if(type == FACEBOOK) {
@@ -103,7 +111,9 @@ public class DatabaseConnection {
         //check if entry in results and if so create new user object with information
         if(rs.next()){
             return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
-                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5));
+
+                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5), rs.getInt(7));
+
         }
 
         return null;
@@ -121,7 +131,9 @@ public class DatabaseConnection {
     public UserModel searchForUser(String oauthCode) throws SQLException{
 
         //create string for query
-        String fields = "user_id, first_name, last_name, user_email, oauth_token, hours";
+
+        String fields = "user_id, first_name, last_name, user_email, oauth_token, hours, notify_pref";
+
         String query = "SELECT " + fields + " FROM user WHERE oauth_token = ?";
 
         //run query
@@ -138,9 +150,27 @@ public class DatabaseConnection {
             rs.getString(4);
             rs.getString(5);
             return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
-                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5));
+
+                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5),rs.getInt(7));
+
         }
         return null;
+    }
+
+    /**
+     *
+     * @param oauthCode
+     * @param prefernces
+     * @return  -2: illegal preference number
+     *          0 on success
+     *
+     */
+    public void updateUserNotificationPreferences(String oauthCode, int prefernces) throws SQLException{
+
+        PreparedStatement ps = connect.prepareStatement("UPDATE user SET notify_pref = ? WHERE oauth_token = ?");
+        ps.setInt(1,prefernces);
+        ps.setString(2,oauthCode);
+        ps.executeUpdate();
     }
 
 
@@ -167,9 +197,9 @@ public class DatabaseConnection {
         //insert user into table
         PreparedStatement ps = null;
         if(type == FACEBOOK) {
-            ps = connect.prepareStatement("INSERT INTO user (first_name, last_name, user_email, facebook_id) VALUES ('TEMP',?,?,?)");
+            ps = connect.prepareStatement("INSERT INTO user (first_name, last_name, user_email, facebook_id, notify_pref) VALUES ('TEMP',?,?,?,?)");
         }else if(type == GOOGLE){
-            ps = connect.prepareStatement("INSERT INTO user (first_name, last_name, user_email, google_id) VALUES ('TEMP',?,?,?)");
+            ps = connect.prepareStatement("INSERT INTO user (first_name, last_name, user_email, google_id, notify_pref) VALUES ('TEMP',?,?,?,?)");
         }
 
         if(ps != null) {
@@ -177,7 +207,7 @@ public class DatabaseConnection {
             ps.setString(1, lastName);
             ps.setString(2, email);
             ps.setString(3, identifier);
-
+            ps.setInt(4,NOTIFY_EMAIL_PUSH);
             ps.execute();
 
         }else{

@@ -1,4 +1,3 @@
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +14,7 @@ public class UserModel {
     private int userId;
     private int hoursWorked;
     private String oauthToken;
+    private int notification_preference;
 
     public UserModel(String firstName,String lastName, String email){
         this.firstName = firstName;
@@ -29,7 +29,7 @@ public class UserModel {
 
 
     public UserModel(String firstName, String lastName, String email, List<Integer> myOrgs, List<Integer> eventsAttending,
-                     List<Integer> followingOrgs, List<Integer> joinedOrgs, List<Integer> orgJoinRequests, int userId, int hoursWorked, String oauthToken) {
+                     List<Integer> followingOrgs, List<Integer> joinedOrgs, List<Integer> orgJoinRequests, int userId, int hoursWorked, String oauthToken, int notification_preference) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -41,6 +41,7 @@ public class UserModel {
         this.hoursWorked = hoursWorked;
         this.oauthToken = oauthToken;
         this.requestedJoinOrgIds = orgJoinRequests;
+        this.notification_preference = notification_preference;
 
     }
 
@@ -202,5 +203,11 @@ public class UserModel {
         return false;
     }
 
+    public int getNotification_preference() {
+        return notification_preference;
+    }
 
+    public void setNotification_preference(int notification_preference) {
+        this.notification_preference = notification_preference;
+    }
 }
