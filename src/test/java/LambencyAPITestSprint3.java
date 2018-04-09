@@ -814,6 +814,520 @@ public class LambencyAPITestSprint3 {
 
     }
 
+    public void testLeaderboardRange(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        UserModel u2;
+        UserModel u3;
+        UserModel noOrgUser;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            u2 = dbc.searchForUser("facebook2", 2);
+            u2 = UserHandler.searchForUser(u2.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            noOrgUser = dbc.searchForUser("facebook4", 2);
+            noOrgUser = UserHandler.searchForUser(noOrgUser.getOauthToken(), null, dbc);
+            dbc.addHours(u1.getUserId(), 20);
+            dbc.addHours(u2.getUserId(),15);
+            dbc.addHours(u3.getUserId(), 30);
+            dbc.addHours(noOrgUser.getUserId(), 0);
+            Response<List<UserModel>> response = null;
+            try {
+                response = this.getInstance().getLeaderboardRange("1", "4").execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            List<UserModel> leaderboard = response.body();
+            assertTrue(leaderboard.get(0).getUserId() == u3.getUserId());
+            assertTrue(leaderboard.get(1).getUserId() == u1.getUserId());
+            assertTrue(leaderboard.get(2).getUserId() == u2.getUserId());
+            assertTrue(leaderboard.get(0).getOauthToken().equals("1"));
+            assertTrue(leaderboard.get(1).getOauthToken().equals("2"));
+            assertTrue(leaderboard.get(2).getOauthToken().equals("3"));
+            assertTrue(leaderboard.size() == 3);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test
+    public void testLeaderboardRangeSmallerRange(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        UserModel u2;
+        UserModel u3;
+        UserModel noOrgUser;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            u2 = dbc.searchForUser("facebook2", 2);
+            u2 = UserHandler.searchForUser(u2.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            noOrgUser = dbc.searchForUser("facebook4", 2);
+            noOrgUser = UserHandler.searchForUser(noOrgUser.getOauthToken(), null, dbc);
+            dbc.addHours(u1.getUserId(), 20);
+            dbc.addHours(u2.getUserId(),15);
+            dbc.addHours(u3.getUserId(), 30);
+            dbc.addHours(noOrgUser.getUserId(), 0);
+            Response<List<UserModel>> response = null;
+            try {
+                response = this.getInstance().getLeaderboardRange("3", "3").execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            List<UserModel> leaderboard = response.body();
+            assertTrue(leaderboard.get(0).getUserId() == u2.getUserId());
+            assertTrue(leaderboard.get(0).getOauthToken().equals("3"));
+            assertTrue(leaderboard.size() == 1);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test
+    public void testLeaderboardRangeInvalid(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        UserModel u2;
+        UserModel u3;
+        UserModel noOrgUser;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            u2 = dbc.searchForUser("facebook2", 2);
+            u2 = UserHandler.searchForUser(u2.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            noOrgUser = dbc.searchForUser("facebook4", 2);
+            noOrgUser = UserHandler.searchForUser(noOrgUser.getOauthToken(), null, dbc);
+            dbc.addHours(u1.getUserId(), 20);
+            dbc.addHours(u2.getUserId(),15);
+            dbc.addHours(u3.getUserId(), 30);
+            dbc.addHours(noOrgUser.getUserId(), 0);
+            Response<List<UserModel>> response = null;
+            try {
+                response = this.getInstance().getLeaderboardRange("5", "4").execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            List<UserModel> leaderboard = response.body();
+            assertTrue(leaderboard == null);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test
+    public void testLeaderboardRangeNull(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        UserModel u2;
+        UserModel u3;
+        UserModel noOrgUser;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            u2 = dbc.searchForUser("facebook2", 2);
+            u2 = UserHandler.searchForUser(u2.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            noOrgUser = dbc.searchForUser("facebook4", 2);
+            noOrgUser = UserHandler.searchForUser(noOrgUser.getOauthToken(), null, dbc);
+            dbc.addHours(u1.getUserId(), 20);
+            dbc.addHours(u2.getUserId(),15);
+            dbc.addHours(u3.getUserId(), 30);
+            dbc.addHours(noOrgUser.getUserId(), 0);
+            Response<List<UserModel>> response = null;
+            try {
+                response = this.getInstance().getLeaderboardRange(null, null).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            List<UserModel> leaderboard = response.body();
+            assertTrue(leaderboard == null);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test
+    public void testLeaderBoardAroundUser(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        UserModel u2;
+        UserModel u3;
+        UserModel noOrgUser;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            u2 = dbc.searchForUser("facebook2", 2);
+            u2 = UserHandler.searchForUser(u2.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            noOrgUser = dbc.searchForUser("facebook4", 2);
+            noOrgUser = UserHandler.searchForUser(noOrgUser.getOauthToken(), null, dbc);
+            dbc.addHours(u1.getUserId(), 20);
+            dbc.addHours(u2.getUserId(),15);
+            dbc.addHours(u3.getUserId(), 30);
+            dbc.addHours(noOrgUser.getUserId(), 1);
+            Response<List<UserModel>> response = null;
+            try {
+                response = this.getInstance().getLeaderboardAroundUser(u2.getOauthToken()).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            List<UserModel> leaderboard = response.body();
+            assertTrue(leaderboard.get(0).getUserId() == u3.getUserId());
+            assertTrue(leaderboard.get(1).getUserId() == u1.getUserId());
+            assertTrue(leaderboard.get(2).getUserId() == u2.getUserId());
+            assertTrue(leaderboard.get(3).getUserId() == noOrgUser.getUserId());
+            assertTrue(leaderboard.get(0).getOauthToken().equals("1"));
+            assertTrue(leaderboard.get(1).getOauthToken().equals("2"));
+            assertTrue(leaderboard.get(2).getOauthToken().equals("3"));
+            assertTrue(leaderboard.get(3).getOauthToken().equals("4"));
+            assertTrue(leaderboard.size() == 4);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+    @Test
+    public void testLeaderBoardAroundUserWithTies(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        UserModel u2;
+        UserModel u3;
+        UserModel noOrgUser;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            u2 = dbc.searchForUser("facebook2", 2);
+            u2 = UserHandler.searchForUser(u2.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            noOrgUser = dbc.searchForUser("facebook4", 2);
+            noOrgUser = UserHandler.searchForUser(noOrgUser.getOauthToken(), null, dbc);
+            dbc.addHours(u1.getUserId(), 20);
+            dbc.addHours(u2.getUserId(),15);
+            dbc.addHours(u3.getUserId(), 30);
+            dbc.addHours(noOrgUser.getUserId(), 15);
+            Response<List<UserModel>> response = null;
+            try {
+                response = this.getInstance().getLeaderboardAroundUser(noOrgUser.getOauthToken()).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            List<UserModel> leaderboard = response.body();
+            assertTrue(leaderboard.get(0).getUserId() == u1.getUserId());
+            assertTrue(leaderboard.get(1).getUserId() == u2.getUserId());
+            assertTrue(leaderboard.get(2).getUserId() == noOrgUser.getUserId());
+            assertTrue(leaderboard.get(0).getOauthToken().equals("2"));
+            assertTrue(leaderboard.get(1).getOauthToken().equals("3"));
+            assertTrue(leaderboard.get(2).getOauthToken().equals("4"));
+            assertTrue(leaderboard.size() == 3);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+    @Test
+    public void testLeaderBoardAroundUserInvalid(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        UserModel u2;
+        UserModel u3;
+        UserModel noOrgUser;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            u2 = dbc.searchForUser("facebook2", 2);
+            u2 = UserHandler.searchForUser(u2.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            noOrgUser = dbc.searchForUser("facebook4", 2);
+            noOrgUser = UserHandler.searchForUser(noOrgUser.getOauthToken(), null, dbc);
+            dbc.addHours(u1.getUserId(), 20);
+            dbc.addHours(u2.getUserId(),15);
+            dbc.addHours(u3.getUserId(), 30);
+            dbc.addHours(noOrgUser.getUserId(), 1);
+            Response<List<UserModel>> response = null;
+            try {
+                response = this.getInstance().getLeaderboardAroundUser("fdsa").execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            List<UserModel> leaderboard = response.body();
+            assertTrue(leaderboard == null);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+    @Test
+    public void testLeaderBoardAroundUserNull(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        UserModel u2;
+        UserModel u3;
+        UserModel noOrgUser;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            u2 = dbc.searchForUser("facebook2", 2);
+            u2 = UserHandler.searchForUser(u2.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            noOrgUser = dbc.searchForUser("facebook4", 2);
+            noOrgUser = UserHandler.searchForUser(noOrgUser.getOauthToken(), null, dbc);
+            dbc.addHours(u1.getUserId(), 20);
+            dbc.addHours(u2.getUserId(),15);
+            dbc.addHours(u3.getUserId(), 30);
+            dbc.addHours(noOrgUser.getUserId(), 1);
+            Response<List<UserModel>> response = null;
+            try {
+                response = this.getInstance().getLeaderboardAroundUser(null).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            List<UserModel> leaderboard = response.body();
+            assertTrue(leaderboard == null);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test
+    public void testDeleteOrg(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        UserModel u2;
+        UserModel u3;
+        OrganizationModel org1;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            u2 = dbc.searchForUser("facebook2", 2);
+            u2 = UserHandler.searchForUser(u2.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            Response<Integer> response = null;
+            try {
+                response = this.getInstance().getDeleteOrganization(u1.getOauthToken(), "" + org1.getOrgID()).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            int ret = response.body();
+            assertTrue(ret == 0);
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            assertTrue(org1.getName().contains("(Inactive)"));
+            assertTrue(dbc.searchGroupies(u1.getUserId(), org1.getOrgID()) == null);
+            assertTrue(dbc.searchGroupies(u2.getUserId(), org1.getOrgID()) == null);
+            assertTrue(dbc.searchGroupies(u3.getUserId(), org1.getOrgID()) == null);
+            assertTrue(EventHandler.searchEventID(1, dbc) != null);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+    @Test
+    public void testDeleteOrgWithEvents(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        UserModel u2;
+        UserModel u3;
+        OrganizationModel org2;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            u2 = dbc.searchForUser("facebook2", 2);
+            u2 = UserHandler.searchForUser(u2.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            org2 = OrganizationHandler.searchOrgID(2, dbc);
+            Response<Integer> response = null;
+            try {
+                response = this.getInstance().getDeleteOrganization(u2.getOauthToken(), "" + org2.getOrgID()).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            int ret = response.body();
+            assertTrue(ret == 0);
+            org2 = OrganizationHandler.searchOrgID(2, dbc);
+            assertTrue(org2.getName().contains("(Inactive)"));
+            assertTrue(dbc.searchGroupies(u1.getUserId(), org2.getOrgID()) == null);
+            assertTrue(dbc.searchGroupies(u2.getUserId(), org2.getOrgID()) == null);
+            assertTrue(dbc.searchGroupies(u3.getUserId(), org2.getOrgID()) == null);
+            assertTrue(EventHandler.searchEventID(2, dbc) == null);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test
+    public void testDeleteOrgInsuficcient(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        UserModel u2;
+        UserModel u3;
+        OrganizationModel org1;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            u2 = dbc.searchForUser("facebook2", 2);
+            u2 = UserHandler.searchForUser(u2.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            Response<Integer> response = null;
+            try {
+                response = this.getInstance().getDeleteOrganization(u2.getOauthToken(), "" + org1.getOrgID()).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            int ret = response.body();
+            assertTrue(ret == -2);
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            assertTrue(!org1.getName().contains("(Inactive)"));
+            assertTrue(dbc.searchGroupies(u1.getUserId(), org1.getOrgID()) != null);
+            assertTrue(dbc.searchGroupies(u2.getUserId(), org1.getOrgID()) != null);
+            assertTrue(dbc.searchGroupies(u3.getUserId(), org1.getOrgID()) != null);
+            assertTrue(EventHandler.searchEventID(1, dbc) != null);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+    @Test
+    public void testDeleteOrgInvalid(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        UserModel u2;
+        UserModel u3;
+        OrganizationModel org1;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            u2 = dbc.searchForUser("facebook2", 2);
+            u2 = UserHandler.searchForUser(u2.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            Response<Integer> response = null;
+            try {
+                response = this.getInstance().getDeleteOrganization(u1.getOauthToken(), "-1" ).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            int ret = response.body();
+            assertTrue(ret == -1);
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            assertTrue(!org1.getName().contains("(Inactive)"));
+            assertTrue(dbc.searchGroupies(u1.getUserId(), org1.getOrgID()) != null);
+            assertTrue(dbc.searchGroupies(u2.getUserId(), org1.getOrgID()) != null);
+            assertTrue(dbc.searchGroupies(u3.getUserId(), org1.getOrgID()) != null);
+            assertTrue(EventHandler.searchEventID(1, dbc) != null);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test
+    public void testEditOrg(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        OrganizationModel org1;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            org1.setName("Updated name");
+            org1.setDescription("Updated description");
+            org1.setEmail("updated@nomail.com");
+            org1.setLocation("348 Cottonwood Lane");
+            Response<OrganizationModel> response = null;
+            try {
+                response = this.getInstance().getEditOrganization(u1.getOauthToken(), org1 ).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            OrganizationModel orgNew = response.body();
+            assertTrue(orgNew!= null);
+            assertTrue(orgNew.getName().equals(org1.getName()));
+            assertTrue(orgNew.getDescription().equals(org1.getDescription()));
+            assertTrue(orgNew.getEmail().equals(org1.getEmail()));
+            assertTrue(orgNew.getLocation().equals(org1.getLocation()));
+            assertTrue(orgNew.getOrgID() == org1.getOrgID());
+            assertTrue(orgNew.getNumFollowing() == org1.getNumFollowing());
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            assertTrue(orgNew!= null);
+            assertTrue(orgNew.getName().equals(org1.getName()));
+            assertTrue(orgNew.getDescription().equals(org1.getDescription()));
+            assertTrue(orgNew.getEmail().equals(org1.getEmail()));
+            assertTrue(orgNew.getLocation().equals(org1.getLocation()));
+            assertTrue(orgNew.getOrgID() == org1.getOrgID());
+            assertTrue(orgNew.getNumFollowing() == org1.getNumFollowing());
+
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+
+    }
+
+
+
+
 
     public void searches(){
         DatabaseConnection dbc = this.getDatabaseInstance();

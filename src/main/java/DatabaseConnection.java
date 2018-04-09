@@ -91,7 +91,8 @@ public class DatabaseConnection {
 
         //figure query to use dependent on identifier type
         String query;
-        String fields = "user_id, first_name, last_name, user_email, oauth_token, notify_pref";
+
+        String fields = "user_id, first_name, last_name, user_email, oauth_token, hours, notify_pref";
         if(type == GOOGLE){
             query = "SELECT " + fields + " FROM user WHERE google_id = ?";
         }else if(type == FACEBOOK) {
@@ -110,7 +111,9 @@ public class DatabaseConnection {
         //check if entry in results and if so create new user object with information
         if(rs.next()){
             return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
-                    null, null,null,rs.getInt(1), 0, rs.getString(5), rs.getInt(6));
+
+                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5), rs.getInt(7));
+
         }
 
         return null;
@@ -128,7 +131,9 @@ public class DatabaseConnection {
     public UserModel searchForUser(String oauthCode) throws SQLException{
 
         //create string for query
-        String fields = "user_id, first_name, last_name, user_email, oauth_token, notify_pref";
+
+        String fields = "user_id, first_name, last_name, user_email, oauth_token, hours, notify_pref";
+
         String query = "SELECT " + fields + " FROM user WHERE oauth_token = ?";
 
         //run query
@@ -145,7 +150,9 @@ public class DatabaseConnection {
             rs.getString(4);
             rs.getString(5);
             return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
-                    null, null,null,rs.getInt(1), 0, rs.getString(5),rs.getInt(6));
+
+                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5),rs.getInt(7));
+
         }
         return null;
     }
@@ -276,7 +283,7 @@ public class DatabaseConnection {
      */
     public int userAddVerification(int userid, String code) throws SQLException{
 
-        String sql = "INSERT INTO verify (user_id, vefification_code) VALUES (?,?)";
+        String sql = "INSERT INTO verify (user_id, verification_code) VALUES (?,?)";
         //create prepare statement for sql query
         PreparedStatement ps = connect.prepareStatement(sql);
 
@@ -297,11 +304,11 @@ public class DatabaseConnection {
      Description: get code that is used for email verification for user
      @param userid users id in the main users table
 
-     @return
+     @return String of verification code for user
      */
     public String userGetVerification(int userid) throws SQLException{
 
-        String sql = "SELECT vefification_code FROM  verify WHERE user_id = ?";
+        String sql = "SELECT verification_code FROM  verify WHERE user_id = ?";
         //create prepare statement for sql query
         PreparedStatement ps = connect.prepareStatement(sql);
 
@@ -315,6 +322,31 @@ public class DatabaseConnection {
             return rs.getString(1);
         }
         return null;
+    }
+
+
+    /**
+     Description: Remove the verification for user from table (means user's email has been verified successfully)
+     @param userid users id in the main users table
+
+     @return 0 on success , 1 on failure
+     */
+    public int userRemoveVerification(int userid) throws SQLException{
+
+        String sql = "DELETE FROM  verify WHERE user_id = ?";
+        //create prepare statement for sql query
+        PreparedStatement ps = connect.prepareStatement(sql);
+
+        //set parameters for prepared statement
+        ps.setInt(1, userid);
+
+        //execute query
+        int ret = ps.executeUpdate();
+
+        if(ret == 1){
+            return 0;
+        }
+        return 1;
     }
 
     /**
@@ -402,8 +434,8 @@ public class DatabaseConnection {
         ps.setString(6, imgPath);
         ps.setDouble(7,lat);
         ps.setDouble(8,longit);
-        ps.setInt(9,event_id);
-        ps.setBoolean(10,privateEvent);
+        ps.setBoolean(9,privateEvent);
+        ps.setInt(10,event_id);
 
         //execute query
         ps.executeUpdate();
@@ -545,7 +577,6 @@ public class DatabaseConnection {
      * @param userID  userid of user to get token from
      * @return firebase token String
      */
-
     public String userGetFirebase(int userID) throws SQLException{
 
         String query = "SELECT  firebase_token FROM user WHERE user_id = ?";
@@ -560,6 +591,119 @@ public class DatabaseConnection {
             return rs.getString(1);
         }
         return null;
+    }
+
+    /**
+     *  Gets the hash and salt for a given user
+     * @param userID  userid of user to get info for
+     * @return array containing hash and salt where it goes salt and then hash
+     */
+    public String[] userGetHash(int userID) throws SQLException{
+
+        String query = "SELECT  salt, hash_password FROM user WHERE user_id = ?";
+
+        PreparedStatement ps = connect.prepareStatement(query);
+
+        ps.setInt(1, userID);
+
+        ResultSet rs = ps.executeQuery();
+
+        if(rs.next()){
+            String[] strings = new String[2];
+            strings[0] = rs.getString(1);
+            strings[1] = rs.getString(2);
+            return strings;
+        }
+        return null;
+    }
+
+
+    /**
+     *  Sets the hash and salt for a given user
+     * @param userID  userid of user to set password for
+     * @param hash hash of password to store for user
+     * @param salt salt for password hash for user
+     * @return integer; 0 on success , 1 on failure
+     */
+    public int userSetHash(int userID, String hash, String salt) throws SQLException{
+
+        String query = "UPDATE user set salt = ? , hash_password = ?  WHERE user_id = ?";
+
+        PreparedStatement ps = connect.prepareStatement(query);
+
+        ps.setString(1,salt);
+        ps.setString(2,hash);
+        ps.setInt(3, userID);
+
+        int ret = ps.executeUpdate();
+
+        if(ret == 1){
+            return 0;
+        }
+        return 1;
+    }
+
+    /**
+     *
+     * @param start the start of the range
+     * @param end the end of the range
+     * @return the list of the user IDs of the corresponding range
+     * @throws SQLException
+     */
+    public List<Integer> leaderboardRange(int start, int end) throws SQLException{
+        String fields = "user_id";
+        String query = "SELECT " + fields + " FROM user ORDER BY hours DESC LIMIT ?,?";
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, start - 1);
+        ps.setInt(2, end - start + 1);
+        ResultSet rs = ps.executeQuery();
+        List<Integer> leaderboard = new ArrayList<Integer>();
+        while(rs.next()){
+            leaderboard.add(rs.getInt(1));
+        }
+        return leaderboard;
+    }
+
+    /**
+     *
+     * @param userID the id of the user to check for their rank
+     * @return the rank of the user, -1 on error
+     * @throws SQLException
+     */
+    public int leaderboardRankOf(int userID) throws SQLException{
+        String query = "SELECT hours FROM user WHERE user_id = ?";
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1,userID);
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        int ret = rs.getInt(1);// ret = number of hours for user
+        query = "SELECT COUNT(*) FROM user WHERE hours > ?";
+        ps = connect.prepareStatement(query);
+        ps.setInt(1,ret);
+        rs = ps.executeQuery();
+        rs.next();
+        ret = rs.getInt(1);// ret = number of users with more hours than userID
+        ret++; // rank of user
+        return ret;
+    }
+
+    /**
+     * adds to the current hours of the user
+     * @param userID the id of the user
+     * @param hours number of hours to be added
+     * @return 0 on success
+     * @throws SQLException
+     */
+    public int addHours(int userID, int hours) throws SQLException{
+        if(userID <= 0 || hours < 0){
+            return -1;
+        }
+        String query = "UPDATE user SET hours = hours + ? WHERE user_id = ?";
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1,hours);
+        ps.setInt(2,userID);
+        ps.executeUpdate();
+        return 0;
     }
 
 
@@ -1362,7 +1506,7 @@ public class DatabaseConnection {
             ps.setString(1, organizationModel.getName());
             ps.setString(2, organizationModel.getDescription());
             ps.setString(3, organizationModel.getEmail());
-            ps.setString(4, organizationModel.getImage());
+            ps.setString(4, organizationModel.getImagePath());
             ps.setString(5, organizationModel.getLocation());
             ps.setDouble(6,organizationModel.getLongitude());
             ps.setDouble(7,organizationModel.getLattitude());
@@ -1379,24 +1523,31 @@ public class DatabaseConnection {
     }
 
     /**
-     * Removes the orgization
-     * @param orgID
+     * sets the organization to deleted in db. makes it unsearchable
+     * @param orgID the org id to be set to deleted
      * @return
      * @throws SQLException
      */
     public int deleteOrganization(int orgID) throws SQLException{
-        if(searchEvents(orgID) == null){
+        if(searchForOrg(orgID) == null){
             return -1;
         }
         PreparedStatement ps;
         int result;
-        ps = connect.prepareStatement("UPDATE organization SET deleted = 1 WHERE org_id = ?");
+        ps = connect.prepareStatement("UPDATE organization SET deleted = 1, name = Concat('(Inactive) ', name) WHERE org_id = ?;");
         ps.setInt(1,orgID);
         ps.executeUpdate();
 
         ps = connect.prepareStatement("DELETE FROM groupies WHERE org_id = ?");
         ps.setInt(1,orgID);
         ps.executeUpdate();
+
+        ps = connect.prepareStatement("SELECT event_id FROM events WHERE org_id = ? AND start_time > now();");
+        ps.setInt(1,orgID);
+        ResultSet rs = ps.executeQuery();
+        while(rs.next()){
+            deleteEvent(rs.getInt(1));
+        }
 
         return 0;
     }

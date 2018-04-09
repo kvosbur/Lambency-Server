@@ -1,6 +1,3 @@
-import com.sun.corba.se.spi.ior.ObjectKey;
-
-import java.io.IOException;
 import java.sql.Timestamp;
 
 public class EventModel {
@@ -12,7 +9,7 @@ public class EventModel {
     private String description;
     private String location;
     private String image_path; // file path for server only
-    private String imageFile; // base 64 encoded
+    private byte[] imageFile; // base 64 encoded
     private int event_id;
     private double latitude;
     private double longitude;
@@ -41,19 +38,15 @@ public class EventModel {
     }
 
     public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location,
-                      String imageFile, double latitude, double longitude, String orgName, boolean privateEvent) {
+                      byte[] imageFile, double latitude, double longitude, String orgName, boolean privateEvent) {
 
         this(name, org_id, start, end, description, location, latitude, longitude, orgName, privateEvent);
     }
 
     public EventModel(String name, int org_id, Timestamp start, Timestamp end, String description, String location, String orgName,
-                      String imageFile, boolean privateEvent) {
+                      byte[] imageFile, boolean privateEvent) {
         this(name, org_id, start, end, description, location, orgName, privateEvent);
-        try {
-            updateImage(imageFile);
-        } catch (IOException e) {
-            Printing.println("Failed to save image to event: "+name);
-        }
+        this.imageFile = imageFile;
     }
 
 
@@ -69,16 +62,12 @@ public class EventModel {
         this.clockOutCode = clockOutCode;
     }
 
-    /**
-     *
-     * @param encodedImage    base 64 encoded image string
-     * @throws IOException    Throws an exception if there is an issue with FileIO in ImageWR
-     */
-    private void updateImage(String encodedImage) throws IOException{
+    public byte[] getImageFile() {
+        return imageFile;
+    }
 
-        this.imageFile = encodedImage;
-        this.image_path = ImageWR.writeImageToFile(encodedImage);
-
+    public void setImageFile(byte[] imageFile) {
+        this.imageFile = imageFile;
     }
 
     public String getName() {
@@ -140,20 +129,6 @@ public class EventModel {
 
     public void setImage_path(String image_path) {
         this.image_path = image_path;
-    }
-
-    public String getImageFile() {
-        return imageFile;
-    }
-
-    /**
-     * DONT USE THIS METHOD UNLESS YOU HAVE TO. USE setImageFile.
-     * This will not update the file path for this image
-     *
-     * @param imageFile base 64 encoded image string
-     */
-    public void setImageFile(String imageFile)  {
-        this.imageFile = imageFile;
     }
 
     public int getEvent_id() {

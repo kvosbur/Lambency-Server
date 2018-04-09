@@ -22,7 +22,10 @@ public class FirebaseHelper {
                     .setDatabaseUrl("https://lambency-f7029.firebaseio.com")
                     .build();
 
+
             FirebaseApp.initializeApp(options);
+
+
 
         } catch(IOException e){
             e.printStackTrace();

@@ -1,4 +1,3 @@
-import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -358,15 +357,11 @@ public class UserHandler {
             for(Integer i: user.getMyOrgs()){
                 OrganizationModel org = dbc.searchForOrg(i);
                 if(org != null){
-                    if(org.getImage() != null) {
-                        org.setImage(ImageWR.getEncodedImageFromFile(org.getImage()));
-                    }
                     myOrgs.add(org);
                     ArrayList<Integer> events = dbc.getOrgEvents(i);
                     for(Integer j: events){
                         EventModel event = dbc.searchEvents(j);
                         if(event != null){
-                            event.setImageFile(ImageWR.getEncodedImageFromFile(event.getImage_path()));
                             eventsOrganizing.add(event);
                         }
                     }
@@ -378,9 +373,6 @@ public class UserHandler {
             for(Integer i: user.getJoinedOrgs()){
                 OrganizationModel org = dbc.searchForOrg(i);
                 if(org != null){
-                    if(org.getImage() != null) {
-                        org.setImage(ImageWR.getEncodedImageFromFile(org.getImage()));
-                    }
                     joinedOrgs.add(org);
                 }
             }
@@ -390,7 +382,6 @@ public class UserHandler {
             for(Integer i: user.getEventsAttending()){
                 EventModel event = dbc.searchEvents(i);
                 if(event != null){
-                    event.setImageFile(ImageWR.getEncodedImageFromFile(event.getImage_path()));
                     eventsAttending.add(event);
                 }
             }
@@ -441,7 +432,6 @@ public class UserHandler {
                             }
                         }
                         if(permissionToView &&!u.getEventsAttending().contains(event)  && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
-                            eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                             subList.add(eventModel);
                         }
                     }
@@ -469,7 +459,6 @@ public class UserHandler {
                             }
                         }
                         if(permissionToView &&!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
-                            eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                             subList.add(eventModel);
                         }
                     }
@@ -501,7 +490,6 @@ public class UserHandler {
                             }
                         }
                         if(permissionToView &&!u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
-                            eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                             subList.add(eventModel);
                         }
                     }
@@ -529,7 +517,6 @@ public class UserHandler {
                             }
                         }
                         if(permissionToView && !u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
-                            eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                             subList.add(eventModel);
                         }
                     }
@@ -588,7 +575,6 @@ public class UserHandler {
                                     }
                                 }
                                 if(permissionToView && !u.getEventsAttending().contains(event) && !eventsFeed.contains(eventModel) && !subList.contains(eventModel)) {
-                                    eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                                     subList.add(eventModel);
                                 }
                             }
@@ -646,10 +632,6 @@ public class UserHandler {
             ArrayList<OrganizationModel> orgs = new ArrayList<>();
             for(Integer org_id:user.getMyOrgs()){
                 OrganizationModel organization = dbc.searchForOrg(org_id);
-                if(organization.getImage() != null) {
-                    organization.setImage(ImageWR.getEncodedImageFromFile(organization.getImage()));
-
-                }
                 orgs.add(organization);
             }
             return orgs;
@@ -683,23 +665,91 @@ public class UserHandler {
             }
 
             //get hash and salt for given passwd
-            String[] pair = PasswordUtil.hash(passwd.toCharArray(), Charset.defaultCharset());//{"salt","hash"};  //implement hashing and salt creation method
+            String hash = PasswordUtil.hash(passwd);//{"salt","hash"};  //implement hashing and salt creation method
 
             //save account information into database with a non verified email
 
-            int id = dbc.createUser(firstName,lastName,email,pair[0], pair[1]); //implement database method to insert information into table
+            int id = dbc.createUser(firstName,lastName,email,hash, ""); //implement database method to insert information into table
 
             //send email verification to user
             String code = new String(PasswordUtil.generateSalt(30));
             dbc.userAddVerification(id,code);
-            int ret = GMailHelper.sendVerificationEmail(email, code);
+            int ret = GMailHelper.sendVerificationEmail(email,id, code);
 
             return ret;
         } catch (Exception e) {
             Printing.println("Excpetion");
             Printing.println(e.toString());
-            return 2;
+            return 3;
         }
+    }
+
+    /**
+     * Verifys the email of a user by the code it is given
+     * @param userID id of user in question
+     * @param verificationCode the code to use to verify the email
+     * @param dbc database connection to be used in method
+     * @return updated user object
+     */
+    public static int verifyEmail(int userID, String verificationCode, DatabaseConnection dbc){
+        try{
+            String storedCode = dbc.userGetVerification(userID);
+            if(storedCode == null || storedCode.equals("")){
+                return 2;
+            }
+
+            if(storedCode.equals(verificationCode)){
+                //valid verification code
+                dbc.userRemoveVerification(userID);
+                UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+                dbc.setOauthCode(userID, ua.getoAuthCode());
+                return 0;
+            }
+            return 3;
+        } catch (Exception e) {
+            Printing.println("Excpetion");
+            Printing.println(e.toString());
+            return 1;
+        }
+
+    }
+
+
+    /**
+     * Logins in a user using their email and password
+     * @param email email of user to login
+     * @param password unhashed password of user login attempt
+     * @param dbc database connection to be used in method
+     * @return UserAuthenticator object
+     */
+    public static UserAuthenticator lambencyLogin(String email, String password, DatabaseConnection dbc){
+        try{
+            //search for user by email
+            int user_id = dbc.getUserByEmail(email);
+            if(user_id < 0){
+                return new UserAuthenticator(UserAuthenticator.Status.INVALID_LOGIN, null);
+            }
+
+            //get salt and hash for user
+            String[] strings = dbc.userGetHash(user_id);
+            //add salt to password and verify it against hash
+            if(PasswordUtil.verify(password, strings[1])){
+                //correct password
+                UserModel um = dbc.searchForUser("" + user_id, DatabaseConnection.LAMBNECYUSERID);
+                if(um.getOauthToken() == null || um.getOauthToken().equals("")){
+                    //if email has yet to be verified
+                    return new UserAuthenticator(UserAuthenticator.Status.NON_UNIQUE_EMAIL, null);
+                }
+                return new UserAuthenticator(UserAuthenticator.Status.SUCCESS, um.getOauthToken());
+            }
+            //invalid password
+            return new UserAuthenticator(UserAuthenticator.Status.INVALID_LOGIN, null);
+        } catch (Exception e) {
+            Printing.println("Excpetion");
+            Printing.println(e.toString());
+            return null;
+        }
+
     }
 
     /**
@@ -732,6 +782,213 @@ public class UserHandler {
             Printing.println("SQLExcpetion");
             Printing.println(e.toString());
             return 3;
+        }
+    }
+
+    /**
+     * Change the password of a given user using their oAuthToken
+     *
+     * @param oAuthCode oAuthCode for user in question
+     * @param password  the new password of the user
+     * @param confirmPassword  a duplicate of the new password to confirm right password
+     * @return the success code of setting the new password
+     */
+    public static int changePassword(String oAuthCode, String password, String confirmPassword, String oldPassword, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null){
+                return 3;
+            }
+            //get user for specific oauthcode
+            UserModel user = dbc.searchForUser(oAuthCode);
+            if (user == null) {
+                Printing.println("UserModel not found");
+                return 4;
+            }
+
+            //check if old password is correct
+            //get salt and hash for user
+            String[] strings = dbc.userGetHash(user.getUserId());
+
+            if(PasswordUtil.verify(oldPassword, strings[1])) {
+
+                //check if both passwords are the same password
+                if (password.equals(confirmPassword)) {
+                    //the new passwords are the same
+                    //change password in database
+                    int ret = PasswordUtil.setPassword(password, user.getUserId(), dbc);
+                    return ret;
+                }
+                //passwords are different
+                return 5;
+            }
+
+            //incorrect old password
+            return 7;
+
+
+        } catch (SQLException e) {
+            Printing.println("SQLExcpetion");
+            Printing.println(e.toString());
+            return 6;
+        }
+    }
+
+    /**
+     *
+     * @param start the start of the range
+     * @param end end of the range
+     * @return returns a list of users with ranks on the leaderboard between the start and end, null on error
+     */
+    public static List<UserModel> leaderboardRange(int start, int end, DatabaseConnection dbc){
+        if(start < 0 || end < 0 || start > end){
+            return null;
+
+        }
+        try{
+            List<Integer> userIDs = dbc.leaderboardRange(start, end);
+            if(userIDs == null){
+                Printing.println(" dbc.leaderboardRange() returned null");
+                return null;
+            }
+            int rank = start;
+            List<UserModel> leaderboard = new ArrayList<UserModel>();
+            for(int i : userIDs){
+                UserModel userModel = dbc.searchForUser("" + i, DatabaseConnection.LAMBNECYUSERID);
+                if(userModel.getHoursWorked() == 0){
+                    break;
+                }
+                userModel.setOauthToken("" + rank);
+                rank++;
+                leaderboard.add(userModel);
+            }
+
+            return leaderboard;
+        }
+        catch (SQLException e){
+            Printing.println("SQLException");
+            Printing.printlnException(e);
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param oAuthCode the oAuthCode of the user
+     * @param dbc
+     * @return returns a list of users around the given users on the leaderboard, null on error or invalid
+     */
+    public static List<UserModel> leaderboardAroundUser(String oAuthCode, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null || dbc == null){
+                Printing.println("null oAuthCode");
+                return null;
+            }
+            //get user for specific oauthcode
+            UserModel user = dbc.searchForUser(oAuthCode);
+            if (user == null) {
+                Printing.println("UserModel not found");
+                return null;
+            }
+            int userRank = dbc.leaderboardRankOf(user.getUserId());
+            int start = userRank - 2;
+            int end = userRank + 2;
+            if(userRank <= 2){
+                Printing.println("User in top 2, use leaderboard range");
+                return null;
+            }
+            List<UserModel> leaderboard = leaderboardRange(start, end, dbc);
+            while(leaderboard.get(2).getUserId() != user.getUserId()){
+                start++;
+                end++;
+                leaderboard = leaderboardRange(start, end, dbc);
+            }
+            return leaderboard;
+
+        }
+        catch (SQLException e){
+            Printing.println("SQLException");
+            Printing.printlnException(e);
+        }
+        return null;
+    }
+    /**
+     * send email to user that would wish to recover their password
+     *
+     * @param email email of user that wants to reset their password
+     * @return the success code of setting the new password
+     */
+    public static int beginRecoverPassword(String email, DatabaseConnection dbc){
+        try{
+
+            //get user for specific oauthcode
+            int userID = dbc.getUserByEmail(email);
+            if (userID < 0) {
+                Printing.println("Trouble with finding email address");
+                return userID;  // -1 doesn't have account , -2 not unique (shouldn't happen)
+            }
+
+            //create code for user
+            String code = new String(PasswordUtil.generateSalt(30));
+            if(dbc.userGetVerification(userID) != null){
+                //remove previous verification if present
+                dbc.userRemoveVerification(userID);
+            }
+            dbc.userAddVerification(userID,code);
+            return GMailHelper.sendChangePasswordEmail(email, userID, code);
+
+        } catch (Exception e) {
+            Printing.println("SQLExcpetion");
+            Printing.printlnException(e);
+            return 2;
+        }
+    }
+
+    /**
+     * Change the password of a given their correct verification code
+     *
+     * @param verification verification code of user in question
+     * @param password  the new password of the user
+     * @param confirmPassword  a duplicate of the new password to confirm right password
+     * @return the success code of setting the new password
+     */
+    public static int endRecoveryPassword(String verification, String password, String confirmPassword, int userID,  DatabaseConnection dbc){
+        try{
+            if(verification == null){
+                return 3;
+            }
+            UserModel user = dbc.searchForUser("" + userID, DatabaseConnection.LAMBNECYUSERID);
+
+            if (user == null) {
+                Printing.println("Not a valid user for recovering password " + userID);
+                return 4;
+            }
+
+            //get user for specific oauthcode
+            String code = dbc.userGetVerification(userID);
+            if (code == null) {
+                Printing.println("Could not find verification code for given user");
+                return 5;
+            }
+
+            if(code.equals(verification)) {
+
+                //check if both passwords are the same password
+                if (password.equals(confirmPassword)) {
+                    //the new passwords are the same
+                    //change password in database
+                    int ret = PasswordUtil.setPassword(password, user.getUserId(), dbc);
+                    dbc.userRemoveVerification(userID);
+                    return ret;
+                }
+                //passwords are different but correct code
+                return 6;
+            }
+            //not valid code
+            return 7;
+        } catch (SQLException e) {
+            Printing.println("SQLExcpetion");
+            Printing.println(e.toString());
+            return 8;
         }
     }
 

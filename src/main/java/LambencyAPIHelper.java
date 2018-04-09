@@ -979,10 +979,67 @@ public void createOrganizationRetrofit(OrganizationModel org){
                     //System.out.println("Bad arguments passed in retrofit");
                 }
             }
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+
+            }
+        });
+    }
+    public void leaderboardRangeRetrofit(String start, String end)
+    {
+        this.getInstance().getLeaderboardRange(start, end).enqueue(new Callback<List<UserModel>>() {
+            @Override
+            public void onResponse(Call<List<UserModel>> call, Response<List<UserModel>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("An error has occurred");
+                    return;
+                }
+                //when response is back
+                List<UserModel> ret = response.body();
+                if(ret == null ) {
+                    System.out.println("An error has occurred");
+                }
+                else{
+                    UserModel userModel = ret.get(0);
+                    int rank = Integer.parseInt(userModel.getOauthToken());
+                    // I will set the oAuthToken to the users rank
+                }
+            }
 
             @Override
-            public void onFailure(Call<Integer> call, Throwable throwable) {
+            public void onFailure(Call<List<UserModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+    public void leaderboardAroundUserRetrofit(String oAuthCode)
+    {
+        this.getInstance().getLeaderboardAroundUser(oAuthCode).enqueue(new Callback<List<UserModel>>() {
+            @Override
+            public void onResponse(Call<List<UserModel>> call, Response<List<UserModel>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("An error has occurred");
+                    return;
+                }
+                //when response is back
+                List<UserModel> ret = response.body();
+                if(ret == null ) {
+                    System.out.println("An error has occurred");
+                }
+                else{
+                    UserModel userModel = ret.get(0);
+                    int rank = Integer.parseInt(userModel.getOauthToken());
+                    // I will set the oAuthToken to the users rank
+                }
+            }
 
+            @Override
+
+            public void onFailure(Call<List<UserModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
             }
         });
     }
