@@ -854,6 +854,9 @@ public class UserHandler {
             List<UserModel> leaderboard = new ArrayList<UserModel>();
             for(int i : userIDs){
                 UserModel userModel = dbc.searchForUser("" + i, DatabaseConnection.LAMBNECYUSERID);
+                if(userModel.getHoursWorked() == 0){
+                    break;
+                }
                 userModel.setOauthToken("" + rank);
                 rank++;
                 leaderboard.add(userModel);
@@ -889,11 +892,17 @@ public class UserHandler {
             int userRank = dbc.leaderboardRankOf(user.getUserId());
             int start = userRank - 2;
             int end = userRank + 2;
-            if(start <= 10){
-                Printing.println("User in top 10, use leaderboard range");
+            if(userRank <= 2){
+                Printing.println("User in top 2, use leaderboard range");
                 return null;
             }
-            return leaderboardRange(start, end, dbc);
+            List<UserModel> leaderboard = leaderboardRange(start, end, dbc);
+            while(leaderboard.get(2).getUserId() != user.getUserId()){
+                start++;
+                end++;
+                leaderboard = leaderboardRange(start, end, dbc);
+            }
+            return leaderboard;
 
         }
         catch (SQLException e){
