@@ -650,7 +650,7 @@ public class LambencyServer{
             if(databaseConnection.connect == null){
                 return null;
             }
-            Map<UserModel, EventAttendanceModel> ret = EventHandler.pastEventAttandence(oAuthCode, Integer.parseInt(eventID), databaseConnection);
+            ArrayList<EventAttendanceModel> ret = EventHandler.pastEventAttandence(oAuthCode, Integer.parseInt(eventID), databaseConnection);
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());

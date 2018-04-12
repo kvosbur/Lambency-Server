@@ -693,7 +693,7 @@ public class EventHandler {
      * @param dbc
      * @return 0 on success, -1 on error or bad params, -2 on invalid user permissions
      */
-    public static Map<UserModel, EventAttendanceModel> pastEventAttandence(String oAuthCode, int eventID, DatabaseConnection dbc){
+    public static ArrayList<EventAttendanceModel> pastEventAttandence(String oAuthCode, int eventID, DatabaseConnection dbc){
         try{
             if(oAuthCode == null){
                 Printing.println("invalid oAuthCode");
@@ -723,17 +723,14 @@ public class EventHandler {
             ArrayList<Object> users = dbc.searchEventAttendanceHistoricalUsers(eventID, true);
             Printing.println("the size is: " + users.size());
 
-            Map<UserModel, EventAttendanceModel> attendance = new HashMap<>();
+            ArrayList<EventAttendanceModel> attendance = new ArrayList<>();
 
             for(Object o: users){
                 UserModel u = (UserModel) o;
                 EventAttendanceModel attendanceModel = dbc.searchEventAttendanceHistorical(u.getUserId(), eventID);
                 attendanceModel.setUserModel(u);
-                attendanceModel.setClockInOutCode("");
-                Printing.println("parts: " + attendanceModel.getEventID() + ":" + attendanceModel.getUserID() + ":" +
-                attendanceModel.getStartTime() + ":" + attendanceModel.getEndTime() + ":" + attendanceModel.getClockInOutCode() +
-                ":" + attendanceModel.getUserModel().toString());
-                attendance.put(u, attendanceModel);
+                attendance.add(attendanceModel);
+
             }
             System.out.println("the other size is : " + attendance.size());
 
