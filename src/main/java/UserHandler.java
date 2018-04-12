@@ -1,3 +1,4 @@
+import javax.xml.crypto.Data;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -1035,6 +1036,33 @@ public class UserHandler {
             return -3;
         }
 
+    }
+
+
+    /**
+     * Method for creating new Chat
+     *
+     * @param oAuthCode
+     * @param user2_id
+     * @param groupchat
+     * @param dbc
+     * @return
+     */
+    public static Integer createNewChat(String oAuthCode, int user2_id, boolean groupchat, DatabaseConnection dbc){
+        try {
+            UserModel u = dbc.searchForUser(oAuthCode);
+            if (u == null) {
+                Printing.printlnError("UserModel not found");
+                return 1;
+            }
+
+            return dbc.createChat(u.getUserId(),user2_id,groupchat);
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 2;
+        }
     }
 
 

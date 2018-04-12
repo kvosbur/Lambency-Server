@@ -2078,6 +2078,55 @@ public class DatabaseConnection {
      */
 
     /**
+     * START CHAT METHODS
+     */
+
+    /**
+     * Creates new chat references in our databse
+     *
+     * @param userID1       User id for one chat member
+     * @param userID2       User id for second chat member. If the number is negative, it will be for an organization
+     * @param groupchat     boolean for if it is a groupchat. In the case where it is, then the second userID is for the groupchat id.
+     * @return              return chat ID
+     * @throws SQLException
+     */
+    public int createChat(int userID1, int userID2, boolean groupchat) throws SQLException{
+
+        //insert event into table
+        PreparedStatement ps;
+        ps = connect.prepareStatement("INSERT INTO chat (user1_id,user2_id, groupchat) VALUES ('TEMP',?,?)");
+
+
+        if(ps != null) {
+            //insert values into prepare statement
+            ps.setInt(1, userID2);
+            ps.setBoolean(2,groupchat);
+            ps.execute();
+
+        }else{
+            throw new SQLException("Error in SQL database.");
+        }
+
+        //get event id from sql table
+        Statement st = connect.createStatement();
+        ResultSet rs = st.executeQuery("SELECT chat_id FROM chat WHERE user1_id = 'TEMP'");
+        rs.next();
+        int chat_id = rs.getInt(1);
+
+        //update event with actual name
+        ps = connect.prepareStatement("UPDATE chat SET user1_id = ? WHERE chat_id= " + chat_id);
+        ps.setInt(1, userID1);
+
+        ps.executeUpdate();
+
+        return chat_id;
+    }
+
+    /**
+     * END CHAT METHODS
+     */
+
+    /**
      * BEGIN UTIL METHODS
      */
 
