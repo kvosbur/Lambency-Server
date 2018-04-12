@@ -719,7 +719,7 @@ public class EventHandler {
             }
 
             //have permissions to look at past events
-            ArrayList<Object> users = dbc.searchEventAttendanceUsers(eventID, true);
+            ArrayList<Object> users = dbc.searchEventAttendanceHistoricalUsers(eventID, true);
 
             Map<UserModel, EventAttendanceModel> attendance = new HashMap<>();
 

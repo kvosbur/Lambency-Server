@@ -1490,6 +1490,46 @@ public class DatabaseConnection {
         return null;
     }
 
+    /**
+     * Searches for all users who are attending the specified event
+     * @param eventID the id of the event to search for
+     * @param object whether to return UserModels or Integers
+     * @return Arraylist of UserModel objects, null if no users found
+     */
+    public ArrayList<Object> searchEventAttendanceHistoricalUsers(int eventID, boolean object) throws SQLException{
+
+        //create string for query
+        String fields = "user_id";
+        String query = "SELECT " + fields + " FROM event_attendence_historical WHERE event_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Object> users = new ArrayList<>();
+
+        //check for results and return object
+        while(rs.next()){
+            int userID = rs.getInt(1);
+            if(object){
+                UserModel user = searchForUser("" + userID, LAMBNECYUSERID);
+                if(user != null){
+                    users.add(user);
+                }
+            }else{
+                users.add(userID);
+            }
+
+        }
+
+        if(users.size() == 0){
+            return null;
+        }
+
+        return users;
+    }
+
 
 
     /**
