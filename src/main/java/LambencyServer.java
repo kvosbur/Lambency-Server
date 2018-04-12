@@ -402,6 +402,25 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
 
+        get("/User/respondToJoinRequest","application/json", (request, response) -> {
+            Printing.printlnEndpoint("User/respondToJoinRequest");
+            String oAuthCode = request.queryParams("oAuthCode");
+            String orgID = request.queryParams("orgID");
+            String accepted = request.queryParams("accpect");
+            if(oAuthCode == null || orgID == null || accepted == null){
+                Printing.println("Null object received from retrofit");
+                return null;
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                Printing.println("Failed to create database connection");
+                return null;
+            }
+            Integer ret = UserHandler.respondToRequest(oAuthCode, Integer.parseInt(orgID), Boolean.parseBoolean(accepted), databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
+
         post("/Organization/create", "application/json",
                 (request, response) -> {
                     Printing.printlnEndpoint("/Organization/create");
