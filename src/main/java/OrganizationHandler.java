@@ -632,10 +632,12 @@ public class OrganizationHandler {
                 try {
                     Printing.println("imageFile not null");
                     path = ImageWR.writeImageToFile(newOrg.getImageFile());
+                    Printing.println("new path: " + path);
                     //path = ImageWR.saveImage(newOrg.getImageToSave());
 
                 } catch (IOException e) {
                     Printing.println("Error adding image.");
+                    Printing.printlnException(e);
                 }
             }else{
                 Printing.println("imageFile null");
@@ -648,7 +650,7 @@ public class OrganizationHandler {
             return null;
         }
         catch (SQLException e){
-            Printing.println(e.toString());
+            Printing.printlnException(e);
         }
         return null;
     }
