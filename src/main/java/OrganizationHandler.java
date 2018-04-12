@@ -627,7 +627,7 @@ public class OrganizationHandler {
             newOrg.setLongitude(latlng.lng);
 
             // Saves the orgs image to a file
-            String path = null;
+            String path = newOrg.getImagePath();
             if(newOrg.getImageFile() != null) {
                 try {
                     Printing.println("imageFile not null");
@@ -730,5 +730,7 @@ public class OrganizationHandler {
         }
         return null;
     }
+
+
 
 }
