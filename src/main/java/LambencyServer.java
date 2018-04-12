@@ -561,6 +561,22 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
 
+        get("/Organization/pastEvents", "application.json", (request, response) -> {
+            Printing.printlnEndpoint("Organization/pastEvents");
+            String oAuthCode = request.queryParams("oAuthCode");
+            String orgID = request.queryParams("orgID");
+            if(oAuthCode == null || orgID == null){
+                return null;
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            ArrayList<EventModel> ret = OrganizationHandler.pastEventsForOrg(oAuthCode, Integer.parseInt(orgID), databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
+
 
         post("/Organization/edit", "application.json", (request, response) -> {
             Printing.printlnEndpoint("Organization/edit");

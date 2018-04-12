@@ -1393,6 +1393,32 @@ public class DatabaseConnection {
         return 0;
     }
 
+    public EventModel searchHistoricalEvents(int eventId) throws SQLException{
+
+        //create string for query
+        String fields = "event_id, org_id, name, start_time, end_time, description," +
+                "location, event_img, latitude, longitude, clock_in_code, clock_out_code, private";
+        String query = "SELECT " + fields + " FROM events_historical WHERE event_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventId);
+        ResultSet rs = ps.executeQuery();
+
+        //check for results and if any then return user
+        if(rs.next()){
+            OrganizationModel org = searchForOrg(rs.getInt(2));
+            EventModel em =  new EventModel(rs.getString(3),rs.getInt(2), rs.getTimestamp(4), rs.getTimestamp(5),
+                    rs.getString(6), rs.getString(7), rs.getString(8), rs.getInt(1),
+                    rs.getDouble(9), rs.getDouble(10), rs.getString(11), rs.getString(12),
+                    org.getName(),rs.getBoolean(13));
+            //em.setOrgName(getNameOfOrgForEvent(em.getOrg_id()));
+            return em;
+        }
+
+        return null;
+    }
+
 
 
     /**
@@ -2071,6 +2097,32 @@ public class DatabaseConnection {
         }
 
         return results;
+    }
+
+    /**
+     * Given an organization id return all of the ids for past events for them
+     * @param orgID the id of the organization to search for
+     * @return String array of user Emails
+     */
+    public ArrayList<Integer> getPastEventsForOrg(int orgID) throws SQLException{
+
+        //create string for query
+        String query = "SELECT event_id FROM events_historical where org_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, orgID);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> eventIDs = new ArrayList<>();
+
+        //check for results and return object
+        while(rs.next()){
+            int eventID = rs.getInt(1);
+            eventIDs.add(eventID);
+        }
+
+        return eventIDs;
     }
 
     /**
