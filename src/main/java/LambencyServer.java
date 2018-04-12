@@ -387,6 +387,20 @@ public class LambencyServer{
             return changed;
         }, new JsonTransformer());
 
+        get("/User/joinRequests","application.json", (request, response) -> {
+            Printing.printlnEndpoint("User/joinRequests");
+            String oAuthCode = request.queryParams("oAuthCode");
+            if(oAuthCode == null){
+                return null;
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            ArrayList<OrganizationModel> ret = UserHandler.getRequestedToJoinOrgs(oAuthCode, databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
 
         post("/Organization/create", "application/json",
                 (request, response) -> {
