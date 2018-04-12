@@ -1037,5 +1037,28 @@ public class UserHandler {
 
     }
 
-
+    /**
+     *
+     * @param oAuthCode the oAuthCode of the user
+     * @param dbc database connection
+     * @return the list of orgs that have requested for the user to join
+     */
+    public static ArrayList<OrganizationModel> getRequestedToJoinOrgs(String oAuthCode, DatabaseConnection dbc){
+        try {
+            if (oAuthCode == null || dbc == null) {
+                Printing.println("null oAuthCode");
+                return null;
+            }
+            //get user for specific oauthcode
+            UserModel user = dbc.searchForUser(oAuthCode);
+            if (user == null) {
+                Printing.println("UserModel not found");
+                return null;
+            }
+        }
+        catch (SQLException e){
+            Printing.printlnException(e);
+        }
+        return null;
+    }
 }

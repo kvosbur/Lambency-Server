@@ -706,6 +706,31 @@ public class DatabaseConnection {
         return 0;
     }
 
+    /**
+     *
+     * @param userID the id of the user
+     * @return the list of org ids that have requested the user to join
+     * @throws SQLException
+     */
+    public ArrayList<Integer> getRequestsToJoinOrgs(int userID) throws SQLException{
+
+        String fields = "org_id";
+        String query = "SELECT "+ fields +" FROM groupies WHERE user_id = ? AND groupies_type = ? AND confirmed = ?";
+
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1,userID);
+        ps.setInt(2,DatabaseConnection.MEMBER);
+        ps.setInt(3,2);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> orgIDs = new ArrayList<>();
+
+        while(rs.next()){
+            orgIDs.add(rs.getInt(1));
+        }
+        return orgIDs;
+    }
+
 
     /**
      * END USER METHODS
