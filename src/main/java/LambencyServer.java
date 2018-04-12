@@ -1,5 +1,4 @@
 import com.google.gson.Gson;
-
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -852,7 +851,7 @@ public class LambencyServer{
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgID");
             if(oAuthCode == null || orgID == null){
-                Printing.println("oAuthCode is null or orgID is null. (Note: those are the correct spellings for params)");
+                Printing.printlnError("oAuthCode is null or orgID is null. (Note: those are the correct spellings for params)");
                 return -1;
             }
             int ret = UserHandler.leaveOrganization(oAuthCode,Integer.parseInt(orgID), databaseConnection);
@@ -866,7 +865,7 @@ public class LambencyServer{
             String oAuthCode = request.queryParams("oAuthCode");
             EventAttendanceModel eventAttendanceModel = new Gson().fromJson(request.body(), EventAttendanceModel.class);
             if(oAuthCode == null || eventAttendanceModel == null){
-                Printing.println("oAuthCode is null or eventAttendanceModel is null. (Note: those are the correct spellings for params)");
+                Printing.printlnError("oAuthCode is null or eventAttendanceModel is null. (Note: those are the correct spellings for params)");
                 return -1;
             }
             DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -883,7 +882,7 @@ public class LambencyServer{
             Printing.printlnEndpoint("/User/MyLambency");
             String oAuthCode = request.queryParams("oAuthCode");
             if(oAuthCode == null){
-                Printing.println("oAuthCode is null. (Note: those are the correct spellings for params)");
+                Printing.printlnError("oAuthCode is null. (Note: those are the correct spellings for params)");
                 return -1;
             }
             DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -902,7 +901,7 @@ public class LambencyServer{
             int orgID = Integer.parseInt(request.queryParams("orgID"));
             String userEmail = request.queryParams("emailString");
             if(oAuthCode == null || userEmail == null){
-                Printing.println("oAuthCode is null or emailString is null. (Note: those are the correct spellings for params)");
+                Printing.printlnError("oAuthCode is null or emailString is null. (Note: those are the correct spellings for params)");
                 return -1;
             }
             DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -919,12 +918,30 @@ public class LambencyServer{
             OrganizationFilterModel ofm = new Gson().fromJson(request.body(), OrganizationFilterModel.class);
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
-                Printing.println("Error on database connect");
+                Printing.printlnError("Error on database connect");
                 return null;
             }
             ArrayList<OrganizationModel> ret = OrganizationHandler.getOrganizationWithFilter(ofm, databaseConnection);
             databaseConnection.close();
             return ret;
+        }, new JsonTransformer());
+    
+        get("/Chat/create","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/Chat/createChat");
+            String oAuthCode = request.queryParams("oAuthCode");
+            String user2_id = request.queryParams("ID2");
+            String groupChat = request.queryParams("isGroup");
+            if(oAuthCode == null || user2_id == null || groupChat == null){
+                return null;
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                Printing.printlnError("Errer on datase connecnt");
+            }
+            Integer id = UserHandler.createNewChat(oAuthCode,Integer.parseInt(user2_id), Boolean.parseBoolean(groupChat),databaseConnection);
+            databaseConnection.close();
+            return id;
+
         }, new JsonTransformer());
 
     }
