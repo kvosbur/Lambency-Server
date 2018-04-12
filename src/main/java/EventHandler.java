@@ -719,7 +719,9 @@ public class EventHandler {
             }
 
             //have permissions to look at past events
+            Printing.println("the event to search against is: " + eventID);
             ArrayList<Object> users = dbc.searchEventAttendanceHistoricalUsers(eventID, true);
+            Printing.println("the size is: " + users.size());
 
             Map<UserModel, EventAttendanceModel> attendance = new HashMap<>();
 
