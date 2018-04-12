@@ -1324,10 +1324,34 @@ public class LambencyAPITestSprint3 {
         }
 
     }
+    @Test
+    public void testAddingHoursOnClockOut(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        EventModel event1;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            event1 = EventHandler.searchEventID(1, dbc);
+            dbc.eventClockInOutUser(event1.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis() - 10000), EventAttendanceModel.CLOCKINCODE);
+            dbc.eventClockInOutUser(event1.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis()), EventAttendanceModel.CLOCKOUTCODE);
+            Response<UserModel> response = null;
+            try {
+                response = this.getInstance().getUserSearch(u1.getOauthToken(), null).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            UserModel user = response.body();
+            System.out.println(user.getHoursWorked());
 
-
-
-
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
 
     public void searches(){
         DatabaseConnection dbc = this.getDatabaseInstance();

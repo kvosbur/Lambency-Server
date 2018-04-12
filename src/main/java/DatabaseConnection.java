@@ -754,6 +754,32 @@ public class DatabaseConnection {
 
     /**
      *
+     * @param userID the id of the user for hours to be added to
+     * @param eventID event from which hours will be added
+     * @return 0 on success, -1 on error
+     * @throws SQLException
+     */
+    public int addHoursWorkedForEvent(int userID, int eventID) throws SQLException{
+        if(userID <= 0 || eventID <= 0){
+            return -1;
+        }
+        EventAttendanceModel eventAttendanceModel = searchEventAttendance(userID, eventID);
+        if(eventAttendanceModel == null){
+            return -1;
+        }
+        Timestamp start = eventAttendanceModel.getStartTime();
+        Timestamp end = eventAttendanceModel.getEndTime();
+        // get time difference in seconds
+        long milliseconds = end.getTime() - start.getTime();
+        int seconds = (int) milliseconds / 1000;
+        // calculate hours minutes and seconds
+        double hours = seconds / 3600.0;
+        return addHours(userID, hours);
+
+    }
+
+    /**
+     *
      * @param userID the id of the user
      * @return the list of org ids that have requested the user to join
      * @throws SQLException
@@ -1272,6 +1298,9 @@ public class DatabaseConnection {
         ps.setInt(2, eventID);
         ps.setInt(3, userID);
         int result = ps.executeUpdate();
+        if(type == EventAttendanceModel.CLOCKOUTCODE){
+            addHoursWorkedForEvent(userID, eventID);
+        }
         if(result == 1){
             return 0;
         }

@@ -105,7 +105,7 @@ public class LambencyServer{
         }, new JsonTransformer());
         get("/User/search", "application/json", (request, response) -> {
             Printing.printlnEndpoint("/User/search");
-            String oAuthCode = request.queryParams("oAuthToken");
+            String oAuthCode = request.queryParams("oAuthCode");
             String id = request.queryParams("id");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
