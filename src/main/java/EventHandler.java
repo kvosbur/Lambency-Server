@@ -728,6 +728,9 @@ public class EventHandler {
             for(Object o: users){
                 UserModel u = (UserModel) o;
                 EventAttendanceModel attendanceModel = dbc.searchEventAttendanceHistorical(u.getUserId(), eventID);
+                Printing.println("parts: " + attendanceModel.getEventID() + ":" + attendanceModel.getUserID() + ":" +
+                attendanceModel.getStartTime() + ":" + attendanceModel.getEndTime() + ":" + attendanceModel.getClockInOutCode() +
+                ":" + attendanceModel.getUserModel().toString());
                 attendance.put(u, attendanceModel);
             }
             System.out.println("the other size is : " + attendance.size());
