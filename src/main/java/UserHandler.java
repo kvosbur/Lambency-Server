@@ -841,7 +841,7 @@ public class UserHandler {
      * @return returns a list of users with ranks on the leaderboard between the start and end, null on error
      */
     public static List<UserModel> leaderboardRange(int start, int end, DatabaseConnection dbc){
-        if(start < 0 || end < 0 || start > end){
+        if(start <= 0 || end < 0 || start > end){
             return null;
 
         }
@@ -1120,13 +1120,6 @@ public class UserHandler {
             }
 
             return dbc.createChat(u.getUserId(),user2_id,groupchat);
-
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return 2;
-        }
-    }
 
         } catch (SQLException e) {
             Printing.printlnException(e);
