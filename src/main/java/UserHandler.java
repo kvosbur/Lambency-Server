@@ -1161,8 +1161,8 @@ public class UserHandler {
                 Printing.println("Organization does not exist. Try again next time" + orgID);
                 return -1;
             }
-            GroupiesModel request = dbc.searchGroupies(user.getUserId(),orgID);
-            if(request == null){
+            ArrayList<OrganizationModel> orgs = getRequestedToJoinOrgs(oAuthCode, dbc);
+            if(!orgs.contains(org)){
                 Printing.println("No request for user id = " + user.getUserId());
                 return -1;
             }
