@@ -729,6 +729,7 @@ public class EventHandler {
                 UserModel u = (UserModel) o;
                 EventAttendanceModel attendanceModel = dbc.searchEventAttendanceHistorical(u.getUserId(), eventID);
                 attendanceModel.setUserModel(u);
+                attendanceModel.setClockInOutCode("");
                 Printing.println("parts: " + attendanceModel.getEventID() + ":" + attendanceModel.getUserID() + ":" +
                 attendanceModel.getStartTime() + ":" + attendanceModel.getEndTime() + ":" + attendanceModel.getClockInOutCode() +
                 ":" + attendanceModel.getUserModel().toString());
