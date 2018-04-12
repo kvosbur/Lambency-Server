@@ -703,7 +703,7 @@ public class EventHandler {
                 Printing.println("Unable to verify user");
                 return null;
             }
-            EventModel event = dbc.searchEvents(eventID);
+            EventModel event = dbc.searchHistoricalEvents(eventID);
             if(event == null){
                 Printing.println("Event not found");
                 return null;
