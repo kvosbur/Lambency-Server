@@ -92,7 +92,7 @@ public class DatabaseConnection {
         //figure query to use dependent on identifier type
         String query;
 
-        String fields = "user_id, first_name, last_name, user_email, oauth_token, hours, notify_pref";
+        String fields = "user_id, first_name, last_name, user_email, oauth_token, hours, notify_pref,active";
         if(type == GOOGLE){
             query = "SELECT " + fields + " FROM user WHERE google_id = ?";
         }else if(type == FACEBOOK) {
@@ -112,7 +112,7 @@ public class DatabaseConnection {
         if(rs.next()){
             return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
 
-                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5), rs.getInt(7));
+                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5), rs.getInt(7),rs.getBoolean(8));
 
         }
 
@@ -132,7 +132,7 @@ public class DatabaseConnection {
 
         //create string for query
 
-        String fields = "user_id, first_name, last_name, user_email, oauth_token, hours, notify_pref";
+        String fields = "user_id, first_name, last_name, user_email, oauth_token, hours, notify_pref,active";
 
         String query = "SELECT " + fields + " FROM user WHERE oauth_token = ?";
 
@@ -151,7 +151,7 @@ public class DatabaseConnection {
             rs.getString(5);
             return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
 
-                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5),rs.getInt(7));
+                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5),rs.getInt(7),rs.getBoolean(8));
 
         }
         return null;
@@ -347,6 +347,52 @@ public class DatabaseConnection {
             return 0;
         }
         return 1;
+    }
+
+    /**
+     *  Update the active status of the user in the database
+     *
+     *
+     * @param userID            id of the user who is being updated
+     * @param isActive          boolean to if they are active or not
+     * @return              0 on success or 1 on failure
+     * @throws SQLException     Thrown if database issue
+     */
+    public int setUserActiveStatus(int userID, boolean isActive) throws SQLException{
+        String sql = "UPDATE user SET active = ? WHERE user_id = ?";
+
+
+        PreparedStatement ps = connect.prepareStatement(sql);
+        ps.setBoolean(1,isActive);
+        ps.setInt(2,userID);
+
+        int ret = ps.executeUpdate();
+        if(ret == 1){
+            return 0;
+        }
+        return -1;
+    }
+
+    /**
+     * Get the status for the active value of the user. Note this returns an integer
+     *
+     * @param userID            Id of the user who is being queried
+     * @return                  0 if false, 1 if true, -1 on failure
+     * @throws SQLException
+     */
+    public int getUserActiveStatus(int userID) throws SQLException{
+        String sql = "SELECT active FROM user WHERE user_id = ?";
+        PreparedStatement ps = connect.prepareStatement(sql);
+        ps.setInt(1,userID);
+        ResultSet rs = ps.executeQuery();
+
+
+        //check for results and if any then return user
+        if(rs.next()){
+            return rs.getInt(1);
+        }
+        return -1;
+
     }
 
     /**
@@ -704,6 +750,31 @@ public class DatabaseConnection {
         ps.setInt(2,userID);
         ps.executeUpdate();
         return 0;
+    }
+
+    /**
+     *
+     * @param userID the id of the user
+     * @return the list of org ids that have requested the user to join
+     * @throws SQLException
+     */
+    public ArrayList<Integer> getRequestsToJoinOrgs(int userID) throws SQLException{
+
+        String fields = "org_id";
+        String query = "SELECT "+ fields +" FROM groupies WHERE user_id = ? AND groupies_type = ? AND confirmed = ?";
+
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1,userID);
+        ps.setInt(2,DatabaseConnection.MEMBER);
+        ps.setInt(3,2);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> orgIDs = new ArrayList<>();
+
+        while(rs.next()){
+            orgIDs.add(rs.getInt(1));
+        }
+        return orgIDs;
     }
 
 
@@ -1393,6 +1464,32 @@ public class DatabaseConnection {
         return 0;
     }
 
+    public EventModel searchHistoricalEvents(int eventId) throws SQLException{
+
+        //create string for query
+        String fields = "event_id, org_id, name, start_time, end_time, description," +
+                "location, event_img, latitude, longitude, clock_in_code, clock_out_code, private";
+        String query = "SELECT " + fields + " FROM events_historical WHERE event_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventId);
+        ResultSet rs = ps.executeQuery();
+
+        //check for results and if any then return user
+        if(rs.next()){
+            OrganizationModel org = searchForOrg(rs.getInt(2));
+            EventModel em =  new EventModel(rs.getString(3),rs.getInt(2), rs.getTimestamp(4), rs.getTimestamp(5),
+                    rs.getString(6), rs.getString(7), rs.getString(8), rs.getInt(1),
+                    rs.getDouble(9), rs.getDouble(10), rs.getString(11), rs.getString(12),
+                    org.getName(),rs.getBoolean(13));
+            //em.setOrgName(getNameOfOrgForEvent(em.getOrg_id()));
+            return em;
+        }
+
+        return null;
+    }
+
 
 
     /**
@@ -2071,6 +2168,32 @@ public class DatabaseConnection {
         }
 
         return results;
+    }
+
+    /**
+     * Given an organization id return all of the ids for past events for them
+     * @param orgID the id of the organization to search for
+     * @return String array of user Emails
+     */
+    public ArrayList<Integer> getPastEventsForOrg(int orgID) throws SQLException{
+
+        //create string for query
+        String query = "SELECT event_id FROM events_historical where org_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, orgID);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Integer> eventIDs = new ArrayList<>();
+
+        //check for results and return object
+        while(rs.next()){
+            int eventID = rs.getInt(1);
+            eventIDs.add(eventID);
+        }
+
+        return eventIDs;
     }
 
     /**

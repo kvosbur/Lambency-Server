@@ -118,6 +118,36 @@ public class LambencyServer{
             databaseConnection.close();
             return u;
         }, new JsonTransformer());
+        get("/User/setActiveStatus","application.json",(request, response) -> {
+            //Printing.printlnEndpoint("/User/setActiveStatus");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String oAuthCode = request.queryParams("oAuthCode");
+            String isActiveString = request.queryParams("isActive");
+            if(oAuthCode == null || isActiveString == null){
+                Printing.printlnError("PARAMETERS NOT GIVE. EXPECTED oAuthCode & isActive");
+                return null;
+            }
+            boolean isActive = Boolean.parseBoolean(isActiveString);
+            return UserHandler.updateActiveStatus(oAuthCode,isActive,databaseConnection);
+        },new JsonTransformer());
+        get("/User/getActiveStatus","application.json",(request, response) -> {
+            Printing.printlnEndpoint("/User/getActiveStatus");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String oAuthCode = request.queryParams("oAuthCode");
+            String userIdString = request.queryParams("userID");
+            if(oAuthCode == null || userIdString == null){
+                Printing.printlnError("PARAMETERS NOT GIVE. EXPECTED oAuthCode & userID");
+                return null;
+            }
+            int user_id = Integer.parseInt(userIdString);
+            return UserHandler.getActiveStatus(oAuthCode,user_id,databaseConnection);
+        },new JsonTransformer());
         post("/User/changeInfo", "application/json", (request, response) -> {
             Printing.printlnEndpoint("/User/changeInfo");
             DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -386,6 +416,39 @@ public class LambencyServer{
             return changed;
         }, new JsonTransformer());
 
+        get("/User/joinRequests","application.json", (request, response) -> {
+            Printing.printlnEndpoint("User/joinRequests");
+            String oAuthCode = request.queryParams("oAuthCode");
+            if(oAuthCode == null){
+                return null;
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            ArrayList<OrganizationModel> ret = UserHandler.getRequestedToJoinOrgs(oAuthCode, databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
+
+        get("/User/respondToJoinRequest","application/json", (request, response) -> {
+            Printing.printlnEndpoint("User/respondToJoinRequest");
+            String oAuthCode = request.queryParams("oAuthCode");
+            String orgID = request.queryParams("orgID");
+            String accepted = request.queryParams("accpect");
+            if(oAuthCode == null || orgID == null || accepted == null){
+                Printing.println("Null object received from retrofit");
+                return null;
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                Printing.println("Failed to create database connection");
+                return null;
+            }
+            Integer ret = UserHandler.respondToRequest(oAuthCode, Integer.parseInt(orgID), Boolean.parseBoolean(accepted), databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
 
         post("/Organization/create", "application/json",
                 (request, response) -> {
@@ -556,6 +619,38 @@ public class LambencyServer{
                 return null;
             }
             ArrayList<UserModel>[] ret = OrganizationHandler.getMembersAndOrganizers(oAuthCode,Integer.parseInt(orgID), databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
+
+        get("/Organization/pastEvents", "application.json", (request, response) -> {
+            Printing.printlnEndpoint("Organization/pastEvents");
+            String oAuthCode = request.queryParams("oAuthCode");
+            String orgID = request.queryParams("orgID");
+            if(oAuthCode == null || orgID == null){
+                return null;
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            ArrayList<EventModel> ret = OrganizationHandler.pastEventsForOrg(oAuthCode, Integer.parseInt(orgID), databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
+
+        get("/Organization/pastEventAttandence", "application.json", (request, response) -> {
+            Printing.printlnEndpoint("Organization/pastEventAttandence");
+            String oAuthCode = request.queryParams("oAuthCode");
+            String eventID = request.queryParams("eventID");
+            if(oAuthCode == null || eventID == null){
+                return null;
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            Map<UserModel, EventAttendanceModel> ret = EventHandler.pastEventAttandence(oAuthCode, Integer.parseInt(eventID), databaseConnection);
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());
