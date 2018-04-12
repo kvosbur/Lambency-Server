@@ -311,7 +311,7 @@ public class EventHandler {
                         return 3;
                     }
 
-                    EventAttendanceModel attendance = dbc.searchEventAttendance(us.getUserId(),eventAttendanceModel.getEventID());
+                    EventAttendanceModel attendance = dbc.searchEventAttendance(us.getUserId(),eventid);
                     //clock in user
                     if (clockType == EventAttendanceModel.CLOCKOUTCODE){
                         //get current attendance model to check if already clocked in
