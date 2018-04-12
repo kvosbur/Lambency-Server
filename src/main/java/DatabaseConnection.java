@@ -112,7 +112,7 @@ public class DatabaseConnection {
         if(rs.next()){
             return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
 
-                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5), rs.getInt(7),rs.getBoolean(8));
+                    null, null,null,rs.getInt(1), rs.getDouble(6), rs.getString(5), rs.getInt(7),rs.getBoolean(8));
 
         }
 
@@ -151,7 +151,7 @@ public class DatabaseConnection {
             rs.getString(5);
             return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
 
-                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5),rs.getInt(7),rs.getBoolean(8));
+                    null, null,null,rs.getInt(1), rs.getDouble(6), rs.getString(5),rs.getInt(7),rs.getBoolean(8));
 
         }
         return null;
@@ -722,15 +722,15 @@ public class DatabaseConnection {
         ps.setInt(1,userID);
         ResultSet rs = ps.executeQuery();
         rs.next();
-        int ret = rs.getInt(1);// ret = number of hours for user
+        double ret = rs.getDouble(1);// ret = number of hours for user
         query = "SELECT COUNT(*) FROM user WHERE hours > ?";
         ps = connect.prepareStatement(query);
-        ps.setInt(1,ret);
+        ps.setDouble(1,ret);
         rs = ps.executeQuery();
         rs.next();
-        ret = rs.getInt(1);// ret = number of users with more hours than userID
-        ret++; // rank of user
-        return ret;
+        int rank = rs.getInt(1);// ret = number of users with more hours than userID
+        rank++; // rank of user
+        return rank;
     }
 
     /**
@@ -740,13 +740,13 @@ public class DatabaseConnection {
      * @return 0 on success
      * @throws SQLException
      */
-    public int addHours(int userID, int hours) throws SQLException{
+    public int addHours(int userID, double hours) throws SQLException{
         if(userID <= 0 || hours < 0){
             return -1;
         }
         String query = "UPDATE user SET hours = hours + ? WHERE user_id = ?";
         PreparedStatement ps = connect.prepareStatement(query);
-        ps.setInt(1,hours);
+        ps.setDouble(1,hours);
         ps.setInt(2,userID);
         ps.executeUpdate();
         return 0;
