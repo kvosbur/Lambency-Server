@@ -92,7 +92,7 @@ public class DatabaseConnection {
         //figure query to use dependent on identifier type
         String query;
 
-        String fields = "user_id, first_name, last_name, user_email, oauth_token, hours, notify_pref";
+        String fields = "user_id, first_name, last_name, user_email, oauth_token, hours, notify_pref,active";
         if(type == GOOGLE){
             query = "SELECT " + fields + " FROM user WHERE google_id = ?";
         }else if(type == FACEBOOK) {
@@ -112,7 +112,7 @@ public class DatabaseConnection {
         if(rs.next()){
             return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
 
-                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5), rs.getInt(7));
+                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5), rs.getInt(7),rs.getBoolean(8));
 
         }
 
@@ -132,7 +132,7 @@ public class DatabaseConnection {
 
         //create string for query
 
-        String fields = "user_id, first_name, last_name, user_email, oauth_token, hours, notify_pref";
+        String fields = "user_id, first_name, last_name, user_email, oauth_token, hours, notify_pref,active";
 
         String query = "SELECT " + fields + " FROM user WHERE oauth_token = ?";
 
@@ -151,7 +151,7 @@ public class DatabaseConnection {
             rs.getString(5);
             return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
 
-                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5),rs.getInt(7));
+                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5),rs.getInt(7),rs.getBoolean(8));
 
         }
         return null;
@@ -347,6 +347,52 @@ public class DatabaseConnection {
             return 0;
         }
         return 1;
+    }
+
+    /**
+     *  Update the active status of the user in the database
+     *
+     *
+     * @param userID            id of the user who is being updated
+     * @param isActive          boolean to if they are active or not
+     * @return              0 on success or 1 on failure
+     * @throws SQLException     Thrown if database issue
+     */
+    public int setUserActiveStatus(int userID, boolean isActive) throws SQLException{
+        String sql = "UPDATE SET active = ? FROM user WHERE user_id = ?";
+
+
+        PreparedStatement ps = connect.prepareStatement(sql);
+        ps.setBoolean(1,isActive);
+        ps.setInt(2,userID);
+
+        int ret = ps.executeUpdate();
+        if(ret == 1){
+            return 0;
+        }
+        return -1;
+    }
+
+    /**
+     * Get the status for the active value of the user. Note this returns an integer
+     *
+     * @param userID            Id of the user who is being queried
+     * @return                  0 if false, 1 if true, -1 on failure
+     * @throws SQLException
+     */
+    public int getUserActiveStatus(int userID) throws SQLException{
+        String sql = "SELECT active FROM user WHERE user_id = ?";
+        PreparedStatement ps = connect.prepareStatement(sql);
+        ps.setInt(1,userID);
+        ResultSet rs = ps.executeQuery();
+
+
+        //check for results and if any then return user
+        if(rs.next()){
+            return rs.getInt(1);
+        }
+        return -1;
+
     }
 
     /**

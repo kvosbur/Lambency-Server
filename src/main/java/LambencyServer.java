@@ -119,6 +119,36 @@ public class LambencyServer{
             databaseConnection.close();
             return u;
         }, new JsonTransformer());
+        get("/User/setActiveStatus","application.json",(request, response) -> {
+            Printing.printlnEndpoint("/User/setActiveStatus");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String oAuthCode = request.queryParams("oAuthCode");
+            String isActiveString = request.queryParams("isActive");
+            if(oAuthCode == null || isActiveString == null){
+                Printing.printlnError("PARAMETERS NOT GIVE. EXPECTED oAuthCode & isActive");
+                return null;
+            }
+            boolean isActive = Boolean.parseBoolean(isActiveString);
+            return UserHandler.updateActiveStatus(oAuthCode,isActive,databaseConnection);
+        },new JsonTransformer());
+        get("/User/getActiveStatus","application.json",(request, response) -> {
+            Printing.printlnEndpoint("/User/getActiveStatus");
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                return null;
+            }
+            String oAuthCode = request.queryParams("oAuthCode");
+            String userIdString = request.queryParams("userID");
+            if(oAuthCode == null || userIdString == null){
+                Printing.printlnError("PARAMETERS NOT GIVE. EXPECTED oAuthCode & userID");
+                return null;
+            }
+            int user_id = Integer.parseInt(userIdString);
+            return UserHandler.getActiveStatus(oAuthCode,user_id,databaseConnection);
+        },new JsonTransformer());
         post("/User/changeInfo", "application/json", (request, response) -> {
             Printing.printlnEndpoint("/User/changeInfo");
             DatabaseConnection databaseConnection = new DatabaseConnection();

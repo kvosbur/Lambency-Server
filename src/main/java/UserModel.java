@@ -15,6 +15,7 @@ public class UserModel {
     private int hoursWorked;
     private String oauthToken;
     private int notification_preference;
+    private boolean isActive;
 
     public UserModel(String firstName,String lastName, String email){
         this.firstName = firstName;
@@ -29,7 +30,7 @@ public class UserModel {
 
 
     public UserModel(String firstName, String lastName, String email, List<Integer> myOrgs, List<Integer> eventsAttending,
-                     List<Integer> followingOrgs, List<Integer> joinedOrgs, List<Integer> orgJoinRequests, int userId, int hoursWorked, String oauthToken, int notification_preference) {
+                     List<Integer> followingOrgs, List<Integer> joinedOrgs, List<Integer> orgJoinRequests, int userId, int hoursWorked, String oauthToken, int notification_preference, boolean isActive) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -42,6 +43,7 @@ public class UserModel {
         this.oauthToken = oauthToken;
         this.requestedJoinOrgIds = orgJoinRequests;
         this.notification_preference = notification_preference;
+        this.isActive = isActive;
 
     }
 
@@ -209,5 +211,13 @@ public class UserModel {
 
     public void setNotification_preference(int notification_preference) {
         this.notification_preference = notification_preference;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }
