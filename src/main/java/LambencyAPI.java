@@ -33,6 +33,9 @@ public interface LambencyAPI {
     @GET("User/leaderboardAroundUser")
     Call<List<UserModel>> getLeaderboardAroundUser(@Query("oAuthCode") String oAuthCode);
 
+    @GET("User/joinRequests")
+    Call<List<OrganizationModel>> getUserJoinRequests(@Query("oAuthCode") String oAuthCode);
+
     @POST("Organization/create")
     Call<Integer> postCreateOrganization(@Body OrganizationModel org);
     @GET("Organization/search")
