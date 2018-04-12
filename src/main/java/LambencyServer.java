@@ -120,7 +120,7 @@ public class LambencyServer{
             return u;
         }, new JsonTransformer());
         get("/User/setActiveStatus","application.json",(request, response) -> {
-            Printing.printlnEndpoint("/User/setActiveStatus");
+            //Printing.printlnEndpoint("/User/setActiveStatus");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 return null;

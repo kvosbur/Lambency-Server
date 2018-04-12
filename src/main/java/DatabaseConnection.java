@@ -359,7 +359,7 @@ public class DatabaseConnection {
      * @throws SQLException     Thrown if database issue
      */
     public int setUserActiveStatus(int userID, boolean isActive) throws SQLException{
-        String sql = "UPDATE SET active = ? FROM user WHERE user_id = ?";
+        String sql = "UPDATE user SET active = ? WHERE user_id = ?";
 
 
         PreparedStatement ps = connect.prepareStatement(sql);
