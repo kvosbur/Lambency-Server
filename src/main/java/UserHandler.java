@@ -1,3 +1,4 @@
+
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -1038,7 +1039,70 @@ public class UserHandler {
     }
 
     /**
+     * Set the active variable for the user
      *
+     * @param oAuthCode     oAuthToken for the user that wants to have their active state set
+     * @param isActive      boolean for user if they are active or not
+     * @param dbc           databse connection
+     * @return              0 on success
+     *                      -1 on prepared statement issue
+     *                      -2 on no user found
+     *                      -3 on SQL exception
+     *                      -4 on databse connect issue
+     */
+    public static Integer updateActiveStatus(String oAuthCode, boolean isActive, DatabaseConnection dbc){
+        if(dbc.connect == null){
+            Printing.printlnError("Database connect error");
+            return -4;
+        }
+        try {
+            UserModel u =dbc.searchForUser(oAuthCode);
+            if(u == null){
+                Printing.println("UserModel not found");
+                return -2;
+            }
+
+            return dbc.setUserActiveStatus(u.getUserId(),isActive);
+
+        } catch (SQLException e) {
+            Printing.printlnException(e);
+            return -3;
+        }
+    }
+
+    /**
+     *                      Retrieve the active status of the user with USer_id
+     *
+     * @param oAuthCode     oAuthCode of who is making the request
+     * @param user_id       User_id for who wants to have the active status known
+     * @param dbc           Database connection
+     * @return              0 if inactivce
+     *                      1 if active
+     *                      -1 on query fail
+     *                      -2 on no user found
+     *                      -3 on SQL exceptipn
+     *                      -4 on no database connect
+     */
+    public static Integer getActiveStatus(String oAuthCode, int user_id, DatabaseConnection dbc){
+        if(dbc.connect == null){
+            Printing.printlnError("Database connect error");
+            return -4;
+        }
+        try {
+            UserModel u =dbc.searchForUser(oAuthCode);
+            if(u == null){
+                Printing.println("UserModel not found");
+                return -2;
+            }
+
+            return dbc.getUserActiveStatus(user_id);
+
+        } catch (SQLException e) {
+            Printing.printlnException(e);
+            return -3;
+        }
+
+     /**
      * @param oAuthCode the oAuthCode of the user
      * @param dbc database connection
      * @return the list of orgs that have requested for the user to join
@@ -1070,6 +1134,7 @@ public class UserHandler {
             Printing.printlnException(e);
         }
         return null;
+
     }
 
     /**
