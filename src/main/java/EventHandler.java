@@ -730,6 +730,7 @@ public class EventHandler {
                 EventAttendanceModel attendanceModel = dbc.searchEventAttendance(u.getUserId(), eventID);
                 attendance.put(u, attendanceModel);
             }
+            System.out.println("the other size is : " + attendance.size());
 
             return attendance;
 
