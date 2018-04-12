@@ -627,15 +627,17 @@ public class OrganizationHandler {
             newOrg.setLongitude(latlng.lng);
 
             // Saves the orgs image to a file
-            String path = null;
+            String path = newOrg.getImagePath();
             if(newOrg.getImageFile() != null) {
                 try {
                     Printing.println("imageFile not null");
                     path = ImageWR.writeImageToFile(newOrg.getImageFile());
+                    Printing.println("new path: " + path);
                     //path = ImageWR.saveImage(newOrg.getImageToSave());
 
                 } catch (IOException e) {
                     Printing.println("Error adding image.");
+                    Printing.printlnException(e);
                 }
             }else{
                 Printing.println("imageFile null");
@@ -648,7 +650,7 @@ public class OrganizationHandler {
             return null;
         }
         catch (SQLException e){
-            Printing.println(e.toString());
+            Printing.printlnException(e);
         }
         return null;
     }
@@ -686,5 +688,49 @@ public class OrganizationHandler {
         }
         return -1;
     }
+
+    /**
+     *
+     * @param oAuthCode
+     * @param orgID
+     * @param dbc
+     * @return 0 on success, -1 on error or bad params, -2 on invalid user permissions
+     */
+    public static ArrayList<EventModel> pastEventsForOrg(String oAuthCode, int orgID, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null){
+                Printing.println("invalid oAuthCode");
+                return null;
+            }
+            if(dbc.searchForUser(oAuthCode) == null){
+                Printing.println("Unable to verify user");
+                return null;
+            }
+            OrganizationModel organizationModel = OrganizationHandler.searchOrgID(orgID, dbc);
+            if(organizationModel == null){
+                Printing.println("Org not found");
+                return null;
+            }
+
+            //have permissions to look at past events
+            ArrayList<Integer> ids = dbc.getPastEventsForOrg(organizationModel.getOrgID());
+
+            ArrayList<EventModel> pastEvents = new ArrayList<>();
+            for(Integer i: ids){
+                EventModel model = dbc.searchHistoricalEvents(i);
+                if(model != null){
+                    pastEvents.add(model);
+                }
+            }
+            return pastEvents;
+
+        }
+        catch (SQLException e){
+            Printing.println(e.toString());
+        }
+        return null;
+    }
+
+
 
 }
