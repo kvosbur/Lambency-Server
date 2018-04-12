@@ -1530,7 +1530,31 @@ public class DatabaseConnection {
         return users;
     }
 
+    /**
+     * Returns the EventAttendanceModel object associated with the given userID and eventID
+     * @param userID the id of the user to search for
+     * @param eventID the id of the event to search for
+     * @return EventAttendanceModel object for the corresponding userID and eventId, null if non-existent
+     */
+    public EventAttendanceModel searchEventAttendanceHistorical(int userID, int eventID) throws SQLException{
 
+        //create string for query
+        String fields = "event_id, user_id, check_in_time, check_out_time";
+        String query = "SELECT " + fields + " FROM event_attendence_historical WHERE event_id = ? and user_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ps.setInt(2, userID);
+        ResultSet rs = ps.executeQuery();
+
+        //check for results and return object
+        if(rs.next()){
+            return new EventAttendanceModel(rs.getInt(2), rs.getInt(1),rs.getTimestamp(3), rs.getTimestamp(4));
+        }
+
+        return null;
+    }
 
     /**
      * END EVENT METHODS

@@ -727,7 +727,7 @@ public class EventHandler {
 
             for(Object o: users){
                 UserModel u = (UserModel) o;
-                EventAttendanceModel attendanceModel = dbc.searchEventAttendance(u.getUserId(), eventID);
+                EventAttendanceModel attendanceModel = dbc.searchEventAttendanceHistorical(u.getUserId(), eventID);
                 attendance.put(u, attendanceModel);
             }
             System.out.println("the other size is : " + attendance.size());
