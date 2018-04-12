@@ -1064,10 +1064,38 @@ public void createOrganizationRetrofit(OrganizationModel org){
                     }
                 }
             }
-
             @Override
-
             public void onFailure(Call<List<OrganizationModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+    public void userRespondToJoinRequests(String oAuthCode, String orgID, boolean accept)
+    {
+        this.getInstance().getUserRespondToJoinRequest(oAuthCode, orgID, "" + accept).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("An error has occurred");
+                    return;
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == -1 ) {
+                    System.out.println("An error has occurred");
+                }
+                else if (ret == 0) {
+                    System.out.println("Successfully joined org");
+                }
+                else if (ret == 1) {
+                    System.out.println("Successfully rejected request");
+                }
+
+            }
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
                 //when failure
                 System.out.println("FAILED CALL");
             }
