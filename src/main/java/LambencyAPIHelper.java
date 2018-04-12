@@ -1044,6 +1044,36 @@ public void createOrganizationRetrofit(OrganizationModel org){
         });
     }
 
+    public void userJoinRequests(String oAuthCode)
+    {
+        this.getInstance().getUserJoinRequests(oAuthCode).enqueue(new Callback<List<OrganizationModel>>() {
+            @Override
+            public void onResponse(Call<List<OrganizationModel>> call, Response<List<OrganizationModel>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("An error has occurred");
+                    return;
+                }
+                //when response is back
+                List<OrganizationModel> ret = response.body();
+                if(ret == null ) {
+                    System.out.println("An error has occurred");
+                }
+                else{
+                    for(OrganizationModel org: ret) {
+                        System.out.println(org.getName() + " has sent a request to the user");
+                    }
+                }
+            }
+
+            @Override
+
+            public void onFailure(Call<List<OrganizationModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
         //OrganizationModel org = new OrganizationModel(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");

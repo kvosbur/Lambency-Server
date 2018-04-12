@@ -1055,6 +1055,16 @@ public class UserHandler {
                 Printing.println("UserModel not found");
                 return null;
             }
+            ArrayList<Integer> orgIDs = dbc.getRequestsToJoinOrgs(user.getUserId());
+            if(orgIDs == null){
+                Printing.println("dbc.getRequestsToJoinOrgs returned null");
+                return null;
+            }
+            ArrayList<OrganizationModel> orgs = new ArrayList<OrganizationModel>();
+            for(int i: orgIDs){
+                orgs.add(OrganizationHandler.searchOrgID(i, dbc));
+            }
+            return orgs;
         }
         catch (SQLException e){
             Printing.printlnException(e);
