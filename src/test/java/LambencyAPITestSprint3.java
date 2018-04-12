@@ -1325,7 +1325,7 @@ public class LambencyAPITestSprint3 {
 
     }
     @Test
-    public void testAddingHoursOnClockOut(){
+    public void testAddingHoursOnClockOut1Event(){
         insertData();
         DatabaseConnection dbc = this.getDatabaseInstance();
         UserModel u1;
@@ -1334,7 +1334,7 @@ public class LambencyAPITestSprint3 {
             u1 = dbc.searchForUser("facebook1", 2);
             u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
             event1 = EventHandler.searchEventID(1, dbc);
-            dbc.eventClockInOutUser(event1.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis() - 10000), EventAttendanceModel.CLOCKINCODE);
+            dbc.eventClockInOutUser(event1.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis() - 10000000), EventAttendanceModel.CLOCKINCODE);
             dbc.eventClockInOutUser(event1.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis()), EventAttendanceModel.CLOCKOUTCODE);
             Response<UserModel> response = null;
             try {
