@@ -1101,6 +1101,87 @@ public class UserHandler {
             Printing.printlnException(e);
             return -3;
         }
+
+     /**
+     * @param oAuthCode the oAuthCode of the user
+     * @param dbc database connection
+     * @return the list of orgs that have requested for the user to join
+     */
+    public static ArrayList<OrganizationModel> getRequestedToJoinOrgs(String oAuthCode, DatabaseConnection dbc){
+        try {
+            if (oAuthCode == null || dbc == null) {
+                Printing.println("null oAuthCode");
+                return null;
+            }
+            //get user for specific oauthcode
+            UserModel user = dbc.searchForUser(oAuthCode);
+            if (user == null) {
+                Printing.println("UserModel not found");
+                return null;
+            }
+            ArrayList<Integer> orgIDs = dbc.getRequestsToJoinOrgs(user.getUserId());
+            if(orgIDs == null){
+                Printing.println("dbc.getRequestsToJoinOrgs returned null");
+                return null;
+            }
+            ArrayList<OrganizationModel> orgs = new ArrayList<OrganizationModel>();
+            for(int i: orgIDs){
+                orgs.add(OrganizationHandler.searchOrgID(i, dbc));
+            }
+            return orgs;
+        }
+        catch (SQLException e){
+            Printing.printlnException(e);
+        }
+        return null;
+
     }
 
+    /**
+     *
+     * @param oAuthCode the oAuthCode of the user responding to request
+     * @param orgID id of the org that is being accepted or rejected
+     * @param accecpt true = accept request, false = reject request
+     * @param dbc database connection
+     * @return 0 on success for accepting request, 1 on success for rejecting request, -1 on error
+     */
+    public static Integer respondToRequest(String oAuthCode, int orgID, boolean accecpt, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null){
+                Printing.println("bad oAuthCode");
+                return -1;
+            }
+            UserModel user = dbc.searchForUser(oAuthCode);
+            if(user == null){
+                Printing.println("cannot find user");
+                return -1;
+            }
+            OrganizationModel org = dbc.searchForOrg(orgID);
+            if(org == null){
+                Printing.println("Organization does not exist. Try again next time" + orgID);
+                return -1;
+            }
+            GroupiesModel request = dbc.searchGroupies(user.getUserId(),orgID);
+            if(request == null){
+                Printing.println("No request for user id = " + user.getUserId());
+                return -1;
+            }
+            // all params are correct
+
+            if(accecpt){
+                dbc.approveMemberGroupie(user.getUserId(),orgID);
+                return 0;
+            }
+            else{
+                dbc.deleteGroupies(user.getUserId(),orgID,DatabaseConnection.MEMBER);
+                return 1;
+            }
+
+
+        }
+        catch (SQLException e){
+            Printing.printlnException(e);
+            return new Integer(-1);
+        }
+    }
 }
