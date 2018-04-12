@@ -685,4 +685,56 @@ public class EventHandler {
         }
         return -1;
     }
+
+    /**
+     *
+     * @param oAuthCode the oauthcode for the user
+     * @param eventID Event id of event to search for attendence for
+     * @param dbc
+     * @return 0 on success, -1 on error or bad params, -2 on invalid user permissions
+     */
+    public static Map<UserModel, EventAttendanceModel> pastEventAttandence(String oAuthCode, int eventID, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null){
+                Printing.println("invalid oAuthCode");
+                return null;
+            }
+            if(dbc.searchForUser(oAuthCode) == null){
+                Printing.println("Unable to verify user");
+                return null;
+            }
+            EventModel event = dbc.searchEvents(eventID);
+            if(event == null){
+                Printing.println("Event not found");
+                return null;
+            }
+            OrganizationModel organizationModel = OrganizationHandler.searchOrgID(event.getOrg_id(), dbc);
+            if(organizationModel == null){
+                Printing.println("Org not found");
+                return null;
+            }
+            if(!OrganizationHandler.isAdmin(oAuthCode, organizationModel.getOrgID(), dbc)){
+                Printing.println("User is not an organizer of this org");
+                return null;
+            }
+
+            //have permissions to look at past events
+            ArrayList<Object> users = dbc.searchEventAttendanceUsers(eventID, true);
+
+            Map<UserModel, EventAttendanceModel> attendance = new HashMap<>();
+
+            for(Object o: users){
+                UserModel u = (UserModel) o;
+                EventAttendanceModel attendanceModel = dbc.searchEventAttendance(u.getUserId(), eventID);
+                attendance.put(u, attendanceModel);
+            }
+
+            return attendance;
+
+        }
+        catch (SQLException e){
+            Printing.println(e.toString());
+        }
+        return null;
+    }
 }
