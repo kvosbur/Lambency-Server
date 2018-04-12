@@ -1083,14 +1083,14 @@ public class UserHandler {
      *                      -3 on SQL exceptipn
      *                      -4 on no database connect
      */
-    public static Integer getActiveStatus(String oAuthCode, int user_id, DatabaseConnection dbc){
-        if(dbc.connect == null){
+    public static Integer getActiveStatus(String oAuthCode, int user_id, DatabaseConnection dbc) {
+        if (dbc.connect == null) {
             Printing.printlnError("Database connect error");
             return -4;
         }
         try {
-            UserModel u =dbc.searchForUser(oAuthCode);
-            if(u == null){
+            UserModel u = dbc.searchForUser(oAuthCode);
+            if (u == null) {
                 Printing.println("UserModel not found");
                 return -2;
             }
@@ -1101,7 +1101,7 @@ public class UserHandler {
             Printing.printlnException(e);
             return -3;
         }
-
+    }
      /**
      * @param oAuthCode the oAuthCode of the user
      * @param dbc database connection
