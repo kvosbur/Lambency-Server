@@ -1,6 +1,5 @@
 import com.google.maps.model.LatLng;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -312,17 +311,24 @@ public class EventHandler {
                         return 3;
                     }
 
+                    EventAttendanceModel attendance = dbc.searchEventAttendance(us.getUserId(),eventAttendanceModel.getEventID());
                     //clock in user
                     if (clockType == EventAttendanceModel.CLOCKOUTCODE){
                         //get current attendance model to check if already clocked in
-                        EventAttendanceModel attendance = dbc.searchEventAttendance(us.getUserId(),eventAttendanceModel.getEventID());
+
                         if(attendance.getStartTime() != null) {
-                            dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKOUTCODE);
-                            return 0;
+                            if(attendance.getEndTime() == null) {
+                                dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKOUTCODE);
+                                return 0;
+                            }
+                            return 6;
                         }
                     }else if(clockType == EventAttendanceModel.CLOCKINCODE){
-                        dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKINCODE);
-                        return 0;
+                        if(attendance.getStartTime() == null) {
+                            dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKINCODE);
+                            return 0;
+                        }
+                        return 5;
                     }
                     return 4;
                 }else{
