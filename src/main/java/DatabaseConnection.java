@@ -2342,6 +2342,7 @@ public class DatabaseConnection {
 
 
 
+
     public ArrayList<ChatModel> getChat(int userid, boolean isOrg) throws SQLException{
 
         PreparedStatement ps;
