@@ -1,4 +1,6 @@
-public class ChatModel {
+import java.io.Serializable;
+
+public class ChatModel implements Serializable{
 
     private int chatID;
     private String name;
