@@ -944,6 +944,22 @@ public class LambencyServer{
 
         }, new JsonTransformer());
 
+        get("/Chat/relatedUsers","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/Chat/relatedUsers");
+            String oAuthCode = request.queryParams("oAuthCode");
+            if(oAuthCode == null){
+                return null;
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                Printing.printlnError("Error in database connection");
+            }
+            ArrayList<UserModel> ret = UserHandler.getRelatedUsers(oAuthCode,databaseConnection);
+            databaseConnection.close();
+            return ret;
+
+        }, new JsonTransformer());
+
     }
 
     public static void main(String[]args){
