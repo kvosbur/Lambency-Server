@@ -1128,11 +1128,6 @@ public class UserHandler {
         }
     }
 
-        } catch (SQLException e) {
-            Printing.printlnException(e);
-            return -3;
-        }
-    }
      /**
      * @param oAuthCode the oAuthCode of the user
      * @param dbc database connection

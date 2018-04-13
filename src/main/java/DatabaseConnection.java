@@ -2217,7 +2217,7 @@ public class DatabaseConnection {
 
         //insert event into table
         PreparedStatement ps;
-        ps = connect.prepareStatement("INSERT INTO chat (user1_id,user2_id, groupchat) VALUES ('TEMP',?,?)");
+        ps = connect.prepareStatement("INSERT INTO chat (user1_id,user2_id, groupchat) VALUES (-1,?,?)");
 
 
         if(ps != null) {
@@ -2232,7 +2232,7 @@ public class DatabaseConnection {
 
         //get event id from sql table
         Statement st = connect.createStatement();
-        ResultSet rs = st.executeQuery("SELECT chat_id FROM chat WHERE user1_id = 'TEMP'");
+        ResultSet rs = st.executeQuery("SELECT chat_id FROM chat WHERE user1_id = -1");
         rs.next();
         int chat_id = rs.getInt(1);
 
