@@ -2369,10 +2369,10 @@ public class DatabaseConnection {
             String user1_name = rs.getString(5);
             String user2_name = rs.getString(6);
             if(user1_id == userid){
-                chats.add(new ChatModel(chat_id,user2_name));
+                chats.add(new ChatModel(chat_id,user2_name, 0, ""));
             }
             else{
-                chats.add(new ChatModel(chat_id,user1_name));
+                chats.add(new ChatModel(chat_id,user1_name,0,""));
             }
         }
         return chats;
