@@ -290,7 +290,6 @@ public class UserHandler {
             //search for organization by ID
             if(userID == null){
                 user =  dbc.searchForUser(oAuthCode);
-                Printing.println("the oauth : " + oAuthCode);
                 if(user != null) {
                     user = UserHandler.updateOrgLists(user, dbc);
                 }else{
@@ -1124,7 +1123,7 @@ public class UserHandler {
             String one = u1.getFirstName()+" "+u1.getLastName();
             String two = u2.getFirstName()+" "+u2.getLastName();
 
-            return new ChatModel(dbc.createChat(u1.getUserId(),user2_id,one,two,groupchat),two);
+            return new ChatModel(dbc.createChat(u1.getUserId(),user2_id,one,two,groupchat),two,0,"");
 
         } catch (SQLException e) {
             Printing.printlnException(e);

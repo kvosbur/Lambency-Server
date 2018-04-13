@@ -154,7 +154,6 @@ public class DatabaseConnection {
                     null, null,null,rs.getInt(1), rs.getDouble(6), rs.getString(5),rs.getInt(7),rs.getBoolean(8));
 
         }
-        Printing.println("couldn't find the user");
         return null;
     }
 
@@ -2347,6 +2346,7 @@ public class DatabaseConnection {
     public ArrayList<ChatModel> getChat(int userid, boolean isOrg) throws SQLException{
 
         PreparedStatement ps;
+        String fields = "(chat_id, user1_id";
         ps = connect.prepareStatement("SELECT * FROM chat where user1_id = ? or user2_id = ?");
         if(ps != null) {
             ps.setInt(1, userid);
