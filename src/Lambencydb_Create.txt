@@ -16,6 +16,10 @@ CREATE TABLE `user` (
 	`facebook_id` TEXT,
 	`google_id` TEXT,
 	`oauth_token` TEXT,
+	`firebase_token` TEXT,
+	`hours` DOUBLE,
+	`notify_pref` int,
+	`active` int,
 	PRIMARY KEY (`user_id`)
 );
 
@@ -28,6 +32,9 @@ CREATE TABLE `organization` (
 	`date_created` DATETIME NOT NULL,
 	`org_img` TEXT,
 	`org_location` TEXT,
+	`longitude` DOUBLE,
+	`latitude` DOUBLE,
+	`deleted` int,
 	PRIMARY KEY (`org_id`)
 );
 
@@ -50,7 +57,8 @@ CREATE TABLE `events` (
   	`latitude` DOUBLE,
   	`longitude` DOUBLE,
   	`clock_out_code` text NOT NULL,
-  	`clock_in_code` text NOT NULL
+  	`clock_in_code` text NOT NULL,
+  	`private` int,
   	PRIMARY KEY (`event_id`)
   );
 
@@ -74,7 +82,8 @@ CREATE TABLE `events` (
   	`longitude` DOUBLE,
   	`clock_out_code` text NOT NULL,
   	`clock_in_code` text NOT NULL,
-  	`attended` int NOT NULL
+  	`attended` int NOT NULL,
+  	`private` int
   );
 
   CREATE TABLE `event_attendence_historical` (
@@ -103,5 +112,19 @@ CREATE TABLE `chat` (
 	`chat_id` int NOT NULL AUTO_INCREMENT,
 	`user1_id` int NOT NULL,
 	`user2_id` int NOT NULL,
+	`groupchat` int,
+	`one_name` varchar(100),
+	`two_name` varchar(100),
 	PRIMARY KEY (`chat_id`)
+);
+
+CREATE TABLE `endorse_historical` (
+	`org_id` int NOT NULL,
+	`endorsed_id` int NOT NULL,
+	`endorse_type` bit NOT NULL
+);
+
+CREATE TABLE `verify` (
+    `user_id` int,
+    `verification_code` varchar(100)
 );

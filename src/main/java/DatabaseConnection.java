@@ -154,6 +154,7 @@ public class DatabaseConnection {
                     null, null,null,rs.getInt(1), rs.getDouble(6), rs.getString(5),rs.getInt(7),rs.getBoolean(8));
 
         }
+        Printing.println("couldn't find the user");
         return null;
     }
 
