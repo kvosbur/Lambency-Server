@@ -856,7 +856,7 @@ public class UserHandler {
             List<UserModel> leaderboard = new ArrayList<UserModel>();
             for(int i : userIDs){
                 UserModel userModel = dbc.searchForUser("" + i, DatabaseConnection.LAMBNECYUSERID);
-                if(userModel.getHoursWorked() == 0){
+                if(userModel.getHoursWorked() < 0.05){
                     break;
                 }
                 userModel.setOauthToken("" + rank);
@@ -1121,6 +1121,7 @@ public class UserHandler {
             }
 
             return dbc.createChat(u.getUserId(),user2_id,groupchat);
+
 
         } catch (SQLException e) {
             Printing.printlnException(e);

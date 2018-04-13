@@ -12,7 +12,7 @@ public class UserModel {
     private List<Integer> joinedOrgs;
     private List<Integer> requestedJoinOrgIds; // orgIDs for all join requests that are still unconfirmed
     private int userId;
-    private int hoursWorked;
+    private double hoursWorked;
     private String oauthToken;
     private int notification_preference;
     private boolean isActive;
@@ -30,7 +30,7 @@ public class UserModel {
 
 
     public UserModel(String firstName, String lastName, String email, List<Integer> myOrgs, List<Integer> eventsAttending,
-                     List<Integer> followingOrgs, List<Integer> joinedOrgs, List<Integer> orgJoinRequests, int userId, int hoursWorked, String oauthToken, int notification_preference, boolean isActive) {
+                     List<Integer> followingOrgs, List<Integer> joinedOrgs, List<Integer> orgJoinRequests, int userId, double hoursWorked, String oauthToken, int notification_preference, boolean isActive) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -83,7 +83,7 @@ public class UserModel {
         this.userId = userId;
     }
 
-    public void setHoursWorked(int hoursWorked) {
+    public void setHoursWorked(double hoursWorked) {
         this.hoursWorked = hoursWorked;
     }
 
@@ -120,7 +120,7 @@ public class UserModel {
         return userId;
     }
 
-    public int getHoursWorked() {
+    public double getHoursWorked() {
         return hoursWorked;
     }
 
