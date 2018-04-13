@@ -1112,22 +1112,51 @@ public class UserHandler {
      * @param dbc
      * @return
      */
-    public static Integer createNewChat(String oAuthCode, int user2_id, boolean groupchat, DatabaseConnection dbc){
+    public static ChatModel createNewChat(String oAuthCode, int user2_id, boolean groupchat, DatabaseConnection dbc){
         try {
-            UserModel u = dbc.searchForUser(oAuthCode);
-            if (u == null) {
+            UserModel u1 = dbc.searchForUser(oAuthCode);
+            UserModel u2 = dbc.searchForUser(""+user2_id,DatabaseConnection.LAMBNECYUSERID);
+            if (u1 == null || u2 == null) {
                 Printing.printlnError("UserModel not found");
-                return 1;
+                return null;
             }
+            String one = u1.getFirstName()+" "+u1.getLastName();
+            String two = u2.getFirstName()+" "+u2.getLastName();
 
-            return dbc.createChat(u.getUserId(),user2_id,groupchat);
-
+            return new ChatModel(dbc.createChat(u1.getUserId(),user2_id,one,two,groupchat),two);
 
         } catch (SQLException e) {
             Printing.printlnException(e);
-            return -3;
+            return null;
         }
     }
+
+    /**
+     * Retrives all the chat models for one user
+     *
+     * @param oAuthCode     oAuthCode of the user
+     * @param dbc
+     * @return              Array list of ChatModels
+     */
+    public static ArrayList<ChatModel> getAllTheMotherFuckingChatModels(String oAuthCode, DatabaseConnection dbc){
+        try {
+            UserModel u1 = dbc.searchForUser(oAuthCode);
+            if (u1 == null) {
+                Printing.printlnError("UserModel not found");
+                return null;
+            }
+
+            return dbc.getChat(u1.getUserId(),false);
+
+        } catch (SQLException e) {
+            Printing.printlnException(e);
+            return null;
+        }
+    }
+
+
+
+
      /**
      * @param oAuthCode the oAuthCode of the user
      * @param dbc database connection
