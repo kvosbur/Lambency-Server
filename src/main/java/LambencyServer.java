@@ -945,8 +945,8 @@ public class LambencyServer{
 
         }, new JsonTransformer());
 
-        get("/Chat/getAllTheMotherFuckingChats","application/json",(request, response) -> {
-            Printing.printlnEndpoint("/Chat/getAllTheMotherFuckingChats");
+        get("/Chat/getAllChats","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/Chat/getAllChats");
             String oAuthCode = request.queryParams("oAuthCode");
             if(oAuthCode == null){
                 return null;
@@ -956,7 +956,7 @@ public class LambencyServer{
                 Printing.printlnError("Errer on datase connecnt");
                 return null;
             }
-            ArrayList<ChatModel> chatModel = UserHandler.getAllTheMotherFuckingChatModels(oAuthCode,databaseConnection);
+            ArrayList<ChatModel> chatModel = UserHandler.getAllChatModels(oAuthCode,databaseConnection);
             databaseConnection.close();
             return chatModel;
 
