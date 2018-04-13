@@ -1138,7 +1138,7 @@ public class UserHandler {
      * @param dbc
      * @return              Array list of ChatModels
      */
-    public static ArrayList<ChatModel> getAllTheMotherFuckingChatModels(String oAuthCode, DatabaseConnection dbc){
+    public static ArrayList<ChatModel> getAllChatModels(String oAuthCode, DatabaseConnection dbc){
         try {
             UserModel u1 = dbc.searchForUser(oAuthCode);
             if (u1 == null) {
