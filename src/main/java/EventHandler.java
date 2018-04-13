@@ -693,7 +693,7 @@ public class EventHandler {
      * @param dbc
      * @return 0 on success, -1 on error or bad params, -2 on invalid user permissions
      */
-    public static Map<UserModel, EventAttendanceModel> pastEventAttandence(String oAuthCode, int eventID, DatabaseConnection dbc){
+    public static ArrayList<EventAttendanceModel> pastEventAttandence(String oAuthCode, int eventID, DatabaseConnection dbc){
         try{
             if(oAuthCode == null){
                 Printing.println("invalid oAuthCode");
@@ -703,7 +703,7 @@ public class EventHandler {
                 Printing.println("Unable to verify user");
                 return null;
             }
-            EventModel event = dbc.searchEvents(eventID);
+            EventModel event = dbc.searchHistoricalEvents(eventID);
             if(event == null){
                 Printing.println("Event not found");
                 return null;
@@ -719,15 +719,20 @@ public class EventHandler {
             }
 
             //have permissions to look at past events
-            ArrayList<Object> users = dbc.searchEventAttendanceUsers(eventID, true);
+            Printing.println("the event to search against is: " + eventID);
+            ArrayList<Object> users = dbc.searchEventAttendanceHistoricalUsers(eventID, true);
+            Printing.println("the size is: " + users.size());
 
-            Map<UserModel, EventAttendanceModel> attendance = new HashMap<>();
+            ArrayList<EventAttendanceModel> attendance = new ArrayList<>();
 
             for(Object o: users){
                 UserModel u = (UserModel) o;
-                EventAttendanceModel attendanceModel = dbc.searchEventAttendance(u.getUserId(), eventID);
-                attendance.put(u, attendanceModel);
+                EventAttendanceModel attendanceModel = dbc.searchEventAttendanceHistorical(u.getUserId(), eventID);
+                attendanceModel.setUserModel(u);
+                attendance.add(attendanceModel);
+
             }
+            System.out.println("the other size is : " + attendance.size());
 
             return attendance;
 

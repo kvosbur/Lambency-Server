@@ -2,6 +2,7 @@
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class UserHandler {
@@ -841,7 +842,7 @@ public class UserHandler {
      * @return returns a list of users with ranks on the leaderboard between the start and end, null on error
      */
     public static List<UserModel> leaderboardRange(int start, int end, DatabaseConnection dbc){
-        if(start < 0 || end < 0 || start > end){
+        if(start <= 0 || end < 0 || start > end){
             return null;
 
         }
@@ -1207,6 +1208,80 @@ public class UserHandler {
         catch (SQLException e){
             Printing.printlnException(e);
             return new Integer(-1);
+        }
+    }
+
+    /**
+     * Given the oauthcode for a user return a list of all users that are connected to that user.
+     * @param oAuthCode the oAuthCode of the user responding to request
+     * @param dbc database connection
+     * @return Arraylist of usermodels
+     */
+    public static ArrayList<UserModel> getRelatedUsers(String oAuthCode, DatabaseConnection dbc){
+        ArrayList<UserModel> ret = new ArrayList<>();
+        try{
+            if(oAuthCode == null){
+                Printing.println("bad oAuthCode");
+                return ret;
+            }
+            UserModel user = dbc.searchForUser(oAuthCode);
+            if(user == null){
+                Printing.println("cannot find user");
+                return ret;
+            }
+
+            //database method for finding orgs that this user is either a member of or an organizer for
+            ArrayList<Integer> myOrgs = dbc.getUserList(user.getUserId(),DatabaseConnection.ORGANIZER, true);
+            ArrayList<Integer> memberOrgs = dbc.getUserList(user.getUserId(),DatabaseConnection.MEMBER, true);
+
+            myOrgs.addAll(memberOrgs);
+
+            //get all users associated with those orgs and compile a list that does not have duplicates
+            for(Integer orgID: myOrgs){
+                ArrayList<Integer>[] members = dbc.getMembersAndOrganizers(orgID);
+                //iterate through all organizers of organization
+                for(Integer userID: members[0]){
+                    UserModel u = dbc.searchForUser("" + userID, DatabaseConnection.LAMBNECYUSERID);
+                    if(u != null){
+                        ret.add(u);
+                    }
+                }
+
+                //iterate through all members of organization
+                for(Integer userID: members[1]){
+                    UserModel u = dbc.searchForUser("" + userID, DatabaseConnection.LAMBNECYUSERID);
+                    if(u != null){
+                        ret.add(u);
+                    }
+                }
+
+            }
+
+            //alphabetically sort all of the users (lastname then firstname)
+            ret.sort(new Comparator<UserModel>() {
+                @Override
+                public int compare(UserModel o1, UserModel o2) {
+                    if(o1.getLastName().compareTo(o2.getLastName()) == 0){
+                        return o1.getFirstName().compareTo(o2.getFirstName());
+                    }
+                    return o1.getLastName().compareTo(o2.getLastName());
+                }
+            });
+
+            //remove any duplicates that may be present
+            for(int i = 1; i < ret.size() - 1; i++){
+                UserModel prev = ret.get(i-1);
+                UserModel next = ret.get(i);
+                if(prev.getUserId() == next.getUserId()){
+                    ret.remove(i);
+                }
+            }
+
+            return ret;
+        }
+        catch (Exception e){
+            Printing.printlnException(e);
+            return ret;
         }
     }
 }

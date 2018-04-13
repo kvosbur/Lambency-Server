@@ -650,7 +650,7 @@ public class LambencyServer{
             if(databaseConnection.connect == null){
                 return null;
             }
-            Map<UserModel, EventAttendanceModel> ret = EventHandler.pastEventAttandence(oAuthCode, Integer.parseInt(eventID), databaseConnection);
+            ArrayList<EventAttendanceModel> ret = EventHandler.pastEventAttandence(oAuthCode, Integer.parseInt(eventID), databaseConnection);
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());
@@ -941,6 +941,22 @@ public class LambencyServer{
             Integer id = UserHandler.createNewChat(oAuthCode,Integer.parseInt(user2_id), Boolean.parseBoolean(groupChat),databaseConnection);
             databaseConnection.close();
             return id;
+
+        }, new JsonTransformer());
+
+        get("/Chat/relatedUsers","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/Chat/relatedUsers");
+            String oAuthCode = request.queryParams("oAuthCode");
+            if(oAuthCode == null){
+                return null;
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                Printing.printlnError("Error in database connection");
+            }
+            ArrayList<UserModel> ret = UserHandler.getRelatedUsers(oAuthCode,databaseConnection);
+            databaseConnection.close();
+            return ret;
 
         }, new JsonTransformer());
 
