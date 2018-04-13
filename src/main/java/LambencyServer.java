@@ -105,7 +105,7 @@ public class LambencyServer{
         }, new JsonTransformer());
         get("/User/search", "application/json", (request, response) -> {
             Printing.printlnEndpoint("/User/search");
-            String oAuthCode = request.queryParams("oAuthToken");
+            String oAuthCode = request.queryParams("oAuthCode");
             String id = request.queryParams("id");
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
@@ -650,7 +650,7 @@ public class LambencyServer{
             if(databaseConnection.connect == null){
                 return null;
             }
-            Map<UserModel, EventAttendanceModel> ret = EventHandler.pastEventAttandence(oAuthCode, Integer.parseInt(eventID), databaseConnection);
+            ArrayList<EventAttendanceModel> ret = EventHandler.pastEventAttandence(oAuthCode, Integer.parseInt(eventID), databaseConnection);
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());
@@ -959,6 +959,22 @@ public class LambencyServer{
             ArrayList<ChatModel> chatModel = UserHandler.getAllTheMotherFuckingChatModels(oAuthCode,databaseConnection);
             databaseConnection.close();
             return chatModel;
+
+        }, new JsonTransformer());
+
+        get("/Chat/relatedUsers","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/Chat/relatedUsers");
+            String oAuthCode = request.queryParams("oAuthCode");
+            if(oAuthCode == null){
+                return null;
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                Printing.printlnError("Error in database connection");
+            }
+            ArrayList<UserModel> ret = UserHandler.getRelatedUsers(oAuthCode,databaseConnection);
+            databaseConnection.close();
+            return ret;
 
         }, new JsonTransformer());
 

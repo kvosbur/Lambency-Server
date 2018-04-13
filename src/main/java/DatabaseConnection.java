@@ -112,7 +112,7 @@ public class DatabaseConnection {
         if(rs.next()){
             return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
 
-                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5), rs.getInt(7),rs.getBoolean(8));
+                    null, null,null,rs.getInt(1), rs.getDouble(6), rs.getString(5), rs.getInt(7),rs.getBoolean(8));
 
         }
 
@@ -151,7 +151,7 @@ public class DatabaseConnection {
             rs.getString(5);
             return new UserModel(rs.getString(2), rs.getString(3), rs.getString(4), null, null,
 
-                    null, null,null,rs.getInt(1), rs.getInt(6), rs.getString(5),rs.getInt(7),rs.getBoolean(8));
+                    null, null,null,rs.getInt(1), rs.getDouble(6), rs.getString(5),rs.getInt(7),rs.getBoolean(8));
 
         }
         return null;
@@ -722,15 +722,15 @@ public class DatabaseConnection {
         ps.setInt(1,userID);
         ResultSet rs = ps.executeQuery();
         rs.next();
-        int ret = rs.getInt(1);// ret = number of hours for user
+        double ret = rs.getDouble(1);// ret = number of hours for user
         query = "SELECT COUNT(*) FROM user WHERE hours > ?";
         ps = connect.prepareStatement(query);
-        ps.setInt(1,ret);
+        ps.setDouble(1,ret);
         rs = ps.executeQuery();
         rs.next();
-        ret = rs.getInt(1);// ret = number of users with more hours than userID
-        ret++; // rank of user
-        return ret;
+        int rank = rs.getInt(1);// ret = number of users with more hours than userID
+        rank++; // rank of user
+        return rank;
     }
 
     /**
@@ -740,16 +740,42 @@ public class DatabaseConnection {
      * @return 0 on success
      * @throws SQLException
      */
-    public int addHours(int userID, int hours) throws SQLException{
+    public int addHours(int userID, double hours) throws SQLException{
         if(userID <= 0 || hours < 0){
             return -1;
         }
         String query = "UPDATE user SET hours = hours + ? WHERE user_id = ?";
         PreparedStatement ps = connect.prepareStatement(query);
-        ps.setInt(1,hours);
+        ps.setDouble(1,hours);
         ps.setInt(2,userID);
         ps.executeUpdate();
         return 0;
+    }
+
+    /**
+     *
+     * @param userID the id of the user for hours to be added to
+     * @param eventID event from which hours will be added
+     * @return 0 on success, -1 on error
+     * @throws SQLException
+     */
+    public int addHoursWorkedForEvent(int userID, int eventID) throws SQLException{
+        if(userID <= 0 || eventID <= 0){
+            return -1;
+        }
+        EventAttendanceModel eventAttendanceModel = searchEventAttendance(userID, eventID);
+        if(eventAttendanceModel == null){
+            return -1;
+        }
+        Timestamp start = eventAttendanceModel.getStartTime();
+        Timestamp end = eventAttendanceModel.getEndTime();
+        // get time difference in seconds
+        long milliseconds = end.getTime() - start.getTime();
+        int seconds = (int) milliseconds / 1000;
+        // calculate hours minutes and seconds
+        double hours = seconds / 3600.0;
+        return addHours(userID, hours);
+
     }
 
     /**
@@ -1272,6 +1298,9 @@ public class DatabaseConnection {
         ps.setInt(2, eventID);
         ps.setInt(3, userID);
         int result = ps.executeUpdate();
+        if(type == EventAttendanceModel.CLOCKOUTCODE){
+            addHoursWorkedForEvent(userID, eventID);
+        }
         if(result == 1){
             return 0;
         }
@@ -1490,7 +1519,71 @@ public class DatabaseConnection {
         return null;
     }
 
+    /**
+     * Searches for all users who are attending the specified event
+     * @param eventID the id of the event to search for
+     * @param object whether to return UserModels or Integers
+     * @return Arraylist of UserModel objects, null if no users found
+     */
+    public ArrayList<Object> searchEventAttendanceHistoricalUsers(int eventID, boolean object) throws SQLException{
 
+        //create string for query
+        String fields = "user_id";
+        String query = "SELECT " + fields + " FROM event_attendence_historical WHERE event_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<Object> users = new ArrayList<>();
+
+        //check for results and return object
+        while(rs.next()){
+            int userID = rs.getInt(1);
+            if(object){
+                UserModel user = searchForUser("" + userID, LAMBNECYUSERID);
+                if(user != null){
+                    users.add(user);
+                }
+            }else{
+                users.add(userID);
+            }
+
+        }
+
+        if(users.size() == 0){
+            return null;
+        }
+
+        return users;
+    }
+
+    /**
+     * Returns the EventAttendanceModel object associated with the given userID and eventID
+     * @param userID the id of the user to search for
+     * @param eventID the id of the event to search for
+     * @return EventAttendanceModel object for the corresponding userID and eventId, null if non-existent
+     */
+    public EventAttendanceModel searchEventAttendanceHistorical(int userID, int eventID) throws SQLException{
+
+        //create string for query
+        String fields = "event_id, user_id, check_in_time, check_out_time";
+        String query = "SELECT " + fields + " FROM event_attendence_historical WHERE event_id = ? and user_id = ?";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, eventID);
+        ps.setInt(2, userID);
+        ResultSet rs = ps.executeQuery();
+
+        //check for results and return object
+        if(rs.next()){
+            return new EventAttendanceModel(rs.getInt(2), rs.getInt(1),rs.getTimestamp(3), rs.getTimestamp(4));
+        }
+
+        return null;
+    }
 
     /**
      * END EVENT METHODS
