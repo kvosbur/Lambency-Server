@@ -56,6 +56,11 @@ public class FirebaseHelper {
         System.out.println("Successfully sent join request message: " + response);
     }
 
+    public static void sendCloudChatMessage(String registrationToken, ) {
+        Message message = Message.builder()
+                .putData("type", "chatMessage")
+    }
+
     public static void userSendOrgJoinRequest(UserModel u, OrganizationModel o, ArrayList<Integer> ids, DatabaseConnection dbc){
 
         try {
