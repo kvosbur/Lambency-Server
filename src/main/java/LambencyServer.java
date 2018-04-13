@@ -937,10 +937,28 @@ public class LambencyServer{
             DatabaseConnection databaseConnection = new DatabaseConnection();
             if(databaseConnection.connect == null){
                 Printing.printlnError("Errer on datase connecnt");
+                return null;
             }
-            Integer id = UserHandler.createNewChat(oAuthCode,Integer.parseInt(user2_id), Boolean.parseBoolean(groupChat),databaseConnection);
+            ChatModel chatModel = UserHandler.createNewChat(oAuthCode,Integer.parseInt(user2_id), Boolean.parseBoolean(groupChat),databaseConnection);
             databaseConnection.close();
-            return id;
+            return chatModel;
+
+        }, new JsonTransformer());
+
+        get("/Chat/getAllTheMotherFuckingChats","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/Chat/getAllTheMotherFuckingChats");
+            String oAuthCode = request.queryParams("oAuthCode");
+            if(oAuthCode == null){
+                return null;
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                Printing.printlnError("Errer on datase connecnt");
+                return null;
+            }
+            ArrayList<ChatModel> chatModel = UserHandler.getAllTheMotherFuckingChatModels(oAuthCode,databaseConnection);
+            databaseConnection.close();
+            return chatModel;
 
         }, new JsonTransformer());
 

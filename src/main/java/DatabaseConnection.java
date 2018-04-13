@@ -2306,17 +2306,19 @@ public class DatabaseConnection {
      * @return              return chat ID
      * @throws SQLException
      */
-    public int createChat(int userID1, int userID2, boolean groupchat) throws SQLException{
+    public int createChat(int userID1, int userID2, String user1_name, String user2_name, boolean groupchat) throws SQLException{
 
         //insert event into table
         PreparedStatement ps;
-        ps = connect.prepareStatement("INSERT INTO chat (user1_id,user2_id, groupchat) VALUES ('TEMP',?,?)");
+        ps = connect.prepareStatement("INSERT INTO chat (user1_id,user2_id, groupchat, one_name, two_name) VALUES (-1,?,?,?,?)");
 
 
         if(ps != null) {
             //insert values into prepare statement
             ps.setInt(1, userID2);
             ps.setBoolean(2,groupchat);
+            ps.setString(3,user1_name);
+            ps.setString(4,user2_name);
             ps.execute();
 
         }else{
@@ -2325,7 +2327,7 @@ public class DatabaseConnection {
 
         //get event id from sql table
         Statement st = connect.createStatement();
-        ResultSet rs = st.executeQuery("SELECT chat_id FROM chat WHERE user1_id = 'TEMP'");
+        ResultSet rs = st.executeQuery("SELECT chat_id FROM chat WHERE user1_id = -1");
         rs.next();
         int chat_id = rs.getInt(1);
 
@@ -2337,6 +2339,44 @@ public class DatabaseConnection {
 
         return chat_id;
     }
+
+
+
+
+    public ArrayList<ChatModel> getChat(int userid, boolean isOrg) throws SQLException{
+
+        PreparedStatement ps;
+        ps = connect.prepareStatement("SELECT * FROM chat where user1_id = ? or user2_id = ?");
+        if(ps != null) {
+            ps.setInt(1, userid);
+            ps.setInt(2, userid);
+            ps.execute();
+        }
+        else{
+            throw new SQLException("Error in SQL database");
+        }
+
+        ArrayList<ChatModel> chats = new ArrayList<>();
+        ResultSet rs = ps.executeQuery();
+
+        //check for results and if any then return user
+        if(rs.next()){
+            int chat_id = rs.getInt(1);
+            int user1_id = rs.getInt(2);
+            int user2_id = rs.getInt(3);
+            boolean hasOrg = rs.getBoolean(4);
+            String user1_name = rs.getString(5);
+            String user2_name = rs.getString(6);
+            if(user1_id == userid){
+                chats.add(new ChatModel(chat_id,user2_name));
+            }
+            else{
+                chats.add(new ChatModel(chat_id,user1_name));
+            }
+        }
+        return chats;
+    }
+
 
     /**
      * END CHAT METHODS
