@@ -290,6 +290,7 @@ public class UserHandler {
             //search for organization by ID
             if(userID == null){
                 user =  dbc.searchForUser(oAuthCode);
+                Printing.println("the oauth : " + oAuthCode);
                 if(user != null) {
                     user = UserHandler.updateOrgLists(user, dbc);
                 }else{
