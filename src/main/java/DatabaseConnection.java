@@ -2386,17 +2386,15 @@ public class DatabaseConnection {
         if(ps != null) {
             ps.setInt(1, userid1);
             ps.setInt(2, userid2);
-            ps.execute();
         }
         else{
             throw new SQLException("Error in SQL database");
         }
 
-        ArrayList<ChatModel> chats = new ArrayList<>();
         ResultSet rs = ps.executeQuery();
 
         //check for results and if any then return user
-        while(rs.next()){
+        if(rs.next()){
             return true;
         }
         return false;
@@ -2409,7 +2407,6 @@ public class DatabaseConnection {
         ps = connect.prepareStatement("SELECT " + fields + " FROM chat where chat_id = ?");
         if(ps != null) {
             ps.setInt(1, chatID);
-            ps.execute();
         }
         else{
             throw new SQLException("Error in SQL database");
@@ -2445,7 +2442,6 @@ public class DatabaseConnection {
             ps.setString(1, recent_msg_txt);
             ps.setInt(2, recent_msg_id);
             ps.setInt(3, chatID);
-            ps.execute();
         }
         else{
             throw new SQLException("Error in SQL database");
