@@ -2351,7 +2351,6 @@ public class DatabaseConnection {
         if(ps != null) {
             ps.setInt(1, userid);
             ps.setInt(2, userid);
-            ps.execute();
         }
         else{
             throw new SQLException("Error in SQL database");
@@ -2435,6 +2434,29 @@ public class DatabaseConnection {
             }
         }
         return null;
+    }
+
+    public int updateChat(int chatID, int recent_msg_id, String recent_msg_txt) throws SQLException{
+
+        PreparedStatement ps;
+        String fields = "chat_id, user1_id, user2_id, one_name, two_name, recent_msg_text, recent_msg_id";
+        ps = connect.prepareStatement("UPDATE chat set recent_msg_text = ? and recent_msg_id = ? where chat_id = ?");
+        if(ps != null) {
+            ps.setString(1, recent_msg_txt);
+            ps.setInt(2, recent_msg_id);
+            ps.setInt(3, chatID);
+            ps.execute();
+        }
+        else{
+            throw new SQLException("Error in SQL database");
+        }
+
+        int rs = ps.executeUpdate();
+
+        if(rs == 1){
+            return 0;
+        }
+        return 1;
     }
 
     /**

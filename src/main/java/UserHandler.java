@@ -1353,10 +1353,16 @@ public class UserHandler {
                 return -1;
             }
 
+            //update chat model
+            int msg_id = chatModel.getRecent_msg_id() + 1;
+            int ret = dbc.updateChat(chatModel.getChatID(), msg_id, messageModel.messageText);
+            if(ret == 1){
+                return -2;
+            }
+
             //send message into the firebase database
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference myRef = database.getReference("chats/" + chatModel.getChatID());
-            int msg_id = chatModel.getRecent_msg_id() + 1;
             myRef.child("" + msg_id).setValueAsync(messageModel);
 
             //send notification to other user about message

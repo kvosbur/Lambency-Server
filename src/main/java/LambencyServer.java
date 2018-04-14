@@ -979,7 +979,7 @@ public class LambencyServer{
         }, new JsonTransformer());
 
         post("/Chat/sendMessage","application/json",(request, response) -> {
-            Printing.printlnEndpoint("/Organization/searchWithFilter");
+            Printing.printlnEndpoint("/Chat/sendMessage");
             MessageModel messageModel = new Gson().fromJson(request.body(), MessageModel.class);
             String oAuthCode = request.queryParams("oAuthCode");
             String chatID = request.queryParams("chatID");
