@@ -1,6 +1,8 @@
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 
@@ -15,7 +17,7 @@ public class FirebaseHelper {
         //Initialize firebase stuff
         try {
             FileInputStream serviceAccount =
-                    new FileInputStream("lambency-f7029-firebase-adminsdk-ptyok-dfb184df75.json");
+                    new FileInputStream("src/lambency-f7029-firebase-adminsdk-ptyok-dfb184df75.json");
 
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
@@ -93,11 +95,19 @@ public class FirebaseHelper {
     }
 
     public static void main (String [] args){
+        System.out.println(System.getProperty("user.dir"));
         initializeFirebase();
 
         // This registration token comes from the client FCM SDKs.
-        String registrationToken = "fSKEStmhAzs:APA91bES98kK8nPMSaXDu25RM4C3PKxALl3yjK95b0L78zu4A4CrTRgm8ETWULqgWVFor2kzJzdb1xeud_cHJbR_sDPrtN8QguQqC_NGT3pvm-rg7wQTUcTNMbSAtjihQnWgRvnHEtY8";
+        //String registrationToken = "fSKEStmhAzs:APA91bES98kK8nPMSaXDu25RM4C3PKxALl3yjK95b0L78zu4A4CrTRgm8ETWULqgWVFor2kzJzdb1xeud_cHJbR_sDPrtN8QguQqC_NGT3pvm-rg7wQTUcTNMbSAtjihQnWgRvnHEtY8";
 
-        sendCloudJoinRequest(registrationToken, "lshank", "uid", "the best org", "5");
+        MessageModel messageModel = new MessageModel("here is my text", "Kevin", "04/14/2018");
+        Firestore db = FirestoreClient.getFirestore();
+        db.collection("chats").document("0")
+                .collection("messages")
+                .document("0")
+                .set(messageModel);
+
+        //sendCloudJoinRequest(registrationToken, "lshank", "uid", "the best org", "5");
     }
 }
