@@ -121,5 +121,6 @@
     <orderEntry type="library" name="Maven: io.grpc:grpc-stub:1.10.1" level="project" />
     <orderEntry type="library" name="Maven: io.grpc:grpc-auth:1.10.1" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-tcnative:2.0.8.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-tcnative-boringssl-static:2.0.8.Final" level="project" />
   </component>
 </module>
