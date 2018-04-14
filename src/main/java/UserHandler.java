@@ -1125,7 +1125,7 @@ public class UserHandler {
             String one = u1.getFirstName()+" "+u1.getLastName();
             String two = u2.getFirstName()+" "+u2.getLastName();
 
-            ChatModel c = new ChatModel(dbc.createChat(u1.getUserId(),user2_id,one,two,groupchat),two,0,"");
+            ChatModel c = new ChatModel(dbc.createChat(u1.getUserId(),user2_id,one,two,groupchat),two,0,"",u2.getUserId());
             FirebaseDatabase.getInstance().getReference().child("chats").setValueAsync(c.getChatID());
 
             return c;
