@@ -1,4 +1,6 @@
 
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -1120,10 +1122,18 @@ public class UserHandler {
                 Printing.printlnError("UserModel not found");
                 return null;
             }
+            if(dbc.chatExists(u1.getUserId(), u2.getUserId())){
+                Printing.printlnError("Chat already exists");
+                return null;
+            }
+
             String one = u1.getFirstName()+" "+u1.getLastName();
             String two = u2.getFirstName()+" "+u2.getLastName();
 
-            return new ChatModel(dbc.createChat(u1.getUserId(),user2_id,one,two,groupchat),two,0,"");
+            ChatModel c = new ChatModel(dbc.createChat(u1.getUserId(),user2_id,one,two,groupchat),two,0,"",u2.getUserId());
+            FirebaseDatabase.getInstance().getReference().child("chats").child("" + c.getChatID()).setValueAsync("EMPTY");
+
+            return c;
 
         } catch (SQLException e) {
             Printing.printlnException(e);
@@ -1272,7 +1282,9 @@ public class UserHandler {
                 for(Integer userID: members[0]){
                     UserModel u = dbc.searchForUser("" + userID, DatabaseConnection.LAMBNECYUSERID);
                     if(u != null){
-                        ret.add(u);
+                        if(u.getUserId() != user.getUserId()) {
+                            ret.add(u);
+                        }
                     }
                 }
 
@@ -1280,7 +1292,9 @@ public class UserHandler {
                 for(Integer userID: members[1]){
                     UserModel u = dbc.searchForUser("" + userID, DatabaseConnection.LAMBNECYUSERID);
                     if(u != null){
-                        ret.add(u);
+                        if(u.getUserId() != user.getUserId()) {
+                            ret.add(u);
+                        }
                     }
                 }
 
@@ -1305,6 +1319,7 @@ public class UserHandler {
                     ret.remove(i);
                 }
             }
+
 
             return ret;
         }
