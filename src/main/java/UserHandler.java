@@ -1,4 +1,5 @@
-import com.google.firebase.database.DatabaseReference;
+import com.google.cloud.firestore.Firestore;
+import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.sql.SQLException;
@@ -1361,9 +1362,17 @@ public class UserHandler {
             }
 
             //send message into the firebase database
+            /*
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference myRef = database.getReference("chats/" + chatModel.getChatID());
             myRef.child("" + msg_id).setValueAsync(messageModel);
+            */
+            Firestore db = FirestoreClient.getFirestore();
+            db.collection("chats").document("" + chatModel.getChatID())
+                    .collection("messages")
+                    .document("" + msg_id)
+                    .set(messageModel);
+
 
             //send notification to other user about message
             String token = dbc.userGetFirebase(chatModel.getUserID());
