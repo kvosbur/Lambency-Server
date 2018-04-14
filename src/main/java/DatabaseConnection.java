@@ -2403,6 +2403,40 @@ public class DatabaseConnection {
         return false;
     }
 
+    public ChatModel getSpecificChat(int chatID, int currentID) throws SQLException{
+
+        PreparedStatement ps;
+        String fields = "chat_id, user1_id, user2_id, one_name, two_name, recent_msg_text, recent_msg_id";
+        ps = connect.prepareStatement("SELECT " + fields + " FROM chat where chat_id = ?");
+        if(ps != null) {
+            ps.setInt(1, chatID);
+            ps.execute();
+        }
+        else{
+            throw new SQLException("Error in SQL database");
+        }
+
+        ResultSet rs = ps.executeQuery();
+
+        //check for results and if any then return user
+        if(rs.next()){
+            int chat_id = rs.getInt(1);
+            int user1_id = rs.getInt(2);
+            int user2_id = rs.getInt(3);
+            String user1_name = rs.getString(4);
+            String user2_name = rs.getString(5);
+            String messageText = rs.getString(6);
+            int messageID = rs.getInt(7);
+            if(user1_id == currentID){
+                return new ChatModel(chat_id,user2_name, messageID, messageText, user2_id);
+            }
+            else{
+                return new ChatModel(chat_id,user1_name, messageID, messageText, user1_id);
+            }
+        }
+        return null;
+    }
+
     /**
      * END CHAT METHODS
      */
