@@ -2361,7 +2361,7 @@ public class DatabaseConnection {
         ResultSet rs = ps.executeQuery();
 
         //check for results and if any then return user
-        if(rs.next()){
+        while(rs.next()){
             int chat_id = rs.getInt(1);
             int user1_id = rs.getInt(2);
             int user2_id = rs.getInt(3);
