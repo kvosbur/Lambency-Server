@@ -1,4 +1,4 @@
-
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.sql.SQLException;
@@ -1326,6 +1326,54 @@ public class UserHandler {
         catch (Exception e){
             Printing.printlnException(e);
             return ret;
+        }
+    }
+
+    /**
+     * Given the oauthcode for a user return a list of all users that are connected to that user.
+     * @param oAuthCode the oAuthCode of the user responding to request
+     * @param dbc database connection
+     * @return Arraylist of usermodels
+     */
+    public static int sendMessage(String oAuthCode, int chatID, MessageModel messageModel, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null){
+                Printing.println("bad oAuthCode");
+                return -1;
+            }
+            UserModel user = dbc.searchForUser(oAuthCode);
+            if(user == null){
+                Printing.println("cannot find user");
+                return -1;
+            }
+
+            //get current max message num
+            ChatModel chatModel = dbc.getSpecificChat(chatID,user.getUserId());
+            if(chatModel == null){
+                return -1;
+            }
+
+            //update chat model
+            int msg_id = chatModel.getRecent_msg_id() + 1;
+            int ret = dbc.updateChat(chatModel.getChatID(), msg_id, messageModel.messageText);
+            if(ret == 1){
+                return -2;
+            }
+
+            //send message into the firebase database
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference myRef = database.getReference("chats/" + chatModel.getChatID());
+            myRef.child("" + msg_id).setValueAsync(messageModel);
+
+            //send notification to other user about message
+            String token = dbc.userGetFirebase(chatModel.getUserID());
+            FirebaseHelper.sendCloudChatMessage(token,"" + msg_id, "" +chatModel.getChatID());
+
+            return msg_id;
+        }
+        catch (Exception e){
+            Printing.printlnException(e);
+            return -1;
         }
     }
 }
