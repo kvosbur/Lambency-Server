@@ -115,6 +115,8 @@ CREATE TABLE `chat` (
 	`groupchat` int,
 	`one_name` varchar(100),
 	`two_name` varchar(100),
+	`recent_msg_text` text,
+	`recent_msg_id` int,
 	PRIMARY KEY (`chat_id`)
 );
 
