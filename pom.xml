@@ -168,13 +168,14 @@
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-firestore</artifactId>
             <version>0.43.0-beta</version>
-        </dependency>
+</dependency>
 
         <!-- https://mvnrepository.com/artifact/io.netty/netty-tcnative-boringssl-static -->
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-tcnative-boringssl-static</artifactId>
             <version>2.0.7.Final</version>
+            <classifier>linux-x86_32</classifier>
         </dependency>
 
 
