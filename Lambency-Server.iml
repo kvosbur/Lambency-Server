@@ -84,6 +84,7 @@
     <orderEntry type="library" name="Maven: com.google.api:gax-httpjson:0.33.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.apis:google-api-services-storage:v1-rev114-1.23.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.cloud:google-cloud-firestore:0.33.0-beta" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-tcnative-boringssl-static:2.0.7.Final" level="project" />
     <orderEntry type="library" name="Maven: com.google.cloud:google-cloud-core-grpc:1.15.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.5.1" level="project" />
     <orderEntry type="library" name="Maven: io.grpc:grpc-protobuf:1.9.0" level="project" />
@@ -124,6 +125,5 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-context:4.3.12.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-core:4.3.12.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-expression:4.3.12.RELEASE" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-tcnative-boringssl-static:2.0.6.Final" level="project" />
   </component>
 </module>
