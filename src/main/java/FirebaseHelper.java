@@ -17,7 +17,7 @@ public class FirebaseHelper {
         //Initialize firebase stuff
         try {
             FileInputStream serviceAccount =
-                    new FileInputStream("src/lambency-f7029-firebase-adminsdk-ptyok-dfb184df75.json");
+                    new FileInputStream("lambency-f7029-firebase-adminsdk-ptyok-dfb184df75.json");
 
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
