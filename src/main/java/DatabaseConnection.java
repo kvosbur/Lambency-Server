@@ -2437,7 +2437,7 @@ public class DatabaseConnection {
 
         PreparedStatement ps;
         String fields = "chat_id, user1_id, user2_id, one_name, two_name, recent_msg_text, recent_msg_id";
-        ps = connect.prepareStatement("UPDATE chat set recent_msg_text = ? and recent_msg_id = ? where chat_id = ?");
+        ps = connect.prepareStatement("UPDATE chat set recent_msg_text = ? , recent_msg_id = ? where chat_id = ?");
         if(ps != null) {
             ps.setString(1, recent_msg_txt);
             ps.setInt(2, recent_msg_id);
