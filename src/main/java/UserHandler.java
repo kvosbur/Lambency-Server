@@ -1122,6 +1122,11 @@ public class UserHandler {
                 Printing.printlnError("UserModel not found");
                 return null;
             }
+            if(dbc.chatExists(u1.getUserId(), u2.getUserId())){
+                Printing.printlnError("Chat already exists");
+                return null;
+            }
+
             String one = u1.getFirstName()+" "+u1.getLastName();
             String two = u2.getFirstName()+" "+u2.getLastName();
 

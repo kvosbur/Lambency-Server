@@ -2347,7 +2347,7 @@ public class DatabaseConnection {
 
         PreparedStatement ps;
         String fields = "(chat_id, user1_id, user2_id, one_name, two_name, recent_msg_text, recent_msg_id)";
-        ps = connect.prepareStatement("SELECT * FROM chat where user1_id = ? or user2_id = ?");
+        ps = connect.prepareStatement("SELECT " + fields + " FROM chat where user1_id = ? or user2_id = ?");
         if(ps != null) {
             ps.setInt(1, userid);
             ps.setInt(2, userid);
@@ -2377,6 +2377,30 @@ public class DatabaseConnection {
             }
         }
         return chats;
+    }
+
+    public boolean chatExists(int userid1, int userid2) throws SQLException{
+
+        PreparedStatement ps;
+        String fields = "(chat_id)";
+        ps = connect.prepareStatement("SELECT " + fields + " FROM chat where user1_id = ? and user2_id = ?");
+        if(ps != null) {
+            ps.setInt(1, userid1);
+            ps.setInt(2, userid2);
+            ps.execute();
+        }
+        else{
+            throw new SQLException("Error in SQL database");
+        }
+
+        ArrayList<ChatModel> chats = new ArrayList<>();
+        ResultSet rs = ps.executeQuery();
+
+        //check for results and if any then return user
+        while(rs.next()){
+            return true;
+        }
+        return false;
     }
 
     /**
