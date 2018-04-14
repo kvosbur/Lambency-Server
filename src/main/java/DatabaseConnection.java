@@ -2370,15 +2370,14 @@ public class DatabaseConnection {
             String messageText = rs.getString(6);
             int messageID = rs.getInt(7);
             if(user1_id == userid){
-                chats.add(new ChatModel(chat_id,user2_name, messageID, messageText));
+                chats.add(new ChatModel(chat_id,user2_name, messageID, messageText, user2_id));
             }
             else{
-                chats.add(new ChatModel(chat_id,user1_name, messageID, messageText));
+                chats.add(new ChatModel(chat_id,user1_name, messageID, messageText, user1_id));
             }
         }
         return chats;
     }
-
 
     /**
      * END CHAT METHODS
