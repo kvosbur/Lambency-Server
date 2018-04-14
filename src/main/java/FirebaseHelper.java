@@ -56,6 +56,26 @@ public class FirebaseHelper {
         System.out.println("Successfully sent join request message: " + response);
     }
 
+    public static void sendCloudChatMessage(String registrationToken, String msgId, String chatId) {
+        Message message = Message.builder()
+                .putData("type", "chatMessage")
+                .putData("chatId", chatId)
+                .putData("msgId", msgId)
+                .setToken(registrationToken)
+                .build();
+
+        String response = null;
+
+        try {
+            response = FirebaseMessaging.getInstance().sendAsync(message).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        // Response is a message ID string.
+        System.out.println("Successfully sent join request message: " + response);
+    }
+
     public static void userSendOrgJoinRequest(UserModel u, OrganizationModel o, ArrayList<Integer> ids, DatabaseConnection dbc){
 
         try {

@@ -978,6 +978,24 @@ public class LambencyServer{
 
         }, new JsonTransformer());
 
+        post("/Chat/sendMessage","application/json",(request, response) -> {
+            Printing.printlnEndpoint("/Chat/sendMessage");
+            MessageModel messageModel = new Gson().fromJson(request.body(), MessageModel.class);
+            String oAuthCode = request.queryParams("oAuthCode");
+            String chatID = request.queryParams("chatID");
+            if(oAuthCode == null || messageModel == null || chatID == null){
+                return null;
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                Printing.printlnError("Error on database connect");
+                return null;
+            }
+            int ret = UserHandler.sendMessage(oAuthCode, Integer.parseInt(chatID), messageModel, databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
+
     }
 
     public static void main(String[]args){
