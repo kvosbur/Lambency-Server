@@ -163,6 +163,20 @@
             <version>4.2.5.RELEASE</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-pom</artifactId>
+            <version>0.32.0-alpha</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-tcnative-boringssl-static</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
 
 
     </dependencies>
