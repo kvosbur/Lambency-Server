@@ -435,7 +435,7 @@ public class LambencyServer{
             Printing.printlnEndpoint("User/respondToJoinRequest");
             String oAuthCode = request.queryParams("oAuthCode");
             String orgID = request.queryParams("orgID");
-            String accepted = request.queryParams("accpect");
+            String accepted = request.queryParams("accept");
             if(oAuthCode == null || orgID == null || accepted == null){
                 Printing.println("Null object received from retrofit");
                 return null;
