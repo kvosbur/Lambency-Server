@@ -39,6 +39,9 @@ public interface LambencyAPI {
     @GET("User/respondToJoinRequest")
     Call<Integer> getUserRespondToJoinRequest(@Query("oAuthCode") String oAuthCode, @Query("orgID") String orgID, @Query("accept") String accept);
 
+    @GET("User/pastEvents")
+    Call<ArrayList<ArrayList<Object>>> getPastEvents(@Query("oAuthCode") String oAuthCode);
+
     @POST("Organization/create")
     Call<Integer> postCreateOrganization(@Body OrganizationModel org);
     @GET("Organization/search")
