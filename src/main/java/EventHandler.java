@@ -82,6 +82,7 @@ public class EventHandler {
             //send emails to attending users of info change
             ArrayList<Object> users = dbc.searchEventAttendanceUsers(prev.getEvent_id(),true);
             if(users != null) {
+                FirebaseHelper.sendGroupEventUpdate(users, now, dbc);
                 EventHandler.sendEmailsOfEventModification(users, prev, now, message, dbc);
             }
 
