@@ -2511,8 +2511,8 @@ public class DatabaseConnection {
         if(ps != null) {
             ps.setInt(1, currentUserID);
             ps.setInt(2, currentUserID);
-            ps.setInt(1, user2ID);
-            ps.setInt(1, user2ID);
+            ps.setInt(3, user2ID);
+            ps.setInt(4, user2ID);
         }
         else{
             throw new SQLException("Error in SQL database");
