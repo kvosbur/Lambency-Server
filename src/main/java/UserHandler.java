@@ -1121,9 +1121,11 @@ public class UserHandler {
                 Printing.printlnError("UserModel not found");
                 return null;
             }
-            if(dbc.chatExists(u1.getUserId(), u2.getUserId())){
+
+            ChatModel chatModel = dbc.getSpecificChat(u1.getUserId(), user2_id);
+            if(chatModel != null){
                 Printing.printlnError("Chat already exists");
-                return null;
+                return chatModel;
             }
 
             String one = u1.getFirstName()+" "+u1.getLastName();
@@ -1347,7 +1349,7 @@ public class UserHandler {
             }
 
             //get current max message num
-            ChatModel chatModel = dbc.getSpecificChat(chatID,user.getUserId());
+            ChatModel chatModel = dbc.getSpecificChatWithID(chatID,user.getUserId());
             if(chatModel == null){
                 return -1;
             }
