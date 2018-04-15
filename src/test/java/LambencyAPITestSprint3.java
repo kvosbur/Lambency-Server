@@ -1388,6 +1388,43 @@ public class LambencyAPITestSprint3 {
         }
     }
 
+    @Test public void testUserPastEventsInOrg(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        EventModel event1;
+        OrganizationModel org1;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            event1 = EventHandler.searchEventID(1, dbc);
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            dbc.eventClockInOutUser(event1.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis() - 10000000), EventAttendanceModel.CLOCKINCODE);
+            dbc.eventClockInOutUser(event1.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis()), EventAttendanceModel.CLOCKOUTCODE);
+            Response<ArrayList<EventModel>> response = null;
+            try {
+                response = this.getInstance().getPastEventsInOrg(u1.getOauthToken(), "" + u1.getUserId(), "" + org1.getOrgID()).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            if(response.body() == null){
+                assertTrue(false);
+            }
+            ArrayList<EventModel> events = response.body();
+            assertTrue(events.size() == 1);
+            EventModel eventModel = events.get(0);
+            double hoursWorked = Double.parseDouble(eventModel.getDescription());
+            assertTrue(eventModel.getEvent_id() == event1.getEvent_id());
+            assertTrue(hoursWorked- 2.77 < 0.1);
+
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
     public void searches(){
         DatabaseConnection dbc = this.getDatabaseInstance();
 
