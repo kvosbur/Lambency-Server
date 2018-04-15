@@ -1429,4 +1429,61 @@ public class UserHandler {
         return null;
 
     }
+
+    public static ArrayList<ArrayList<Object>> pastEventsInOrg(String oAuthCode, int userID, int orgID, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null){
+                Printing.println("bad oAuthCode");
+                return null;
+            }
+            UserModel admin = dbc.searchForUser(oAuthCode);
+            if(admin == null){
+                Printing.println("cannot find admin");
+                return null;
+            }
+            OrganizationModel org = OrganizationHandler.searchOrgID(orgID, dbc);
+            if(org == null){
+                Printing.println("cannot find org");
+                return null;
+            }
+            if(OrganizationHandler.isAdmin(oAuthCode, orgID, dbc)){
+                Printing.println("user is not admin of org");
+                return null;
+            }
+            UserModel user = dbc.searchForUserByID(userID);
+            if(user == null){
+                Printing.println("cannot find user");
+                return null;
+            }
+            GroupiesModel groupiesModel = dbc.searchGroupies(userID, orgID);
+            if(groupiesModel == null || groupiesModel.getType() == DatabaseConnection.FOLLOW){
+                Printing.println("user is not a member of org");
+                return null;
+            }
+            ArrayList<Object> events = new ArrayList<>();
+            ArrayList<Object> hours = new ArrayList<>();
+            List<Integer> eventIDs = dbc.searchUserEventAttendanceInOrg(userID, orgID);
+            if(eventIDs == null){
+                Printing.println("dbc.searchUserEventAttendanceInOrg returned null");
+                return null;
+            }
+            for(int i: eventIDs){
+                EventModel eventModel = EventHandler.searchEventID(i, dbc);
+                events.add(eventModel);
+                EventAttendanceModel eventAttendanceModel = dbc.searchEventAttendance(user.getUserId(), eventModel.getEvent_id());
+                hours.add(eventAttendanceModel.getHoursWorked());
+            }
+
+
+            ArrayList<ArrayList<Object>> ret = new ArrayList<ArrayList<Object>>();
+            ret.add(events);
+            ret.add(hours);
+            return ret;
+        }
+        catch (Exception e){
+            Printing.printlnException(e);
+        }
+        return null;
+
+    }
 }

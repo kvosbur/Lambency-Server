@@ -119,6 +119,17 @@ public class DatabaseConnection {
         return null;
     }
 
+    /**
+     * I don't like using the above method so I made this one.
+     * @param userID the id of the user to search for
+     * @return the UserModel of the user given by the id
+     * @throws SQLException
+     */
+    public UserModel searchForUserByID(int userID) throws  SQLException{
+        UserModel user = searchForUser("" + userID, LAMBNECYUSERID);
+        return user;
+    }
+
 
     /**
      Description: given oauthCode
