@@ -235,6 +235,9 @@ public class EventHandler {
 
         try {
             EventModel eventModel = dbc.searchEvents(eventID);
+            if(eventModel == null){
+                eventModel = dbc.searchHistoricalEvents(eventID);
+            }
             //eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
             return eventModel;
         } catch (SQLException e) {
