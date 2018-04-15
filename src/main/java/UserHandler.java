@@ -1,5 +1,3 @@
-import com.google.cloud.firestore.Firestore;
-import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.sql.SQLException;
@@ -1367,11 +1365,13 @@ public class UserHandler {
             DatabaseReference myRef = database.getReference("chats/" + chatModel.getChatID());
             myRef.child("" + msg_id).setValueAsync(messageModel);
             */
+            /* COULD'T GET IT TO WORK.....
             Firestore db = FirestoreClient.getFirestore();
             db.collection("chats").document("" + chatModel.getChatID())
                     .collection("messages")
                     .document("" + msg_id)
                     .set(messageModel);
+                    */
 
 
             //send notification to other user about message
