@@ -498,8 +498,11 @@ public class OrganizationHandler {
                 }
                 UserModel invited = dbc.searchForUser("" + invitedID,DatabaseConnection.LAMBNECYUSERID);
 
-                //send invite to user in database
-                dbc.addGroupies(invited.getUserId(),orgID,DatabaseConnection.MEMBER,2);
+                GroupiesModel gm = dbc.searchGroupies(invited.getUserId(), orgID);
+                if(gm == null){
+                    //send invite to user in database
+                    dbc.addGroupies(invited.getUserId(),orgID,DatabaseConnection.MEMBER,2);
+                }
 
                 //send email to user
                 OrganizationModel org = dbc.searchForOrg(orgID);
