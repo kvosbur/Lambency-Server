@@ -1416,6 +1416,7 @@ public class UserHandler {
                     eventAttendanceModel = dbc.searchEventAttendanceHistorical(user.getUserId(), eventModel.getEvent_id());
                 }
                 eventModel.setDescription("" + eventAttendanceModel.getHoursWorked());
+                Printing.println(eventModel);
                 events.add(eventModel);
             }
             return events;
@@ -1472,6 +1473,7 @@ public class UserHandler {
                     eventAttendanceModel = dbc.searchEventAttendanceHistorical(user.getUserId(), eventModel.getEvent_id());
                 }
                 eventModel.setDescription("" + eventAttendanceModel.getHoursWorked());
+                Printing.println(eventModel);
                 events.add(eventModel);
             }
             return events;
