@@ -499,19 +499,24 @@ public class OrganizationHandler {
                 UserModel invited = dbc.searchForUser("" + invitedID,DatabaseConnection.LAMBNECYUSERID);
 
                 GroupiesModel gm = dbc.searchGroupies(invited.getUserId(), orgID);
-                if(gm == null){
-                    //send invite to user in database
-                    dbc.addGroupies(invited.getUserId(),orgID,DatabaseConnection.MEMBER,2);
-                }
+                if(gm.confirmed || gm.type == DatabaseConnection.ORGANIZER) {
 
-                //send email to user
-                OrganizationModel org = dbc.searchForOrg(orgID);
-                String firebase_token = dbc.userGetFirebase(invited.getUserId());
-                FirebaseHelper.sendCloudOrgInvite(firebase_token,org.name, "" + org.getOrgID());
-                int ret = sendInviteEmail(invited,org);
-                if(ret == 1){
-                    //issue sending email to user
-                    return 7;
+                    if (gm == null) {
+                        //send invite to user in database
+                        dbc.addGroupies(invited.getUserId(), orgID, DatabaseConnection.MEMBER, 2);
+                    }
+
+                    //send email to user
+                    OrganizationModel org = dbc.searchForOrg(orgID);
+                    String firebase_token = dbc.userGetFirebase(invited.getUserId());
+                    FirebaseHelper.sendCloudOrgInvite(firebase_token, org.name, "" + org.getOrgID());
+                    int ret = sendInviteEmail(invited, org);
+                    if (ret == 1) {
+                        //issue sending email to user
+                        return 7;
+                    }
+                }else{
+                    return 8;
                 }
                 return 0;
             }else{
