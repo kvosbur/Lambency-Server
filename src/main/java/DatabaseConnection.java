@@ -1090,6 +1090,43 @@ public class DatabaseConnection {
     }
 
     /**
+     * returns a list of event ids that the user has attended and clocked out from
+     * @param userID the id of the user to get past events
+     * @return event_ids of past events the user has attended
+     * @throws SQLException
+     */
+    public ArrayList<Integer> searchUserEventAttendanceClockedOut(int userID) throws SQLException{
+        // for events that are over in event_attendence
+        //create string for query
+        String fields = "event_id";
+        String query = "SELECT " + fields + " from event_attendence where user_id = ? AND check_out_time IS NOT NULL";
+
+        //run query
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setInt(1, userID);
+        ResultSet rs = ps.executeQuery();
+
+
+        ArrayList<Integer> array = new ArrayList<>();
+        //check for results and return object
+        while(rs.next()){
+            array.add(rs.getInt(1));
+        }
+
+        // for events that are over in event_attendence_historical
+        query = "SELECT " + fields + " from event_attendence_historical where user_id = ? AND check_out_time IS NOT NULL";
+        ps = connect.prepareStatement(query);
+        ps.setInt(1, userID);
+        rs = ps.executeQuery();
+        //check for results and return object
+        while(rs.next()){
+            array.add(rs.getInt(1));
+        }
+
+        return array;
+    }
+
+    /**
      * Registers a user to an event
      * @param userID the id of the user registering for an event
      * @param eventID the id of the event
