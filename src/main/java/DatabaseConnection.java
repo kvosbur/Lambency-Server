@@ -1150,7 +1150,7 @@ public class DatabaseConnection {
         ArrayList<Integer> allEvents = searchUserEventAttendanceClockedOut(userID);
         ArrayList<Integer> inOrg = new ArrayList<Integer>();
         for(int i: allEvents){
-            EventModel eventModel = searchEvents(i);
+            EventModel eventModel = EventHandler.searchEventID(i, this);
             if(eventModel.getOrg_id() == orgID){
                 inOrg.add(i);
             }
