@@ -2540,7 +2540,7 @@ public class DatabaseConnection {
     public int truncateTables() throws SQLException{
 
         //array of tables that exist in database
-        String[] tables = {"chat", "endorse", "event_attendence", "events",
+        String[] tables = {"chat", "endorse", "event_attendence", "event_attendence_historical", "events", "events_historical",
             "groupies", "message", "organization", "user"};
 
         String sql = "TRUNCATE TABLE ";
