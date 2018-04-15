@@ -114,6 +114,43 @@ public class FirebaseHelper {
         System.out.println("Successfully sent org invite message: " + response);
     }
 
+    public static void sendCloudEventUpdate(String registrationToken, String eventName, String event_id){
+        Message message = Message.builder()
+                .putData("type", "eventUpdate")
+                .putData("name", eventName)
+                .putData("event_id", event_id)
+                .setToken(registrationToken)
+                .build();
+
+        // Send a message to the device corresponding to the provided
+        // registration token.
+        String response = null;
+
+        try {
+            response = FirebaseMessaging.getInstance().sendAsync(message).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        // Response is a message ID string.
+        System.out.println("Successfully sent event update message: " + response);
+    }
+
+    public static void sendGroupEventUpdate(ArrayList<Object> users, EventModel eventModel, DatabaseConnection dbc){
+
+        try {
+            for (Object o : users) {
+                UserModel userModel = (UserModel) o;
+                String firebase_token = dbc.userGetFirebase(userModel.getUserId());
+                if(firebase_token != null) {
+                    sendCloudEventUpdate(firebase_token, eventModel.getName(), "" + eventModel.getEvent_id());
+                }
+            }
+        }catch(Exception e){
+            Printing.printlnException(e);
+        }
+    }
+
     public static void main (String [] args){
         System.out.println(System.getProperty("user.dir"));
         initializeFirebase();
