@@ -1353,7 +1353,7 @@ public class LambencyAPITestSprint3 {
         }
     }
 
-    @Test public void testUserPastEvents(){
+    @Test public void testUserPastEventsOneEvent(){
         insertData();
         DatabaseConnection dbc = this.getDatabaseInstance();
         UserModel u1;
@@ -1380,6 +1380,160 @@ public class LambencyAPITestSprint3 {
             double hoursWorked = Double.parseDouble(eventModel.getDescription());
             assertTrue(eventModel.getEvent_id() == event1.getEvent_id());
             assertTrue(hoursWorked- 2.77 < 0.1);
+
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testUserPastEventsNoEvents(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        EventModel event1;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            event1 = EventHandler.searchEventID(1, dbc);
+            Response<ArrayList<EventModel>> response = null;
+            try {
+                response = this.getInstance().getPastEvents(u1.getOauthToken()).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            ArrayList<EventModel> events = response.body();
+            assertTrue(events.size() == 0);
+
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testUserPastEventsBadUser(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        EventModel event1;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            event1 = EventHandler.searchEventID(1, dbc);
+            Response<ArrayList<EventModel>> response = null;
+            try {
+                response = this.getInstance().getPastEvents("").execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            assertTrue(response.body() == null);
+
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testUserPastEventsManyEvents(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        EventModel event1;
+        EventModel event2;
+        EventModel event3;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            event1 = EventHandler.searchEventID(1, dbc);
+            event2 = EventHandler.searchEventID(2, dbc);
+            event3 = EventHandler.searchEventID(3, dbc);
+            ArrayList<EventModel> localEvents = new ArrayList<>();
+            localEvents.add(event1);
+            localEvents.add(event2);
+            localEvents.add(event3);
+            UserHandler.registerEvent(u1.getOauthToken(), event2.getEvent_id(), dbc);
+            UserHandler.registerEvent(u1.getOauthToken(), event3.getEvent_id(), dbc);
+            dbc.eventClockInOutUser(event1.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis() - 10000000), EventAttendanceModel.CLOCKINCODE);
+            dbc.eventClockInOutUser(event1.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis()), EventAttendanceModel.CLOCKOUTCODE);
+            dbc.eventClockInOutUser(event2.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis() - 10000000), EventAttendanceModel.CLOCKINCODE);
+            dbc.eventClockInOutUser(event2.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis()), EventAttendanceModel.CLOCKOUTCODE);
+            dbc.eventClockInOutUser(event3.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis() - 10000000), EventAttendanceModel.CLOCKINCODE);
+            dbc.eventClockInOutUser(event3.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis()), EventAttendanceModel.CLOCKOUTCODE);
+            Response<ArrayList<EventModel>> response = null;
+            try {
+                response = this.getInstance().getPastEvents(u1.getOauthToken()).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            if(response.body() == null){
+                assertTrue(false);
+            }
+            ArrayList<EventModel> events = response.body();
+            assertTrue(events.size() == 3);
+            for(int i = 0; i < events.size(); i++){
+                EventModel eventModel = events.get(i);
+                double hoursWorked = Double.parseDouble(eventModel.getDescription());
+                assertTrue(eventModel.getEvent_id() == localEvents.get(i).getEvent_id());
+                assertTrue(hoursWorked- 2.77 < 0.1);
+            }
+
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testUserPastEventsWithHistorical(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        EventModel event1;
+        EventModel event2;
+        EventModel event3;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            event1 = EventHandler.searchEventID(1, dbc);
+            event2 = EventHandler.searchEventID(2, dbc);
+            event3 = EventHandler.searchEventID(3, dbc);
+            ArrayList<EventModel> localEvents = new ArrayList<>();
+            localEvents.add(event1);
+            localEvents.add(event2);
+            localEvents.add(event3);
+            UserHandler.registerEvent(u1.getOauthToken(), event2.getEvent_id(), dbc);
+            UserHandler.registerEvent(u1.getOauthToken(), event3.getEvent_id(), dbc);
+            dbc.eventClockInOutUser(event1.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis() - 10000000), EventAttendanceModel.CLOCKINCODE);
+            dbc.eventClockInOutUser(event1.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis()), EventAttendanceModel.CLOCKOUTCODE);
+            dbc.eventClockInOutUser(event2.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis() - 10000000), EventAttendanceModel.CLOCKINCODE);
+            dbc.eventClockInOutUser(event2.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis()), EventAttendanceModel.CLOCKOUTCODE);
+            dbc.eventClockInOutUser(event3.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis() - 10000000), EventAttendanceModel.CLOCKINCODE);
+            dbc.eventClockInOutUser(event3.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis()), EventAttendanceModel.CLOCKOUTCODE);
+            dbc.eventAttendanceEntryToHistorical(event3.getEvent_id(), u1.getUserId());
+            Response<ArrayList<EventModel>> response = null;
+            try {
+                response = this.getInstance().getPastEvents(u1.getOauthToken()).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            if(response.body() == null){
+                assertTrue(false);
+            }
+            ArrayList<EventModel> events = response.body();
+            assertTrue(events.size() == 3);
+            for(int i = 0; i < events.size(); i++){
+                EventModel eventModel = events.get(i);
+                double hoursWorked = Double.parseDouble(eventModel.getDescription());
+                assertTrue(eventModel.getEvent_id() == localEvents.get(i).getEvent_id());
+                assertTrue(hoursWorked- 2.77 < 0.1);
+            }
 
         }
         catch (SQLException e){
