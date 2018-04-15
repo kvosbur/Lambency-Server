@@ -56,11 +56,12 @@ public class FirebaseHelper {
         System.out.println("Successfully sent join request message: " + response);
     }
 
-    public static void sendCloudChatMessage(String registrationToken, String msgId, String chatId) {
+    public static void sendCloudChatMessage(String registrationToken, String msgId, String chatId, String sentName) {
         Message message = Message.builder()
                 .putData("type", "chatMessage")
                 .putData("chatId", chatId)
                 .putData("msgId", msgId)
+                .putData("name", sentName)
                 .setToken(registrationToken)
                 .build();
 

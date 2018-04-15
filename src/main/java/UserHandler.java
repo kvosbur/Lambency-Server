@@ -1376,7 +1376,7 @@ public class UserHandler {
 
             //send notification to other user about message
             String token = dbc.userGetFirebase(chatModel.getUserID());
-            FirebaseHelper.sendCloudChatMessage(token,"" + msg_id, "" +chatModel.getChatID());
+            FirebaseHelper.sendCloudChatMessage(token,"" + msg_id, "" +chatModel.getChatID(), chatModel.getName());
 
             return msg_id;
         }
