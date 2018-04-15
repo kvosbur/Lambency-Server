@@ -481,7 +481,7 @@ public class LambencyServer{
                 Printing.println("Failed to create database connection");
                 return null;
             }
-            ArrayList<ArrayList<Object>> ret = UserHandler.pastEventsInOrg(oAuthCode, Integer.parseInt(userID), Integer.parseInt(orgID), databaseConnection);
+            ArrayList<EventModel> ret = UserHandler.pastEventsInOrg(oAuthCode, Integer.parseInt(userID), Integer.parseInt(orgID), databaseConnection);
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());
