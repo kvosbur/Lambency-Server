@@ -91,4 +91,15 @@ public class EventAttendanceModel {
     public void setClockInOutCode(String clockInOutCode) {
         this.clockInOutCode = clockInOutCode;
     }
+
+    public double getHoursWorked(){
+        Timestamp start = getStartTime();
+        Timestamp end = getEndTime();
+        // get time difference in seconds
+        long milliseconds = end.getTime() - start.getTime();
+        int seconds = (int) milliseconds / 1000;
+        // calculate hours minutes and seconds
+        double hours = seconds / 3600.0;
+        return hours;
+    }
 }

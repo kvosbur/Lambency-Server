@@ -450,6 +450,23 @@ public class LambencyServer{
             return ret;
         }, new JsonTransformer());
 
+        get("/User/pastEvents","application/json", (request, response) -> {
+            Printing.printlnEndpoint("User/pastEvents");
+            String oAuthCode = request.queryParams("oAuthCode");
+            if(oAuthCode == null){
+                Printing.println("Null object received from retrofit");
+                return null;
+            }
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            if(databaseConnection.connect == null){
+                Printing.println("Failed to create database connection");
+                return null;
+            }
+            ArrayList<ArrayList<Object>> ret = UserHandler.pastEvents(oAuthCode, databaseConnection);
+            databaseConnection.close();
+            return ret;
+        }, new JsonTransformer());
+
         post("/Organization/create", "application/json",
                 (request, response) -> {
                     Printing.printlnEndpoint("/Organization/create");
