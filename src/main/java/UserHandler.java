@@ -1412,6 +1412,9 @@ public class UserHandler {
             for(int i: eventIDs){
                 EventModel eventModel = EventHandler.searchEventID(i, dbc);
                 EventAttendanceModel eventAttendanceModel = dbc.searchEventAttendance(user.getUserId(), eventModel.getEvent_id());
+                if(eventAttendanceModel == null){
+                    eventAttendanceModel = dbc.searchEventAttendanceHistorical(user.getUserId(), eventModel.getEvent_id());
+                }
                 eventModel.setDescription("" + eventAttendanceModel.getHoursWorked());
                 events.add(eventModel);
             }
@@ -1465,6 +1468,9 @@ public class UserHandler {
             for(int i: eventIDs){
                 EventModel eventModel = EventHandler.searchEventID(i, dbc);
                 EventAttendanceModel eventAttendanceModel = dbc.searchEventAttendance(user.getUserId(), eventModel.getEvent_id());
+                if(eventAttendanceModel == null){
+                    eventAttendanceModel = dbc.searchEventAttendanceHistorical(user.getUserId(), eventModel.getEvent_id());
+                }
                 eventModel.setDescription("" + eventAttendanceModel.getHoursWorked());
                 events.add(eventModel);
             }
