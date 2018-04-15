@@ -1127,6 +1127,27 @@ public class DatabaseConnection {
     }
 
     /**
+     * Returns a list of events that a user has attended in a given organization
+     * @param userID the id of the user to check
+     * @param orgID the id of the org
+     * @return  a list of event ids that a user has attended in a given organization
+     * @throws SQLException
+     */
+    public ArrayList<Integer> searchUserEventAttendanceInOrg(int userID, int orgID) throws SQLException{
+        // for events that are over in event_attendence
+        //create string for query
+        ArrayList<Integer> allEvents = searchUserEventAttendanceClockedOut(userID);
+        ArrayList<Integer> inOrg = new ArrayList<Integer>();
+        for(int i: allEvents){
+            EventModel eventModel = searchEvents(i);
+            if(eventModel.getOrg_id() == orgID){
+                inOrg.add(i);
+            }
+        }
+        return inOrg;
+    }
+
+    /**
      * Registers a user to an event
      * @param userID the id of the user registering for an event
      * @param eventID the id of the event
