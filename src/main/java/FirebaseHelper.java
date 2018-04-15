@@ -1,8 +1,6 @@
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 
@@ -17,7 +15,7 @@ public class FirebaseHelper {
         //Initialize firebase stuff
         try {
             FileInputStream serviceAccount =
-                    new FileInputStream("lambency-f7029-firebase-adminsdk-ptyok-dfb184df75.json");
+                    new FileInputStream("src/lambency-f7029-firebase-adminsdk-ptyok-dfb184df75.json");
 
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
@@ -91,7 +89,28 @@ public class FirebaseHelper {
         }catch(Exception e){
             Printing.println(e.toString());
         }
+    }
 
+    public static void sendCloudOrgInvite(String registrationToken, String orgName, String org_id){
+        Message message = Message.builder()
+                .putData("type", "orgInvite")
+                .putData("org", orgName)
+                .putData("org_id", org_id)
+                .setToken(registrationToken)
+                .build();
+
+        // Send a message to the device corresponding to the provided
+        // registration token.
+        String response = null;
+
+        try {
+            response = FirebaseMessaging.getInstance().sendAsync(message).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        // Response is a message ID string.
+        System.out.println("Successfully sent org invite message: " + response);
     }
 
     public static void main (String [] args){
@@ -99,15 +118,9 @@ public class FirebaseHelper {
         initializeFirebase();
 
         // This registration token comes from the client FCM SDKs.
-        //String registrationToken = "fSKEStmhAzs:APA91bES98kK8nPMSaXDu25RM4C3PKxALl3yjK95b0L78zu4A4CrTRgm8ETWULqgWVFor2kzJzdb1xeud_cHJbR_sDPrtN8QguQqC_NGT3pvm-rg7wQTUcTNMbSAtjihQnWgRvnHEtY8";
+        String registrationToken = "czw2HKdaOxw:APA91bE62Mvqhv2-X-xndhYKpr9lI999a4cHgj9acZ9M9U-BkZjBft-9ohK3Xpi-We7K8tMhqr3TnwJCUVsp3C30d0FiF0Xv8n2wmDFShNhzhatmeH_JFyGzCuEI5cqWLdxJ8WxH8cYV";
 
-        MessageModel messageModel = new MessageModel("here is my text", "Kevin", "04/14/2018");
-        Firestore db = FirestoreClient.getFirestore();
-        db.collection("chats").document("0")
-                .collection("messages")
-                .document("0")
-                .set(messageModel);
-
+        sendCloudOrgInvite(registrationToken,"My House", "57");
         //sendCloudJoinRequest(registrationToken, "lshank", "uid", "the best org", "5");
     }
 }

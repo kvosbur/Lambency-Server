@@ -503,6 +503,8 @@ public class OrganizationHandler {
 
                 //send email to user
                 OrganizationModel org = dbc.searchForOrg(orgID);
+                String firebase_token = dbc.userGetFirebase(invited.getUserId());
+                FirebaseHelper.sendCloudOrgInvite(firebase_token,org.name, "" + org.getOrgID());
                 int ret = sendInviteEmail(invited,org);
                 if(ret == 1){
                     //issue sending email to user

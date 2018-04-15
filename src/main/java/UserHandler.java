@@ -1366,12 +1366,12 @@ public class UserHandler {
             myRef.child("" + msg_id).setValueAsync(messageModel);
             */
             /* COULD'T GET IT TO WORK.....
-            Firestore db = FirestoreClient.getFirestore();
+            FirebaseFirestore db = FirestoreClient.getFirestore();
             db.collection("chats").document("" + chatModel.getChatID())
                     .collection("messages")
                     .document("" + msg_id)
                     .set(messageModel);
-                    */
+            */
 
 
             //send notification to other user about message
