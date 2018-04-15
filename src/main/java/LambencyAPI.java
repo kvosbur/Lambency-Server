@@ -42,6 +42,9 @@ public interface LambencyAPI {
     @GET("User/pastEvents")
     Call<ArrayList<ArrayList<Object>>> getPastEvents(@Query("oAuthCode") String oAuthCode);
 
+    @GET("User/pastEventsInOrg")
+    Call<ArrayList<ArrayList<Object>>> getPastEventsInOrg(@Query("oAuthCode") String oAuthCode, @Query("userID") String userID, @Query("orgID") String orgID);
+
     @POST("Organization/create")
     Call<Integer> postCreateOrganization(@Body OrganizationModel org);
     @GET("Organization/search")
