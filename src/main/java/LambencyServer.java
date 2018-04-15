@@ -462,7 +462,7 @@ public class LambencyServer{
                 Printing.println("Failed to create database connection");
                 return null;
             }
-            ArrayList<ArrayList<Object>> ret = UserHandler.pastEvents(oAuthCode, databaseConnection);
+            ArrayList<EventModel> ret = UserHandler.pastEvents(oAuthCode, databaseConnection);
             databaseConnection.close();
             return ret;
         }, new JsonTransformer());

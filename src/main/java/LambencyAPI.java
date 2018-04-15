@@ -40,7 +40,7 @@ public interface LambencyAPI {
     Call<Integer> getUserRespondToJoinRequest(@Query("oAuthCode") String oAuthCode, @Query("orgID") String orgID, @Query("accept") String accept);
 
     @GET("User/pastEvents")
-    Call<ArrayList<ArrayList<Object>>> getPastEvents(@Query("oAuthCode") String oAuthCode);
+    Call<ArrayList<EventModel>> getPastEvents(@Query("oAuthCode") String oAuthCode);
 
     @GET("User/pastEventsInOrg")
     Call<ArrayList<ArrayList<Object>>> getPastEventsInOrg(@Query("oAuthCode") String oAuthCode, @Query("userID") String userID, @Query("orgID") String orgID);
