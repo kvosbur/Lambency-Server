@@ -1441,8 +1441,10 @@ public class UserHandler {
                 return null;
             }
             if(!OrganizationHandler.isAdmin(oAuthCode, orgID, dbc)){
-                Printing.println("user is not admin of org");
-                return null;
+                if(admin.getUserId() != userID) {
+                    Printing.println("user is not admin of org");
+                    return null;
+                }
             }
             UserModel user = dbc.searchForUserByID(userID);
             if(user == null){
@@ -1450,7 +1452,7 @@ public class UserHandler {
                 return null;
             }
             GroupiesModel groupiesModel = dbc.searchGroupies(userID, orgID);
-            if(groupiesModel == null || groupiesModel.getType() == DatabaseConnection.FOLLOW){
+            if(groupiesModel == null){
                 Printing.println("user is not a member of org");
                 return null;
             }
