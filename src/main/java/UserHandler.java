@@ -1392,7 +1392,7 @@ public class UserHandler {
      * @param dbc
      * @return
      */
-    public static ArrayList<ArrayList<Object>> pastEvents(String oAuthCode, DatabaseConnection dbc){
+    public static ArrayList<EventModel> pastEvents(String oAuthCode, DatabaseConnection dbc){
         try{
             if(oAuthCode == null){
                 Printing.println("bad oAuthCode");
@@ -1403,8 +1403,7 @@ public class UserHandler {
                 Printing.println("cannot find user");
                 return null;
             }
-            ArrayList<Object> events = new ArrayList<>();
-            ArrayList<Object> hours = new ArrayList<>();
+            ArrayList<EventModel> events = new ArrayList<>();
             List<Integer> eventIDs = dbc.searchUserEventAttendanceClockedOut(user.getUserId());
             if(eventIDs == null){
                 Printing.println("dbc.searchUserEventAttendanceClockedOut returned null");
@@ -1412,16 +1411,11 @@ public class UserHandler {
             }
             for(int i: eventIDs){
                 EventModel eventModel = EventHandler.searchEventID(i, dbc);
-                events.add(eventModel);
                 EventAttendanceModel eventAttendanceModel = dbc.searchEventAttendance(user.getUserId(), eventModel.getEvent_id());
-                hours.add(eventAttendanceModel.getHoursWorked());
+                eventModel.setDescription("" + eventAttendanceModel.getHoursWorked());
+                events.add(eventModel);
             }
-
-
-            ArrayList<ArrayList<Object>> ret = new ArrayList<ArrayList<Object>>();
-            ret.add(events);
-            ret.add(hours);
-            return ret;
+            return events;
         }
         catch (Exception e){
             Printing.printlnException(e);
