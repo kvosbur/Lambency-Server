@@ -1132,6 +1132,36 @@ public void createOrganizationRetrofit(OrganizationModel org){
         });
     }
 
+    public void pastEventsInOrg(String oAuthCode, String userID, String orgID)
+    {
+        this.getInstance().getPastEventsInOrg(oAuthCode, userID, orgID).enqueue(new Callback<ArrayList<ArrayList<Object>>>() {
+            @Override
+            public void onResponse(Call<ArrayList<ArrayList<Object>>> call, Response<ArrayList<ArrayList<Object>>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("An error has occurred or the user has no past events or user is not admin of org");
+                    // if null is given show that the user has no past events
+                    return;
+                }
+                //when response is back
+                ArrayList<ArrayList<Object>> ret = response.body();
+                ArrayList<Object> events = ret.get(0);
+                ArrayList<Object> hours = ret.get(1);
+                for(int i = 0; i < events.size(); i++){
+                    EventModel eventModel = (EventModel) events.get(i);
+                    double hoursWorked = (Double) hours.get(i);
+                    System.out.println("User worked " + hoursWorked + " hours at " + eventModel.getName());
+                    // round hoursWorked when displaying it to the user
+                }
+
+            }
+            @Override
+            public void onFailure(Call<ArrayList<ArrayList<Object>>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
     public static void main(String[] args) {
         LambencyAPIHelper lh = new LambencyAPIHelper();
         //OrganizationModel org = new OrganizationModel(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");
