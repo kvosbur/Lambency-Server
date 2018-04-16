@@ -525,10 +525,10 @@ public class OrganizationHandler {
             }
         }
         catch (SQLException e){
-            e.printStackTrace();
+            Printing.printlnException(e);
             return 1;
         }catch(Exception e){
-            Printing.println(e.toString());
+            Printing.printlnException(e);
             return 2;
         }
     }
