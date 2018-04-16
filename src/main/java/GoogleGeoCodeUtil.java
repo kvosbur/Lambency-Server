@@ -11,11 +11,12 @@ public class GoogleGeoCodeUtil {
 
     public static LatLng getGeoData(String address){
         try {
+            String prettyAddress = address.replace(';', ' ');
             GeoApiContext context = new GeoApiContext.Builder()
                     .apiKey("AIzaSyBTmYB1b5wyp_jMEtCFuicmlfSA3kLKbMg")
                     .build();
             GeocodingResult[] results = GeocodingApi.geocode(context,
-                    address).await();
+                    prettyAddress).await();
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             Geometry s = results[0].geometry;
 
