@@ -499,10 +499,11 @@ public class OrganizationHandler {
                 UserModel invited = dbc.searchForUser("" + invitedID,DatabaseConnection.LAMBNECYUSERID);
 
                 GroupiesModel gm = dbc.searchGroupies(invited.getUserId(), orgID);
-                if(gm.confirmed || gm.type == DatabaseConnection.ORGANIZER) {
+                if(gm == null || gm.confirmed || gm.type == DatabaseConnection.ORGANIZER) {
 
                     if (gm == null) {
                         //send invite to user in database
+                        Printing.println("added user to groupies model");
                         dbc.addGroupies(invited.getUserId(), orgID, DatabaseConnection.MEMBER, 2);
                     }
 
