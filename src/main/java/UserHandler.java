@@ -897,18 +897,9 @@ public class UserHandler {
                 return null;
             }
             int userRank = dbc.leaderboardRankOf(user.getUserId());
-            int start = userRank - 2;
-            int end = userRank + 2;
-            if(userRank <= 2){
-                Printing.println("User in top 2, use leaderboard range");
-                return null;
-            }
+            int start = userRank;
+            int end = userRank;
             List<UserModel> leaderboard = leaderboardRange(start, end, dbc);
-            while(leaderboard.get(2).getUserId() != user.getUserId()){
-                start++;
-                end++;
-                leaderboard = leaderboardRange(start, end, dbc);
-            }
             return leaderboard;
 
         }
