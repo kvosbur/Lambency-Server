@@ -900,6 +900,11 @@ public class UserHandler {
             int start = userRank;
             int end = userRank;
             List<UserModel> leaderboard = leaderboardRange(start, end, dbc);
+            while(leaderboard.get(0).getUserId() != user.getUserId()){
+                start++;
+                end++;
+                leaderboard = leaderboardRange(start, end, dbc);
+            }
             return leaderboard;
 
         }
