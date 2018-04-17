@@ -864,6 +864,10 @@ public class UserHandler {
                 rank++;
                 leaderboard.add(userModel);
             }
+            Printing.println("Start: " + start + "\tEnd: " + end);
+            for(UserModel userModel: leaderboard){
+                Printing.println(userModel.getOauthToken() + ": " + userModel.getFirstName() + " " + userModel.getLastName());
+            }
 
             return leaderboard;
         }
@@ -1418,7 +1422,6 @@ public class UserHandler {
                     eventAttendanceModel = dbc.searchEventAttendanceHistorical(user.getUserId(), eventModel.getEvent_id());
                 }
                 eventModel.setDescription("" + eventAttendanceModel.getHoursWorked());
-                Printing.println(eventModel);
                 events.add(eventModel);
             }
             return events;
@@ -1475,7 +1478,6 @@ public class UserHandler {
                     eventAttendanceModel = dbc.searchEventAttendanceHistorical(user.getUserId(), eventModel.getEvent_id());
                 }
                 eventModel.setDescription("" + eventAttendanceModel.getHoursWorked());
-                Printing.println(eventModel);
                 events.add(eventModel);
             }
             return events;
