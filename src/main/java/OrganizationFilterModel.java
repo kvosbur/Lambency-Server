@@ -64,6 +64,7 @@ public class OrganizationFilterModel {
         if(title != null && ! title.equals("")){
             ands.add("name LIKE \'"+title+"%\'");
         }
+        ands.add("deleted = 0");
 
 
         if(ands.size() != 0){
