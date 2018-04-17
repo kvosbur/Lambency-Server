@@ -864,11 +864,6 @@ public class UserHandler {
                 rank++;
                 leaderboard.add(userModel);
             }
-            Printing.println("Start: " + start + "\tEnd: " + end);
-            for(UserModel userModel: leaderboard){
-                Printing.println(userModel.getOauthToken() + ": " + userModel.getFirstName() + " " + userModel.getLastName());
-            }
-
             return leaderboard;
         }
         catch (SQLException e){
