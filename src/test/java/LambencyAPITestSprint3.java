@@ -998,15 +998,9 @@ public class LambencyAPITestSprint3 {
                 assertTrue(false);
             }
             List<UserModel> leaderboard = response.body();
-            assertTrue(leaderboard.get(0).getUserId() == u3.getUserId());
-            assertTrue(leaderboard.get(1).getUserId() == u1.getUserId());
-            assertTrue(leaderboard.get(2).getUserId() == u2.getUserId());
-            assertTrue(leaderboard.get(3).getUserId() == noOrgUser.getUserId());
-            assertTrue(leaderboard.get(0).getOauthToken().equals("1"));
-            assertTrue(leaderboard.get(1).getOauthToken().equals("2"));
-            assertTrue(leaderboard.get(2).getOauthToken().equals("3"));
-            assertTrue(leaderboard.get(3).getOauthToken().equals("4"));
-            assertTrue(leaderboard.size() == 4);
+            assertTrue(leaderboard.get(0).getUserId() == u2.getUserId());
+            assertTrue(leaderboard.get(0).getOauthToken().equals("3"));
+            assertTrue(leaderboard.size() == 1);
         }
         catch (SQLException e){
             e.printStackTrace();
@@ -1042,13 +1036,9 @@ public class LambencyAPITestSprint3 {
                 assertTrue(false);
             }
             List<UserModel> leaderboard = response.body();
-            assertTrue(leaderboard.get(0).getUserId() == u1.getUserId());
-            assertTrue(leaderboard.get(1).getUserId() == u2.getUserId());
-            assertTrue(leaderboard.get(2).getUserId() == noOrgUser.getUserId());
-            assertTrue(leaderboard.get(0).getOauthToken().equals("2"));
-            assertTrue(leaderboard.get(1).getOauthToken().equals("3"));
-            assertTrue(leaderboard.get(2).getOauthToken().equals("4"));
-            assertTrue(leaderboard.size() == 3);
+            assertTrue(leaderboard.get(0).getUserId() == noOrgUser.getUserId());
+            assertTrue(leaderboard.get(0).getOauthToken().equals("4"));
+            assertTrue(leaderboard.size() == 1);
         }
         catch (SQLException e){
             e.printStackTrace();
