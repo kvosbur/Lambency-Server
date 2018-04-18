@@ -1686,6 +1686,143 @@ public class LambencyAPITestSprint3 {
         }
     }
 
+    @Test public void testUserPastEventsInOrgNull(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        EventModel event1;
+        OrganizationModel org1;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            event1 = EventHandler.searchEventID(1, dbc);
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            dbc.eventClockInOutUser(event1.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis() - 10000000), EventAttendanceModel.CLOCKINCODE);
+            dbc.eventClockInOutUser(event1.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis()), EventAttendanceModel.CLOCKOUTCODE);
+            Response<ArrayList<EventModel>> response = null;
+            try {
+                response = this.getInstance().getPastEventsInOrg(null, null, null).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            ArrayList<EventModel> events = response.body();
+            assertTrue(events == null);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testUserPastEventsInOrgHist(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        UserModel u3;
+        EventModel event1;
+        EventModel event2;
+        EventModel event3;
+        EventModel event4;
+        OrganizationModel org3;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            event1 = EventHandler.searchEventID(1, dbc);
+            event2 = EventHandler.searchEventID(2, dbc);
+            event3 = EventHandler.searchEventID(3, dbc);
+            event4 = EventHandler.searchEventID(4, dbc);
+            org3 = OrganizationHandler.searchOrgID(3, dbc);
+            ArrayList<EventModel> eventList = new ArrayList<>();
+            eventList.add(event4);
+            eventList.add(event3);
+            UserHandler.registerEvent(u1.getOauthToken(), event2.getEvent_id(), dbc);
+            UserHandler.registerEvent(u1.getOauthToken(), event3.getEvent_id(), dbc);
+            UserHandler.registerEvent(u1.getOauthToken(), event4.getEvent_id(), dbc);
+            dbc.eventClockInOutUser(event1.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis() - 10000000), EventAttendanceModel.CLOCKINCODE);
+            dbc.eventClockInOutUser(event1.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis()), EventAttendanceModel.CLOCKOUTCODE);
+            dbc.eventClockInOutUser(event2.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis() - 10000000), EventAttendanceModel.CLOCKINCODE);
+            dbc.eventClockInOutUser(event2.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis()), EventAttendanceModel.CLOCKOUTCODE);
+            dbc.eventClockInOutUser(event3.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis() - 10000000), EventAttendanceModel.CLOCKINCODE);
+            dbc.eventClockInOutUser(event3.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis()), EventAttendanceModel.CLOCKOUTCODE);
+            dbc.eventClockInOutUser(event4.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis() - 10000000), EventAttendanceModel.CLOCKINCODE);
+            dbc.eventClockInOutUser(event4.getEvent_id(), u1.getUserId(), new Timestamp(System.currentTimeMillis()), EventAttendanceModel.CLOCKOUTCODE);
+            dbc.eventEntryToHistorical(event3.getEvent_id());
+            dbc.eventAttendanceEntryToHistorical(event3.getEvent_id(), u1.getUserId());
+            Response<ArrayList<EventModel>> response = null;
+            try {
+                response = this.getInstance().getPastEventsInOrg(u3.getOauthToken(), "" + u1.getUserId(), "" + org3.getOrgID()).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            if(response.body() == null){
+                assertTrue(false);
+            }
+            ArrayList<EventModel> events = response.body();
+            assertTrue(events.size() == 2);
+            for(int i = 0; i < events.size(); i++){
+                EventModel eventModel = events.get(i);
+                double hoursWorked = Double.parseDouble(eventModel.getDescription());
+                assertTrue(eventModel.getEvent_id() == eventList.get(i).getEvent_id());
+                assertTrue(hoursWorked- 2.77 < 0.1);
+            }
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testUserPastEventsNotInOrg(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u2;
+        UserModel u3;
+        EventModel event1;
+        EventModel event2;
+        EventModel event3;
+        EventModel event4;
+        OrganizationModel org3;
+        try{
+            u2 = dbc.searchForUser("facebook2", 2);
+            u2 = UserHandler.searchForUser(u2.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            event1 = EventHandler.searchEventID(1, dbc);
+            event2 = EventHandler.searchEventID(2, dbc);
+            event3 = EventHandler.searchEventID(3, dbc);
+            event4 = EventHandler.searchEventID(4, dbc);
+            org3 = OrganizationHandler.searchOrgID(3, dbc);
+            UserHandler.registerEvent(u2.getOauthToken(), event3.getEvent_id(), dbc);
+            UserHandler.registerEvent(u2.getOauthToken(), event4.getEvent_id(), dbc);
+            dbc.eventClockInOutUser(event1.getEvent_id(), u2.getUserId(), new Timestamp(System.currentTimeMillis() - 10000000), EventAttendanceModel.CLOCKINCODE);
+            dbc.eventClockInOutUser(event1.getEvent_id(), u2.getUserId(), new Timestamp(System.currentTimeMillis()), EventAttendanceModel.CLOCKOUTCODE);
+            dbc.eventClockInOutUser(event2.getEvent_id(), u2.getUserId(), new Timestamp(System.currentTimeMillis() - 10000000), EventAttendanceModel.CLOCKINCODE);
+            dbc.eventClockInOutUser(event2.getEvent_id(), u2.getUserId(), new Timestamp(System.currentTimeMillis()), EventAttendanceModel.CLOCKOUTCODE);
+            dbc.eventClockInOutUser(event3.getEvent_id(), u2.getUserId(), new Timestamp(System.currentTimeMillis() - 10000000), EventAttendanceModel.CLOCKINCODE);
+            dbc.eventClockInOutUser(event3.getEvent_id(), u2.getUserId(), new Timestamp(System.currentTimeMillis()), EventAttendanceModel.CLOCKOUTCODE);
+            dbc.eventClockInOutUser(event4.getEvent_id(), u2.getUserId(), new Timestamp(System.currentTimeMillis() - 10000000), EventAttendanceModel.CLOCKINCODE);
+            dbc.eventClockInOutUser(event4.getEvent_id(), u2.getUserId(), new Timestamp(System.currentTimeMillis()), EventAttendanceModel.CLOCKOUTCODE);
+            dbc.eventEntryToHistorical(event3.getEvent_id());
+            dbc.eventAttendanceEntryToHistorical(event3.getEvent_id(), u2.getUserId());
+            Response<ArrayList<EventModel>> response = null;
+            try {
+                response = this.getInstance().getPastEventsInOrg(u3.getOauthToken(), "" + u2.getUserId(), "" + org3.getOrgID()).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            ArrayList<EventModel> events = response.body();
+            assertTrue(events == null);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
 
     public void searches(){
         DatabaseConnection dbc = this.getDatabaseInstance();
