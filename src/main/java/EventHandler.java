@@ -466,7 +466,7 @@ public class EventHandler {
 
             //send emails to all users
             for(String userEmail: userEmails){
-                int ret = gMailHelper.sendEmail(userEmail,subject,sb.toString());
+                int ret = gMailHelper.sendEmail(userEmail,subject,sb.toString(),dbc);
                 if(ret == GMailHelper.FAILURE){
                     Printing.println("Issue sending email to " + userEmail + " for event creation");
                 }
@@ -549,7 +549,7 @@ public class EventHandler {
                 //send emails to all users
                 for (Object userObject : users) {
                     UserModel user =  (UserModel) userObject;
-                    int ret = gMailHelper.sendEmail(user.getEmail(), subject, sb.toString());
+                    int ret = gMailHelper.sendEmail(user.getEmail(), subject, sb.toString(),dbc);
                     if (ret == GMailHelper.FAILURE) {
                         Printing.println("Issue sending email to " + user.getEmail() + " for event creation");
                     }
@@ -597,7 +597,7 @@ public class EventHandler {
             //send emails to all users
             for (Object userObject : users) {
                 UserModel user =  (UserModel) userObject;
-                int ret = gMailHelper.sendEmail(user.getEmail(), subject, sb.toString());
+                int ret = gMailHelper.sendEmail(user.getEmail(), subject, sb.toString(),dbc);
                 if (ret == GMailHelper.FAILURE) {
                     Printing.println("Issue sending email to " + user.getEmail() + " for event creation");
                 }

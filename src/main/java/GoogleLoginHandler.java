@@ -73,7 +73,7 @@ public class GoogleLoginHandler {
                 String iss = (String) payload.get("iss");
                 UserModel us;
 
-                if (emailVerified.equals("false")) {
+                if (emailVerified.equals("false") || dbc.verifyUserEmail(email) == -1) {
                     status = UserAuthenticator.Status.NON_UNIQUE_EMAIL;
                     Printing.println("Failed to have verified email.");
                 }

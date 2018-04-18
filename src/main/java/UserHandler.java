@@ -677,7 +677,7 @@ public class UserHandler {
             //send email verification to user
             String code = new String(PasswordUtil.generateSalt(30));
             dbc.userAddVerification(id,code);
-            int ret = GMailHelper.sendVerificationEmail(email,id, code);
+            int ret = GMailHelper.sendVerificationEmail(email,id, code,dbc);
 
             return ret;
         } catch (Exception e) {
@@ -932,7 +932,7 @@ public class UserHandler {
                 dbc.userRemoveVerification(userID);
             }
             dbc.userAddVerification(userID,code);
-            return GMailHelper.sendChangePasswordEmail(email, userID, code);
+            return GMailHelper.sendChangePasswordEmail(email, userID, code,dbc);
 
         } catch (Exception e) {
             Printing.println("SQLExcpetion");
