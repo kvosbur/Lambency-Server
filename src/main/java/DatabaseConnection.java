@@ -130,6 +130,27 @@ public class DatabaseConnection {
         return user;
     }
 
+    /**
+     * returns the notification preference for the user
+     *
+     * @param email     email of user to get notification preference
+     * @return          returns (int) pref on success or -1 on failure
+     * @throws SQLException
+     */
+    public int getUserPreferenceWithEmailAddress(String email) throws SQLException{
+        String query = "SELECT notify_pref FROM user WHERE user_email = ?";
+        PreparedStatement ps = connect.prepareStatement(query);
+        ps.setString(1,email);
+        ResultSet rs = ps.executeQuery();
+
+        if(rs.next()){
+            return rs.getInt(1);
+        }
+        else{
+            return -1;
+        }
+
+    }
 
     /**
      Description: given oauthCode
