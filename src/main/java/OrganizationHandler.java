@@ -1,6 +1,7 @@
 
 import com.google.maps.model.LatLng;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -149,7 +150,8 @@ public class OrganizationHandler {
             if(oAuthCode == null){
                 return null;
             }
-            if(dbc.searchForUser(oAuthCode) == null){
+            UserModel u = dbc.searchForUser(oAuthCode);
+            if(u  == null){
                 Printing.println("Unable to verify user");
                 return null;
             }
@@ -160,7 +162,11 @@ public class OrganizationHandler {
             }
 
             for(int i: ids){
-                list.add(EventHandler.searchEventID(i, dbc));
+                GroupiesModel g = dbc.searchGroupies(u.getUserId(),orgID);
+                EventModel e = EventHandler.searchEventID(i, dbc);
+                if(!e.getPrivateEvent() || (g != null && g.getType() >= DatabaseConnection.MEMBER)) {
+                    list.add(e);
+                }
             }
             return list;
         }
@@ -713,7 +719,8 @@ public class OrganizationHandler {
                 Printing.println("invalid oAuthCode");
                 return null;
             }
-            if(dbc.searchForUser(oAuthCode) == null){
+            UserModel u = dbc.searchForUser(oAuthCode);
+            if(u  == null){
                 Printing.println("Unable to verify user");
                 return null;
             }
@@ -722,6 +729,7 @@ public class OrganizationHandler {
                 Printing.println("Org not found");
                 return null;
             }
+
 
             //have permissions to look at past events
             ArrayList<Integer> ids = dbc.getPastEventsForOrg(organizationModel.getOrgID());
