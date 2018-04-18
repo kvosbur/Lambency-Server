@@ -457,7 +457,7 @@ public class EventHandler {
 
             sb.append("<u>Starts</u> : " + starting + "<br><u>Ends</u> : " + ending + "<br>");
 
-            sb.append("<u>Location</u> : " + event.getLocation());
+            sb.append("<u>Location</u> : " + event.getLocation().replace(';', ' '));
             sb.append("<br><u>Description</u><br>" + event.getDescription());
             sb.append("<br><br><div style=\"opacity:0.2;\">*Please do not reply to this email as this is an automated message.*</div>");
 
@@ -530,10 +530,10 @@ public class EventHandler {
             sb.append(starting + ending);
 
             String location;
-            if(prev.getLocation().equals(now.getLocation())){
-                location = "<u>Location</u> : " + prev.getLocation();
+            if(prev.getLocation().replace(';', ' ').equals(now.getLocation().replace(';', ' '))){
+                location = "<u>Location</u> : " + prev.getLocation().replace(';', ' ');
             }else{
-                location = "<strong><u>Location</u> : " + prev.getLocation() + "</strong>";
+                location = "<strong><u>Location</u> : " + prev.getLocation().replace(';', ' ') + "</strong>";
                 changed = true;
             }
 
