@@ -521,7 +521,7 @@ public class EventHandler {
             }
 
             if(endingNow.equals(endingPrev)){
-                ending = "<u>Starts</u> : " + endingNow + "<br>";
+                ending = "<u>Ends</u> : " + endingNow + "<br>";
             }else{
                 ending = "<strong><u>Ends</u> : " + endingNow + "</strong><br>";
                 changed = true;
@@ -536,6 +536,8 @@ public class EventHandler {
                 location = "<strong><u>Location</u> : " + prev.getLocation().replace(';', ' ') + "</strong>";
                 changed = true;
             }
+
+            sb.append(location);
 
             sb.append("<br><br>*Please do not reply to this email as this is an automated message.*");
 
