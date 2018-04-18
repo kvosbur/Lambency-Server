@@ -517,7 +517,7 @@ public class OrganizationHandler {
                     OrganizationModel org = dbc.searchForOrg(orgID);
                     String firebase_token = dbc.userGetFirebase(invited.getUserId());
                     FirebaseHelper.sendCloudOrgInvite(firebase_token, org.name, "" + org.getOrgID());
-                    int ret = sendInviteEmail(invited, org);
+                    int ret = sendInviteEmail(invited, org,dbc);
                     if (ret == 1) {
                         //issue sending email to user
                         return 7;
@@ -546,7 +546,7 @@ public class OrganizationHandler {
      * @param invited the user that is being invited
      * @return return 1 if failure, 0 if successfully sent email
      */
-    public static int sendInviteEmail(UserModel invited, OrganizationModel org){
+    public static int sendInviteEmail(UserModel invited, OrganizationModel org,DatabaseConnection dbc){
 
         //create email content
         String subject;
@@ -564,7 +564,7 @@ public class OrganizationHandler {
 
         //send emails to all users
         Printing.println("email is : " + invited.getEmail());
-        int ret = gMailHelper.sendEmail(invited.getEmail(), subject, sb.toString());
+        int ret = gMailHelper.sendEmail(invited.getEmail(), subject, sb.toString(),dbc);
         if (ret == GMailHelper.FAILURE) {
             return 1;
         }

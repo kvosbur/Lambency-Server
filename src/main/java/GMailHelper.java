@@ -195,11 +195,14 @@ public class GMailHelper {
         return message;
     }
 
-    public int sendEmail(String to,String subject, String bodyText){
+    public int sendEmail(String to,String subject, String bodyText, DatabaseConnection dbc){
         try {
-            MimeMessage example = GMailHelper.createEmail(to, "me", subject
-                    , bodyText);
-            sendMessage(service,"me",example);
+            int pref = dbc.getUserPreferenceWithEmailAddress(to);
+            if(pref == DatabaseConnection.NOTIFY_EMAIL_PUSH || pref == DatabaseConnection.NOTIFY_EMAIL) {
+                MimeMessage example = GMailHelper.createEmail(to, "me", subject
+                        , bodyText);
+                sendMessage(service, "me", example);
+            }
             return SUCCESS;
         }catch(Exception e){
             e.printStackTrace();
@@ -213,7 +216,7 @@ public class GMailHelper {
      * @param email The email of the new user
      * @return status of the email
      */
-    public static int sendVerificationEmail(String email,int userID, String verificationCode){
+    public static int sendVerificationEmail(String email,int userID, String verificationCode, DatabaseConnection dbc){
 
         String subject = "Email Vefification for Lambency Account";
 
@@ -225,7 +228,7 @@ public class GMailHelper {
 
         String body = sb.toString();
         GMailHelper gmh = new GMailHelper();
-        return gmh.sendEmail(email, subject, body);
+        return gmh.sendEmail(email, subject, body,dbc);
     }
 
     /**
@@ -234,7 +237,7 @@ public class GMailHelper {
      * @param email The email of the  user
      * @return status of the email
      */
-    public static int sendChangePasswordEmail(String email,int userID, String verificationCode){
+    public static int sendChangePasswordEmail(String email,int userID, String verificationCode, DatabaseConnection dbc){
 
         String subject = "Password Reset for Lambency Account";
 
@@ -246,13 +249,16 @@ public class GMailHelper {
 
         String body = sb.toString();
         GMailHelper gmh = new GMailHelper();
-        return gmh.sendEmail(email, subject, body);
+        return gmh.sendEmail(email, subject, body,dbc);
     }
 
     public static void main(String[] args) throws IOException {
         //send email using gmail
 
         GMailHelper gmh = new GMailHelper();
-        gmh.sendEmail("kvosbur@purdue.edu", "subject", "this is the body in the text");
+        DatabaseConnection databaseConnection = new DatabaseConnection();
+        if(databaseConnection.connect != null) {
+            gmh.sendEmail("kvosbur@purdue.edu", "subject", "this is the body in the text", databaseConnection);
+        }
     }
 }
