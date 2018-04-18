@@ -533,7 +533,7 @@ public class EventHandler {
             if(prev.getLocation().replace(';', ' ').equals(now.getLocation().replace(';', ' '))){
                 location = "<u>Location</u> : " + prev.getLocation().replace(';', ' ');
             }else{
-                location = "<strong><u>Location</u> : " + prev.getLocation().replace(';', ' ') + "</strong>";
+                location = "<strong><u>Location</u> : " + now.getLocation().replace(';', ' ') + "</strong>";
                 changed = true;
             }
 
