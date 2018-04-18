@@ -1452,7 +1452,7 @@ public class UserHandler {
                 return null;
             }
             GroupiesModel groupiesModel = dbc.searchGroupies(userID, orgID);
-            if(groupiesModel == null){
+            if(groupiesModel == null || groupiesModel.getType() == DatabaseConnection.FOLLOW){
                 Printing.println("user is not a member of org");
                 return null;
             }
