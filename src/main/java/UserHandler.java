@@ -812,6 +812,10 @@ public class UserHandler {
             //get salt and hash for user
             String[] strings = dbc.userGetHash(user.getUserId());
 
+            if(strings[1] == null){
+                return 8;
+            }
+
             if(PasswordUtil.verify(oldPassword, strings[1])) {
 
                 //check if both passwords are the same password

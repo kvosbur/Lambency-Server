@@ -205,7 +205,7 @@ public class GMailHelper {
             }
             return SUCCESS;
         }catch(Exception e){
-            e.printStackTrace();
+            Printing.printlnException(e);
             return FAILURE;
         }
     }
