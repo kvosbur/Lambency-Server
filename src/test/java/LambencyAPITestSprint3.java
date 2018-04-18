@@ -2145,6 +2145,76 @@ public class LambencyAPITestSprint3 {
         }
     }
 
+    @Test public void testPasswordChangeAccountNoPassword(){
+        insertData();
+
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        //start by first creating a lambency user account
+        UserHandler.register("first", "last", "email@email.com", "securePasswd", dbc);
+        try {
+            int userID = dbc.getUserByEmail("email1@nomail.com");
+            UserModel u = dbc.searchForUser("" + userID, DatabaseConnection.LAMBNECYUSERID);
+
+            Response<Integer> response = null;
+            response = this.getInstance().changePassword("", "", u.getOauthToken(), "securePasswd").execute();
+            System.out.println("out:" + response.body());
+            assertTrue(response.body() == 8);
+
+        }catch(Exception e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testPasswordChangeInvalidOldPassword(){
+        //try to change password of other lambency user
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserHandler.register("first", "last", "email@email.com", "securePasswd", dbc);
+        UserHandler.register("first1", "last2", "email2@email.com", "otherSecurePasswd", dbc);
+
+        try{
+            int userID = dbc.getUserByEmail("email@email.com");
+            String verification = dbc.userGetVerification(userID);
+            UserHandler.verifyEmail(userID, verification, dbc);
+            UserModel u = dbc.searchForUser("" + userID, DatabaseConnection.LAMBNECYUSERID);
+
+            int userID2 = dbc.getUserByEmail("email2@email.com");
+            String verification2 = dbc.userGetVerification(userID2);
+            UserHandler.verifyEmail(userID2, verification2, dbc);
+
+            Response<Integer> response = null;
+            response = this.getInstance().changePassword("aaaa", "aaaa", u.getOauthToken(), "otherSecurePasswd").execute();
+            System.out.println("out:" + response.body());
+            assertTrue(response.body() == 7);
+
+        }catch(Exception e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testPasswordChangeDifferentPasswords(){
+        //try to change password of other lambency user
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserHandler.register("first", "last", "email@email.com", "securePasswd", dbc);
+
+        try{
+            int userID = dbc.getUserByEmail("email@email.com");
+            String verification = dbc.userGetVerification(userID);
+            UserHandler.verifyEmail(userID, verification, dbc);
+            UserModel u = dbc.searchForUser("" + userID, DatabaseConnection.LAMBNECYUSERID);
+
+            Response<Integer> response = null;
+            response = this.getInstance().changePassword("aaaa", "bbbb", u.getOauthToken(), "securePasswd").execute();
+            System.out.println("out:" + response.body());
+            assertTrue(response.body() != 0);
+
+        }catch(Exception e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
     public void searches(){
         DatabaseConnection dbc = this.getDatabaseInstance();
 

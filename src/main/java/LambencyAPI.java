@@ -134,5 +134,8 @@ public interface LambencyAPI {
     @GET("User/setNotificationPreference")
     Call<Integer> updateNotificationPreference(@Query("oAuthCode") String oAuthCode, @Query("preference") int preference);
 
+    @POST("/User/changePassword")
+    Call<Integer> changePassword(@Query("newPassword") String password, @Query("confirmPassword") String confirmPass,
+                                 @Query("oAuthToken") String oAuthToken, @Query("oldPassword") String oldPassword);
 
 }

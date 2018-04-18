@@ -17,9 +17,9 @@ CREATE TABLE `user` (
 	`google_id` TEXT,
 	`oauth_token` TEXT,
 	`firebase_token` TEXT,
-	`hours` DOUBLE,
-	`notify_pref` int,
-	`active` int,
+	`hours` DOUBLE DEFAULT 0,
+	`notify_pref` int DEFAULT 0,
+	`active` int DEFAULT 0,
 	PRIMARY KEY (`user_id`)
 );
 
@@ -34,7 +34,7 @@ CREATE TABLE `organization` (
 	`org_location` TEXT,
 	`longitude` DOUBLE,
 	`latitude` DOUBLE,
-	`deleted` int,
+	`deleted` int DEFAULT 0,
 	PRIMARY KEY (`org_id`)
 );
 
