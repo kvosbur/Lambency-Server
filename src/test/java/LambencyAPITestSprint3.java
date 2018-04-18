@@ -814,6 +814,7 @@ public class LambencyAPITestSprint3 {
 
     }
 
+    @Test
     public void testLeaderboardRange(){
         insertData();
         DatabaseConnection dbc = this.getDatabaseInstance();
@@ -1817,6 +1818,326 @@ public class LambencyAPITestSprint3 {
             }
             ArrayList<EventModel> events = response.body();
             assertTrue(events == null);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testRequestsFromOrgNoRequests(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            Response<List<OrganizationModel>> response = null;
+            try {
+                response = this.getInstance().getUserJoinRequests(u1.getOauthToken()).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            if(response.body() == null){
+                assertTrue(false);
+            }
+            List<OrganizationModel> requests = response.body();
+            assertTrue(requests != null);
+            assertTrue(requests.size() == 0);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testRequestsFromOrgOneRequest(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel noOrgUser;
+        UserModel u3;
+        OrganizationModel org3;
+        try{
+            noOrgUser = dbc.searchForUser("facebook4", 2);
+            noOrgUser = UserHandler.searchForUser(noOrgUser.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            org3 = OrganizationHandler.searchOrgID(3, dbc);
+            OrganizationHandler.sendOrganizationInvite(u3.getOauthToken(), org3.getOrgID(), noOrgUser.getEmail(), dbc);
+            Response<List<OrganizationModel>> response = null;
+            try {
+                response = this.getInstance().getUserJoinRequests(noOrgUser.getOauthToken()).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            if(response.body() == null){
+                assertTrue(false);
+            }
+            List<OrganizationModel> requests = response.body();
+            assertTrue(requests != null);
+            assertTrue(requests.size() == 1);
+            OrganizationModel returnedOrg = requests.get(0);
+            assertTrue(returnedOrg.getOrgID() == org3.getOrgID());
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testRequestsFromOrgManyRequests(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        UserModel u2;
+        UserModel noOrgUser;
+        UserModel u3;
+        OrganizationModel org1;
+        OrganizationModel org2;
+        OrganizationModel org3;
+        OrganizationModel eventlessOrg;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            u2 = dbc.searchForUser("facebook2", 2);
+            u2 = UserHandler.searchForUser(u2.getOauthToken(), null, dbc);
+            noOrgUser = dbc.searchForUser("facebook4", 2);
+            noOrgUser = UserHandler.searchForUser(noOrgUser.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            org1 = OrganizationHandler.searchOrgID(1, dbc);
+            org2 = OrganizationHandler.searchOrgID(2, dbc);
+            org3 = OrganizationHandler.searchOrgID(3, dbc);
+            eventlessOrg = OrganizationHandler.searchOrgID(4, dbc);
+            OrganizationHandler.sendOrganizationInvite(u1.getOauthToken(), org1.getOrgID(), noOrgUser.getEmail(), dbc);
+            OrganizationHandler.sendOrganizationInvite(u2.getOauthToken(), org2.getOrgID(), noOrgUser.getEmail(), dbc);
+            OrganizationHandler.sendOrganizationInvite(u3.getOauthToken(), org3.getOrgID(), noOrgUser.getEmail(), dbc);
+            OrganizationHandler.sendOrganizationInvite(u3.getOauthToken(), eventlessOrg.getOrgID(), noOrgUser.getEmail(), dbc);
+            Response<List<OrganizationModel>> response = null;
+            try {
+                response = this.getInstance().getUserJoinRequests(noOrgUser.getOauthToken()).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            List<OrganizationModel> requests = response.body();
+            assertTrue(requests != null);
+            assertTrue(requests.size() == 4);
+            assertTrue(requests.contains(org1));
+            assertTrue(requests.contains(org2));
+            assertTrue(requests.contains(org3));
+            assertTrue(requests.contains(eventlessOrg));
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testRequestsFromOrgBadUser(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            Response<List<OrganizationModel>> response = null;
+            try {
+                response = this.getInstance().getUserJoinRequests("").execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            List<OrganizationModel> requests = response.body();
+            assertTrue(requests == null);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testRequestsFromOrgNullUser(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel u1;
+        try{
+            u1 = dbc.searchForUser("facebook1", 2);
+            u1 = UserHandler.searchForUser(u1.getOauthToken(), null, dbc);
+            Response<List<OrganizationModel>> response = null;
+            try {
+                response = this.getInstance().getUserJoinRequests(null).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            List<OrganizationModel> requests = response.body();
+            assertTrue(requests == null);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testRespondToRequestFromOrgAccept(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel noOrgUser;
+        UserModel u3;
+        OrganizationModel org3;
+        try{
+            noOrgUser = dbc.searchForUser("facebook4", 2);
+            noOrgUser = UserHandler.searchForUser(noOrgUser.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            org3 = OrganizationHandler.searchOrgID(3, dbc);
+            OrganizationHandler.sendOrganizationInvite(u3.getOauthToken(), org3.getOrgID(), noOrgUser.getEmail(), dbc);
+            Response<Integer> response = null;
+            try {
+                response = this.getInstance().getUserRespondToJoinRequest(noOrgUser.getOauthToken(), "" + org3.getOrgID(), "true").execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            if(response.body() == null){
+                assertTrue(false);
+            }
+            Integer ret = response.body();
+            assertTrue(ret == 0);
+            UserModel updatedUser = UserHandler.searchForUser(noOrgUser.getOauthToken(), "" + noOrgUser.getUserId(), dbc);
+            assertTrue(updatedUser.getJoinedOrgs().contains(org3.getOrgID()));
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testRespondToRequestFromOrgReject(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel noOrgUser;
+        UserModel u3;
+        OrganizationModel org3;
+        try{
+            noOrgUser = dbc.searchForUser("facebook4", 2);
+            noOrgUser = UserHandler.searchForUser(noOrgUser.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            org3 = OrganizationHandler.searchOrgID(3, dbc);
+            OrganizationHandler.sendOrganizationInvite(u3.getOauthToken(), org3.getOrgID(), noOrgUser.getEmail(), dbc);
+            Response<Integer> response = null;
+            try {
+                response = this.getInstance().getUserRespondToJoinRequest(noOrgUser.getOauthToken(), "" + org3.getOrgID(), "false").execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            if(response.body() == null){
+                assertTrue(false);
+            }
+            Integer ret = response.body();
+            assertTrue(ret == 1);
+            UserModel updatedUser = UserHandler.searchForUser(noOrgUser.getOauthToken(), "" + noOrgUser.getUserId(), dbc);
+            assertTrue(!updatedUser.getJoinedOrgs().contains(org3.getOrgID()));
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testRespondToRequestBadUser(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel noOrgUser;
+        UserModel u3;
+        OrganizationModel org3;
+        try{
+            noOrgUser = dbc.searchForUser("facebook4", 2);
+            noOrgUser = UserHandler.searchForUser(noOrgUser.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            org3 = OrganizationHandler.searchOrgID(3, dbc);
+            OrganizationHandler.sendOrganizationInvite(u3.getOauthToken(), org3.getOrgID(), noOrgUser.getEmail(), dbc);
+            Response<Integer> response = null;
+            try {
+                response = this.getInstance().getUserRespondToJoinRequest("", "" + org3.getOrgID(), "true").execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            if(response.body() == null){
+                assertTrue(false);
+            }
+            Integer ret = response.body();
+            assertTrue(ret == -1);
+            List<OrganizationModel> requests = UserHandler.getRequestedToJoinOrgs(noOrgUser.getOauthToken(), dbc);
+            assertTrue(requests.contains(org3));
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testRespondToRequestBadOrg(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel noOrgUser;
+        UserModel u3;
+        OrganizationModel org3;
+        try{
+            noOrgUser = dbc.searchForUser("facebook4", 2);
+            noOrgUser = UserHandler.searchForUser(noOrgUser.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            org3 = OrganizationHandler.searchOrgID(3, dbc);
+            OrganizationHandler.sendOrganizationInvite(u3.getOauthToken(), org3.getOrgID(), noOrgUser.getEmail(), dbc);
+            Response<Integer> response = null;
+            try {
+                response = this.getInstance().getUserRespondToJoinRequest(noOrgUser.getOauthToken(), "-1", "true").execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            if(response.body() == null){
+                assertTrue(false);
+            }
+            Integer ret = response.body();
+            assertTrue(ret == -1);
+            List<OrganizationModel> requests = UserHandler.getRequestedToJoinOrgs(noOrgUser.getOauthToken(), dbc);
+            assertTrue(requests.contains(org3));
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+    @Test public void testRespondToRequestNull(){
+        insertData();
+        DatabaseConnection dbc = this.getDatabaseInstance();
+        UserModel noOrgUser;
+        UserModel u3;
+        OrganizationModel org3;
+        try{
+            noOrgUser = dbc.searchForUser("facebook4", 2);
+            noOrgUser = UserHandler.searchForUser(noOrgUser.getOauthToken(), null, dbc);
+            u3 = dbc.searchForUser("facebook3", 2);
+            u3 = UserHandler.searchForUser(u3.getOauthToken(), null, dbc);
+            org3 = OrganizationHandler.searchOrgID(3, dbc);
+            OrganizationHandler.sendOrganizationInvite(u3.getOauthToken(), org3.getOrgID(), noOrgUser.getEmail(), dbc);
+            Response<Integer> response = null;
+            try {
+                response = this.getInstance().getUserRespondToJoinRequest(null, null, null).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+            assertTrue(response.body() == null);
         }
         catch (SQLException e){
             e.printStackTrace();
