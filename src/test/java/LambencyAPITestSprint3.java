@@ -2169,10 +2169,12 @@ public class LambencyAPITestSprint3 {
     @Test public void testPasswordChangeInvalidOldPassword(){
         //try to change password of other lambency user
         DatabaseConnection dbc = this.getDatabaseInstance();
-        UserHandler.register("first", "last", "email@email.com", "securePasswd", dbc);
-        UserHandler.register("first1", "last2", "email2@email.com", "otherSecurePasswd", dbc);
+
 
         try{
+            dbc.truncateTables();
+            UserHandler.register("first", "last", "email@email.com", "securePasswd", dbc);
+            UserHandler.register("first1", "last2", "email2@email.com", "otherSecurePasswd", dbc);
             int userID = dbc.getUserByEmail("email@email.com");
             String verification = dbc.userGetVerification(userID);
             UserHandler.verifyEmail(userID, verification, dbc);
@@ -2196,9 +2198,10 @@ public class LambencyAPITestSprint3 {
     @Test public void testPasswordChangeDifferentPasswords(){
         //try to change password of other lambency user
         DatabaseConnection dbc = this.getDatabaseInstance();
-        UserHandler.register("first", "last", "email@email.com", "securePasswd", dbc);
 
         try{
+            dbc.truncateTables();
+            UserHandler.register("first", "last", "email@email.com", "securePasswd", dbc);
             int userID = dbc.getUserByEmail("email@email.com");
             String verification = dbc.userGetVerification(userID);
             UserHandler.verifyEmail(userID, verification, dbc);
@@ -2207,7 +2210,138 @@ public class LambencyAPITestSprint3 {
             Response<Integer> response = null;
             response = this.getInstance().changePassword("aaaa", "bbbb", u.getOauthToken(), "securePasswd").execute();
             System.out.println("out:" + response.body());
-            assertTrue(response.body() != 0);
+            assertTrue(response.body() == 5);
+
+        }catch(Exception e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testPasswordRecoveryWrongVerficationCode(){
+        //try to change password of other lambency user
+        DatabaseConnection dbc = this.getDatabaseInstance();
+
+        try{
+            dbc.truncateTables();
+            UserHandler.register("first", "last", "email@email.com", "securePasswd", dbc);
+            int userID = dbc.getUserByEmail("email@email.com");
+            String verification = dbc.userGetVerification(userID);
+            UserHandler.verifyEmail(userID, verification, dbc);
+            UserModel u = dbc.searchForUser("" + userID, DatabaseConnection.LAMBNECYUSERID);
+
+            UserHandler.beginRecoverPassword("email@email.com", dbc);
+
+            Response<Integer> response = null;
+            response = this.getInstance().endPasswordRecovery("aaaa", "aaaa", "wrongverification", userID).execute();
+            System.out.println("out:" + response.body());
+            assertTrue(response.body() == 7);
+
+        }catch(Exception e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testPasswordRecoveryNewPasswordInvalid(){
+        //try to change password of other lambency user
+        DatabaseConnection dbc = this.getDatabaseInstance();
+
+
+        try{
+            dbc.truncateTables();
+            UserHandler.register("first", "last", "email@email.com", "securePasswd", dbc);
+            int userID = dbc.getUserByEmail("email@email.com");
+            String verification = dbc.userGetVerification(userID);
+            UserHandler.verifyEmail(userID, verification, dbc);
+            UserModel u = dbc.searchForUser("" + userID, DatabaseConnection.LAMBNECYUSERID);
+
+            UserHandler.beginRecoverPassword("email@email.com", dbc);
+
+            Response<Integer> response = null;
+            response = this.getInstance().endPasswordRecovery("aaaa", "bbbb", verification, userID).execute();
+            System.out.println("out:" + response.body());
+            assertTrue(response.body() == -1);
+
+        }catch(Exception e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testPasswordRecoveryNoAccount(){
+        //try to change password of other lambency user
+        DatabaseConnection dbc = this.getDatabaseInstance();
+
+
+        try{
+            dbc.truncateTables();
+            UserHandler.register("first", "last", "email@email.com", "securePasswd", dbc);
+            int userID = dbc.getUserByEmail("email@email.com");
+            String verification = dbc.userGetVerification(userID);
+            UserHandler.verifyEmail(userID, verification, dbc);
+            UserModel u = dbc.searchForUser("" + userID, DatabaseConnection.LAMBNECYUSERID);
+
+            Response<Integer> response = null;
+            response = this.getInstance().beginPasswordRecovery("notexist@email.com").execute();
+            System.out.println("out:" + response.body());
+            assertTrue(response.body() == -1);
+
+        }catch(Exception e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testRegisterNotUniqueEmail(){
+        DatabaseConnection dbc = this.getDatabaseInstance();
+
+        try{
+            dbc.truncateTables();
+            UserHandler.register("first", "last", "email@email.com", "securePasswd", dbc);
+
+            Response<Integer> response = null;
+            response = this.getInstance().registerUser("email@email.com", "first", "last", "securePasswd").execute();
+            System.out.println("out:" + response.body());
+            assertTrue(response.body() == 2);
+
+        }catch(Exception e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testLoginInvalidEmail(){
+        //try to change password of other lambency user
+        DatabaseConnection dbc = this.getDatabaseInstance();
+
+        try{
+            dbc.truncateTables();
+            UserHandler.register("first", "last", "email@email.com", "securePasswd", dbc);
+
+            Response<UserAuthenticator> response = null;
+            response = this.getInstance().loginUser("INVALID@email.com", "securePasswd").execute();
+            System.out.println("out:" + response.body().getStatus());
+            assertTrue(response.body().getStatus() != UserAuthenticator.Status.SUCCESS);
+
+        }catch(Exception e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test public void testLoginInvalidPassword(){
+        //try to change password of other lambency user
+        DatabaseConnection dbc = this.getDatabaseInstance();
+
+        try{
+            dbc.truncateTables();
+            UserHandler.register("first", "last", "email@email.com", "securePasswd", dbc);
+
+            Response<UserAuthenticator> response = null;
+            response = this.getInstance().loginUser("email@email.com", "WRONGPASSWORD").execute();
+            System.out.println("out:" + response.body().getStatus());
+            assertTrue(response.body().getStatus() != UserAuthenticator.Status.SUCCESS);
 
         }catch(Exception e){
             e.printStackTrace();

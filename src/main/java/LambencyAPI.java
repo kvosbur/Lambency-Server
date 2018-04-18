@@ -138,4 +138,18 @@ public interface LambencyAPI {
     Call<Integer> changePassword(@Query("newPassword") String password, @Query("confirmPassword") String confirmPass,
                                  @Query("oAuthToken") String oAuthToken, @Query("oldPassword") String oldPassword);
 
+    @POST("/User/beginRecovery")
+    Call<Integer> beginPasswordRecovery(@Query("email") String email);
+
+    @POST("/User/endRecovery")
+    Call<Integer> endPasswordRecovery(@Query("newPassword") String password, @Query("confirmPassword") String confirmPass,
+                                      @Query("verification") String oAuthToken, @Query("userID") int userID);
+
+    @GET("/User/register")
+    Call<Integer> registerUser(@Query("email") String email, @Query("first") String firstName, @Query("last") String LastName,
+                               @Query("passwd") String password);
+
+    @GET("/User/login/lambency")
+    Call<UserAuthenticator> loginUser(@Query("email") String email, @Query("password") String password);
+
 }
