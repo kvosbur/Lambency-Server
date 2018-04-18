@@ -1312,7 +1312,7 @@ public class UserHandler {
             });
 
             //remove any duplicates that may be present
-            for(int i = 1; i < ret.size() - 1; i++){
+            for(int i = 1; i < ret.size(); i++){
                 UserModel prev = ret.get(i-1);
                 UserModel next = ret.get(i);
                 if(prev.getUserId() == next.getUserId()){

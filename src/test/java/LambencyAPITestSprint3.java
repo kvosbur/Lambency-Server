@@ -2349,6 +2349,8 @@ public class LambencyAPITestSprint3 {
         }
     }
 
+
+
     public void searches(){
         DatabaseConnection dbc = this.getDatabaseInstance();
 
