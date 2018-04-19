@@ -220,7 +220,7 @@ public class LambencyAPITest {
         //test the API retrofit call
         Response<ArrayList<EventModel>> response = null;
         try {
-            response = this.getInstance().getEventsWithFilter(efm).execute();
+            response = this.getInstance().getEventsWithFilter(efm,organizer.getOauthToken()).execute();
         } catch (IOException e) {
             e.printStackTrace();
             assertTrue(false);
@@ -288,7 +288,7 @@ public class LambencyAPITest {
         //test the API retrofit call
         Response<ArrayList<EventModel>> response = null;
         try {
-            response = this.getInstance().getEventsWithFilter(efm).execute();
+            response = this.getInstance().getEventsWithFilter(efm,organizer.getOauthToken()).execute();
         } catch (IOException e) {
             e.printStackTrace();
             assertTrue(false);
@@ -358,7 +358,7 @@ public class LambencyAPITest {
         //test the API retrofit call
         Response<ArrayList<EventModel>> response = null;
         try {
-            response = this.getInstance().getEventsWithFilter(efm).execute();
+            response = this.getInstance().getEventsWithFilter(efm,organizer.getOauthToken()).execute();
         } catch (IOException e) {
             e.printStackTrace();
             assertTrue(false);
@@ -432,7 +432,7 @@ public class LambencyAPITest {
         //test the API retrofit call
         Response<ArrayList<EventModel>> response = null;
         try {
-            response = this.getInstance().getEventsWithFilter(efm).execute();
+            response = this.getInstance().getEventsWithFilter(efm,organizer.getOauthToken()).execute();
         } catch (IOException e) {
             e.printStackTrace();
             assertTrue(false);
@@ -505,7 +505,7 @@ public class LambencyAPITest {
         //test the API retrofit call
         Response<ArrayList<EventModel>> response = null;
         try {
-            response = this.getInstance().getEventsWithFilter(efm).execute();
+            response = this.getInstance().getEventsWithFilter(efm,organizer.getOauthToken()).execute();
         } catch (IOException e) {
             e.printStackTrace();
             assertTrue(false);
@@ -594,7 +594,7 @@ public class LambencyAPITest {
         //test the API retrofit call
         Response<ArrayList<EventModel>> response = null;
         try {
-            response = this.getInstance().getEventsWithFilter(efm).execute();
+            response = this.getInstance().getEventsWithFilter(efm,organizer.getOauthToken()).execute();
         } catch (IOException e) {
             e.printStackTrace();
             assertTrue(false);

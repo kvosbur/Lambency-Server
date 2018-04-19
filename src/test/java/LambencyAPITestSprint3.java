@@ -549,7 +549,120 @@ public class LambencyAPITestSprint3 {
         assertTrue(eventsFeed == null);
     }
 
+    @Test
+    public void testDefaultActiveState(){
+        Response<Integer> response = null;
+        UserModel organizer = new UserModel("User", "Lastname", "organizer@nonemail.com");
+        try {
+            getDatabaseInstance().truncateTables();
+            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
+                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            organizer.setOauthToken(ua.getoAuthCode());
 
+            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
+            organizer = this.getDatabaseInstance().searchForUser(organizer.getOauthToken());
+
+            assertTrue(!organizer.isActive());
+
+
+
+        }  catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+
+    }
+
+    @Test
+    public void testSetActiveState(){
+        Response<Integer> response = null;
+        UserModel organizer = new UserModel("User", "Lastname", "organizer@nonemail.com");
+        try {
+            getDatabaseInstance().truncateTables();
+            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
+                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            organizer.setOauthToken(ua.getoAuthCode());
+
+            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
+
+
+            //test the API retrofit call
+
+
+
+            response = this.getInstance().setActiveStatus(organizer.getOauthToken(),true).execute();
+            organizer = this.getDatabaseInstance().searchForUser(organizer.getOauthToken());
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        } catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+
+
+        if (response.body() == null || response.code() != 200) {
+            System.out.println(response.code());
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+
+
+        //when response is back
+        Integer ret = response.body();
+        System.out.println(ret);
+        assertTrue(ret == 0);
+        assertTrue(organizer.isActive());
+    }
+
+    @Test
+    public void testGetActiveState(){
+        Response<Integer> response = null;
+        UserModel organizer = new UserModel("User", "Lastname", "organizer@nonemail.com");
+        UserModel user = new UserModel("User1", "Lastname1", "organize1r@nonemail.com");
+        try {
+            getDatabaseInstance().truncateTables();
+            organizer.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", organizer.getFirstName(),
+                    organizer.getLastName(), organizer.getEmail(), DatabaseConnection.GOOGLE));
+            UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            organizer.setOauthToken(ua.getoAuthCode());
+
+            this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
+
+            user.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity", user.getFirstName(),
+                    user.getLastName(), user.getEmail(), DatabaseConnection.GOOGLE));
+            UserAuthenticator ua1 = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
+            user.setOauthToken(ua1.getoAuthCode());
+
+            this.getDatabaseInstance().setOauthCode(user.getUserId(),ua1.getoAuthCode());
+            this.getDatabaseInstance().setUserActiveStatus(user.getUserId(),true);
+            user = this.getDatabaseInstance().searchForUser(user.getOauthToken());
+            assertTrue(user.isActive());
+            //test the API retrofit call
+            response = this.getInstance().getActiveStatus(organizer.getOauthToken(),user.getUserId()).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        } catch (SQLException e){
+            e.printStackTrace();
+            assertTrue(false);
+        }
+
+
+        if (response.body() == null || response.code() != 200) {
+            System.out.println(response.code());
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
+
+
+        //when response is back
+        Integer ret = response.body();
+        System.out.println(ret);
+        assertTrue(ret == 1);
+    }
 
     @Test
     public void testDeleteEventNoAttendance(){
@@ -895,7 +1008,6 @@ public class LambencyAPITestSprint3 {
             assertTrue(false);
         }
     }
-
     @Test
     public void testLeaderboardRangeInvalid(){
         insertData();
@@ -932,7 +1044,6 @@ public class LambencyAPITestSprint3 {
             assertTrue(false);
         }
     }
-
     @Test
     public void testLeaderboardRangeNull(){
         insertData();
@@ -969,7 +1080,6 @@ public class LambencyAPITestSprint3 {
             assertTrue(false);
         }
     }
-
     @Test
     public void testLeaderBoardAroundUser(){
         insertData();
@@ -1118,7 +1228,6 @@ public class LambencyAPITestSprint3 {
             assertTrue(false);
         }
     }
-
     @Test
     public void testDeleteOrg(){
         insertData();
@@ -1570,6 +1679,7 @@ public class LambencyAPITestSprint3 {
             assertTrue(false);
         }
     }
+
     @Test public void testUserPastEventsInOrgNoEvents(){
         insertData();
         DatabaseConnection dbc = this.getDatabaseInstance();
@@ -2117,6 +2227,7 @@ public class LambencyAPITestSprint3 {
             assertTrue(false);
         }
     }
+
     @Test public void testRespondToRequestNull(){
         insertData();
         DatabaseConnection dbc = this.getDatabaseInstance();
