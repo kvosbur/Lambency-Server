@@ -73,10 +73,11 @@ public class GoogleLoginHandler {
                 String iss = (String) payload.get("iss");
                 UserModel us;
 
-                if (emailVerified.equals("false")) {
-                    status = UserAuthenticator.Status.NON_UNIQUE_EMAIL;
-                    Printing.println("Failed to have verified email.");
+                if ((us = dbc.searchForUser(sub,1))!= null) {
+                    // take OAuthCode from this user and set it in the UserAutneticator
+                    ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS, us.getOauthToken());
                 }
+
                 else if(!(aud.equals(GOOGLE_ANDROID_ID))){
                     Printing.println("Error with comparing aud: "+aud);
                     status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
@@ -85,9 +86,9 @@ public class GoogleLoginHandler {
                     Printing.println("Error with comparing iss: "+iss);
                     status = UserAuthenticator.Status.NON_DETERMINANT_ERROR;
                 }
-                else if ((us = dbc.searchForUser(sub,1))!= null) {
-                    // take OAuthCode from this user and set it in the UserAutneticator
-                    ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS, us.getOauthToken());
+                else if (emailVerified.equals("false") || dbc.verifyUserEmail(email) == -1) {
+                    status = UserAuthenticator.Status.NON_UNIQUE_EMAIL;
+                    Printing.println("Failed to have verified email.");
                 }
                 else{
                     int labID = dbc.createUser(sub, givenName, familyName, email, 1);

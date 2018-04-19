@@ -65,23 +65,23 @@ public class LambencyAPIHelper {
         });
     }
 
-    public List<EventModel> findEventsWithParam(double lattitude, double longitude, String name, int org_id){
-        List<EventModel> events = null;
-
-        try {
-            Response<List<EventModel>> response = this.getInstance().getEventsWithParams(lattitude,longitude,name,Double.toString(org_id)).execute();
-            if(response.isSuccessful()) {
-                events = response.body();
-            }
-            else{
-                System.out.println("failed to gather events");
-            }
-
-        } catch (IOException e) {
-            Printing.println(e.toString());
-        }
-        return events;
-    }
+//    public List<EventModel> findEventsWithParam(double lattitude, double longitude, String name, int org_id){
+//        List<EventModel> events = null;
+//
+//        try {
+//            Response<List<EventModel>> response = this.getInstance().getEventsWithParams(lattitude,longitude,name,Double.toString(org_id)).execute();
+//            if(response.isSuccessful()) {
+//                events = response.body();
+//            }
+//            else{
+//                System.out.println("failed to gather events");
+//            }
+//
+//        } catch (IOException e) {
+//            Printing.println(e.toString());
+//        }
+//        return events;
+//    }
 
 
     public void googleLoginRetrofit(String id){
@@ -144,9 +144,9 @@ public void getOrganizationSearch(String name){
         });
 }
 
-    public void updateEventRetrofit(EventModel event){
+    public void updateEventRetrofit(EventModel event, String message){
 
-        this.getInstance().postUpdateEvent(event).enqueue(new Callback<Integer>() {
+        this.getInstance().getUpdateEvent(event, message).enqueue(new Callback<Integer>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.body() == null || response.code() != 200) {
@@ -511,6 +511,61 @@ public void createOrganizationRetrofit(OrganizationModel org){
         });
     }
 
+    public void editOrg(String oAuthCode, OrganizationModel organizationModel){
+
+        this.getInstance().getEditOrganization(oAuthCode, organizationModel).enqueue(new Callback<OrganizationModel>() {
+            @Override
+            public void onResponse(Call<OrganizationModel> call, Response<OrganizationModel> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("failed to update org or invalid permissions");
+                }
+                //when response is back
+                OrganizationModel organization= response.body();
+                if(organization == null){
+                    System.out.println("failed to update organization");
+                }
+                else{
+                    System.out.println("updated org: " + organization.getDescription());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<OrganizationModel> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+    public void deleteOrg(String oAuthCode, String orgID){
+
+        this.getInstance().getDeleteOrganization(oAuthCode, orgID).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("failed to update org or invalid permissions");
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == 0){
+                    System.out.println("successfully deleted org");
+                }
+                else if(ret == -1){
+                    System.out.println("failed to delete org: bad params or error occurred");
+                }
+                else if(ret == -2){
+                    System.out.println("user is not an organizer");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
 
     public void leaveOrganization(String oAuthCode, int orgID){
         this.getInstance().postLeaveOrganization(oAuthCode,orgID).enqueue(new Callback<Integer>() {
@@ -861,13 +916,252 @@ public void createOrganizationRetrofit(OrganizationModel org){
             }
         });
     }
+    public void deleteEventRetrofit(String oAuthCode, String eventID, String message)
+    {
+        this.getInstance().getDeleteEvent(oAuthCode, eventID, message).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("An error has occurred");
+                    return;
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == null || ret == -1){
+                    System.out.println("An error has occurred");
+                }
+                else if(ret == -2){
+                    System.out.println("User or event not found");
+                }
+                else if(ret == -3){
+                    System.out.println("User does not have permissions to delete the event");
+                }
+                else if(ret == 0){
+                    System.out.println("success");
+                }
+            }
 
-    public static void main(String[] args) {
-        LambencyAPIHelper lh = new LambencyAPIHelper();
-        //OrganizationModel org = new OrganizationModel(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");
-        //lh.createOrganizationRetrofit(org);
-        //lh.facebookLoginRetrofit("id", "fist", "last", "email.com");
-        lh.facebookLoginRetrofit("id", "fist", "last", "email.com");
-        System.out.println(lh.findEventsWithParam(0.0,0.0,null,0));
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
     }
+
+    public void updateNotifyPreference(String oAuthCode, int preference){
+        this.getInstance().updateNotificationPreference(oAuthCode,preference).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("ERROR!!!!!");
+                    return;
+                }
+                //when response is back
+                Integer status = response.body();
+                System.out.println(status);
+                if(status == 0){
+                    //System.out.println("SUCCESS");
+                }
+                else if(status == -1){
+                    //System.out.println("BAD USER ID");
+                }
+                else if(status == -2){
+                    //System.out.println("Illegal preference");
+                }
+                else if(status == -3){
+                    //System.out.println("SQL EXCEPTION");
+                }
+                else if(status == -4){
+                    //System.out.println("BAD SQL Connection");
+                }
+                else if(status == -5){
+                    //System.out.println("Bad arguments passed in retrofit");
+                }
+            }
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+
+            }
+        });
+    }
+    public void leaderboardRangeRetrofit(String start, String end)
+    {
+        this.getInstance().getLeaderboardRange(start, end).enqueue(new Callback<List<UserModel>>() {
+            @Override
+            public void onResponse(Call<List<UserModel>> call, Response<List<UserModel>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("An error has occurred");
+                    return;
+                }
+                //when response is back
+                List<UserModel> ret = response.body();
+                if(ret == null ) {
+                    System.out.println("An error has occurred");
+                }
+                else{
+                    UserModel userModel = ret.get(0);
+                    int rank = Integer.parseInt(userModel.getOauthToken());
+                    // I will set the oAuthToken to the users rank
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<UserModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+    public void leaderboardAroundUserRetrofit(String oAuthCode)
+    {
+        this.getInstance().getLeaderboardAroundUser(oAuthCode).enqueue(new Callback<List<UserModel>>() {
+            @Override
+            public void onResponse(Call<List<UserModel>> call, Response<List<UserModel>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("An error has occurred");
+                    return;
+                }
+                //when response is back
+                List<UserModel> ret = response.body();
+                if(ret == null ) {
+                    System.out.println("An error has occurred");
+                }
+                else{
+                    UserModel userModel = ret.get(0);
+                    int rank = Integer.parseInt(userModel.getOauthToken());
+                    // I will set the oAuthToken to the users rank
+                }
+            }
+
+            @Override
+
+            public void onFailure(Call<List<UserModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+    public void userJoinRequests(String oAuthCode)
+    {
+        this.getInstance().getUserJoinRequests(oAuthCode).enqueue(new Callback<List<OrganizationModel>>() {
+            @Override
+            public void onResponse(Call<List<OrganizationModel>> call, Response<List<OrganizationModel>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("An error has occurred");
+                    return;
+                }
+                //when response is back
+                List<OrganizationModel> ret = response.body();
+                if(ret == null ) {
+                    System.out.println("An error has occurred");
+                }
+                else{
+                    for(OrganizationModel org: ret) {
+                        System.out.println(org.getName() + " has sent a request to the user");
+                    }
+                }
+            }
+            @Override
+            public void onFailure(Call<List<OrganizationModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+    public void userRespondToJoinRequests(String oAuthCode, String orgID, boolean accept)
+    {
+        this.getInstance().getUserRespondToJoinRequest(oAuthCode, orgID, "" + accept).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("An error has occurred");
+                    return;
+                }
+                //when response is back
+                Integer ret = response.body();
+                if(ret == -1 ) {
+                    System.out.println("An error has occurred");
+                }
+                else if (ret == 0) {
+                    System.out.println("Successfully joined org");
+                }
+                else if (ret == 1) {
+                    System.out.println("Successfully rejected request");
+                }
+
+            }
+            @Override
+            public void onFailure(Call<Integer> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+    public void pastEvents(String oAuthCode)
+    {
+        this.getInstance().getPastEvents(oAuthCode).enqueue(new Callback<ArrayList<EventModel>>() {
+            @Override
+            public void onResponse(Call<ArrayList<EventModel>> call, Response<ArrayList<EventModel>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("An error has occurred or the user has no past events");
+                    // if null is given show that the user has no past events
+                    return;
+                }
+                //when response is back
+                ArrayList<EventModel> events = response.body();
+                for(EventModel eventModel : events){
+                    // i set hours in description
+                    double hours = Double.parseDouble(eventModel.getDescription());
+                    System.out.println("User worked " + hours + " hours at " + eventModel.getName());
+                }
+
+            }
+            @Override
+            public void onFailure(Call<ArrayList<EventModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+    public void pastEventsInOrg(String oAuthCode, String userID, String orgID)
+    {
+        this.getInstance().getPastEventsInOrg(oAuthCode, userID, orgID).enqueue(new Callback<ArrayList<EventModel>>() {
+            @Override
+            public void onResponse(Call<ArrayList<EventModel>> call, Response<ArrayList<EventModel>> response) {
+                if (response.body() == null || response.code() != 200) {
+                    System.out.println("An error has occurred or the user has no past events or user is not admin of org");
+                    // if null is given show that the user has no past events
+                    return;
+                }
+                //when response is back
+                ArrayList<EventModel> events = response.body();
+                for(EventModel eventModel : events){
+                    // i set hours in description
+                    double hours = Double.parseDouble(eventModel.getDescription());
+                    System.out.println("User worked " + hours + " hours at " + eventModel.getName());
+                }
+
+            }
+            @Override
+            public void onFailure(Call<ArrayList<EventModel>> call, Throwable throwable) {
+                //when failure
+                System.out.println("FAILED CALL");
+            }
+        });
+    }
+
+//    public static void main(String[] args) {
+//        LambencyAPIHelper lh = new LambencyAPIHelper();
+//        //OrganizationModel org = new OrganizationModel(null, "Org1", "Purdue", 0, "This is an org", "email@a.com", null, "Img.com");
+//        //lh.createOrganizationRetrofit(org);
+//        //lh.facebookLoginRetrofit("id", "fist", "last", "email.com");
+//        lh.facebookLoginRetrofit("id", "fist", "last", "email.com");
+//        System.out.println(lh.findEventsWithParam(0.0,0.0,null,0));
+//    }
 }

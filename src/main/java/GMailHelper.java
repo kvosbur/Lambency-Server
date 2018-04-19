@@ -195,22 +195,70 @@ public class GMailHelper {
         return message;
     }
 
-    public int sendEmail(String to,String subject, String bodyText){
+    public int sendEmail(String to,String subject, String bodyText, DatabaseConnection dbc){
         try {
-            MimeMessage example = GMailHelper.createEmail(to, "me", subject
-                    , bodyText);
-            sendMessage(service,"me",example);
+            int pref = dbc.getUserPreferenceWithEmailAddress(to);
+            if(pref == DatabaseConnection.NOTIFY_EMAIL_PUSH || pref == DatabaseConnection.NOTIFY_EMAIL) {
+                MimeMessage example = GMailHelper.createEmail(to, "me", subject
+                        , bodyText);
+                sendMessage(service, "me", example);
+            }
             return SUCCESS;
         }catch(Exception e){
-            e.printStackTrace();
+            Printing.printlnException(e);
             return FAILURE;
         }
+    }
+
+    /**
+     * Send a verification email to the new user's email
+     *
+     * @param email The email of the new user
+     * @return status of the email
+     */
+    public static int sendVerificationEmail(String email,int userID, String verificationCode, DatabaseConnection dbc){
+
+        String subject = "Email Verification for Lambency Account";
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Please click the link below to open our app in order to verify your email.<br>");
+        sb.append("<a href=\"www.mylambencyclient.com/login?code=" + verificationCode + "&uid=" + userID);
+        sb.append("\"> Click Here To Verify</a>");
+
+        String body = sb.toString();
+        GMailHelper gmh = new GMailHelper();
+        return gmh.sendEmail(email, subject, body,dbc);
+    }
+
+    /**
+     * Send an email to a user to allow them to change their password
+     *
+     * @param email The email of the  user
+     * @return status of the email
+     */
+    public static int sendChangePasswordEmail(String email,int userID, String verificationCode, DatabaseConnection dbc){
+
+        String subject = "Password Reset for Lambency Account";
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Please click the link below to open our app in order to set your new password.<br>");
+        sb.append("<a href=\"www.mylambencyclient.com/changePassword?code=" + verificationCode + "&uid=" + userID);
+        sb.append("\"> Click Here To Change Password</a>");
+
+        String body = sb.toString();
+        GMailHelper gmh = new GMailHelper();
+        return gmh.sendEmail(email, subject, body,dbc);
     }
 
     public static void main(String[] args) throws IOException {
         //send email using gmail
 
         GMailHelper gmh = new GMailHelper();
-        gmh.sendEmail("kvosbur@purdue.edu", "subject", "this is the body in the text");
+        DatabaseConnection databaseConnection = new DatabaseConnection();
+        if(databaseConnection.connect != null) {
+            gmh.sendEmail("kvosbur@purdue.edu", "subject", "this is the body in the text", databaseConnection);
+        }
     }
 }

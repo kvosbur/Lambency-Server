@@ -1,7 +1,7 @@
 import com.google.maps.model.LatLng;
 
-import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -25,7 +25,9 @@ public class EventHandler {
             //write event image
             Printing.println("file_path is null: "+event.getImage_path() == null);
             if(event.getImage_path() == null && event.getImageFile() != null){
+                //event.setImage_path(ImageWR.writeImageToFile(event.getImageFile()));
                 event.setImage_path(ImageWR.writeImageToFile(event.getImageFile()));
+                //event.setImage_path(ImageWR.saveImage(event.getImageToSave()));
             }
             //create clock in and clock out code
             event.setClockInCode(EventHandler.generateClockInOutCodes());
@@ -33,7 +35,7 @@ public class EventHandler {
             //create event
             int event_id = dbc.createEvent(event.getOrg_id(),event.getName(),event.getStart(),
                     event.getEnd(),event.getDescription(),event.getLocation(),event.getImage_path(), latlng.lat, latlng.lng,
-                    event.getClockInCode(), event.getClockOutCode());
+                    event.getClockInCode(), event.getClockOutCode(),event.getPrivateEvent());
 
             //notify users of event creation
             ArrayList<String> userEmails = dbc.getUserEmailsToNotify(event.getOrg_id());
@@ -47,7 +49,7 @@ public class EventHandler {
             Printing.println("Error in creating event: "+event.getName());
             return null;
         }
-        catch (IOException e){
+        catch (Exception e){
             Printing.println("Error in writing image.");
             Printing.println("Error in creating event: "+event.getName());
             Printing.println(e.toString());
@@ -57,61 +59,83 @@ public class EventHandler {
     }
 
 
-    public static int updateEvent(EventModel event, DatabaseConnection dbc) {
+    public static int updateEvent(EventModel event, String message, DatabaseConnection dbc) {
 
         try{
+            Printing.println("given\n" + event.toString());
+
             EventModel prev = dbc.searchEvents(event.getEvent_id());
+
+            if(event.getImageFile() != null){
+                Printing.println("event image old path: " + event.getImage_path());
+                event.setImage_path(ImageWR.writeImageToFile(event.getImageFile()));
+                Printing.println("event image new path: " + event.getImage_path());
+            }else{
+                Printing.println("Bytes null");
+            }
+
             dbc.modifyEventInfo(event.getEvent_id(),event.getName(),event.getStart(),event.getEnd(),
-                    event.getDescription(),event.getLocation(),event.getImage_path(),event.getLattitude(),event.getLongitude());
+                    event.getDescription(),event.getLocation(),event.getImage_path(),event.getLattitude(),event.getLongitude(), event.getPrivateEvent());
             EventModel now = dbc.searchEvents(event.getEvent_id());
+            Printing.println("after\n" + now.toString());
 
             //send emails to attending users of info change
             ArrayList<Object> users = dbc.searchEventAttendanceUsers(prev.getEvent_id(),true);
             if(users != null) {
-                EventHandler.sendEmailsOfEventModification(users, prev, now, dbc);
+                FirebaseHelper.sendGroupEventUpdate(users, now, dbc);
+                EventHandler.sendEmailsOfEventModification(users, prev, now, message, dbc);
             }
 
             return 0;
         }
-        catch (SQLException e){
+        catch (Exception e){
             Printing.println("Error in updating Event: "+event.getName());
             return 1;
         }
     }
 
-
     /** Call from the API to gather the events that are searched by location
+     * UPDATED TO INCLUDE THE SEARCH FOR PRIVATE EVENTS
      *
      * @param efm EventFilterModel that contains all constraints for the search
      * @return     List of events if successful, null otherwise
      */
 
-    public static List<EventModel> getEventsWithFilter(EventFilterModel efm, DatabaseConnection dbc){
-        if(efm == null){
-            Printing.println("null Filter Model");
+    public static List<EventModel> getEventsWithFilter(String oAuth, EventFilterModel efm, DatabaseConnection dbc){
+        if(efm == null) {
+            Printing.printlnError("null Filter Model");
             return null;
         }
         List<Integer> eventIDs;
         List<EventModel> events = new ArrayList<>();
         try{
+            UserModel u = dbc.searchForUser(oAuth);
+            if(u == null){
+                Printing.printlnError("No user model found. User model is now required to search with filter to allow for private events.");
+                return null;
+            }
             eventIDs = dbc.searchEventsWithFilterModel(efm);
             if(eventIDs == null){
                 //there were no search results found
-                Printing.println("No search results from Model");
+                Printing.printlnError("No search results from Model");
                 return null;
             }
             for(Integer i: eventIDs){
                 EventModel eventModel = dbc.searchEvents(i);
-                eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                GroupiesModel g = dbc.searchGroupies(u.getUserId(),eventModel.getOrg_id());
+                if(eventModel.getPrivateEvent() &&( g==null || g.getType() < DatabaseConnection.MEMBER)){
+                    continue;
+                }
+                //eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                 events.add(eventModel);
             }
         } catch (SQLException e) {
             Printing.println(e.toString());
-            Printing.println("Error in get events by filter with error: "+e);;
+            Printing.printlnError("Error in get events by filter with error: "+e);;
             return null;
         } catch (Exception e){
             Printing.println(e.toString());
-            Printing.println("Error in get events by Filter");
+            Printing.printlnError("Error in get events by Filter");
             return null;
         }
 
@@ -127,6 +151,7 @@ public class EventHandler {
 
     public static List<EventModel> getEventsByLocation(double lattitude, double longitude, DatabaseConnection dbc){
         // I am assuming that the odds of them being at exactly 0,0 (lat,long) is so microscopic that the only case that it would be 0 is if Double.parse(null) == 0
+        Printing.printlnError("This method is deprecated. Please use getEventsWithFilter.");
         if(lattitude == 0 || longitude == 0) {
             return null;
         }
@@ -136,16 +161,16 @@ public class EventHandler {
             eventIDs = dbc.searchEventsByLocation(lattitude,longitude);
             for(Integer i: eventIDs){
                 EventModel eventModel = dbc.searchEvents(i);
-                eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+                //eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
                 events.add(eventModel);
             }
         } catch (SQLException e) {
             Printing.println(e.toString());
-            Printing.println("Error in get events by location: "+e);
+            Printing.printlnError("Error in get events by location: "+e);
             return null;
         } catch (Exception e){
-            Printing.println(e.toString());
-            Printing.println("Error in get events by location" + e);
+            Printing.printlnError(e.toString());
+            Printing.printlnError("Error in get events by location" + e);
             return null;
         }
 
@@ -210,7 +235,10 @@ public class EventHandler {
 
         try {
             EventModel eventModel = dbc.searchEvents(eventID);
-            eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
+            if(eventModel == null){
+                eventModel = dbc.searchHistoricalEvents(eventID);
+            }
+            //eventModel.setImageFile(ImageWR.getEncodedImageFromFile(eventModel.getImage_path()));
             return eventModel;
         } catch (SQLException e) {
             Printing.println("Error in finding event");
@@ -287,20 +315,24 @@ public class EventHandler {
                         return 3;
                     }
 
-                    System.out.println("Begin");
-
+                    EventAttendanceModel attendance = dbc.searchEventAttendance(us.getUserId(),eventid);
                     //clock in user
                     if (clockType == EventAttendanceModel.CLOCKOUTCODE){
                         //get current attendance model to check if already clocked in
-                        EventAttendanceModel attendance = dbc.searchEventAttendance(us.getUserId(),eventAttendanceModel.getEventID());
+
                         if(attendance.getStartTime() != null) {
+                            if(attendance.getEndTime() == null) {
+                                dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKOUTCODE);
+                                return 0;
+                            }
+                            return 6;
+                        }
+                    }else if(clockType == EventAttendanceModel.CLOCKINCODE){
+                        if(attendance.getStartTime() == null) {
                             dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKINCODE);
                             return 0;
                         }
-                    }else if(clockType == EventAttendanceModel.CLOCKINCODE){
-
-                        dbc.eventClockInOutUser(eventid, us.getUserId(), eventAttendanceModel.getStartTime(), EventAttendanceModel.CLOCKOUTCODE);
-                        return 0;
+                        return 5;
                     }
                     return 4;
                 }else{
@@ -425,7 +457,7 @@ public class EventHandler {
 
             sb.append("<u>Starts</u> : " + starting + "<br><u>Ends</u> : " + ending + "<br>");
 
-            sb.append("<u>Location</u> : " + event.getLocation());
+            sb.append("<u>Location</u> : " + event.getLocation().replace(';', ' '));
             sb.append("<br><u>Description</u><br>" + event.getDescription());
             sb.append("<br><br><div style=\"opacity:0.2;\">*Please do not reply to this email as this is an automated message.*</div>");
 
@@ -434,7 +466,7 @@ public class EventHandler {
 
             //send emails to all users
             for(String userEmail: userEmails){
-                int ret = gMailHelper.sendEmail(userEmail,subject,sb.toString());
+                int ret = gMailHelper.sendEmail(userEmail,subject,sb.toString(),dbc);
                 if(ret == GMailHelper.FAILURE){
                     Printing.println("Issue sending email to " + userEmail + " for event creation");
                 }
@@ -452,7 +484,7 @@ public class EventHandler {
      * @param prev The event info as it previous was
      * @param now The event info as it now is
      */
-    public static void sendEmailsOfEventModification(ArrayList<Object> users, EventModel prev, EventModel now, DatabaseConnection dbc){
+    public static void sendEmailsOfEventModification(ArrayList<Object> users, EventModel prev, EventModel now, String message, DatabaseConnection dbc){
 
         try{
 
@@ -470,7 +502,10 @@ public class EventHandler {
                 changed = true;
             }
             sb.append(name);
-
+            if(message != null && message != ""){
+                message = "<strong>" + message + "</strong><br>";
+                sb.append(message);
+            }
             String startingPrev = new SimpleDateFormat("MMMM dd, YYYY hh:mm a").format(prev.getStart());
             String startingNow = new SimpleDateFormat("MMMM dd, YYYY hh:mm a").format(now.getStart());
             String endingPrev = new SimpleDateFormat("MMMM dd, YYYY hh:mm a").format(prev.getEnd());
@@ -486,7 +521,7 @@ public class EventHandler {
             }
 
             if(endingNow.equals(endingPrev)){
-                ending = "<u>Starts</u> : " + endingNow + "<br>";
+                ending = "<u>Ends</u> : " + endingNow + "<br>";
             }else{
                 ending = "<strong><u>Ends</u> : " + endingNow + "</strong><br>";
                 changed = true;
@@ -495,12 +530,14 @@ public class EventHandler {
             sb.append(starting + ending);
 
             String location;
-            if(prev.getLocation().equals(now.getLocation())){
-                location = "<u>Location</u> : " + prev.getLocation();
+            if(prev.getLocation().replace(';', ' ').equals(now.getLocation().replace(';', ' '))){
+                location = "<u>Location</u> : " + prev.getLocation().replace(';', ' ');
             }else{
-                location = "<strong><u>Location</u> : " + prev.getLocation() + "</strong>";
+                location = "<strong><u>Location</u> : " + now.getLocation().replace(';', ' ') + "</strong>";
                 changed = true;
             }
+
+            sb.append(location);
 
             sb.append("<br><br>*Please do not reply to this email as this is an automated message.*");
 
@@ -512,7 +549,7 @@ public class EventHandler {
                 //send emails to all users
                 for (Object userObject : users) {
                     UserModel user =  (UserModel) userObject;
-                    int ret = gMailHelper.sendEmail(user.getEmail(), subject, sb.toString());
+                    int ret = gMailHelper.sendEmail(user.getEmail(), subject, sb.toString(),dbc);
                     if (ret == GMailHelper.FAILURE) {
                         Printing.println("Issue sending email to " + user.getEmail() + " for event creation");
                     }
@@ -525,6 +562,53 @@ public class EventHandler {
         }
     }
 
+    /**
+     * Sends emails to users listed of the modified event
+     * @param users list of users
+     * @param eventModel the model of the deleted event
+     * @param message a message to be sent to the users
+     */
+    public static void sendEmailsOfEventDeletion(ArrayList<Object> users, EventModel eventModel, String message, DatabaseConnection dbc){
+
+        try{
+
+            boolean changed = false;
+            //create email
+            String subject = "The event " + eventModel.getName() + "has been deleted";
+
+            //for each info item of event bold title of it if the info has changed
+            StringBuilder sb = new StringBuilder();
+            String name;
+            name = "<strong>The event" + eventModel.getName() + " has been deleted</strong><br>";
+
+            sb.append(name);
+            if(message != null && message != ""){
+                message = "<strong>" + message + "</strong><br>";
+                sb.append(message);
+            }
+
+            sb.append("<br><br>*Please do not reply to this email as this is an automated message.*");
+
+            //don't send emails if nothing really changed
+
+            //create GMailHelper object
+            GMailHelper gMailHelper = new GMailHelper();
+
+            //send emails to all users
+            for (Object userObject : users) {
+                UserModel user =  (UserModel) userObject;
+                int ret = gMailHelper.sendEmail(user.getEmail(), subject, sb.toString(),dbc);
+                if (ret == GMailHelper.FAILURE) {
+                    Printing.println("Issue sending email to " + user.getEmail() + " for event creation");
+                }
+            }
+
+
+        }catch(Exception e){
+            Printing.println("Issue trying to send emails to users for event modification.");
+            e.printStackTrace();
+        }
+    }
     /**
      *
      * @param oAuthCode oAuthCode of the user
@@ -555,6 +639,109 @@ public class EventHandler {
                 orgList.add(OrganizationHandler.searchOrgID(i, dbc));
             }
             return orgList;
+        }
+        catch (SQLException e){
+            Printing.println(e.toString());
+        }
+        return null;
+    }
+
+    /**
+     * Deletes the events the event if the user has permissions. If there is a user with attendance for the event,
+     * then it is not deleted and the end time is changed
+     * @param oAuthCode oAuthCode of the user
+     * @param eventID id of the event to be deleted
+     * @param dbc database connection
+     * @return 0 on success, -1 on error, -2 on invalid inputs, -3 on insufficient permissions, 1 on event cancelled
+     */
+    public static Integer deleteEvent(String oAuthCode, int eventID, String message, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null){
+                Printing.println("invalid oAuthCode");
+                return -2;
+            }
+            if(dbc.searchForUser(oAuthCode) == null){
+                Printing.println("Unable to verify user");
+                return -2;
+            }
+            EventModel e = EventHandler.searchEventID(eventID, dbc);
+            if(e == null){
+                Printing.println("Event not found");
+                return -2;
+            }
+            if(!OrganizationHandler.isAdmin(oAuthCode, e.getOrg_id(), dbc)){
+                Printing.println("User is not an organizer of this org");
+                return -3;
+            }
+            if(dbc.isClockInForEvent(eventID)){
+                // someone has clocked in = cancel
+                e.setEnd(new Timestamp(System.currentTimeMillis()));
+                EventHandler.updateEvent(e, "Event has been cancelled", dbc);
+                return 1;
+            }
+            else {
+                // No clock in = delete
+                ArrayList<Object> users = dbc.searchEventAttendanceUsers(eventID, true);
+                sendEmailsOfEventDeletion(users, e, message, dbc);
+                return dbc.deleteEvent(eventID);
+            }
+        }
+        catch (SQLException e){
+            Printing.println(e.toString());
+        }
+        return -1;
+    }
+
+    /**
+     *
+     * @param oAuthCode the oauthcode for the user
+     * @param eventID Event id of event to search for attendence for
+     * @param dbc
+     * @return 0 on success, -1 on error or bad params, -2 on invalid user permissions
+     */
+    public static ArrayList<EventAttendanceModel> pastEventAttandence(String oAuthCode, int eventID, DatabaseConnection dbc){
+        try{
+            if(oAuthCode == null){
+                Printing.println("invalid oAuthCode");
+                return null;
+            }
+            if(dbc.searchForUser(oAuthCode) == null){
+                Printing.println("Unable to verify user");
+                return null;
+            }
+            EventModel event = dbc.searchHistoricalEvents(eventID);
+            if(event == null){
+                Printing.println("Event not found");
+                return null;
+            }
+            OrganizationModel organizationModel = OrganizationHandler.searchOrgID(event.getOrg_id(), dbc);
+            if(organizationModel == null){
+                Printing.println("Org not found");
+                return null;
+            }
+            if(!OrganizationHandler.isAdmin(oAuthCode, organizationModel.getOrgID(), dbc)){
+                Printing.println("User is not an organizer of this org");
+                return null;
+            }
+
+            //have permissions to look at past events
+            Printing.println("the event to search against is: " + eventID);
+            ArrayList<Object> users = dbc.searchEventAttendanceHistoricalUsers(eventID, true);
+            Printing.println("the size is: " + users.size());
+
+            ArrayList<EventAttendanceModel> attendance = new ArrayList<>();
+
+            for(Object o: users){
+                UserModel u = (UserModel) o;
+                EventAttendanceModel attendanceModel = dbc.searchEventAttendanceHistorical(u.getUserId(), eventID);
+                attendanceModel.setUserModel(u);
+                attendance.add(attendanceModel);
+
+            }
+            System.out.println("the other size is : " + attendance.size());
+
+            return attendance;
+
         }
         catch (SQLException e){
             Printing.println(e.toString());

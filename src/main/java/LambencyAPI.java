@@ -5,7 +5,6 @@ import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 import java.util.ArrayList;
-
 import java.util.List;
 
 public interface LambencyAPI {
@@ -27,6 +26,24 @@ public interface LambencyAPI {
 
     @GET("User/getOrgs")
     Call<ArrayList<OrganizationModel>> getMyOrganizedOrgs(@Query("oAuthCode") String oAuthCode);
+    
+    @GET("User/leaderboardRange")
+    Call<List<UserModel>> getLeaderboardRange(@Query("start") String start, @Query("end") String end);
+
+    @GET("User/leaderboardAroundUser")
+    Call<List<UserModel>> getLeaderboardAroundUser(@Query("oAuthCode") String oAuthCode);
+
+    @GET("User/joinRequests")
+    Call<List<OrganizationModel>> getUserJoinRequests(@Query("oAuthCode") String oAuthCode);
+
+    @GET("User/respondToJoinRequest")
+    Call<Integer> getUserRespondToJoinRequest(@Query("oAuthCode") String oAuthCode, @Query("orgID") String orgID, @Query("accept") String accept);
+
+    @GET("User/pastEvents")
+    Call<ArrayList<EventModel>> getPastEvents(@Query("oAuthCode") String oAuthCode);
+
+    @GET("User/pastEventsInOrg")
+    Call<ArrayList<EventModel>> getPastEventsInOrg(@Query("oAuthCode") String oAuthCode, @Query("userID") String userID, @Query("orgID") String orgID);
 
     @POST("Organization/create")
     Call<Integer> postCreateOrganization(@Body OrganizationModel org);
@@ -57,10 +74,15 @@ public interface LambencyAPI {
     @GET("Organization/respondToJoinRequest")
     Call<Integer> respondToJoinRequest(@Query("oAuthCode") String oAuthCode, @Query("orgID") int orgID, @Query("userID") int userID, @Query("approved") boolean
                                         approved);
+    @POST("Organization/edit")
+    Call<OrganizationModel> getEditOrganization(@Query("oAuthCode") String oAuthCode, @Body OrganizationModel organizationModel);
+
+    @GET("Organization/delete")
+    Call<Integer> getDeleteOrganization(@Query("oAuthCode") String oAuthCode, @Query("orgID") String orgID);
 
     @GET("Event/search")
     Call<List<EventModel>> getEventsWithParams(@Query("lat") double lat, @Query("long") double longitude,
-                                               @Query("name") String name, @Query("org_idStr") String org_idStr);
+                                               @Query("name") String name, @Query("org_idStr") String org_idStr, @Query("oAuthCode") String oAuthCode);
     @GET("Event/searchByID")
     Call<EventModel> getEventSearchByID(@Query("id") String event_id);
 
@@ -68,7 +90,7 @@ public interface LambencyAPI {
     Call<ArrayList<UserModel>> getListOfUsers(@Query("oauthcode") String oAuthCode, @Query("event_id") int eventId);
 
     @POST("Event/update")
-    Call<Integer> postUpdateEvent(@Body EventModel event);
+    Call<Integer> getUpdateEvent(@Body EventModel event, @Query("message") String message);
 
     @GET("Event/numAttending")
     Call<Integer> getEventNumAttending(@Query("oAuthCode") String oAuthCode, @Query("id") String event_id);
@@ -94,8 +116,11 @@ public interface LambencyAPI {
     @GET("Event/endorsedOrgs")
     Call<List<OrganizationModel>> getEndorsedOrgs(@Query("oAuthCode") String oAuthCode, @Query("eventId") String eventID);
 
+    @GET("Event/deleteEvent")
+    Call<Integer> getDeleteEvent(@Query("oAuthCode") String oAuthCode, @Query("eventID") String eventID, @Query("message") String message);
+
     @POST("/Event/searchWithFilter")
-    Call<ArrayList<EventModel>> getEventsWithFilter(@Body EventFilterModel efm);
+    Call<ArrayList<EventModel>> getEventsWithFilter(@Body EventFilterModel efm, @Query("oAuthCode") String oAuthCode);
 
     @POST("Organization/InviteUser")
     Call<Integer> inviteUser(@Query("oAuthCode") String oAuthCode, @Query("orgID") String orgID, @Query("emailString") String userEmail);
@@ -103,5 +128,34 @@ public interface LambencyAPI {
     @POST("/User/ClockInOut")
     Call<Integer> sendClockInCode(@Query("oAuthCode") String oAuthCode, @Body EventAttendanceModel eventAttendanceModel);
 
+    @POST("Organization/searchWithFilter")
+    Call<ArrayList<OrganizationModel>> getOrganizationsWithFilter(@Body OrganizationFilterModel organizationFilterModel);
+
+    @GET("User/setNotificationPreference")
+    Call<Integer> updateNotificationPreference(@Query("oAuthCode") String oAuthCode, @Query("preference") int preference);
+
+    @POST("/User/changePassword")
+    Call<Integer> changePassword(@Query("newPassword") String password, @Query("confirmPassword") String confirmPass,
+                                 @Query("oAuthToken") String oAuthToken, @Query("oldPassword") String oldPassword);
+
+    @GET("User/setActiveStatus")
+    Call<Integer> setActiveStatus(@Query("oAuthCode") String oAuthCode, @Query("isActive") boolean isActive);
+
+    @GET("User/getActiveStatus")
+    Call<Integer> getActiveStatus(@Query("oAuthCode") String oAuthCode, @Query("userID") int userID);
+
+    @POST("/User/beginRecovery")
+    Call<Integer> beginPasswordRecovery(@Query("email") String email);
+
+    @POST("/User/endRecovery")
+    Call<Integer> endPasswordRecovery(@Query("newPassword") String password, @Query("confirmPassword") String confirmPass,
+                                      @Query("verification") String oAuthToken, @Query("userID") int userID);
+
+    @GET("/User/register")
+    Call<Integer> registerUser(@Query("email") String email, @Query("first") String firstName, @Query("last") String LastName,
+                               @Query("passwd") String password);
+
+    @GET("/User/login/lambency")
+    Call<UserAuthenticator> loginUser(@Query("email") String email, @Query("password") String password);
 
 }

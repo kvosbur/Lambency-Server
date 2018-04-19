@@ -1,4 +1,3 @@
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,8 +12,10 @@ public class UserModel {
     private List<Integer> joinedOrgs;
     private List<Integer> requestedJoinOrgIds; // orgIDs for all join requests that are still unconfirmed
     private int userId;
-    private int hoursWorked;
+    private double hoursWorked;
     private String oauthToken;
+    private int notification_preference;
+    private boolean isActive;
 
     public UserModel(String firstName,String lastName, String email){
         this.firstName = firstName;
@@ -29,7 +30,7 @@ public class UserModel {
 
 
     public UserModel(String firstName, String lastName, String email, List<Integer> myOrgs, List<Integer> eventsAttending,
-                     List<Integer> followingOrgs, List<Integer> joinedOrgs, List<Integer> orgJoinRequests, int userId, int hoursWorked, String oauthToken) {
+                     List<Integer> followingOrgs, List<Integer> joinedOrgs, List<Integer> orgJoinRequests, int userId, double hoursWorked, String oauthToken, int notification_preference, boolean isActive) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -41,6 +42,8 @@ public class UserModel {
         this.hoursWorked = hoursWorked;
         this.oauthToken = oauthToken;
         this.requestedJoinOrgIds = orgJoinRequests;
+        this.notification_preference = notification_preference;
+        this.isActive = isActive;
 
     }
 
@@ -80,7 +83,7 @@ public class UserModel {
         this.userId = userId;
     }
 
-    public void setHoursWorked(int hoursWorked) {
+    public void setHoursWorked(double hoursWorked) {
         this.hoursWorked = hoursWorked;
     }
 
@@ -117,7 +120,7 @@ public class UserModel {
         return userId;
     }
 
-    public int getHoursWorked() {
+    public double getHoursWorked() {
         return hoursWorked;
     }
 
@@ -202,5 +205,19 @@ public class UserModel {
         return false;
     }
 
+    public int getNotification_preference() {
+        return notification_preference;
+    }
 
+    public void setNotification_preference(int notification_preference) {
+        this.notification_preference = notification_preference;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
 }
