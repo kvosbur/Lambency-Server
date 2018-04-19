@@ -82,7 +82,7 @@ public interface LambencyAPI {
 
     @GET("Event/search")
     Call<List<EventModel>> getEventsWithParams(@Query("lat") double lat, @Query("long") double longitude,
-                                               @Query("name") String name, @Query("org_idStr") String org_idStr);
+                                               @Query("name") String name, @Query("org_idStr") String org_idStr, @Query("oAuthCode") String oAuthCode);
     @GET("Event/searchByID")
     Call<EventModel> getEventSearchByID(@Query("id") String event_id);
 
@@ -120,7 +120,7 @@ public interface LambencyAPI {
     Call<Integer> getDeleteEvent(@Query("oAuthCode") String oAuthCode, @Query("eventID") String eventID, @Query("message") String message);
 
     @POST("/Event/searchWithFilter")
-    Call<ArrayList<EventModel>> getEventsWithFilter(@Body EventFilterModel efm);
+    Call<ArrayList<EventModel>> getEventsWithFilter(@Body EventFilterModel efm, @Query("oAuthCode") String oAuthCode);
 
     @POST("Organization/InviteUser")
     Call<Integer> inviteUser(@Query("oAuthCode") String oAuthCode, @Query("orgID") String orgID, @Query("emailString") String userEmail);
@@ -137,6 +137,12 @@ public interface LambencyAPI {
     @POST("/User/changePassword")
     Call<Integer> changePassword(@Query("newPassword") String password, @Query("confirmPassword") String confirmPass,
                                  @Query("oAuthToken") String oAuthToken, @Query("oldPassword") String oldPassword);
+
+    @GET("User/setActiveStatus")
+    Call<Integer> setActiveStatus(@Query("oAuthCode") String oAuthCode, @Query("isActive") boolean isActive);
+
+    @GET("User/getActiveStatus")
+    Call<Integer> getActiveStatus(@Query("oAuthCode") String oAuthCode, @Query("userID") int userID);
 
     @POST("/User/beginRecovery")
     Call<Integer> beginPasswordRecovery(@Query("email") String email);

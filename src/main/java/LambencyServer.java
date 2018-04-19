@@ -118,6 +118,7 @@ public class LambencyServer{
             databaseConnection.close();
             return u;
         }, new JsonTransformer());
+
         get("/User/setActiveStatus","application.json",(request, response) -> {
             //Printing.printlnEndpoint("/User/setActiveStatus");
             DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -131,7 +132,9 @@ public class LambencyServer{
                 return null;
             }
             boolean isActive = Boolean.parseBoolean(isActiveString);
-            return UserHandler.updateActiveStatus(oAuthCode,isActive,databaseConnection);
+            Integer resp = UserHandler.updateActiveStatus(oAuthCode,isActive,databaseConnection);
+            databaseConnection.close();
+            return resp;
         },new JsonTransformer());
         get("/User/getActiveStatus","application.json",(request, response) -> {
             Printing.printlnEndpoint("/User/getActiveStatus");
@@ -148,6 +151,7 @@ public class LambencyServer{
             int user_id = Integer.parseInt(userIdString);
             return UserHandler.getActiveStatus(oAuthCode,user_id,databaseConnection);
         },new JsonTransformer());
+
         post("/User/changeInfo", "application/json", (request, response) -> {
             Printing.printlnEndpoint("/User/changeInfo");
             DatabaseConnection databaseConnection = new DatabaseConnection();
