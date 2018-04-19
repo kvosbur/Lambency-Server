@@ -319,7 +319,7 @@ public class LambencyAPITestSprint3 {
     }
 
     @Test
-    public void testEventsFeed(){
+    public void testEventsFeedWithPrivateEvents(){
         long currentTime = System.currentTimeMillis();
         long startTime = currentTime - 10000000;
         long endTime = currentTime + 1000000;
@@ -452,7 +452,7 @@ public class LambencyAPITestSprint3 {
     }
 
     @Test
-    public void testEventsFeedInvalid(){
+    public void testOrgsEventFeedForPrivate(){
         long currentTime = System.currentTimeMillis();
         long startTime = currentTime - 10000000;
         long endTime = currentTime + 1000000;
@@ -462,16 +462,12 @@ public class LambencyAPITestSprint3 {
         OrganizationModel organization = new OrganizationModel(organizer,"Organization","1101 3rd street",-1,"Test org","organization@noemail.com",organizer,null);
         EventModel event0 = new EventModel("Event before timeFrame", organization.getOrgID(), new Timestamp(startTime - 2000000), new Timestamp(startTime - 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization",false);
         EventModel event1 = new EventModel("Event starts before and ends during timeFrame", organization.getOrgID(), new Timestamp(startTime - 500000), new Timestamp(currentTime),"Test event 1", "1101 3rd Street West Lafayette, IN 47906", "Organization",false);
-        EventModel event2 = new EventModel("Event runs during time Frame", organization.getOrgID(), new Timestamp(startTime), new Timestamp(endTime),"Test event 2", "1102 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event2 = new EventModel("Event runs during time Frame", organization.getOrgID(), new Timestamp(startTime), new Timestamp(endTime),"Test event 2", "1102 3rd Street West Lafayette, IN 47906", "Organization",true);
         EventModel event3 = new EventModel("Event starts during and ends after timeFrame", organization.getOrgID(), new Timestamp(currentTime), new Timestamp(endTime + 500000),"Test event 3", "1103 3rd Street West Lafayette, IN 47906", "Organization",false);
-        EventModel event4 = new EventModel("Event after timeFrame", organization.getOrgID(), new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 4", "1103 3rd Street West Lafayette, IN 47906", "Organization",false);
+        EventModel event4 = new EventModel("Event after timeFrame", organization.getOrgID(), new Timestamp(endTime + 1000000), new Timestamp(endTime + 2000000),"Test event 4", "1103 3rd Street West Lafayette, IN 47906", "Organization",true);
 
 
-        UserModel organizer2 = new UserModel("Organizer2", "Lastname2", "organizer2@nonemail.com");
-        OrganizationModel organization1 = new OrganizationModel(organizer2,"Organization2","1101 3rd street",-1,"Test org2","organizatio2@noemail.com",organizer2,null);
-        OrganizationModel organization2 = new OrganizationModel(organizer2,"Organization3","1101 3rd street",-1,"Test org3","organization3@noemail.com",organizer2,null);
-
-        EventModel event20 = new EventModel("Event 20", organization1.getOrgID(), new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis() + 1000000),"Test event 0", "1100 3rd Street West Lafayette, IN 47906", "Organization1",false);
+        UserModel user = new UserModel("user", "Lastname2", "organizer2@nonemail.com");
 
 
 
@@ -491,41 +487,31 @@ public class LambencyAPITestSprint3 {
             event0.setOrg_id(organization.getOrgID());
             event1.setOrg_id(organization.getOrgID());
             event2.setOrg_id(organization.getOrgID());
+            event3.setOrg_id(organization.getOrgID());
+            event4.setOrg_id(organization.getOrgID());
 
             event0 = EventHandler.createEvent(event0,this.getDatabaseInstance());
             event1 = EventHandler.createEvent(event1,this.getDatabaseInstance());
             event2 = EventHandler.createEvent(event2,this.getDatabaseInstance());
+            event3 = EventHandler.createEvent(event3,this.getDatabaseInstance());
+            event4 = EventHandler.createEvent(event4,this.getDatabaseInstance());
 
             //create oAuthCode for organizer
             UserAuthenticator ua = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
             organizer.setOauthToken(ua.getoAuthCode());
             this.getDatabaseInstance().setOauthCode(organizer.getUserId(),ua.getoAuthCode());
 
-            organizer2.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity2", organizer2.getFirstName(),
-                    organizer2.getLastName(), organizer2.getEmail(), DatabaseConnection.GOOGLE));
+            user.setUserId(this.getDatabaseInstance().createUser("myggoogleidentity2", user.getFirstName(),
+                    user.getLastName(), user.getEmail(), DatabaseConnection.GOOGLE));
 
-            organization1 = OrganizationHandler.createOrganization(organization1, this.getDatabaseInstance());
-            organization2 = OrganizationHandler.createOrganization(organization2, this.getDatabaseInstance());
 
             //create oAuthCode for organizer
             UserAuthenticator ua2 = new UserAuthenticator(UserAuthenticator.Status.SUCCESS);
-            organizer2.setOauthToken(ua2.getoAuthCode());
-            this.getDatabaseInstance().setOauthCode(organizer2.getUserId(), ua2.getoAuthCode());
+            user.setOauthToken(ua2.getoAuthCode());
+            this.getDatabaseInstance().setOauthCode(user.getUserId(), ua2.getoAuthCode());
 
-            event3.setOrg_id(organization1.getOrgID());
-            event4.setOrg_id(organization1.getOrgID());
-            event3 = EventHandler.createEvent(event3,this.getDatabaseInstance());
-            event4 = EventHandler.createEvent(event4,this.getDatabaseInstance());
 
-            event20.setOrg_id(organization2.getOrgID());
 
-            event20 = EventHandler.createEvent(event20, this.getDatabaseInstance());
-
-            //event 0 = in organization
-            //event1 = registered
-            UserHandler.registerEvent(organizer.getOauthToken(), event1.getEvent_id(), this.getDatabaseInstance());
-            //event20 = endorsed
-            OrganizationHandler.endorseEvent(organizer.getOauthToken(), organization.getOrgID(), event20.getEvent_id(), this.getDatabaseInstance());
 
 
 
@@ -536,17 +522,27 @@ public class LambencyAPITestSprint3 {
         }
 
         //test the API retrofit call for user
-        Response<List<EventModel>> response = null;
+        Response<ArrayList<EventModel>> response = null;
         try {
-            response = this.getInstance().getEventsFeed(null, null, null).execute();
+            response = this.getInstance().getEventsByOrg(user.getOauthToken(),""+organization.getOrgID()).execute();
         } catch (IOException e) {
             e.printStackTrace();
             assertTrue(false);
         }
+        if (response == null || response.body() == null || response.code() != 200) {
+            System.out.println("ERROR!!!!!");
+            assertTrue(false);
+        }
         //when response is back
-        List<EventModel> eventsFeed = response.body();
+        ArrayList<EventModel> eventsFeed = response.body();
 
-        assertTrue(eventsFeed == null);
+
+        assertTrue(eventsFeed.contains(event0));
+        assertTrue(eventsFeed.contains(event1));
+        assertTrue(!eventsFeed.contains(event2));
+        assertTrue(eventsFeed.contains(event3));
+        assertTrue(!eventsFeed.contains(event4));
+
     }
 
     @Test
